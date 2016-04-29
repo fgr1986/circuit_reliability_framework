@@ -1,0 +1,74 @@
+////////////////////////////////////////////////////////////
+// Circuit for 1t1r length/width analyses
+////////////////////////////////////////////////////////////
+// v1.0, 10/12/2015
+////////////////////////////////////////////////
+// Fernando García-Redondo
+// fgarcia@die.upm.es
+////////////////////////////////////////////////
+
+simulator lang=spectre
+global 0
+
+include "rram_1t1r.scs"
+
+// Parameters
+parameters
+
+// dummy parameter for non-montecarlo
++my_vdd=2
+
+// temperature
+// + m_T0=300
+// added from xml
+// + my_temp=27
++ m_T0=(my_temp + 273.15)
+
+// vdd
+// Voltage pulse rise time and fall
++ tr=10p
++ tf=10p
+// set and reset amplitudes
++ WL_SET=1.0
++ BL_SET=2.0
++ WL_RESET=2.9
++ SL_RESET=1.9
+// set and reset widths
++ SET_PULSE=10n
++ RESET_PULSE=10n
+// delays
++ SET_START=5n
++ RESET_START=SET_START+5n+SET_PULSE
+
++ sim_max_step=0.1e-10
++ sim_time=RESET_START+RESET_PULSE+5n
+
++ default_tx_w=130n default_tx_l=65n
+
+// Sources
+vss ( vss! 0 ) vsource type=dc dc=0
+
+// Memristor & transistor
+
+my_cell ( BL WL SL ) rram_1t1r rram_T0=m_T0 rram_L=my_L tx_w=mtx_w*default_tx_w tx_l=mtx_l*default_tx_l
+// rram0 ( BL Nb      ) RRAM gap_ini=1.367n tstep=10ps  // RRAM
+// M1    ( Nb WL SL 0 ) nmos w=130n l=65n       				// Transistor
+
+
+// SPICE SYNTAX
+// Syntax 	 PULSE(V1 V2 TD TR TF PW PER)
+// Example 	 VIN 3 0 PULSE(-1 1 2NS 2NS 2NS 50NS 100NS)
+
+// Parameter 	 Description 	 Default 	Units
+// V1 	 Initial value 	  	 Volts or Amps
+// V2 	 Pulsed value 	  	 Volts or Amps
+// TD 	 Delay time 	 0.0 	 Seconds
+// TR 	 Rise time 	 Tstep 	 Seconds
+// TF 	 Fall time 	 Tstep 	 Seconds
+// PW 	 Pulse width 	 Tstop 	 Seconds
+// PER 	 Period 	 Tstop 	 Seconds
+
+V_WL_SET   ( WL   WL2 ) vsource type=pulse val0=0 val1=WL_SET   rise=tr fall=tf width=SET_PULSE+2n   delay=SET_START-1n
+V_WL_RESET ( WL2  0   ) vsource type=pulse val0=0 val1=WL_RESET rise=tr fall=tf width=RESET_PULSE+2n delay=RESET_START-1n
+V_BL_SET   ( BL   0   ) vsource type=pulse val0=0 val1=BL_SET   rise=tr fall=tf width=SET_PULSE      delay=SET_START
+V_SL_RESET ( SL  0    ) vsource type=pulse val0=0 val1=SL_RESET rise=tr fall=tf width=RESET_PULSE    delay=RESET_START

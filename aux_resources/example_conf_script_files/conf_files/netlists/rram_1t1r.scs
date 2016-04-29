@@ -1,0 +1,25 @@
+////////////////////////////////////////////////////////////
+// Circuit for arizona-iMec-Stanford-Beijing memristor model
+////////////////////////////////////////////////////////////
+// v1.0, 23/11/2015
+////////////////////////////////////////////////
+// Fernando García-Redondo
+// fgarcia@die.upm.es
+////////////////////////////////////////////////
+
+simulator lang=spectre
+
+ahdl_include "/opt/technology/rram/arizona_imec/rram.va"
+// already from xml
+// include "65nm_bulk.pm"
+
+// Library name: arizona_rram
+// Cell name: rram_1t1r
+// View name: schematic
+subckt rram_1t1r ( BL WL SL )
+parameters tx_w=130n tx_l=65n rram_L=5n rram_T0=300
+	// Memristor & transistor
+	rram0 ( BL Nb      ) RRAM L=rram_L gap_ini=1.367n tstep=10ps T0=rram_T0 // RRAM
+	M1    ( Nb WL SL 0 ) nmos w=tx_w l=tx_l
+ends rram_1t1r
+// End of subcircuit definition.

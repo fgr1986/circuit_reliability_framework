@@ -1,0 +1,313 @@
+/*
+ * spectre_handler.cpp
+ *
+ *  Created on: Feb 03, 2014
+ *      Author: fernando
+ */
+
+// Radiation simulator
+#include "variability_spectre_handler.hpp"
+#include "../spectre_simulations/golden_simulation.hpp"
+#include "../spectre_simulations/golden_nd_parameters_sweep_simulation.hpp"
+#include "../spectre_simulations/ahdl_simulation.hpp"
+#include "../spectre_simulations/montecarlo_nd_parameters_sweep_simulation.hpp"
+// constants
+#include "../../global_functions_and_constants/global_template_functions.hpp"
+#include "../../global_functions_and_constants/global_constants.hpp"
+#include "../../global_functions_and_constants/ahdl_constants.hpp"
+#include "../../global_functions_and_constants/files_folders_io_constants.hpp"
+
+VariabilitySpectreHandler::VariabilitySpectreHandler() {
+	// spectre
+	this->pre_spectre_command = kNotDefinedString;
+	this->spectre_command = kNotDefinedString;
+	this->post_spectre_command = kNotDefinedString;
+	this->golden_scenario_path = kNotDefinedString;
+	this->spectre_command_log_arg = kNotDefinedString;
+	this->spectre_command_folder_arg = kNotDefinedString;
+	this->golden_scenario_folder_path = kNotDefinedString;
+	// plot
+	this->plot_scatters = false;
+	this->plot_transients = false;
+	this->plot_last_transients = false;
+	this->export_matlab_script = false;
+	// files
+	this->export_magnitude_errors = false;
+	this->delete_spectre_folders = false;
+	this->save_spectre_transients = true;
+	this->save_processed_transients = true;
+	this->max_parallel_profile_instances = 10;
+	this->golden_magnitudes_structure = nullptr;
+}
+
+VariabilitySpectreHandler::~VariabilitySpectreHandler() {
+	#ifdef DESTRUCTORS_VERBOSE
+		log_io->ReportPlainStandard( "VariabilitySpectreHandler destructor. direction:" + number2String(this));
+		log_io->ReportPlainStandard( "magnitudes_2be_found" );
+	#endif
+	deleteContentsOfVectorOfPointers( simulation_parameters );
+	deleteContentsOfVectorOfPointers( magnitudes_2be_found );
+	if( golden_magnitudes_structure ){
+		#ifdef DESTRUCTORS_VERBOSE
+			log_io->ReportPlainStandard( "golden_magnitudes_structure");
+		#endif
+		delete golden_magnitudes_structure;
+	}
+	#ifdef DESTRUCTORS_VERBOSE
+		log_io->ReportPlainStandard( "simulations");
+	#endif
+	deleteContentsOfVectorOfPointers( simulations );
+
+	// #ifdef DESTRUCTORS_VERBOSE
+	// 	log_io->ReportPlainStandard( "results_summary_vector");
+	// #endif
+	// deleteContentsOfVectorOfPointers( results_summary_vector );
+}
+
+void VariabilitySpectreHandler::AddSimulationParameter( SimulationParameter* simulationParameter  ){
+	simulation_parameters.push_back(simulationParameter);
+}
+
+bool VariabilitySpectreHandler::RunSpectreSimulations(){
+	// Report simulation
+	log_io->ReportGreenStandard( kTab + simulation_mode->get_description());
+	log_io->ReportGreenStandard( "RadiationSpectreHandler Simulation Parameters: " + number2String( simulation_parameters.size()) );
+	// Thread group
+	boost::thread_group tgScenarios;
+	int radiationScenarioCounter = 0;
+	// transient results handling
+	if(delete_spectre_folders){
+		save_spectre_transients = true;
+	}
+	// Golden netlist and Radiation subcircuit AHDL netlist
+	// Golden results are processed
+	if( !SimulateGoldenNetlist() || !SimulateStandardAHDLNetlist() ){
+		log_io->ReportError2AllLogs( "Error while simulation the golden scenario. Aborted." );
+		return false;
+	}
+	log_io->ReportCyanStandard( k2Tab + "Simulate variability scenario." );
+	if( plot_transients ){
+		log_io->ReportCyanStandard( k2Tab + "Single transients will be plotted." );
+	}
+	if( plot_scatters ){
+		log_io->ReportCyanStandard( k2Tab + "Scatters will be plotted." );
+	}
+	// Simulate variability
+	MontecarloNDParametersSweepSimulation* sss = new MontecarloNDParametersSweepSimulation();
+	sss->set_n_d_profile_index( 0 );
+	sss->set_simulation_id("parent_scenario_" + number2String(radiationScenarioCounter));
+	sss->set_is_nested_simulation(false);
+	sss->set_altered_scenario_index( radiationScenarioCounter );
+	// simulation parameters
+	sss->CopySimulationParameters( simulation_parameters );
+	log_io->ReportPurpleStandard( "sss simulation_parameters: " + number2String(sss->get_simulation_parameters()->size()));
+	// montecarlo iterations set from main analysis
+	// paralell instances
+	// max_parallel_montecarlo_instances controlled by spectre
+	sss->set_max_parallel_profile_instances( max_parallel_profile_instances );
+	sss->set_log_io( log_io );
+	sss->set_golden_magnitudes_structure( golden_magnitudes_structure );
+	// Spectre command and args
+	sss->set_spectre_command( spectre_command );
+	sss->set_pre_spectre_command( pre_spectre_command );
+	sss->set_post_spectre_command( post_spectre_command );
+	sss->set_spectre_command_log_arg( spectre_command_log_arg );
+	sss->set_spectre_command_folder_arg( spectre_command_folder_arg );
+	// Spectre environment variables
+	sss->set_ahdl_simdb_env( kEnableAHDLFolderSIMDB + ahdl_simdb_folder_path );
+	sss->set_ahdl_shipdb_env( kEnableAHDLFolderSHIPDB + ahdl_shipdb_folder_path );
+	sss->set_top_folder( top_folder );
+	sss->set_folder( variation_scenario_folder_path );
+	sss->set_altered_statement_path( "none" );
+	// result files
+	sss->set_delete_spectre_folders( delete_spectre_folders );
+	sss->set_save_spectre_transients( save_spectre_transients );
+	sss->set_save_processed_transients( save_processed_transients );
+	// export_processed_magnitudes true, because of scatter plots,
+	// and instead of save_processed_transients || plot_transients || plot_last_transients
+	sss->set_export_processed_magnitudes( save_processed_transients ||
+		plot_scatters || plot_transients || plot_last_transients );
+	sss->set_plot_scatters( plot_scatters );
+	sss->set_plot_transients( plot_transients );
+	sss->set_export_magnitude_errors( export_magnitude_errors );
+	// plotting variables
+	sss->set_interpolate_plots_ratio( interpolate_plots_ratio );
+	// analysis
+	sss->set_main_analysis( simulation_mode->get_analysis_statement() );
+	sss->set_main_transient_analysis( simulation_mode->get_main_transient_analysis() );
+	sss->set_process_magnitudes( true );
+	sss->set_export_magnitude_errors( export_magnitude_errors );
+	// add simulation to list
+	simulations.push_back(sss);
+	// Run the threads
+	log_io->ReportPlainStandard( kTab + "->Simulating variability netlist #" + number2String(radiationScenarioCounter) );
+	tgScenarios.create_thread(boost::bind(&SpectreSimulation::HandleSpectreSimulation, sss));
+	log_io->ReportThread( "Variability Scenario Simulation #" + number2String(radiationScenarioCounter), 1 );
+	++radiationScenarioCounter;
+	//wait each thread
+	tgScenarios.join_all();
+	log_io->ReportPlainStandard( "->All Spectre instances have ended." );
+	log_io->ReportPlainStandard( kTab + "->All simulations have ended." );
+	return true;
+}
+
+bool VariabilitySpectreHandler::SimulateStandardAHDLNetlist( ){
+	// Radiation subcircuit AHDL netlist
+	AHDLSimulation* var_AHDL_s = new AHDLSimulation();
+	var_AHDL_s->set_simulation_id("ahdl_scenario");
+	// not needed
+	// var_AHDL_s->set_parameter_index( 0 );
+	// var_AHDL_s->set_sweep_index( 0 );
+	// var_AHDL_s->set_is_nested_simulation(false);
+	var_AHDL_s->set_main_analysis( simulation_mode->get_analysis_statement() );
+	var_AHDL_s->set_main_transient_analysis( simulation_mode->get_main_transient_analysis() );
+	var_AHDL_s->set_log_io( log_io );
+	var_AHDL_s->CopySimulationParameters( simulation_parameters );
+	log_io->ReportPurpleStandard( "var_AHDL_s simulation_parameters: " + number2String(var_AHDL_s->get_simulation_parameters()->size()));
+	// not needed
+	// var_AHDL_s->set_plot_transients( false );
+	// Not required cause magnitudes are not processed
+	// golden_ss->set_golden_magnitudes( &magnitudes_2be_found );
+	var_AHDL_s->set_top_folder( top_folder );
+	var_AHDL_s->set_folder( variations_AHDL_folder_path );
+	var_AHDL_s->set_process_magnitudes( false );
+	var_AHDL_s->set_export_magnitude_errors( false );
+	// Spectre command and args
+	var_AHDL_s->set_spectre_command( spectre_command );
+	var_AHDL_s->set_pre_spectre_command( pre_spectre_command );
+	var_AHDL_s->set_post_spectre_command( post_spectre_command );
+	var_AHDL_s->set_spectre_command_log_arg( spectre_command_log_arg );
+	var_AHDL_s->set_spectre_command_folder_arg( spectre_command_folder_arg );
+	// Spectre environment variables
+	var_AHDL_s->set_ahdl_simdb_env( kEnableAHDLFolderSIMDB + ahdl_simdb_folder_path  );
+	var_AHDL_s->set_ahdl_shipdb_env( kEnableAHDLFolderSHIPDB + ahdl_shipdb_folder_path  );
+	log_io->ReportPurpleStandard( "Simulating var_AHDL netlist.");
+	log_io->ReportThread( "AHDL scenario.", 1);
+	boost::thread radiation_t(boost::bind(&SpectreSimulation::HandleSpectreSimulation, boost::ref(var_AHDL_s)));
+	radiation_t.join();
+	log_io->ReportGreenStandard( "var_AHDL netlist simulated.");
+	if(var_AHDL_s->get_simulation_results()->get_spectre_result() > 0){
+		log_io->ReportError2AllLogs( "WARNING: while simulation the ahdl scenario." );
+	}
+	delete var_AHDL_s;
+	return true;
+}
+
+bool VariabilitySpectreHandler::SimulateGoldenAHDLNetlist( ){
+	// Golden netlist
+	GoldenSimulation* ahdl_golden_ss = new GoldenSimulation();
+	ahdl_golden_ss->set_n_d_profile_index( 0 );
+	ahdl_golden_ss->set_is_nested_simulation(false);
+	ahdl_golden_ss->set_simulation_id("AHDL_golden_scenario");
+	// simulation parameters
+	ahdl_golden_ss->CopySimulationParameters( simulation_parameters );
+	ahdl_golden_ss->set_main_analysis( simulation_mode->get_analysis_statement() );
+	ahdl_golden_ss->set_main_transient_analysis( simulation_mode->get_main_transient_analysis() );
+	ahdl_golden_ss->set_log_io( log_io );
+	ahdl_golden_ss->set_plot_transients( false );
+	ahdl_golden_ss->set_plot_scatters( false );
+	ahdl_golden_ss->set_top_folder( top_folder );
+	ahdl_golden_ss->set_folder( golden_ahdl_scenario_folder_path );
+	// result files
+	ahdl_golden_ss->set_process_magnitudes( false );
+	ahdl_golden_ss->set_export_magnitude_errors( false );
+	ahdl_golden_ss->set_delete_spectre_folders( delete_spectre_folders );
+	ahdl_golden_ss->set_save_spectre_transients( false );
+	ahdl_golden_ss->set_save_processed_transients( false );
+	// Spectre command and args
+	ahdl_golden_ss->set_spectre_command( spectre_command );
+	ahdl_golden_ss->set_pre_spectre_command( pre_spectre_command );
+	ahdl_golden_ss->set_post_spectre_command( post_spectre_command );
+	ahdl_golden_ss->set_spectre_command_log_arg( spectre_command_log_arg );
+	ahdl_golden_ss->set_spectre_command_folder_arg( spectre_command_folder_arg );
+	// Spectre environment variables
+	ahdl_golden_ss->set_ahdl_simdb_env( kEnableAHDLFolderSIMDB + ahdl_simdb_folder_path + "_golden" );
+	ahdl_golden_ss->set_ahdl_shipdb_env( kEnableAHDLFolderSHIPDB + ahdl_shipdb_folder_path + "_golden" );
+	log_io->ReportPurpleStandard( "Simulating AHDL golden netlist.");
+	log_io->ReportThread( "AHDL Golden scenario.", 1);
+	boost::thread golden_t(boost::bind(&SpectreSimulation::HandleSpectreSimulation, boost::ref(ahdl_golden_ss)));
+	golden_t.join();
+	log_io->ReportGreenStandard( "AHDL Golden netlist simulated and processed.");
+
+	// We copy the golden magnitudes, because ahdl_golden_ss object is going to be destroyed
+	// analysis/radiation parameters are pointers, and they are not destroyed in the
+	// ahdl_golden_ss var_AHDL_s destruction
+	// Does not need to be copied because is not a GoldenSimulation member
+	if( ahdl_golden_ss->get_simulation_results()->get_spectre_result() > 0 ){
+		log_io->ReportError2AllLogs( "Error while simulation the golden scenario. Aborted." );
+		delete ahdl_golden_ss;
+		return false;
+	}
+	//delete all simulations
+	delete ahdl_golden_ss;
+	return true;
+}
+
+bool VariabilitySpectreHandler::SimulateGoldenNetlist( ){
+	// We need for a first AHDL compilation for the golden
+	if(!SimulateGoldenAHDLNetlist()){
+		log_io->ReportError2AllLogs( "Error in AHDL Golden");
+		return false;
+	}
+	// Golden netlist
+	GoldenNDParametersSweepSimulation* golden_ss
+		= new GoldenNDParametersSweepSimulation();
+	golden_ss->set_magnitudes_2be_found( &magnitudes_2be_found );
+	golden_ss->set_max_parallel_profile_instances( max_parallel_profile_instances );
+	// Golden netlist
+	golden_ss->set_n_d_profile_index( 0 );
+	golden_ss->set_is_nested_simulation(false);
+	golden_ss->set_simulation_id("golden_scenario");
+	// simulation parameters
+	golden_ss->CopySimulationParameters( simulation_parameters );
+	golden_ss->set_main_analysis( simulation_mode->get_analysis_statement() );
+	golden_ss->set_main_transient_analysis( simulation_mode->get_main_transient_analysis() );
+	golden_ss->set_log_io( log_io );
+	golden_ss->set_plot_transients( plot_transients );
+	golden_ss->set_plot_scatters( false );
+	golden_ss->set_top_folder( top_folder );
+	golden_ss->set_folder( golden_scenario_folder_path );
+	// Files
+	golden_ss->set_process_magnitudes( true );
+	golden_ss->set_export_magnitude_errors( false );
+	golden_ss->set_delete_spectre_folders( delete_spectre_folders );
+	golden_ss->set_save_spectre_transients( save_spectre_transients );
+	golden_ss->set_save_processed_transients( true );
+	// Spectre command and args
+	golden_ss->set_spectre_command( spectre_command );
+	golden_ss->set_pre_spectre_command( pre_spectre_command );
+	golden_ss->set_post_spectre_command( post_spectre_command );
+	golden_ss->set_spectre_command_log_arg( spectre_command_log_arg );
+	golden_ss->set_spectre_command_folder_arg( spectre_command_folder_arg );
+	// Spectre environment variables
+	golden_ss->set_ahdl_simdb_env( kEnableAHDLFolderSIMDB + ahdl_simdb_folder_path + "_golden" );
+	golden_ss->set_ahdl_shipdb_env( kEnableAHDLFolderSHIPDB + ahdl_shipdb_folder_path + "_golden" );
+	log_io->ReportPurpleStandard( "Simulating golden netlist.");
+	log_io->ReportThread( "Golden scenario.", 1);
+	boost::thread golden_t(boost::bind(&SpectreSimulation::HandleSpectreSimulation, boost::ref(golden_ss)));
+	golden_t.join();
+	log_io->ReportGreenStandard( "Golden netlist simulated and processed.");
+
+	// We copy the golden magnitudes, because golden_ss object is going to be destroyed
+	// analysis/radiation parameters are pointers, and they are not destroyed in the
+	// golden_ss var_AHDL_s destruction
+	// Does not need to be copied because is not a GoldenSimulation member
+
+	// Golden netlist
+	if( !golden_ss->get_children_correctly_simulated() ){
+		log_io->ReportError2AllLogs( "Error while simulation the golden scenario. Aborted." );
+		delete golden_ss;
+		return false;
+	}
+	log_io->ReportGreenStandard( "copying the golden magnitudes.");
+	golden_magnitudes_structure = golden_ss->GetGoldenMagnitudes();
+	log_io->ReportGreenStandard( "golden magnitudes copied. Deleting golden_ss");
+	//delete all simulations
+	delete golden_ss;
+	log_io->ReportGreenStandard( "golden_ss deleted");
+	return true;
+}
+
+void VariabilitySpectreHandler::AddMagnitude( Magnitude* magnitude ){
+	this->magnitudes_2be_found.push_back( magnitude );
+}
