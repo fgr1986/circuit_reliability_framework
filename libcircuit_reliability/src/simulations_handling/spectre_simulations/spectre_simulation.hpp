@@ -209,6 +209,8 @@ public:
 	 */
 	bool UpdateGoldenCriticalParameter( SimulationParameter& originalGoldenCriticalParameter );
 
+	NDSimulationResults* get_main_nd_simulation_results(){ return & main_nd_simulation_results; }
+
 protected:
 
 	/// LogIO

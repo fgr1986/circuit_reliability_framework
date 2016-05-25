@@ -72,10 +72,6 @@ DIST_HEADERS=  $(addprefix "../src/", $(HEADERS))
 DIST_CPP=  $(addprefix "../src/", $(SRC))
 # makefile to be included in dist tar
 DIST_MAKE= $(addprefix "../src/", makefile)
-##########################
-# Bash files Definition  #
-##########################
-BASH_VARIABLES_FILES=../bash_variables/*
 
 
 ################
@@ -111,20 +107,24 @@ DIST+=$(DIST_CPP)
 DIST+=$(DIST_MAKE)
 # DIST+= $(EXECDIR)$(LIBRARY_NAME)
 # installation script
-DIST+= ../installation.sh
+DIST+= ../../library_installation.sh
 # documentation
 # DIST+= ../doc/*
 # conf examples
-DIST+= ../example_*
+DIST+= ../../aux_resources/example_*
 # DIST+= $(CONFDIR)xml/*.xml
 # DIST+= $(CONFDIR)netlists/*
 # latex/html example resources
 # DIST+= ../html_resources/*
 # DIST+= ../latex_resources/*
 # md files
-DIST+= ../*.md
+DIST+= ../../aux_resources/*.md
 # bash environment files
-DIST+=$(BASH_VARIABLES_FILES)
+##########################
+# Bash files Definition  #
+##########################
+# BASH_VARIABLES_FILES=../bash_variables/*
+DIST+= ../../aux_resources/bash_variables/*
 
 all: ${BINARY}
 

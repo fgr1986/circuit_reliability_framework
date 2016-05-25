@@ -410,7 +410,7 @@ bool CriticalParameterNDParameterSweepSimulation::GenerateAndPlotParameterPairRe
 	ResultsProcessor rp;
 	std::string generalParameterResultsFile = mapsFolder + kFolderSeparator
 		+ planeStructure->get_plane_id() + "_general_" + kDataSufix;
-	partialResults = partialResults && rp.ProcessResultsFiles(
+	partialResults = partialResults && rp.MeanProcessResultsFiles(
 		planeStructure->get_itemized_data_paths(), generalParameterResultsFile, std::move(magnitude_column_indexes));
 	if( !partialResults ){
 		log_io->ReportError2AllLogs( "[ERROR ResultsProcessor] Error processing " + generalParameterResultsFile );
@@ -559,11 +559,12 @@ int CriticalParameterNDParameterSweepSimulation::GnuplotGeneralResults(
 	// Plot
 	// add xtics with xtic(2), u 1:3:xtic(2)
 	if( correctly_simulated ){
-		gnuplotScriptFile <<  "plot '" << gnuplotDataFile << "' u 1:3 axes x1y1 w lp ls 2 title '" + golden_critical_parameter->get_title_name() +  "'" << std::endl;
+		gnuplotScriptFile <<  "plot '" << gnuplotDataFile << "' u 1:3 axes x1y1 w lp ls 2 title '"
+			<< golden_critical_parameter->get_title_name() << "'" << std::endl;
 
 	}else{
-		gnuplotScriptFile <<  "plot '" << gnuplotDataFile << "' u 1:3 axes x1y1 w lp ls 2 title '" + golden_critical_parameter->get_title_name() +  "', \\"
-		<< std::endl;
+		gnuplotScriptFile <<  "plot '" << gnuplotDataFile << "' u 1:3 axes x1y1 w lp ls 2 title '"
+			<< golden_critical_parameter->get_title_name() << "', \\" << std::endl;
 		gnuplotScriptFile <<  " '" << gnuplotSpectreErrorMapFilePath << "' u 1:3 axes x1y2 with boxes ls 1 notitle" << std::endl;
 	}
 	gnuplotScriptFile <<  "set xtics ntics" << std::endl;

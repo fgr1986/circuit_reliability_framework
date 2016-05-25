@@ -33,8 +33,15 @@ public:
 	*/
 	void set_log_io( LogIO* log_io ){ this->log_io = log_io; }
 
+	// creates a file with the shape of each in paths,
+	// whose colums, if specified in columnIndexes, are the mean values
+	// of those in paths
+	bool MeanProcessResultsFiles( const std::map<std::string, std::string>* paths,
+		const std::string outputPath, const std::vector<unsigned int>&& columnIndexes );
 
-	bool ProcessResultsFiles( const std::map<std::string, std::string>* paths,
+	// creates a file extending those in paths,
+	// For each column in columnIndexes, we compute mean, max val and min val
+	bool StatisticProcessResultsFiles( const std::map<std::string, std::string>* paths,
 		const std::string outputPath, const std::vector<unsigned int>&& columnIndexes );
 
 	bool ExportScenariosList(
@@ -52,7 +59,9 @@ protected:
 
 	bool PreProcessResultsFiles( std::string&& path,
 		unsigned int& totalRows, unsigned int& totalColumns );
-	bool ProcessResultFile( const std::string&& path,
+	bool MeanProcessResultFile( const std::string&& path,
+		Matrix& matrix, const std::vector<unsigned int>&& columnIndexes );
+	bool StatisticProcessResultFile( const std::string&& path,
 		Matrix& matrix, const std::vector<unsigned int>&& columnIndexes );
 };
 

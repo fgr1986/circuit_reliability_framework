@@ -77,6 +77,8 @@ public:
 	 */
 	void set_plot_last_transients( bool plot_last_transients) { this->plot_last_transients = plot_last_transients; }
 
+	std::vector<unsigned int>* get_magnitude_column_indexes(){ return &magnitude_column_indexes; }
+
 private:
 
 	/// Critical parameter value

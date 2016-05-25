@@ -370,7 +370,8 @@ bool MontecarloCriticalParameterNDParametersSweepSimulation::GenerateAndPlotPara
 	ResultsProcessor rp;
 	std::string generalParameterResultsFile = mapsFolder + kFolderSeparator
 		+ planeStructure->get_plane_id() + "_general" + kDataSufix;
-	partialResults = partialResults && rp.ProcessResultsFiles(
+	// process only mean
+	partialResults = partialResults && rp.MeanProcessResultsFiles(
 		planeStructure->get_itemized_data_paths(), generalParameterResultsFile, std::move(magnitude_column_indexes));
 	if( !partialResults ){
 		log_io->ReportError2AllLogs( "[ERROR ResultsProcessor] Error processing " + generalParameterResultsFile );

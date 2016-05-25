@@ -69,13 +69,14 @@ bool ResultsProcessor::PreProcessResultsFiles( std::string&& path,
 	return true;
 }
 
-bool ResultsProcessor::ProcessResultsFiles( const std::map<std::string, std::string>* paths,
+bool ResultsProcessor::MeanProcessResultsFiles( const std::map<std::string, std::string>* paths,
 	const std::string outputPath, const std::vector<unsigned int>&& columnIndexes ){
 	#ifdef RESULTS_POST_PROCESSING_VERBOSE
 		 log_io->ReportBlueStandard( "Processing:" + outputPath );
 	#endif
 
 	unsigned int totalColumns = 0;
+	unsigned int matrixColumns = columnIndexes.size();
 	unsigned int totalRows = 0;
 	unsigned int totalFiles = paths->size();
 	std::string firstPath = (*paths->begin()).first;
@@ -87,15 +88,15 @@ bool ResultsProcessor::ProcessResultsFiles( const std::map<std::string, std::str
 	// create data structure
 	Matrix matrix = new double*[totalRows];
 	for(unsigned int i = 0; i < totalRows; ++i){
-		matrix[i] = new double[totalColumns];
+		matrix[i] = new double[matrixColumns];
 		// initialization
-		for(unsigned int j=0; j<totalColumns;++j){
+		for(unsigned int j=0; j<matrixColumns;++j){
 			matrix[i][j] = 0;
 		}
 	}
 	// process all files
 	for( auto const &path: *paths ){
-		result = result && ProcessResultFile( std::move(path.first), matrix, std::move(columnIndexes) );
+		result = result && MeanProcessResultFile( std::move(path.first), matrix, std::move(columnIndexes) );
 		if( !result ){
 			log_io->ReportError2AllLogs( "[Error] Error processing " + path.first );
 			return false;
@@ -121,9 +122,10 @@ bool ResultsProcessor::ProcessResultsFiles( const std::map<std::string, std::str
 					std::vector<std::string> lineTockensSpaces;
 					boost::split(lineTockensSpaces, currentReadLine, boost::is_any_of(kDelimiter), boost::token_compress_on);
 					unsigned int columnCounter = 0;
+					unsigned int matrixColumnCounter = 0;
 					for( auto const &s : lineTockensSpaces ){
-						if( vectorContains( columnIndexes, columnCounter) ){
-							gnuplotMapFile << matrix[row][columnCounter++]/totalFiles << " ";
+						if( vectorContains( columnIndexes, columnCounter++) ){
+							gnuplotMapFile << matrix[row][matrixColumnCounter++]/totalFiles << " ";
 						}else{
 							gnuplotMapFile << s << " ";
 						}
@@ -143,14 +145,95 @@ bool ResultsProcessor::ProcessResultsFiles( const std::map<std::string, std::str
 	return result;
 }
 
-bool ResultsProcessor::ProcessResultFile( const std::string&& path,
+bool ResultsProcessor::StatisticProcessResultsFiles( const std::map<std::string, std::string>* paths,
+	const std::string outputPath, const std::vector<unsigned int>&& columnIndexes ){
+	#ifdef RESULTS_POST_PROCESSING_VERBOSE
+		 log_io->ReportBlueStandard( "Processing:" + outputPath );
+	#endif
+	unsigned int originalColumns = 0;
+	unsigned int totalRows = 0;
+	unsigned int totalFiles = paths->size();
+	std::string firstPath = (*paths->begin()).first;
+	bool result = PreProcessResultsFiles( std::move(firstPath), totalRows, originalColumns );
+	if( !result ){
+		log_io->ReportError2AllLogs( "[Error] Error preprocessing " + firstPath );
+		return false;
+	}
+	// totalColumns // Mean Max Min
+	unsigned int matrixColumns = 3*columnIndexes.size();
+	// create data structure
+	Matrix matrix = new double*[totalRows];
+	for(unsigned int i = 0; i < totalRows; ++i){
+		matrix[i] = new double[matrixColumns];
+		// initialization
+		for(unsigned int j=0; j<matrixColumns;){
+			matrix[i][j++] = 0; // mean
+			matrix[i][j++] = 0; // max
+			matrix[i][j++] = std::numeric_limits<double>::max();	// min
+		}
+	}
+	// process all files
+	for( auto const &path: *paths ){
+		result = result && StatisticProcessResultFile( std::move(path.first), matrix, std::move(columnIndexes) );
+		if( !result ){
+			log_io->ReportError2AllLogs( "[Error] Error processing " + path.first );
+			return false;
+		}
+	}
+	// export to file
+	std::ofstream gnuplotMapFile;
+	gnuplotMapFile.open( outputPath.c_str() );
+	gnuplotMapFile << "# not that each computed column will have mean, max and min values\n";
+	std::ifstream exampleFile( firstPath );
+	try {
+		if ( exampleFile.is_open() ) {
+			if ( exampleFile.good() ) {
+				std::string currentReadLine;
+				for( unsigned int row = 0; row<totalRows; ++row ){
+					// ommit empty and comments
+					while( getline(exampleFile, currentReadLine) ) {
+						if( currentReadLine.empty() || boost::starts_with(currentReadLine, "#") ){
+							gnuplotMapFile << currentReadLine << "\n";
+						}else{
+							break; // break while
+						}
+					}
+					std::vector<std::string> lineTockensSpaces;
+					boost::split(lineTockensSpaces, currentReadLine, boost::is_any_of(kDelimiter), boost::token_compress_on);
+					unsigned int columnCounter = 0;
+					unsigned int matrixColumnCounter = 0;
+					for( auto const &s : lineTockensSpaces ){
+						if( vectorContains( columnIndexes, columnCounter++ ) ){
+							// mean max min
+							gnuplotMapFile << matrix[row][matrixColumnCounter++]/totalFiles << " ";
+							gnuplotMapFile << matrix[row][matrixColumnCounter++] << " ";
+							gnuplotMapFile << matrix[row][matrixColumnCounter++] << " ";
+						}else{
+							gnuplotMapFile << s << " ";
+						}
+					}
+					gnuplotMapFile << "\n";
+				}
+			}
+		}
+	}catch (std::exception const& ex) {
+		std::string ex_what = ex.what();
+		log_io->ReportError2AllLogs( "[PROCESSING ERROR] Exception while parsing the file: ex-> " + ex_what );
+		return false;
+	}
+	// close files
+	gnuplotMapFile.close();
+	exampleFile.close();
+	return result;
+}
+
+bool ResultsProcessor::MeanProcessResultFile( const std::string&& path,
 	Matrix& matrix, const std::vector<unsigned int>&& columnIndexes ){
 
 	#ifdef RESULTS_POST_PROCESSING_VERBOSE
 		 log_io->ReportBlueStandard( "Processing:" + path );
 	#endif
 	unsigned int currentRow = 0;
-	unsigned int currentColumn = 0;
 	bool correctlyExported = true;
 	std::ifstream file( path );
 	try {
@@ -163,19 +246,67 @@ bool ResultsProcessor::ProcessResultFile( const std::string&& path,
 						std::vector<std::string> lineTockensSpaces;
 						boost::split(lineTockensSpaces, currentReadLine,
 							boost::is_any_of(kDelimiter), boost::token_compress_on);
-						currentColumn = 0;
-						unsigned int toquenCounter = 0;
+						unsigned int currentColumn = 0;
+						unsigned int matrixColumnCounter = 0;
 						for( auto const &st : lineTockensSpaces ){
-							if( vectorContains( lineTockensSpaces, number2String(toquenCounter)) ){
-								matrix[currentRow][currentColumn++] += atof( st.c_str() );
+							if( vectorContains( columnIndexes, currentColumn++ ) ){
+								matrix[currentRow][matrixColumnCounter++] += atof( st.c_str() );
 							}
-							++toquenCounter;
-						}
+							// else do nothing
+						} // ends token for
 						++currentRow;
-					}
-				}
-			}
-		}
+					} // not a comment or empty
+				} // ends while getline
+			} // ends good
+		} // ends is_open
+	}catch (std::exception const& ex) {
+		std::string ex_what = ex.what();
+		log_io->ReportError2AllLogs( "[PROCESSING ERROR] Exception while parsing the file: ex-> " + ex_what );
+		correctlyExported = false;
+	}
+	file.close();
+	return correctlyExported;
+}
+
+bool ResultsProcessor::StatisticProcessResultFile( const std::string&& path,
+	Matrix& matrix, const std::vector<unsigned int>&& columnIndexes ){
+	#ifdef RESULTS_POST_PROCESSING_VERBOSE
+		 log_io->ReportBlueStandard( "Processing:" + path );
+	#endif
+	unsigned int currentRow = 0;
+	bool correctlyExported = true;
+	std::ifstream file( path );
+	try {
+		if ( file.is_open() ) {
+			if ( file.good() ) {
+				// header
+				std::string currentReadLine;
+				while( getline(file, currentReadLine) ) {
+					if( !currentReadLine.empty() && !boost::starts_with(currentReadLine, "#") ){
+						std::vector<std::string> lineTockensSpaces;
+						boost::split(lineTockensSpaces, currentReadLine,
+							boost::is_any_of(kDelimiter), boost::token_compress_on);
+						unsigned int currentColumn = 0;
+						unsigned int matrixColumnCounter = 0;
+						for( auto const &st : lineTockensSpaces ){
+							if( vectorContains( columnIndexes, currentColumn++ ) ){
+								// mean max min
+								double value = atof( st.c_str() );
+								matrix[currentRow][matrixColumnCounter] += value;
+								if ( matrix[currentRow][matrixColumnCounter+1] < value ){
+									matrix[currentRow][matrixColumnCounter+1] = value;
+								}
+								if ( matrix[currentRow][matrixColumnCounter+2] > value ){
+									matrix[currentRow][matrixColumnCounter+2] = value;
+								}
+								matrixColumnCounter +=3 ;
+							} // column to be processed
+						} // ends tocken for
+						++currentRow;
+					} // not a comment or empty
+				} // ends while getline
+			} // ends good
+		} // ends is_open
 	}catch (std::exception const& ex) {
 		std::string ex_what = ex.what();
 		log_io->ReportError2AllLogs( "[PROCESSING ERROR] Exception while parsing the file: ex-> " + ex_what );
@@ -255,8 +386,7 @@ bool ResultsProcessor::ExportProfilesList(
 			}
 			outputFile << "\n";
 			UpdateParameterSweepIndexes( parameterCountIndexes, parameters2sweep);
-		}
-
+		} // end profiles
 	}catch (std::exception const& ex) {
 		std::string ex_what = ex.what();
 		log_io->ReportError2AllLogs( "Exception while parsing the file: ex-> " + ex_what );

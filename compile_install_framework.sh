@@ -11,7 +11,9 @@ tar xvf libcircuit_reliability.so_release_2.9.2_beta.tar.gz;
 echo "Compiling lib files"
 cd src/; make clean; make;
 echo "Instaling lib files"
-cd ..; sudo sh installation.sh;
+cd ..;
+chmod a+x library_installation.sh;
+sudo ./library_installation.sh;
 
 echo "########################"
 echo "Updating radiation simulator"
