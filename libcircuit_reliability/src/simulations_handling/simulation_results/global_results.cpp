@@ -428,78 +428,85 @@ bool GlobalResults::PlotCriticalParameterNDParametersSweepSimulationMode(
 	// Exec comand
 	std::string execCommand = kGnuplotCommand + generalGSFPath + kGnuplotEndCommand;
 	partialResult += std::system( execCommand.c_str() );
-	// // plot magnitudes
-	// unsigned int magCount = 0;
-	// for( auto const &m : analyzedMagnitudes ){
-	// 	if( m->get_analyzable() ){
-	// 		// Files
-	// 		std::string gnuplotScriptFilePath = gnuplot_script_folder + kFolderSeparator
-	// 			+ "scenarios_general_mag_" + number2String(magCount) + kGnuPlotScriptSufix;
-	// 		std::string outputImagePath = images_folder + kFolderSeparator
-	// 			+ "scenarios_general_mag_" + number2String(magCount) + kSvgSufix;
-	// 		std::string title = "[General] " + m->get_title_name() + " errors & " + criticalParameter.get_title_name() + " Statistics";
-	// 		// Generate scripts
-	// 		std::ofstream gnuplotScriptFile;
-	// 		try{
-	// 			gnuplotScriptFile.open( gnuplotScriptFilePath.c_str() );
-	// 			// Svg
-	// 			gnuplotScriptFile << "set term svg  size " << kSvgImageWidth << ","<< kSvgImageHeight
-	// 				<< " fname " << kSvgFont << std::endl;
-	// 			gnuplotScriptFile << "set output \"" << outputImagePath << "\"" << std::endl;
-	// 			gnuplotScriptFile << "set title \" " << title << " \"" << std::endl;
-	// 			gnuplotScriptFile << "set grid" << std::endl;
-	// 			// Axis
-	// 			gnuplotScriptFile << "set format x \"%g\"" << std::endl;
-	// 			gnuplotScriptFile << "set format y \"%g\"" << std::endl;
-	// 			gnuplotScriptFile << "set format y2 \"%g\"" << std::endl;
-	// 			gnuplotScriptFile << "set xlabel \"Profile\"" << std::endl;
-	// 			gnuplotScriptFile << "set y2label \"" << criticalParameter.get_title_name() << " \%\"" << std::endl;
-	// 			gnuplotScriptFile << "set ylabel \"Error in magnitude "  << m->get_title_name() << "\"" << std::endl;
-	// 			// # remove border on top and right and set color to gray
-	// 			gnuplotScriptFile << "set style line 11 lc rgb '#808080' lt 1" << std::endl;
-	// 			gnuplotScriptFile << "set border 3 back ls 11" << std::endl;
-	// 			gnuplotScriptFile << "set tics nomirror" << std::endl;
-	// 			gnuplotScriptFile << "set y2tics" << std::endl;
-	// 			// palete range
-	// 			// Color Paletes
-	// 			gnuplotScriptFile << kUpsetsPalette << std::endl;
-	// 			// line style
-	// 			gnuplotScriptFile <<  "set style line 1 lc rgb '#ff3a00' lt 1 lw 1 pt 7 ps 1  # --- red" << std::endl;
-	// 			gnuplotScriptFile <<  "set style line 2 lc rgb '#0060ad' lt 1 lw 3 pt 7 ps 1.5  # --- blue" << std::endl;
-	// 			gnuplotScriptFile <<  "set style line 3 lc rgb '#ffd35a' lt 3 lw 1 pt 9 ps 1  # --- yellow" << std::endl;
-	// 			gnuplotScriptFile <<  "set style line 4 lc rgb '#ff3a00' lt 3 lw 0 pt 9 ps 1  # --- red" << std::endl;
-	// 			gnuplotScriptFile <<  "set style line 5 lc rgb '#666666' lt 3 lw 2 pt 9 ps 1  # --- grey " << std::endl;
-	// 			gnuplotScriptFile <<  "set boxwidth 0.5 relative" << std::endl;
-	// 			// gnuplotScriptFile <<  "set style fill transparent solid 0.7 noborder" << std::endl;
-	// 			gnuplotScriptFile <<  "set style fill transparent solid 0.5" << std::endl;
-	// 			// // Background
-	// 			gnuplotScriptFile << kWholeBackground << std::endl;
-	// 			int magDataIndex = firstMagOffset + dataPerMagnitudePerLine*magCount; // title
-	// 			gnuplotScriptFile <<  "plot '" << gnuplotDataFile << "' using 1:"<< critParamOffset
-	// 				<<" axis x1y2 with filledcurve x1 ls 3 title '\% "
-	// 				<< criticalParameter.get_title_name() << "', \\" << std::endl;
-	// 			gnuplotScriptFile <<  "     '" << gnuplotDataFile << "' u 1:" << (magDataIndex+1) << " axis x1y1  w lp ls 1 title '"
-	// 				<< m->get_title_name() << "  (max\\_error\\_global)', \\" << std::endl;
-	// 			gnuplotScriptFile <<  "     '" << gnuplotDataFile << "' u 1:" << (magDataIndex+2) << " axis x1y1  w lp ls 2 title '"
-	// 				<< m->get_title_name() << "  (max\\_error\\_metric)'" << std::endl;
-	// 			// legend
-	// 			gnuplotScriptFile <<  "set key top left" << std::endl;
-	//
-	// 			gnuplotScriptFile << "unset output" << std::endl;
-	// 			// close file
-	// 			gnuplotScriptFile << "quit" << std::endl;
-	// 		}catch (std::exception const& ex) {
-	// 			std::string ex_what = ex.what();
-	// 			log_io->ReportError2AllLogs( "Exception while parsing the file: ex-> " + ex_what );
-	// 			correctlyExported = false;
-	// 		}
-	// 		gnuplotScriptFile.close();
-	// 		// Exec comand
-	// 		std::string execCommand = kGnuplotCommand + gnuplotScriptFilePath + kGnuplotEndCommand;
-	// 		partialResult += std::system( execCommand.c_str() );
-	// 		++magCount;
-	// 	}
-	// } // end of mags
+	// plot magnitudes
+	unsigned int magCount = 0;
+	for( auto const &m : analyzedMagnitudes ){
+		if( m->get_analyzable() ){
+			// Files
+			std::string gnuplotScriptFilePath = gnuplot_script_folder + kFolderSeparator
+				+ "scenarios_general_mag_" + number2String(magCount) + kGnuPlotScriptSufix;
+			std::string outputImagePath = images_folder + kFolderSeparator
+				+ "scenarios_general_mag_" + number2String(magCount) + kSvgSufix;
+			std::string title = "[General] " + m->get_title_name() + " errors & " + criticalParameter.get_title_name() + " Statistics";
+			// Generate scripts
+			std::ofstream gnuplotScriptFile;
+			try{
+				gnuplotScriptFile.open( gnuplotScriptFilePath.c_str() );
+				// Svg
+				gnuplotScriptFile << "set term svg  size " << kSvgImageWidth << ","<< kSvgImageHeight
+					<< " fname " << kSvgFont << std::endl;
+				gnuplotScriptFile << "set output \"" << outputImagePath << "\"" << std::endl;
+				gnuplotScriptFile << "set title \" " << title << " \"" << std::endl;
+				gnuplotScriptFile << "set grid" << std::endl;
+				// Axis
+				gnuplotScriptFile << "set format x \"%g\"" << std::endl;
+				gnuplotScriptFile << "set format y \"%g\"" << std::endl;
+				gnuplotScriptFile << "set format y2 \"%g\"" << std::endl;
+				gnuplotScriptFile << "set xlabel \"Profile\"" << std::endl;
+				gnuplotScriptFile << "set y2label \"" << criticalParameter.get_title_name() << " \%\"" << std::endl;
+				gnuplotScriptFile << "set ylabel \"Error in magnitude "  << m->get_title_name() << "\"" << std::endl;
+				// # remove border on top and right and set color to gray
+				gnuplotScriptFile << "set style line 11 lc rgb '#808080' lt 1" << std::endl;
+				gnuplotScriptFile << "set border 3 back ls 11" << std::endl;
+				gnuplotScriptFile << "set tics nomirror" << std::endl;
+				gnuplotScriptFile << "set y2tics" << std::endl;
+				// Color Paletes
+				gnuplotScriptFile << kUpsetsPalette << std::endl;
+				// line style
+				gnuplotScriptFile <<  "set style line 1 lc rgb '#ffd35a' lt 3 lw 1 pt 9 ps 1  # --- yellow" << std::endl;
+				gnuplotScriptFile <<  "set style line 2 lc rgb '#0060ad' lt 1 lw 3 pt 7 ps 1.5  # --- blue" << std::endl;
+				gnuplotScriptFile <<  "set style line 3 lc rgb '#0060ad' lt 1 lw 1 pt 7 ps 1.5  # --- blue" << std::endl;
+				gnuplotScriptFile <<  "set style line 4 lc rgb '#ff3a00' lt 1 lw 1 pt 7 ps 1  # --- red" << std::endl;
+				// gnuplotScriptFile <<  "set style line 5 lc rgb '#ff3a00' lt 3 lw 0 pt 9 ps 1  # --- red" << std::endl;
+				// gnuplotScriptFile <<  "set style line 6 lc rgb '#666666' lt 3 lw 2 pt 9 ps 1  # --- grey " << std::endl;
+				gnuplotScriptFile <<  "set boxwidth 0.5 relative" << std::endl;
+				// gnuplotScriptFile <<  "set style fill transparent solid 0.7 noborder" << std::endl;
+				gnuplotScriptFile <<  "set style fill transparent solid 0.5" << std::endl;
+				// // Background
+				gnuplotScriptFile << kWholeBackground << std::endl;
+				int magDataIndex = firstMagOffset + dataPerMagnitudePerLine*magCount; // title
+				// crit param
+				gnuplotScriptFile <<  "plot '" << gnuplotDataFile << "' using 1:"<< critParamOffset
+					<<" axis x1y2 with filledcurve x1 ls 1 title '\% "
+					<< criticalParameter.get_title_name() << "', \\" << std::endl;
+				// mean of max errors_global in (mean) in magDataIndex+1
+				gnuplotScriptFile <<  "     '" << gnuplotDataFile << "' u 1:" << (magDataIndex+1) << " axis x1y1  w lp ls 2 title '"
+					<< m->get_title_name() << "  (max\\_error\\_global)', \\" << std::endl;
+					gnuplotScriptFile <<  "     '" << gnuplotDataFile << "' u 1:" << (magDataIndex+1) << ":"
+						<< (magDataIndex+3) <<  ":" << (magDataIndex+2) << " w errorbars ls 3 notitle, \\" << std::endl;
+				// mean of max error_metric in (mean) in magDataIndex+4
+				gnuplotScriptFile <<  "     '" << gnuplotDataFile << "' u 1:" << (magDataIndex+4) << ":"
+						<< (magDataIndex+6) <<  ":" << (magDataIndex+5) << " w errorbars ls 4 notitle, \\" << std::endl;
+				gnuplotScriptFile <<  "     '" << gnuplotDataFile << "' u 1:" << (magDataIndex+4) << " axis x1y1  w lp ls 4 title '"
+						<< m->get_title_name() << "  (max\\_error\\_metric)'" << std::endl;
+				// legend
+				gnuplotScriptFile <<  "set key top left" << std::endl;
+
+				gnuplotScriptFile << "unset output" << std::endl;
+				// close file
+				gnuplotScriptFile << "quit" << std::endl;
+			}catch (std::exception const& ex) {
+				std::string ex_what = ex.what();
+				log_io->ReportError2AllLogs( "Exception while parsing the file: ex-> " + ex_what );
+				correctlyExported = false;
+			}
+			gnuplotScriptFile.close();
+			// Exec comand
+			std::string execCommand = kGnuplotCommand + gnuplotScriptFilePath + kGnuplotEndCommand;
+			partialResult += std::system( execCommand.c_str() );
+			++magCount;
+		}
+	} // end of mags
 	#ifdef RESULTS_POST_PROCESSING_VERBOSE
 		if( partialResult>0 ){
 			log_io->ReportPlain2Log("Gnuplot may have return warnings or errors in GlobalResults");
