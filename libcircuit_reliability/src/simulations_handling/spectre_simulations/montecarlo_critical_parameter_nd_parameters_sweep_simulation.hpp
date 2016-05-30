@@ -62,6 +62,7 @@ public:
 
 	void set_montecarlo_iterations( unsigned int montecarlo_iterations) { this->montecarlo_iterations = montecarlo_iterations; }
 
+	std::vector<unsigned int>* get_magnitude_column_indexes(){ return &magnitude_column_indexes; }
 
 private:
 	/// Montecarlo Iterations

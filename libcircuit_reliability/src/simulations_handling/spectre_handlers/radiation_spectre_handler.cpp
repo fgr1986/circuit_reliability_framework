@@ -276,7 +276,6 @@ bool RadiationSpectreHandler::RunSpectreSimulations(){
 	log_io->ReportPlainStandard( "->All Spectre instances have ended." );
 	log_io->ReportPlainStandard( "->Processing scenario statistics." );
 	bool partialResult = ProcessScenarioStatistics();
-	// fgarcia global create global
 	log_io->ReportPlainStandard( kTab + "->All simulations have ended." );
 	return partialResult;
 }

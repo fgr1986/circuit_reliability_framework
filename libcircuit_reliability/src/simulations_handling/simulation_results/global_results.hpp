@@ -93,6 +93,12 @@ private:
 			const unsigned int& firstMagOffset, const unsigned int& dataPerMagnitudePerLine,
 			const SimulationParameter& criticalParameter, const std::string& gnuplotDataFile );
 
+	bool ProcessMontecarloCriticalParameterNDParametersSweepMode();
+	bool PlotMontecarloCriticalParameterNDParametersSweepMode(
+			const std::vector<Magnitude*>& analyzedMagnitudes, const unsigned int &critParamOffset,
+			const unsigned int& firstMagOffset, const unsigned int& dataPerMagnitudePerLine,
+			const SimulationParameter& criticalParameter, const std::string& gnuplotDataFile );
+
 };
 
 #endif /* GLOBAL_RESULTS_H */
