@@ -27,8 +27,8 @@ MontecarloStandardSimulation::MontecarloStandardSimulation() {
 
 MontecarloStandardSimulation::~MontecarloStandardSimulation(){
 	#ifdef DESTRUCTORS_VERBOSE
-		std::cout << "MontecarloStandardSimulation destructor. direction:" + number2String(this) << std::endl;
-		std::cout << "Deleting montecarlo_transient_simulation_results" << std::endl;
+		std::cout << "MontecarloStandardSimulation destructor. direction:" + number2String(this) << "\n";
+		std::cout << "Deleting montecarlo_transient_simulation_results\n";
 	#endif
 	deleteContentsOfVectorOfPointers( montecarlo_transient_simulation_results );
 }
@@ -331,42 +331,40 @@ bool MontecarloStandardSimulation::PlotProfileResults(){
 			// Svg
 			gnuplotScriptFile << "set term svg  size " << kSvgImageWidth << ","<< kSvgImageHeight
 				 << " fname " << kSvgFont << "\n";
-			gnuplotScriptFile << "set output \"" << outputImagePath << "\"" << "\n";
-			gnuplotScriptFile << "set title \" " << title << " \"" << "\n";
-			gnuplotScriptFile << "set grid" << "\n";
+			gnuplotScriptFile << "set output \"" << outputImagePath << "\"\n";
+			gnuplotScriptFile << "set title \" " << title << " \"\n";
+			gnuplotScriptFile << "set grid\n";
 			// Axis
-			// 	 gnuplotScriptFile << "set logscale y" << "\n";
-			gnuplotScriptFile << "set format x \"%g\"" << "\n";
-			gnuplotScriptFile << "set format y \"%g\"" << "\n";
-			// gnuplotScriptFile << "set xlabel \""  << pairedParameter.get_title_name() << "\"" << "\n";
-			gnuplotScriptFile << "set xlabel \""  << "Profile" << "\"" << "\n";
-			gnuplotScriptFile << "set ylabel \" " << mmr->metric_magnitude_name << " \"" << "\n";
+			gnuplotScriptFile << "set format x \"%g\"\n";
+			gnuplotScriptFile << "set format y \"%g\"\n";
+			gnuplotScriptFile << "set xlabel \""  << "Profile" << "\"\n";
+			gnuplotScriptFile << "set ylabel \" " << mmr->metric_magnitude_name << " \"\n";
 			// # remove border on top and right and set color to gray
-			gnuplotScriptFile << "set style line 11 lc rgb '#808080' lt 1" << "\n";
-			gnuplotScriptFile << "set border 3 back ls 11" << "\n";
-			gnuplotScriptFile << "set tics nomirror" << "\n";
+			gnuplotScriptFile << "set style line 11 lc rgb '#808080' lt 1\n";
+			gnuplotScriptFile << "set border 3 back ls 11\n";
+			gnuplotScriptFile << "set tics nomirror\n";
 			// Color Paletes
-			gnuplotScriptFile << kUpsetsPalette << std::endl;
+			gnuplotScriptFile << kUpsetsPalette << "\n";
 			// line style
-			gnuplotScriptFile << "set style line 1 lc rgb '#5e9c36' pt 6 ps 1 lt 1 lw 2 # --- green" << "\n";
-			gnuplotScriptFile << "set style fill solid" << "\n";
+			gnuplotScriptFile << "set style line 1 lc rgb '#5e9c36' pt 6 ps 1 lt 1 lw 2 # --- green\n";
+			gnuplotScriptFile << "set style fill solid\n";
 			// // Background
 			gnuplotScriptFile << kWholeBackground << "\n";
 			// legend
-			gnuplotScriptFile << "set key bottom right" << "\n";
+			gnuplotScriptFile << "set key bottom right\n";
 			// Plot
-			gnuplotScriptFile << "plot '" << goldenFilePath << "' u 1:" << number2String(magResultIndex) << " w l ls 1 title 'Golden', \\" << "\n";
+			gnuplotScriptFile << "plot '" << goldenFilePath << "' u 1:" << number2String(magResultIndex) << " w l ls 1 title 'Golden', \\\n";
 			unsigned int irCount = 2;
 			for( auto const &ir : montecarlo_transient_simulation_results ){
 				gnuplotScriptFile << " '" << ir->get_processed_file_path() << "' u 1:" << number2String(magResultIndex)
-					<< " w p ls " << number2String(irCount++) << " notitle, \\" << "\n";
+					<< " w p ls " << number2String(irCount++) << " notitle, \\\n";
 			}
 			gnuplotScriptFile << "\n";
-			gnuplotScriptFile << "ntics = 15" << "\n";
-			gnuplotScriptFile << "set xtics ntics" << "\n";
-			gnuplotScriptFile << "unset output" << "\n";
+			gnuplotScriptFile << "ntics = 15\n";
+			gnuplotScriptFile << "set xtics ntics\n";
+			gnuplotScriptFile << "unset output\n";
 			// close file
-			gnuplotScriptFile << "quit" << "\n";
+			gnuplotScriptFile << "quit\n";
 		}catch (std::exception const& ex) {
 			std::string ex_what = ex.what();
 			log_io->ReportError2AllLogs( "Exception while parsing the file: ex-> " + ex_what );

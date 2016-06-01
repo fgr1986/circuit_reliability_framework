@@ -37,7 +37,7 @@ CriticalParameterNDParameterSweepSimulation::CriticalParameterNDParameterSweepSi
 
 CriticalParameterNDParameterSweepSimulation::~CriticalParameterNDParameterSweepSimulation(){
 	#ifdef DESTRUCTORS_VERBOSE
-		std::cout << ReportPlainStandard( "CriticalParameterNDParameterSweepSimulation destructor. direction:" + number2String(this) << std::endl;
+		std::cout << ReportPlainStandard( "CriticalParameterNDParameterSweepSimulation destructor. direction:" + number2String(this) << "\n";
 	#endif
 	// deleteContentsOfVectorOfPointers( critical_parameter_value_simulations_vector );
 	// altered parameters have already been destroyed in each critical_parameter_value_simulation destructor
@@ -339,8 +339,8 @@ bool CriticalParameterNDParameterSweepSimulation::GenerateAndPlotGeneralResults(
 		gnuplotMapFile.open( gnuplotMapFilePath.c_str() );
 		gnuplotSpectreErrorMapFile.open( gnuplotSpectreErrorMapFilePath.c_str() );
 		gnuplotMapFile << "#profCount #Profile" << " #"  << golden_critical_parameter->get_name()
-			<< " #MAG_i_name #MAG_i_maxErrorGlobal #MAG_i_maxErrorMetric" << std::endl;
-		gnuplotSpectreErrorMapFile << "#profCount #Profile #SpectreError " << std::endl;
+			<< " #MAG_i_name #MAG_i_maxErrorGlobal #MAG_i_maxErrorMetric\n";
+		gnuplotSpectreErrorMapFile << "#profCount #Profile #SpectreError \n";
 		unsigned int profileCount = 0;
 		for( auto const &simulation : *(critical_parameter_value_simulations_vector.get_spectre_simulations()) ){
 			CriticalParameterValueSimulation* convSim = dynamic_cast<CriticalParameterValueSimulation*>(simulation);
@@ -455,7 +455,7 @@ bool CriticalParameterNDParameterSweepSimulation::GenerateAndPlotItemizedPlane(
 		gnuplotMapFile.open( gnuplotMapFilePath.c_str() );
 		gnuplotMapFile << "#" << p1->get_name() << " " << p2->get_name()
 			<< " "  << golden_critical_parameter->get_name()
-			<< " #MAG_i_name #MAG_i_maxErrorGlobal #MAG_i_maxErrorMetric" << std::endl;
+			<< " #MAG_i_name #MAG_i_maxErrorGlobal #MAG_i_maxErrorMetric\n";
 		unsigned int profileCount = 0;
 		unsigned int p1SweepCount = 0;
 		unsigned int p2SweepCount = 0;
@@ -468,7 +468,7 @@ bool CriticalParameterNDParameterSweepSimulation::GenerateAndPlotItemizedPlane(
 				if( p2SweepCount==p2->get_sweep_steps_number() ){
 					p2SweepCount = 0;
 					++p1SweepCount;
-					gnuplotMapFile << std::endl;
+					gnuplotMapFile << "\n";
 				}
 				gnuplotMapFile << p1->GetSweepValue(p1SweepCount) << " " << p2->GetSweepValue(p2SweepCount++)
 					<< " " << convSim->get_critical_parameter_value();
@@ -523,56 +523,52 @@ int CriticalParameterNDParameterSweepSimulation::GnuplotGeneralResults(
 	gnuplotScriptFile.open( gnuplotScriptFilePath.c_str() );
 	// Svg
 	gnuplotScriptFile << "set term svg  size " << kSvgImageWidth << ","<< kSvgImageHeight
-		 << " fname " << kSvgFont << std::endl;
-	gnuplotScriptFile << "set output \"" << outputImagePath << "\"" << std::endl;
+		 << " fname " << kSvgFont << "\n";
+	gnuplotScriptFile << "set output \"" << outputImagePath << "\"\n";
 	gnuplotScriptFile << "set title \" " << title
-		 << " vs " << golden_critical_parameter->get_title_name() << " \"" << std::endl;
-	gnuplotScriptFile << "set grid" << std::endl;
+		 << " vs " << golden_critical_parameter->get_title_name() << " \"\n";
+	gnuplotScriptFile << "set grid\n";
 	// Axis
 	if( golden_critical_parameter->get_value_change_mode()!=kSPLineal ){
-		 gnuplotScriptFile << "set logscale y" << std::endl;
+		 gnuplotScriptFile << "set logscale y\n";
 	}
-	gnuplotScriptFile << "set format x \"%g\"" << std::endl;
-	gnuplotScriptFile << "set format y \"%g\"" << std::endl;
-	// gnuplotScriptFile << "set xlabel \""  << pairedParameter.get_title_name() << "\"" << std::endl;
-	gnuplotScriptFile << "set xlabel \""  << "Profile" << "\"" << std::endl;
-	gnuplotScriptFile << "set ylabel \""  << golden_critical_parameter->get_title_name() << "\"" << std::endl;
-	gnuplotScriptFile << "set y2label \"Spectre error\"" << std::endl;
+	gnuplotScriptFile << "set format x \"%g\"\n";
+	gnuplotScriptFile << "set format y \"%g\"\n";
+	gnuplotScriptFile << "set xlabel \""  << "Profile" << "\"\n";
+	gnuplotScriptFile << "set ylabel \""  << golden_critical_parameter->get_title_name() << "\"\n";
+	gnuplotScriptFile << "set y2label \"Spectre error\"\n";
 	// Color Paletes
-	gnuplotScriptFile << kUpsetsPalette << std::endl;
+	gnuplotScriptFile << kUpsetsPalette << "\n";
 	// # remove border on top and right and set color to gray
-	gnuplotScriptFile << "set style line 11 lc rgb '#808080' lt 1" << std::endl;
-	gnuplotScriptFile << "set border 3 back ls 11" << std::endl;
-	gnuplotScriptFile << "set tics nomirror" << std::endl;
+	gnuplotScriptFile << "set style line 11 lc rgb '#808080' lt 1\n";
+	gnuplotScriptFile << "set border 3 back ls 11\n";
+	gnuplotScriptFile << "set tics nomirror\n";
 	// line style
-	gnuplotScriptFile <<  "set style line 1 lc rgb '#8b1a0e' pt 1 ps 1 lt 1 lw 2 # --- red" << std::endl;
-	gnuplotScriptFile <<  "set style line 2 lc rgb '#5e9c36' pt 6 ps 1 lt 1 lw 2 # --- green" << std::endl;
-	gnuplotScriptFile <<  "set style fill solid" << std::endl;
+	gnuplotScriptFile <<  "set style line 1 lc rgb '#8b1a0e' pt 1 ps 1 lt 1 lw 2 # --- red\n";
+	gnuplotScriptFile <<  "set style line 2 lc rgb '#5e9c36' pt 6 ps 1 lt 1 lw 2 # --- green\n";
+	gnuplotScriptFile <<  "set style fill solid\n";
 	// // Background
-	gnuplotScriptFile << kWholeBackground << std::endl;
-	// // ranges
-	// gnuplotScriptFile << "set yrange [" << golden_critical_parameter->get_value_min() << ":" << golden_critical_parameter->get_value_max() << "]" << std::endl;
-	// gnuplotScriptFile << "set xrange [" << pairedParameter.get_value_min() << ":" << pairedParameter.get_value_max() << "]" << std::endl;
+	gnuplotScriptFile << kWholeBackground << "\n";
 	// legend
-	gnuplotScriptFile <<  "set key bottom right" << std::endl;
-	gnuplotScriptFile <<  "ntics = 10" << std::endl;
+	gnuplotScriptFile <<  "set key bottom right\n";
+	gnuplotScriptFile <<  "ntics = 10\n";
 	// Plot
 	// add xtics with xtic(2), u 1:3:xtic(2)
 	if( correctly_simulated ){
 		gnuplotScriptFile <<  "plot '" << gnuplotDataFile << "' u 1:3 axes x1y1 w lp ls 2 title '"
-			<< golden_critical_parameter->get_title_name() << "'" << std::endl;
+			<< golden_critical_parameter->get_title_name() << "'\n";
 
 	}else{
 		gnuplotScriptFile <<  "plot '" << gnuplotDataFile << "' u 1:3 axes x1y1 w lp ls 2 title '"
-			<< golden_critical_parameter->get_title_name() << "', \\" << std::endl;
-		gnuplotScriptFile <<  " '" << gnuplotSpectreErrorMapFilePath << "' u 1:3 axes x1y2 with boxes ls 1 notitle" << std::endl;
+			<< golden_critical_parameter->get_title_name() << "', \\\n";
+		gnuplotScriptFile <<  " '" << gnuplotSpectreErrorMapFilePath << "' u 1:3 axes x1y2 with boxes ls 1 notitle\n";
 	}
-	gnuplotScriptFile <<  "set xtics ntics" << std::endl;
+	gnuplotScriptFile <<  "set xtics ntics\n";
 
-	gnuplotScriptFile << "unset output" << std::endl;
+	gnuplotScriptFile << "unset output\n";
 
 	// close file
-	gnuplotScriptFile << "quit" << std::endl;
+	gnuplotScriptFile << "quit\n";
 	gnuplotScriptFile.close();
 	// Exec comand
 	std::string execCommand = kGnuplotCommand + gnuplotScriptFilePath + kGnuplotEndCommand;
@@ -600,65 +596,60 @@ int CriticalParameterNDParameterSweepSimulation::GnuplotGeneralMetricMagnitudeRe
 			gnuplotScriptFile.open( gnuplotScriptFilePath.c_str() );
 			// Svg
 			gnuplotScriptFile << "set term svg  size " << kSvgImageWidth << ","<< kSvgImageHeight
-				<< " fname " << kSvgFont << std::endl;
-			gnuplotScriptFile << "set output \"" << outputImagePath << "\"" << std::endl;
-			gnuplotScriptFile << "set title \" " << title << " \"" << std::endl;
-			gnuplotScriptFile << "set grid" << std::endl;
-			// Axis
-			// gnuplotScriptFile << "set logscale x" << std::endl;
-			// gnuplotScriptFile << "set logscale y" << std::endl;
-			gnuplotScriptFile << "set format x \"%g\"" << std::endl;
-			gnuplotScriptFile << "set format y \"%g\"" << std::endl;
-			gnuplotScriptFile << "set format y2 \"%g\"" << std::endl;
-			gnuplotScriptFile << "set xlabel \"Profile\"" << std::endl;
-			gnuplotScriptFile << "set y2label \"" << golden_critical_parameter->get_title_name() << " \%\"" << std::endl;
-			gnuplotScriptFile << "set ylabel \"Error in magnitude "  << m->get_title_name() << "\"" << std::endl;
+				<< " fname " << kSvgFont << "\n";
+			gnuplotScriptFile << "set output \"" << outputImagePath << "\"\n";
+			gnuplotScriptFile << "set title \" " << title << " \"\n";
+			gnuplotScriptFile << "set grid\n";
+			gnuplotScriptFile << "set format x \"%g\"\n";
+			gnuplotScriptFile << "set format y \"%g\"\n";
+			gnuplotScriptFile << "set format y2 \"%g\"\n";
+			gnuplotScriptFile << "set xlabel \"Profile\"\n";
+			gnuplotScriptFile << "set y2label \"" << golden_critical_parameter->get_title_name() << " \%\"\n";
+			gnuplotScriptFile << "set ylabel \"Error in magnitude "  << m->get_title_name() << "\"\n";
 			// # remove border on top and right and set color to gray
-			gnuplotScriptFile << "set style line 11 lc rgb '#808080' lt 1" << std::endl;
-			gnuplotScriptFile << "set border 3 back ls 11" << std::endl;
-			gnuplotScriptFile << "set tics nomirror" << std::endl;
-			gnuplotScriptFile << "set y2tics" << std::endl;
+			gnuplotScriptFile << "set style line 11 lc rgb '#808080' lt 1\n";
+			gnuplotScriptFile << "set border 3 back ls 11\n";
+			gnuplotScriptFile << "set tics nomirror\n";
+			gnuplotScriptFile << "set y2tics\n";
 			// palete range
 			if( maxCritCharge < 1 ){
 				maxCritCharge = 1;
 				// Palete
-				gnuplotScriptFile << kMinimalPalette << std::endl;
-				gnuplotScriptFile << "set y2range [0:1]" << std::endl;
-				gnuplotScriptFile << "set cbrange [0:1]" << std::endl;
+				gnuplotScriptFile << kMinimalPalette << "\n";
+				gnuplotScriptFile << "set y2range [0:1]\n";
+				gnuplotScriptFile << "set cbrange [0:1]\n";
 			}else{
 				// Color Paletes
-				gnuplotScriptFile << kUpsetsPalette << std::endl;
-				gnuplotScriptFile << "set y2range [0:"<< maxCritCharge << "]" << std::endl;
-				gnuplotScriptFile << "set cbrange [0:"<< maxCritCharge << "]" << std::endl;
+				gnuplotScriptFile << kUpsetsPalette << "\n";
+				gnuplotScriptFile << "set y2range [0:"<< maxCritCharge << "]\n";
+				gnuplotScriptFile << "set cbrange [0:"<< maxCritCharge << "]\n";
 			}
 			// line style
-			gnuplotScriptFile <<  "set style line 1 lc rgb '#ff3a00' lt 1 lw 1 pt 7 ps 1  # --- red" << std::endl;
-			gnuplotScriptFile <<  "set style line 2 lc rgb '#0060ad' lt 1 lw 3 pt 7 ps 1.5  # --- blue" << std::endl;
-			gnuplotScriptFile <<  "set style line 3 lc rgb '#ffd35a' lt 3 lw 1 pt 9 ps 1  # --- yellow" << std::endl;
-			gnuplotScriptFile <<  "set style line 4 lc rgb '#ff3a00' lt 3 lw 0 pt 9 ps 1  # --- red" << std::endl;
-			gnuplotScriptFile <<  "set style line 5 lc rgb '#666666' lt 3 lw 2 pt 9 ps 1  # --- grey " << std::endl;
-			gnuplotScriptFile <<  "set boxwidth 0.5 relative" << std::endl;
-			// gnuplotScriptFile <<  "set style fill transparent solid 0.7 noborder" << std::endl;
-			gnuplotScriptFile <<  "set style fill transparent solid 0.5" << std::endl;
+			gnuplotScriptFile <<  "set style line 1 lc rgb '#ff3a00' lt 1 lw 1 pt 7 ps 1  # --- red\n";
+			gnuplotScriptFile <<  "set style line 2 lc rgb '#0060ad' lt 1 lw 3 pt 7 ps 1.5  # --- blue\n";
+			gnuplotScriptFile <<  "set style line 3 lc rgb '#ffd35a' lt 3 lw 1 pt 9 ps 1  # --- yellow\n";
+			gnuplotScriptFile <<  "set style line 4 lc rgb '#ff3a00' lt 3 lw 0 pt 9 ps 1  # --- red\n";
+			gnuplotScriptFile <<  "set style line 5 lc rgb '#666666' lt 3 lw 2 pt 9 ps 1  # --- grey \n";
+			gnuplotScriptFile <<  "set boxwidth 0.5 relative\n";
+			gnuplotScriptFile <<  "set style fill transparent solid 0.5\n";
 			// // Background
-			gnuplotScriptFile << kWholeBackground << std::endl;
-			// gnuplotScriptFile << "set xrange [" << pairedParameter.get_value_min() << ":" << pairedParameter.get_value_max() << "]" << std::endl;
+			gnuplotScriptFile << kWholeBackground << "\n";
 			// Plot
 			// # 1              2            3         4                      5
 			// # profCount profile %crit_param #MAG_i_name #MAG_i_maxErrorGlobal #MAG_i_maxErrorMetric
 			int magDataIndex = 4 + data_per_magnitude_per_line*magCount; // title
 			gnuplotScriptFile <<  "plot '" << gnuplotDataFile << "' using 1:3 axis x1y2 with filledcurve x1 ls 3 title '\% "
-				<< golden_critical_parameter->get_title_name() << "', \\" << std::endl;
+				<< golden_critical_parameter->get_title_name() << "', \\\n";
 			gnuplotScriptFile <<  "     '" << gnuplotDataFile << "' u 1:" << (magDataIndex+1) << " axis x1y1  w lp ls 1 title '"
-				<< m->get_title_name() << "  (max\\_error\\_global)', \\" << std::endl;
+				<< m->get_title_name() << "  (max\\_error\\_global)', \\\n";
 			gnuplotScriptFile <<  "     '" << gnuplotDataFile << "' u 1:" << (magDataIndex+2) << " axis x1y1  w lp ls 2 title '"
-				<< m->get_title_name() << "  (max\\_error\\_metric)'" << std::endl;
+				<< m->get_title_name() << "  (max\\_error\\_metric)'\n";
 			// legend
-			gnuplotScriptFile <<  "set key top left" << std::endl;
+			gnuplotScriptFile <<  "set key top left\n";
 
-			gnuplotScriptFile << "unset output" << std::endl;
+			gnuplotScriptFile << "unset output\n";
 			// close file
-			gnuplotScriptFile << "quit" << std::endl;
+			gnuplotScriptFile << "quit\n";
 			gnuplotScriptFile.close();
 			// Exec comand
 			std::string execCommand = kGnuplotCommand + gnuplotScriptFilePath + kGnuplotEndCommand;
@@ -684,53 +675,47 @@ int CriticalParameterNDParameterSweepSimulation::GnuplotPlane(
 	// Generate scripts
 	std::ofstream gnuplotScriptFile;
 	gnuplotScriptFile.open( gnuplotScriptFilePath.c_str() );
-	gnuplotScriptFile << "set term svg  size " << kSvgImageWidth << ","<< kSvgImageHeight << " fname " << kSvgFont << std::endl;
-	gnuplotScriptFile << "set output \"" << outputImagePath << "\"" << std::endl;
+	gnuplotScriptFile << "set term svg  size " << kSvgImageWidth << ","<< kSvgImageHeight << " fname " << kSvgFont << "\n";
+	gnuplotScriptFile << "set output \"" << outputImagePath << "\"\n";
 
-	// gnuplotScriptFile << "set view 60, 300" << std::endl;
-	gnuplotScriptFile << "set grid" << std::endl;
-	// Axix border
-	// gnuplotScriptFile << "set border 4095" << std::endl;
+	gnuplotScriptFile << "set grid\n";
 	// Axis
 	if( p1.get_value_change_mode()!=kSPLineal ){
-		gnuplotScriptFile << "set logscale x" << std::endl;
+		gnuplotScriptFile << "set logscale x\n";
 	}
 	if( p2.get_value_change_mode()!=kSPLineal ){
-		gnuplotScriptFile << "set logscale y" << std::endl;
+		gnuplotScriptFile << "set logscale y\n";
 	}
-	gnuplotScriptFile << "set format x \"%g\"" << std::endl;
-	gnuplotScriptFile << "set format y \"%g\"" << std::endl;
-	gnuplotScriptFile << "set mxtics" << std::endl;
-	gnuplotScriptFile << "set xlabel \""  << p1.get_title_name() << "\"" << std::endl;
-	gnuplotScriptFile << "set ylabel \""  << p2.get_title_name() << "\"" << std::endl;
-	gnuplotScriptFile << "set zlabel \"" << golden_critical_parameter->get_title_name() << "\" offset -2.5,0" << std::endl;
+	gnuplotScriptFile << "set format x \"%g\"\n";
+	gnuplotScriptFile << "set format y \"%g\"\n";
+	gnuplotScriptFile << "set mxtics\n";
+	gnuplotScriptFile << "set xlabel \""  << p1.get_title_name() << "\"\n";
+	gnuplotScriptFile << "set ylabel \""  << p2.get_title_name() << "\"\n";
+	gnuplotScriptFile << "set zlabel \"" << golden_critical_parameter->get_title_name() << "\" offset -2.5,0\n";
 	// Offset for xtics
-	gnuplotScriptFile << "set ytics left offset 0,-0.5" << std::endl;
-	// Format
-	// gnuplotScriptFile << "set format cb \"%g%%\"" << std::endl;
+	gnuplotScriptFile << "set ytics left offset 0,-0.5\n";
 	// Color Paletes
-	gnuplotScriptFile << kUpsetsPalette << std::endl;
+	gnuplotScriptFile << kUpsetsPalette << "\n";
 	// Background
-	gnuplotScriptFile << kWholeBackground << std::endl;
+	gnuplotScriptFile << kWholeBackground << "\n";
 	gnuplotScriptFile << "set title \"" << golden_critical_parameter->get_title_name()
-		<< ", " << partialPlaneId << " \"" << std::endl;
-	gnuplotScriptFile << kTransparentObjects << std::endl;
+		<< ", " << partialPlaneId << " \"\n";
+	gnuplotScriptFile << kTransparentObjects << "\n";
 	// linestyle
-	gnuplotScriptFile << kElegantLine << std::endl;
+	gnuplotScriptFile << kElegantLine << "\n";
 	// mp3d interpolation and hidden3d
 	// mp3d z-offset, interpolation and hidden3d
-	gnuplotScriptFile <<  "set ticslevel 0" << std::endl;
-	gnuplotScriptFile << "set pm3d hidden3d 100" << std::endl;
+	gnuplotScriptFile <<  "set ticslevel 0\n";
+	gnuplotScriptFile << "set pm3d hidden3d 100\n";
 	if( interpolate_plots_ratio >= 0 ){
-		gnuplotScriptFile << "set pm3d interpolate " << interpolate_plots_ratio << "," << interpolate_plots_ratio << std::endl;
+		gnuplotScriptFile << "set pm3d interpolate " << interpolate_plots_ratio << "," << interpolate_plots_ratio << "\n";
 	}else{
-		// gnuplotScriptFile << "set pm3d corners2color c1" << std::endl;
-		gnuplotScriptFile << "set pm3d corners2color max" << std::endl;
+		gnuplotScriptFile << "set pm3d corners2color max\n";
 	}
-	gnuplotScriptFile << "splot '" << gnuplotDataFile << "' u 1:2:3 notitle w pm3d" << std::endl;
-	gnuplotScriptFile << "unset output" << std::endl;
+	gnuplotScriptFile << "splot '" << gnuplotDataFile << "' u 1:2:3 notitle w pm3d\n";
+	gnuplotScriptFile << "unset output\n";
 	// close file
-	gnuplotScriptFile << "quit" << std::endl;
+	gnuplotScriptFile << "quit\n";
 	gnuplotScriptFile.close();
 
 	// Exec comand
@@ -765,56 +750,52 @@ int CriticalParameterNDParameterSweepSimulation::GnuplotPlaneMagnitudeResults(
 			// Generate scripts
 			std::ofstream gnuplotScriptFile;
 			gnuplotScriptFile.open( gnuplotScriptFilePath.c_str() );
-			gnuplotScriptFile << "set term svg  size " << kSvgImageWidth << ","<< kSvgImageHeight << " fname " << kSvgFont << std::endl;
-			gnuplotScriptFile << "set output \"" << outputImagePath  << "\"" << std::endl;
-			// gnuplotScriptFile << "set view 60, 300" << std::endl;
-			gnuplotScriptFile << "set grid" << std::endl;
-			// Axix border
-			// gnuplotScriptFile << "set border 4095" << std::endl;
+			gnuplotScriptFile << "set term svg  size " << kSvgImageWidth << ","<< kSvgImageHeight << " fname " << kSvgFont << "\n";
+			gnuplotScriptFile << "set output \"" << outputImagePath  << "\"\n";
+			gnuplotScriptFile << "set grid\n";
 			// Axis
 			if( p1.get_value_change_mode()!=kSPLineal ){
-				gnuplotScriptFile << "set logscale x" << std::endl;
+				gnuplotScriptFile << "set logscale x\n";
 			}
 			if( p2.get_value_change_mode()!=kSPLineal ){
-				gnuplotScriptFile << "set logscale y" << std::endl;
+				gnuplotScriptFile << "set logscale y\n";
 			}
-			gnuplotScriptFile << "set format x \"%g\"" << std::endl;
-			gnuplotScriptFile << "set format y \"%g\"" << std::endl;
-			gnuplotScriptFile << "set mxtics" << std::endl;
-			gnuplotScriptFile << "set xlabel \"" << p1.get_title_name() << "\"" << std::endl;
-			gnuplotScriptFile << "set ylabel \"" << p2.get_title_name() << "\"" << std::endl;
-			gnuplotScriptFile << "set zlabel \"" << m->get_title_name() << "\" offset -2.5,0" << std::endl;
+			gnuplotScriptFile << "set format x \"%g\"\n";
+			gnuplotScriptFile << "set format y \"%g\"\n";
+			gnuplotScriptFile << "set mxtics\n";
+			gnuplotScriptFile << "set xlabel \"" << p1.get_title_name() << "\"\n";
+			gnuplotScriptFile << "set ylabel \"" << p2.get_title_name() << "\"\n";
+			gnuplotScriptFile << "set zlabel \"" << m->get_title_name() << "\" offset -2.5,0\n";
 			// Offset for xtics
-			gnuplotScriptFile << "set ytics left offset 0,-0.5" << std::endl;
+			gnuplotScriptFile << "set ytics left offset 0,-0.5\n";
 			// Format
-			gnuplotScriptFile << "set format cb \"%g\"" << std::endl;
+			gnuplotScriptFile << "set format cb \"%g\"\n";
 			// Color Paletes
-			gnuplotScriptFile << kUpsetsPalette << std::endl;
+			gnuplotScriptFile << kUpsetsPalette << "\n";
 			// Background
-			gnuplotScriptFile << kWholeBackground << std::endl;
-			gnuplotScriptFile << "set title \"" << title << " \"" << std::endl;
-			gnuplotScriptFile << kTransparentObjects << std::endl;
+			gnuplotScriptFile << kWholeBackground << "\n";
+			gnuplotScriptFile << "set title \"" << title << " \"\n";
+			gnuplotScriptFile << kTransparentObjects << "\n";
 			// linestyle
-			gnuplotScriptFile << kElegantLine << std::endl;
-			gnuplotScriptFile << "set style line 1 lc rgb '#aa3333' lt 1 pt 6 ps 1 lw 1" << std::endl;
+			gnuplotScriptFile << kElegantLine << "\n";
+			gnuplotScriptFile << "set style line 1 lc rgb '#aa3333' lt 1 pt 6 ps 1 lw 1\n";
 			// mp3d interpolation and hidden3d
 			// mp3d z-offset, interpolation and hidden3d
-			gnuplotScriptFile <<  "set ticslevel 0" << std::endl;
-			gnuplotScriptFile << "set pm3d hidden3d 100" << std::endl;
+			gnuplotScriptFile <<  "set ticslevel 0\n";
+			gnuplotScriptFile << "set pm3d hidden3d 100\n";
 			if( interpolate_plots_ratio >= 0 ){
-				gnuplotScriptFile << "set pm3d interpolate " << interpolate_plots_ratio << "," << interpolate_plots_ratio << std::endl;
+				gnuplotScriptFile << "set pm3d interpolate " << interpolate_plots_ratio << "," << interpolate_plots_ratio << "\n";
 			}else{
-				// gnuplotScriptFile << "set pm3d corners2color c1" << std::endl;
-				gnuplotScriptFile << "set pm3d corners2color max" << std::endl;
+				gnuplotScriptFile << "set pm3d corners2color max\n";
 			}
 			int magDataIndex = 4 + data_per_magnitude_per_line*magCount; // title
 			gnuplotScriptFile << "splot '" << gnuplotDataFile << "' u 1:2:" << (magDataIndex+1)
-				<< " title 'global_max_err_" << m->get_title_name() << "' w lp ls 1, \\" << std::endl;
+				<< " title 'global_max_err_" << m->get_title_name() << "' w lp ls 1, \\\n";
 			gnuplotScriptFile << " '" << gnuplotDataFile << "' u 1:2:" << (magDataIndex+2)
-					<< " title 'metric_max_err_" << m->get_title_name() << "' w pm3d" << std::endl;
-			gnuplotScriptFile << "unset output" << std::endl;
+					<< " title 'metric_max_err_" << m->get_title_name() << "' w pm3d\n";
+			gnuplotScriptFile << "unset output\n";
 			// close file
-			gnuplotScriptFile << "quit" << std::endl;
+			gnuplotScriptFile << "quit\n";
 			gnuplotScriptFile.close();
 
 			// Exec comand

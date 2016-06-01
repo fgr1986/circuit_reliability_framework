@@ -28,16 +28,16 @@ TransientSimulationResults::TransientSimulationResults() {
 
 TransientSimulationResults::~TransientSimulationResults(){
 	#ifdef DESTRUCTORS_VERBOSE
-		std::cout<< "TransientSimulationResults destructor. direction:" + number2String(this) <<std::endl;
-		std::cout<< "simulation_parameters.clear()" <<std::endl;
+		std::cout<< "TransientSimulationResults destructor. direction:" + number2String(this) << "\n";
+		std::cout<< "simulation_parameters.clear()\n";
 	#endif
 	simulation_parameters.clear();
 	#ifdef DESTRUCTORS_VERBOSE
-		std::cout<< "deleteContentsOfVectorOfPointers( magnitudes_errors )" <<std::endl;
+		std::cout<< "deleteContentsOfVectorOfPointers( magnitudes_errors )\n";
 	#endif
 	deleteContentsOfVectorOfPointers( magnitudes_errors );
 	#ifdef DESTRUCTORS_VERBOSE
-		std::cout<< "destructor of TransientSimulationResults ended" <<std::endl;
+		std::cout<< "destructor of TransientSimulationResults ended\n";
 	#endif
 }
 

@@ -33,7 +33,7 @@ GoldenNDParametersSweepSimulation::GoldenNDParametersSweepSimulation() {
 
 GoldenNDParametersSweepSimulation::~GoldenNDParametersSweepSimulation(){
 	#ifdef DESTRUCTORS_VERBOSE
-		std::cout <<  "GoldenNDParametersSweepSimulation destructor. direction:" + number2String(this) << std::endl;
+		std::cout <<  "GoldenNDParametersSweepSimulation destructor. direction:" + number2String(this) << "\n";
 	#endif
 	// not required
 	// delete golden_simulations_vector;

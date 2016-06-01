@@ -5,11 +5,10 @@
 * **To do: Latex/Html export**
 * **TO DO** include default '1' and '0' analog values for upper/lower error omissions.
 * **TO DO** simulation_parameter_golden_fixed in radiation scenarios
-* **TO DO** replace std::endl with '\n' for improving speed.
 * **¿TO DO? Regex for large components (ports)**
 * **Create folder should be 'static' in a IO Class**
-* Instance.Nodes instead absolute nodes
-* Ponderated Nodes
+* **Instance. Nodes instead absolute nodes**
+* Weighted Nodes
 
 # Changelog of version 2.9.2_beta
 * Starting with montecarlo_critical_parameter_nd_parameters_sweep_simulation

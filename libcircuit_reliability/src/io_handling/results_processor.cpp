@@ -27,7 +27,7 @@ ResultsProcessor::ResultsProcessor() {
 
 ResultsProcessor::~ResultsProcessor() {
 	#ifdef DESTRUCTORS_VERBOSE
-		std::cout<< "ResultsProcessor destructor" << std::endl;
+		std::cout<< "ResultsProcessor destructor\n";
 	#endif
 }
 

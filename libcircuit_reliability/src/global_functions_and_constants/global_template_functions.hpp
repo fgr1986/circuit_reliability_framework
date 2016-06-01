@@ -115,7 +115,7 @@ void PrintIndexes( const std::vector<any_number>& indexes ){
 	for (auto& i : indexes ){
 		std::cout << number2String(i) << ' ';
 	}
-	std::cout << std::endl;
+	std::cout << "\n";
 }
 
 /**
@@ -164,7 +164,7 @@ void UpdateNonSelectedParameterSweepIndexes(
 		parameterSweepIndexes.at(lastParam) = parameterSweepIndexes.at(lastParam)+1;
 	}else{
 		// fgarcia debug there is no param that can be updated
-		// std::cout << "there is no param that can be updated, lastParam: " << lastParam << std::endl;
+		// std::cout << "there is no param that can be updated, lastParam: " << lastParam << "\n";
 		return;
 	}
 	// check overflow
@@ -217,7 +217,7 @@ std::vector<any_number>* GetProfilesInPlane(
 			if( pIndex!=pAIndex && pIndex!=pBIndex ){
 				inPlane = inPlane && indexesPattern.at(pIndex)== parameterCountIndexes.at(pIndex);
 				// if(inPlane){
-				// 	std::cout << "pIndex " << number2String(pIndex) << " is " << number2String(indexesPattern.at(pIndex))  << std::endl;
+				// 	std::cout << "pIndex " << number2String(pIndex) << " is " << number2String(indexesPattern.at(pIndex))  << "\n";
 				// }
 			}
 		}

@@ -24,7 +24,7 @@ SpectreSimulationsVector::SpectreSimulationsVector() {
 
 SpectreSimulationsVector::~SpectreSimulationsVector(){
 	#ifdef DESTRUCTORS_VERBOSE
-		std::cout << "SpectreSimulationsVector destructor" << std::endl;
+		std::cout << "SpectreSimulationsVector destructor\n";
 	#endif
 	deleteContentsOfVectorOfPointers( spectre_simulations );
 }

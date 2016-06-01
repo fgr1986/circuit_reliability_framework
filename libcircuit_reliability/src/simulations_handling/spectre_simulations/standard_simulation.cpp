@@ -25,7 +25,7 @@ StandardSimulation::StandardSimulation() {
 
 StandardSimulation::~StandardSimulation(){
 	#ifdef DESTRUCTORS_VERBOSE
-		std::cout << "StandardSimulation destructor" << std::endl;
+		std::cout << "StandardSimulation destructor" << "\n";
 	#endif
 }
 

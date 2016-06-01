@@ -52,11 +52,11 @@ SpectreSimulation::SpectreSimulation() {
 
 SpectreSimulation::~SpectreSimulation(){
 	#ifdef DESTRUCTORS_VERBOSE
-		std::cout << "SpectreSimulation destructor" << std::endl;;
+		std::cout << "SpectreSimulation destructor" << "\n";;
 	#endif
 	if( simulation_parameters ){
 		#ifdef DESTRUCTORS_VERBOSE
-			std::cout << "deleteContentsOfVectorOfPointers( *simulation_parameters ) in SpectreSimulation destructor" << std::endl;;
+			std::cout << "deleteContentsOfVectorOfPointers( *simulation_parameters ) in SpectreSimulation destructor\n";
 		#endif
 		deleteContentsOfVectorOfPointers( *simulation_parameters );
 	}
@@ -278,7 +278,7 @@ bool SpectreSimulation::InterpolateAndAnalyzeMagnitude( TransientSimulationResul
 		computedErrorFile.open( computedErrorFilePath.c_str() );
 		computedErrorFile << "# ID: " << partialId << "\n";
 		computedErrorFile << "# Mag: " << goldenMagnitude.get_name() << "\n";
-		computedErrorFile << "# time currentAbsError maxAbsError maxAbsErrorGlobal goldenValue simulatedValue" << "\n";
+		computedErrorFile << "# time currentAbsError maxAbsError maxAbsErrorGlobal goldenValue simulatedValue\n";
 	}
 
 	// current error etc
@@ -756,18 +756,18 @@ int SpectreSimulation::CreateGnuplotTransientImages( const std::string& localSim
 	// static script
 	std::ofstream gnuplotScriptFile;
 	gnuplotScriptFile.open( gnuplotScriptFilePath.c_str() );
-	gnuplotScriptFile << "set grid" << "\n";
+	gnuplotScriptFile << "set grid\n";
 	// Axis
-	gnuplotScriptFile << "set format x \"%g\"" << "\n";
-	gnuplotScriptFile << "set format y \"%g\"" << "\n";
+	gnuplotScriptFile << "set format x \"%g\"\n";
+	gnuplotScriptFile << "set format y \"%g\"\n";
 
 	// # remove border on top and right and set color to gray
-	gnuplotScriptFile << "set style line 11 lc rgb '#808080' lt 1" << "\n";
-	gnuplotScriptFile << "set border 3 back ls 11" << "\n";
-	gnuplotScriptFile << "set tics nomirror" << "\n";
+	gnuplotScriptFile << "set style line 11 lc rgb '#808080' lt 1\n";
+	gnuplotScriptFile << "set border 3 back ls 11\n";
+	gnuplotScriptFile << "set tics nomirror\n";
 	// line style
-	gnuplotScriptFile <<  "set style line 1 lc rgb '#8b1a0e' pt 1 ps 1 lt 1 lw 2 # --- red" << "\n";
-	gnuplotScriptFile <<  "set style line 2 lc rgb '#5e9c36' pt 6 ps 1 lt 1 lw 2 # --- green" << "\n";
+	gnuplotScriptFile <<  "set style line 1 lc rgb '#8b1a0e' pt 1 ps 1 lt 1 lw 2 # --- red\n";
+	gnuplotScriptFile <<  "set style line 2 lc rgb '#5e9c36' pt 6 ps 1 lt 1 lw 2 # --- green\n";
 	// plots
 	int indexCount = 2;
 	std::vector<Magnitude*>* golden_magnitudes =
@@ -784,19 +784,19 @@ int SpectreSimulation::CreateGnuplotTransientImages( const std::string& localSim
 			// Svg
 			gnuplotScriptFile <<  "set term svg  size "<< kSvgImageWidth << ","
 				<< kSvgImageHeight << " fname " << kSvgFont << "\n";
-			gnuplotScriptFile <<  "set output \"" << outputImagePath  << "\"" << "\n";
+			gnuplotScriptFile <<  "set output \"" << outputImagePath  << "\"\n";
 
 			// magnitudes
-			gnuplotScriptFile <<  "set xlabel \"time\"" << "\n";
-			gnuplotScriptFile <<  "set ylabel \"" << mgName <<  "\"" << "\n";
-			gnuplotScriptFile <<  "set title \"" << mgName << " \"" << "\n";
-			gnuplotScriptFile <<  "set key bottom right" << "\n";
+			gnuplotScriptFile <<  "set xlabel \"time\"\n";
+			gnuplotScriptFile <<  "set ylabel \"" << mgName <<  "\"\n";
+			gnuplotScriptFile <<  "set title \"" << mgName << " \"\n";
+			gnuplotScriptFile <<  "set key bottom right\n";
 			// Plot
 			gnuplotScriptFile <<  "plot '" << transientSimulationResults.get_processed_file_path() << "' u 1:"
-				+ number2String(indexCount) << " w lp ls 1 title 'altered', \\" << "\n";
+				+ number2String(indexCount) << " w lp ls 1 title 'altered', \\\n";
 			gnuplotScriptFile <<  " '" + goldenFilePath + "' u 1:"
-				+ number2String(indexCount) << " w lp ls 2 title 'golden'" << "\n";
-			gnuplotScriptFile << "unset output" << "\n";
+				+ number2String(indexCount) << " w lp ls 2 title 'golden'\n";
+			gnuplotScriptFile << "unset output\n";
 			// Add images path
 			transientSimulationResults.AddTransientImage( outputImagePath, mgName );
 		}else if( (*it_mg)->get_plottable() ){
@@ -804,7 +804,7 @@ int SpectreSimulation::CreateGnuplotTransientImages( const std::string& localSim
 		}
 		++indexCount;
 	}
-	gnuplotScriptFile << std::endl << "quit" << "\n";
+	gnuplotScriptFile << "\nquit\n";
 	// close file
 	gnuplotScriptFile.close();
 

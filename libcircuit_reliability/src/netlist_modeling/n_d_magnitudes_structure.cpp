@@ -49,14 +49,14 @@ NDMagnitudesStructure::NDMagnitudesStructure(const NDMagnitudesStructure& orig) 
 NDMagnitudesStructure::~NDMagnitudesStructure(){
 
 	#ifdef DESTRUCTORS_VERBOSE
-	std::cout << "Deleting NDMagnitudesStructure magnitudes" <<std::endl;
+	std::cout << "Deleting NDMagnitudesStructure magnitudes\n";
 	#endif
 	/// deleting the 2D structure
 	for( auto const& ms : *magnitudes_structure ){
 		deleteContentsOfVectorOfPointers( *ms );
 	}
 	#ifdef DESTRUCTORS_VERBOSE
-	std::cout << "Deleting NDMagnitudesStructure files_structure" <<std::endl;
+	std::cout << "Deleting NDMagnitudesStructure files_structure\n";
 	#endif
 	/// deleting the 1D structure
 	files_structure->clear();

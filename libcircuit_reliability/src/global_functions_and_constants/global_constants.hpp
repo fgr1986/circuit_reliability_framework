@@ -23,7 +23,7 @@
 // #define SPECTRE_SIMULATIONS_VERBOSE ;
 // Result analysis verbose
 // #define RESULTS_ANALYSIS_VERBOSE ;
-#define RESULTS_POST_PROCESSING_VERBOSE ;
+// #define RESULTS_POST_PROCESSING_VERBOSE ;
 // Result destructors verbose
 // #define DESTRUCTORS_VERBOSE ;
 

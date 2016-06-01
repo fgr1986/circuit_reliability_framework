@@ -172,43 +172,42 @@ bool GlobalResults::PlotCriticalParameterValueSimulationMode(
 	try{
 		generalGSF.open( generalGSFPath.c_str() );
 		// Svg
-		generalGSF << "set term svg  size " << kSvgImageWidth << ","<< kSvgImageHeight << " fname " << kSvgFont << std::endl;
-		generalGSF << "set output \"" << generalIPath << "\"" << std::endl;
-		generalGSF << "set title \" " << title << " \"" << std::endl;
-		generalGSF << "set grid" << std::endl;
+		generalGSF << "set term svg  size " << kSvgImageWidth << ","<< kSvgImageHeight << " fname " << kSvgFont << "\n";
+		generalGSF << "set output \"" << generalIPath << "\"\n";
+		generalGSF << "set title \" " << title << " \"\n";
+		generalGSF << "set grid\n";
 		// Axis
-		generalGSF << "set format x \"%g\"" << std::endl;
-		generalGSF << "set format y \"%g\"" << std::endl;
-		generalGSF << "set xlabel \"Scenario\"" << std::endl;
-		generalGSF << "set ylabel \""  << criticalParameter.get_title_name() << "\"" << std::endl;
+		generalGSF << "set format x \"%g\"\n";
+		generalGSF << "set format y \"%g\"\n";
+		generalGSF << "set xlabel \"Scenario\"\n";
+		generalGSF << "set ylabel \""  << criticalParameter.get_title_name() << "\"\n";
 		// # remove border on top and right and set color to gray
-		generalGSF << "set style line 11 lc rgb '#808080' lt 1" << std::endl;
-		generalGSF << "set border 3 back ls 11" << std::endl;
-		generalGSF << "set tics nomirror" << std::endl;
-		generalGSF << "set y2tics" << std::endl;
+		generalGSF << "set style line 11 lc rgb '#808080' lt 1\n";
+		generalGSF << "set border 3 back ls 11\n";
+		generalGSF << "set tics nomirror\n";
+		generalGSF << "set y2tics\n";
 		// palete range
-		generalGSF << kUpsetsPalette << std::endl;
+		generalGSF << kUpsetsPalette << "\n";
 		// line style
-		generalGSF <<  "set style line 1 lc rgb '#ff3a00' lt 1 lw 1 pt 7 ps 1  # --- red" << std::endl;
-		generalGSF <<  "set style line 2 lc rgb '#0060ad' lt 1 lw 3 pt 7 ps 1.5  # --- blue" << std::endl;
-		generalGSF <<  "set style line 3 lc rgb '#ffd35a' lt 3 lw 1 pt 9 ps 1  # --- yellow" << std::endl;
-		generalGSF <<  "set style line 4 lc rgb '#ff3a00' lt 3 lw 0 pt 9 ps 1  # --- red" << std::endl;
-		generalGSF <<  "set style line 5 lc rgb '#666666' lt 3 lw 2 pt 9 ps 1  # --- grey " << std::endl;
-		generalGSF <<  "set boxwidth 0.5 relative" << std::endl;
-		// generalGSF <<  "set style fill transparent solid 0.7 noborder" << std::endl;
-		generalGSF <<  "set style fill transparent solid 0.5" << std::endl;
+		generalGSF <<  "set style line 1 lc rgb '#ff3a00' lt 1 lw 1 pt 7 ps 1  # --- red\n";
+		generalGSF <<  "set style line 2 lc rgb '#0060ad' lt 1 lw 3 pt 7 ps 1.5  # --- blue\n";
+		generalGSF <<  "set style line 3 lc rgb '#ffd35a' lt 3 lw 1 pt 9 ps 1  # --- yellow\n";
+		generalGSF <<  "set style line 4 lc rgb '#ff3a00' lt 3 lw 0 pt 9 ps 1  # --- red\n";
+		generalGSF <<  "set style line 5 lc rgb '#666666' lt 3 lw 2 pt 9 ps 1  # --- grey \n";
+		generalGSF <<  "set boxwidth 0.5 relative\n";
+		generalGSF <<  "set style fill transparent solid 0.5\n";
 		// // Background
-		generalGSF << kWholeBackground << std::endl;
+		generalGSF << kWholeBackground << "\n";
 		// #altered_scenario_index #simulation_id #altered_element_path
 		// #folder #correctlySimulated #affected_by_min_value #affected_by_min_value
 	 	// #critical_parameter_value" << " #MAG_i_name #MAG_i_maxErrorGlobal #MAG_i_maxErrorMetric
 		generalGSF <<  "plot '" << gnuplotDataFile << "' using 1:" << critParamOffset
-			<< " axis x1y1 with lp ls 2 title '" << criticalParameter.get_title_name() << "'" << std::endl;
+			<< " axis x1y1 with lp ls 2 title '" << criticalParameter.get_title_name() << "'\n";
 		// legend
-		generalGSF <<  "set key top left" << std::endl;
-		generalGSF << "unset output" << std::endl;
+		generalGSF <<  "set key top left\n";
+		generalGSF << "unset output\n";
 		// close file
-		generalGSF << "quit" << std::endl;
+		generalGSF << "quit\n";
 	}catch (std::exception const& ex) {
 		std::string ex_what = ex.what();
 		log_io->ReportError2AllLogs( "Exception while parsing the file: ex-> " + ex_what );
@@ -234,50 +233,49 @@ bool GlobalResults::PlotCriticalParameterValueSimulationMode(
 				gnuplotScriptFile.open( gnuplotScriptFilePath.c_str() );
 				// Svg
 				gnuplotScriptFile << "set term svg  size " << kSvgImageWidth << ","<< kSvgImageHeight
-					<< " fname " << kSvgFont << std::endl;
-				gnuplotScriptFile << "set output \"" << outputImagePath << "\"" << std::endl;
-				gnuplotScriptFile << "set title \" " << title << " \"" << std::endl;
-				gnuplotScriptFile << "set grid" << std::endl;
+					<< " fname " << kSvgFont << "\n";
+				gnuplotScriptFile << "set output \"" << outputImagePath << "\"\n";
+				gnuplotScriptFile << "set title \" " << title << " \"\n";
+				gnuplotScriptFile << "set grid\n";
 				// Axis
-				gnuplotScriptFile << "set format x \"%g\"" << std::endl;
-				gnuplotScriptFile << "set format y \"%g\"" << std::endl;
-				gnuplotScriptFile << "set format y2 \"%g\"" << std::endl;
-				gnuplotScriptFile << "set xlabel \"Profile\"" << std::endl;
-				gnuplotScriptFile << "set y2label \"" << criticalParameter.get_title_name() << " \%\"" << std::endl;
-				gnuplotScriptFile << "set ylabel \"Error in magnitude "  << m->get_title_name() << "\"" << std::endl;
+				gnuplotScriptFile << "set format x \"%g\"\n";
+				gnuplotScriptFile << "set format y \"%g\"\n";
+				gnuplotScriptFile << "set format y2 \"%g\"\n";
+				gnuplotScriptFile << "set xlabel \"Profile\"\n";
+				gnuplotScriptFile << "set y2label \"" << criticalParameter.get_title_name() << " \%\"\n";
+				gnuplotScriptFile << "set ylabel \"Error in magnitude "  << m->get_title_name() << "\"\n";
 				// # remove border on top and right and set color to gray
-				gnuplotScriptFile << "set style line 11 lc rgb '#808080' lt 1" << std::endl;
-				gnuplotScriptFile << "set border 3 back ls 11" << std::endl;
-				gnuplotScriptFile << "set tics nomirror" << std::endl;
-				gnuplotScriptFile << "set y2tics" << std::endl;
+				gnuplotScriptFile << "set style line 11 lc rgb '#808080' lt 1\n";
+				gnuplotScriptFile << "set border 3 back ls 11\n";
+				gnuplotScriptFile << "set tics nomirror\n";
+				gnuplotScriptFile << "set y2tics\n";
 				// palete range
 				// Color Paletes
-				gnuplotScriptFile << kUpsetsPalette << std::endl;
+				gnuplotScriptFile << kUpsetsPalette << "\n";
 				// line style
-				gnuplotScriptFile <<  "set style line 1 lc rgb '#ff3a00' lt 1 lw 1 pt 7 ps 1  # --- red" << std::endl;
-				gnuplotScriptFile <<  "set style line 2 lc rgb '#0060ad' lt 1 lw 3 pt 7 ps 1.5  # --- blue" << std::endl;
-				gnuplotScriptFile <<  "set style line 3 lc rgb '#ffd35a' lt 3 lw 1 pt 9 ps 1  # --- yellow" << std::endl;
-				gnuplotScriptFile <<  "set style line 4 lc rgb '#ff3a00' lt 3 lw 0 pt 9 ps 1  # --- red" << std::endl;
-				gnuplotScriptFile <<  "set style line 5 lc rgb '#666666' lt 3 lw 2 pt 9 ps 1  # --- grey " << std::endl;
-				gnuplotScriptFile <<  "set boxwidth 0.5 relative" << std::endl;
-				// gnuplotScriptFile <<  "set style fill transparent solid 0.7 noborder" << std::endl;
-				gnuplotScriptFile <<  "set style fill transparent solid 0.5" << std::endl;
+				gnuplotScriptFile <<  "set style line 1 lc rgb '#ff3a00' lt 1 lw 1 pt 7 ps 1  # --- red\n";
+				gnuplotScriptFile <<  "set style line 2 lc rgb '#0060ad' lt 1 lw 3 pt 7 ps 1.5  # --- blue\n";
+				gnuplotScriptFile <<  "set style line 3 lc rgb '#ffd35a' lt 3 lw 1 pt 9 ps 1  # --- yellow\n";
+				gnuplotScriptFile <<  "set style line 4 lc rgb '#ff3a00' lt 3 lw 0 pt 9 ps 1  # --- red\n";
+				gnuplotScriptFile <<  "set style line 5 lc rgb '#666666' lt 3 lw 2 pt 9 ps 1  # --- grey \n";
+				gnuplotScriptFile <<  "set boxwidth 0.5 relative\n";
+				gnuplotScriptFile <<  "set style fill transparent solid 0.5\n";
 				// // Background
-				gnuplotScriptFile << kWholeBackground << std::endl;
+				gnuplotScriptFile << kWholeBackground << "\n";
 				int magDataIndex = firstMagOffset + dataPerMagnitudePerLine*magCount; // title
 				gnuplotScriptFile <<  "plot '" << gnuplotDataFile << "' using 1:"<< critParamOffset
 					<<" axis x1y2 with filledcurve x1 ls 3 title '\% "
-					<< criticalParameter.get_title_name() << "', \\" << std::endl;
+					<< criticalParameter.get_title_name() << "', \\\n";
 				gnuplotScriptFile <<  "     '" << gnuplotDataFile << "' u 1:" << (magDataIndex+1) << " axis x1y1  w lp ls 1 title '"
-					<< m->get_title_name() << "  (max\\_error\\_global)', \\" << std::endl;
+					<< m->get_title_name() << "  (max\\_error\\_global)', \\\n";
 				gnuplotScriptFile <<  "     '" << gnuplotDataFile << "' u 1:" << (magDataIndex+2) << " axis x1y1  w lp ls 2 title '"
-					<< m->get_title_name() << "  (max\\_error\\_metric)'" << std::endl;
+					<< m->get_title_name() << "  (max\\_error\\_metric)'\n";
 				// legend
-				gnuplotScriptFile <<  "set key top left" << std::endl;
+				gnuplotScriptFile <<  "set key top left\n";
 
-				gnuplotScriptFile << "unset output" << std::endl;
+				gnuplotScriptFile << "unset output\n";
 				// close file
-				gnuplotScriptFile << "quit" << std::endl;
+				gnuplotScriptFile << "quit\n";
 			}catch (std::exception const& ex) {
 				std::string ex_what = ex.what();
 				log_io->ReportError2AllLogs( "Exception while parsing the file: ex-> " + ex_what );
@@ -365,47 +363,46 @@ bool GlobalResults::PlotCriticalParameterNDParametersSweepSimulationMode(
 		generalGSF.open( generalGSFPath.c_str() );
 		// Svg
 		generalGSF << "set term svg  size " << kSvgImageWidth << ","<< kSvgImageHeight
-			 << " fname " << kSvgFont << std::endl;
-		generalGSF << "set output \"" << generalIPath << "\"" << std::endl;
+			 << " fname " << kSvgFont << "\n";
+		generalGSF << "set output \"" << generalIPath << "\"\n";
 		generalGSF << "set title \" " << title
-			 << " vs " << criticalParameter.get_title_name() << " \"" << std::endl;
-		generalGSF << "set grid" << std::endl;
+			 << " vs " << criticalParameter.get_title_name() << " \"\n";
+		generalGSF << "set grid\n";
 		// Axis
 		if( criticalParameter.get_value_change_mode()!=kSPLineal ){
-			 generalGSF << "set logscale y" << std::endl;
+			 generalGSF << "set logscale y\n";
 		}
-		generalGSF << "set format x \"%g\"" << std::endl;
-		generalGSF << "set format y \"%g\"" << std::endl;
-		// generalGSF << "set xlabel \""  << pairedParameter.get_title_name() << "\"" << std::endl;
-		generalGSF << "set xlabel \""  << "Profile" << "\"" << std::endl;
-		generalGSF << "set ylabel \""  << criticalParameter.get_title_name() << "\"" << std::endl;
+		generalGSF << "set format x \"%g\"\n";
+		generalGSF << "set format y \"%g\"\n";
+		generalGSF << "set xlabel \""  << "Profile" << "\"\n";
+		generalGSF << "set ylabel \""  << criticalParameter.get_title_name() << "\"\n";
 		// Color Paletes
-		generalGSF << kUpsetsPalette << std::endl;
+		generalGSF << kUpsetsPalette << "\n";
 		// # remove border on top and right and set color to gray
-		generalGSF << "set style line 11 lc rgb '#808080' lt 1" << std::endl;
-		generalGSF << "set border 3 back ls 11" << std::endl;
-		generalGSF << "set tics nomirror" << std::endl;
+		generalGSF << "set style line 11 lc rgb '#808080' lt 1\n";
+		generalGSF << "set border 3 back ls 11\n";
+		generalGSF << "set tics nomirror\n";
 		// line style
-		generalGSF <<  "set style line 1 lc rgb '#8b1a0e' pt 1 ps 1 lt 1 lw 2 # --- red" << std::endl;
-		generalGSF <<  "set style line 2 lc rgb '#5e9c36' pt 6 ps 1 lt 1 lw 2 # --- green" << std::endl;
-		generalGSF <<  "set style fill solid" << std::endl;
+		generalGSF <<  "set style line 1 lc rgb '#8b1a0e' pt 1 ps 1 lt 1 lw 2 # --- red\n";
+		generalGSF <<  "set style line 2 lc rgb '#5e9c36' pt 6 ps 1 lt 1 lw 2 # --- green\n";
+		generalGSF <<  "set style fill solid\n";
 		// // Background
-		generalGSF << kWholeBackground << std::endl;
+		generalGSF << kWholeBackground << "\n";
 		// // ranges
-		// generalGSF << "set yrange [" << criticalParameter.get_value_min() << ":" << criticalParameter.get_value_max() << "]" << std::endl;
-		// generalGSF << "set xrange [" << pairedParameter.get_value_min() << ":" << pairedParameter.get_value_max() << "]" << std::endl;
+		// generalGSF << "set yrange [" << criticalParameter.get_value_min() << ":" << criticalParameter.get_value_max() << "]\n";
+		// generalGSF << "set xrange [" << pairedParameter.get_value_min() << ":" << pairedParameter.get_value_max() << "]\n";
 		// legend
-		generalGSF <<  "set key bottom right" << std::endl;
-		generalGSF <<  "ntics = 10" << std::endl;
+		generalGSF <<  "set key bottom right\n";
+		generalGSF <<  "ntics = 10\n";
 		// Plot
 		generalGSF <<  "plot '" << gnuplotDataFile << "' u 1:" << critParamOffset << " w lp ls 2 title '"
-			<< criticalParameter.get_title_name() <<  "', \\" << std::endl;
+			<< criticalParameter.get_title_name() <<  "', \\\n";
 		generalGSF <<  "     '" << gnuplotDataFile << "' u 1:" << critParamOffset << ":"
-			<< (critParamOffset+2) <<  ":" << (critParamOffset+1) << " w errorbars ls 1 notitle" << std::endl;
-		generalGSF <<  "set xtics ntics" << std::endl;
-		generalGSF << "unset output" << std::endl;
+			<< (critParamOffset+2) <<  ":" << (critParamOffset+1) << " w errorbars ls 1 notitle\n";
+		generalGSF <<  "set xtics ntics\n";
+		generalGSF << "unset output\n";
 		// close file
-		generalGSF << "quit" << std::endl;
+		generalGSF << "quit\n";
 		generalGSF.close();
 		// Exec comand
 	}catch (std::exception const& ex) {
@@ -433,57 +430,54 @@ bool GlobalResults::PlotCriticalParameterNDParametersSweepSimulationMode(
 				gnuplotScriptFile.open( gnuplotScriptFilePath.c_str() );
 				// Svg
 				gnuplotScriptFile << "set term svg  size " << kSvgImageWidth << ","<< kSvgImageHeight
-					<< " fname " << kSvgFont << std::endl;
-				gnuplotScriptFile << "set output \"" << outputImagePath << "\"" << std::endl;
-				gnuplotScriptFile << "set title \" " << title << " \"" << std::endl;
-				gnuplotScriptFile << "set grid" << std::endl;
+					<< " fname " << kSvgFont << "\n";
+				gnuplotScriptFile << "set output \"" << outputImagePath << "\"\n";
+				gnuplotScriptFile << "set title \" " << title << " \"\n";
+				gnuplotScriptFile << "set grid\n";
 				// Axis
-				gnuplotScriptFile << "set format x \"%g\"" << std::endl;
-				gnuplotScriptFile << "set format y \"%g\"" << std::endl;
-				gnuplotScriptFile << "set format y2 \"%g\"" << std::endl;
-				gnuplotScriptFile << "set xlabel \"Profile\"" << std::endl;
-				gnuplotScriptFile << "set y2label \"" << criticalParameter.get_title_name() << " \%\"" << std::endl;
-				gnuplotScriptFile << "set ylabel \"Error in magnitude "  << m->get_title_name() << "\"" << std::endl;
+				gnuplotScriptFile << "set format x \"%g\"\n";
+				gnuplotScriptFile << "set format y \"%g\"\n";
+				gnuplotScriptFile << "set format y2 \"%g\"\n";
+				gnuplotScriptFile << "set xlabel \"Profile\"\n";
+				gnuplotScriptFile << "set y2label \"" << criticalParameter.get_title_name() << " \%\"\n";
+				gnuplotScriptFile << "set ylabel \"Error in magnitude "  << m->get_title_name() << "\"\n";
 				// # remove border on top and right and set color to gray
-				gnuplotScriptFile << "set style line 11 lc rgb '#808080' lt 1" << std::endl;
-				gnuplotScriptFile << "set border 3 back ls 11" << std::endl;
-				gnuplotScriptFile << "set tics nomirror" << std::endl;
-				gnuplotScriptFile << "set y2tics" << std::endl;
+				gnuplotScriptFile << "set style line 11 lc rgb '#808080' lt 1\n";
+				gnuplotScriptFile << "set border 3 back ls 11\n";
+				gnuplotScriptFile << "set tics nomirror\n";
+				gnuplotScriptFile << "set y2tics\n";
 				// Color Paletes
-				gnuplotScriptFile << kUpsetsPalette << std::endl;
+				gnuplotScriptFile << kUpsetsPalette << "\n";
 				// line style
-				gnuplotScriptFile <<  "set style line 1 lc rgb '#ffd35a' lt 3 lw 1 pt 9 ps 1  # --- yellow" << std::endl;
-				gnuplotScriptFile <<  "set style line 2 lc rgb '#0060ad' lt 1 lw 3 pt 7 ps 1.5  # --- blue" << std::endl;
-				gnuplotScriptFile <<  "set style line 3 lc rgb '#0060ad' lt 1 lw 1 pt 7 ps 1.5  # --- blue" << std::endl;
-				gnuplotScriptFile <<  "set style line 4 lc rgb '#ff3a00' lt 1 lw 1 pt 7 ps 1  # --- red" << std::endl;
-				// gnuplotScriptFile <<  "set style line 5 lc rgb '#ff3a00' lt 3 lw 0 pt 9 ps 1  # --- red" << std::endl;
-				// gnuplotScriptFile <<  "set style line 6 lc rgb '#666666' lt 3 lw 2 pt 9 ps 1  # --- grey " << std::endl;
-				gnuplotScriptFile <<  "set boxwidth 0.5 relative" << std::endl;
-				// gnuplotScriptFile <<  "set style fill transparent solid 0.7 noborder" << std::endl;
-				gnuplotScriptFile <<  "set style fill transparent solid 0.5" << std::endl;
+				gnuplotScriptFile <<  "set style line 1 lc rgb '#ffd35a' lt 3 lw 1 pt 9 ps 1  # --- yellow\n";
+				gnuplotScriptFile <<  "set style line 2 lc rgb '#0060ad' lt 1 lw 3 pt 7 ps 1.5  # --- blue\n";
+				gnuplotScriptFile <<  "set style line 3 lc rgb '#0060ad' lt 1 lw 1 pt 7 ps 1.5  # --- blue\n";
+				gnuplotScriptFile <<  "set style line 4 lc rgb '#ff3a00' lt 1 lw 1 pt 7 ps 1  # --- red\n";
+				gnuplotScriptFile <<  "set boxwidth 0.5 relative\n";
+				gnuplotScriptFile <<  "set style fill transparent solid 0.5\n";
 				// // Background
-				gnuplotScriptFile << kWholeBackground << std::endl;
+				gnuplotScriptFile << kWholeBackground << "\n";
 				int magDataIndex = firstMagOffset + dataPerMagnitudePerLine*magCount; // title
 				// crit param
 				gnuplotScriptFile <<  "plot '" << gnuplotDataFile << "' using 1:"<< critParamOffset
 					<<" axis x1y2 with filledcurve x1 ls 1 title '\% "
-					<< criticalParameter.get_title_name() << "', \\" << std::endl;
+					<< criticalParameter.get_title_name() << "', \\\n";
 				// mean of max errors_global in (mean) in magDataIndex+1
 				gnuplotScriptFile <<  "     '" << gnuplotDataFile << "' u 1:" << (magDataIndex+1) << " axis x1y1  w lp ls 2 title '"
-					<< m->get_title_name() << "  (max\\_error\\_global)', \\" << std::endl;
+					<< m->get_title_name() << "  (max\\_error\\_global)', \\\n";
 					gnuplotScriptFile <<  "     '" << gnuplotDataFile << "' u 1:" << (magDataIndex+1) << ":"
-						<< (magDataIndex+3) <<  ":" << (magDataIndex+2) << " w errorbars ls 3 notitle, \\" << std::endl;
+						<< (magDataIndex+3) <<  ":" << (magDataIndex+2) << " w errorbars ls 3 notitle, \\\n";
 				// mean of max error_metric in (mean) in magDataIndex+4
 				gnuplotScriptFile <<  "     '" << gnuplotDataFile << "' u 1:" << (magDataIndex+4) << ":"
-						<< (magDataIndex+6) <<  ":" << (magDataIndex+5) << " w errorbars ls 4 notitle, \\" << std::endl;
+						<< (magDataIndex+6) <<  ":" << (magDataIndex+5) << " w errorbars ls 4 notitle, \\\n";
 				gnuplotScriptFile <<  "     '" << gnuplotDataFile << "' u 1:" << (magDataIndex+4) << " axis x1y1  w lp ls 4 title '"
-						<< m->get_title_name() << "  (max\\_error\\_metric)'" << std::endl;
+						<< m->get_title_name() << "  (max\\_error\\_metric)'\n";
 				// legend
-				gnuplotScriptFile <<  "set key top left" << std::endl;
+				gnuplotScriptFile <<  "set key top left\n";
 
-				gnuplotScriptFile << "unset output" << std::endl;
+				gnuplotScriptFile << "unset output\n";
 				// close file
-				gnuplotScriptFile << "quit" << std::endl;
+				gnuplotScriptFile << "quit\n";
 			}catch (std::exception const& ex) {
 				std::string ex_what = ex.what();
 				log_io->ReportError2AllLogs( "Exception while parsing the file: ex-> " + ex_what );
@@ -573,47 +567,43 @@ bool GlobalResults::PlotMontecarloCriticalParameterNDParametersSweepMode(
 		generalGSF.open( generalGSFPath.c_str() );
 		// Svg
 		generalGSF << "set term svg  size " << kSvgImageWidth << ","<< kSvgImageHeight
-			 << " fname " << kSvgFont << std::endl;
-		generalGSF << "set output \"" << generalIPath << "\"" << std::endl;
+			 << " fname " << kSvgFont << "\n";
+		generalGSF << "set output \"" << generalIPath << "\"\n";
 		generalGSF << "set title \" " << title
-			 << " vs " << criticalParameter.get_title_name() << " \"" << std::endl;
-		generalGSF << "set grid" << std::endl;
+			 << " vs " << criticalParameter.get_title_name() << " \"\n";
+		generalGSF << "set grid\n";
 		// Axis
 		if( criticalParameter.get_value_change_mode()!=kSPLineal ){
-			 generalGSF << "set logscale y" << std::endl;
+			 generalGSF << "set logscale y\n";
 		}
-		generalGSF << "set format x \"%g\"" << std::endl;
-		generalGSF << "set format y \"%g\"" << std::endl;
-		// generalGSF << "set xlabel \""  << pairedParameter.get_title_name() << "\"" << std::endl;
-		generalGSF << "set xlabel \""  << "Profile" << "\"" << std::endl;
-		generalGSF << "set ylabel \""  << criticalParameter.get_title_name() << "\"" << std::endl;
+		generalGSF << "set format x \"%g\"\n";
+		generalGSF << "set format y \"%g\"\n";
+		generalGSF << "set xlabel \""  << "Profile" << "\"\n";
+		generalGSF << "set ylabel \""  << criticalParameter.get_title_name() << "\"\n";
 		// Color Paletes
-		generalGSF << kUpsetsPalette << std::endl;
+		generalGSF << kUpsetsPalette << "\n";
 		// # remove border on top and right and set color to gray
-		generalGSF << "set style line 11 lc rgb '#808080' lt 1" << std::endl;
-		generalGSF << "set border 3 back ls 11" << std::endl;
-		generalGSF << "set tics nomirror" << std::endl;
+		generalGSF << "set style line 11 lc rgb '#808080' lt 1\n";
+		generalGSF << "set border 3 back ls 11\n";
+		generalGSF << "set tics nomirror\n";
 		// line style
-		generalGSF <<  "set style line 1 lc rgb '#8b1a0e' pt 1 ps 1 lt 1 lw 2 # --- red" << std::endl;
-		generalGSF <<  "set style line 2 lc rgb '#5e9c36' pt 6 ps 1 lt 1 lw 2 # --- green" << std::endl;
-		generalGSF <<  "set style fill solid" << std::endl;
+		generalGSF <<  "set style line 1 lc rgb '#8b1a0e' pt 1 ps 1 lt 1 lw 2 # --- red\n";
+		generalGSF <<  "set style line 2 lc rgb '#5e9c36' pt 6 ps 1 lt 1 lw 2 # --- green\n";
+		generalGSF <<  "set style fill solid\n";
 		// // Background
-		generalGSF << kWholeBackground << std::endl;
-		// // ranges
-		// generalGSF << "set yrange [" << criticalParameter.get_value_min() << ":" << criticalParameter.get_value_max() << "]" << std::endl;
-		// generalGSF << "set xrange [" << pairedParameter.get_value_min() << ":" << pairedParameter.get_value_max() << "]" << std::endl;
+		generalGSF << kWholeBackground << "\n";
 		// legend
-		generalGSF <<  "set key bottom right" << std::endl;
-		generalGSF <<  "ntics = 10" << std::endl;
+		generalGSF <<  "set key bottom right\n";
+		generalGSF <<  "ntics = 10\n";
 		// Plot
 		generalGSF <<  "plot '" << gnuplotDataFile << "' u 1:" << critParamOffset << " w lp ls 2 title '"
-			<< criticalParameter.get_title_name() <<  "', \\" << std::endl;
+			<< criticalParameter.get_title_name() <<  "', \\\n";
 		generalGSF <<  "     '" << gnuplotDataFile << "' u 1:" << critParamOffset << ":"
-			<< (critParamOffset+2) <<  ":" << (critParamOffset+1) << " w errorbars ls 1 notitle" << std::endl;
-		generalGSF <<  "set xtics ntics" << std::endl;
-		generalGSF << "unset output" << std::endl;
+			<< (critParamOffset+2) <<  ":" << (critParamOffset+1) << " w errorbars ls 1 notitle\n";
+		generalGSF <<  "set xtics ntics\n";
+		generalGSF << "unset output\n";
 		// close file
-		generalGSF << "quit" << std::endl;
+		generalGSF << "quit\n";
 		generalGSF.close();
 		// Exec comand
 	}catch (std::exception const& ex) {
@@ -641,57 +631,54 @@ bool GlobalResults::PlotMontecarloCriticalParameterNDParametersSweepMode(
 				gnuplotScriptFile.open( gnuplotScriptFilePath.c_str() );
 				// Svg
 				gnuplotScriptFile << "set term svg  size " << kSvgImageWidth << ","<< kSvgImageHeight
-					<< " fname " << kSvgFont << std::endl;
-				gnuplotScriptFile << "set output \"" << outputImagePath << "\"" << std::endl;
-				gnuplotScriptFile << "set title \" " << title << " \"" << std::endl;
-				gnuplotScriptFile << "set grid" << std::endl;
+					<< " fname " << kSvgFont << "\n";
+				gnuplotScriptFile << "set output \"" << outputImagePath << "\"\n";
+				gnuplotScriptFile << "set title \" " << title << " \"\n";
+				gnuplotScriptFile << "set grid\n";
 				// Axis
-				gnuplotScriptFile << "set format x \"%g\"" << std::endl;
-				gnuplotScriptFile << "set format y \"%g\"" << std::endl;
-				gnuplotScriptFile << "set format y2 \"%g\"" << std::endl;
-				gnuplotScriptFile << "set xlabel \"Profile\"" << std::endl;
-				gnuplotScriptFile << "set y2label \"" << criticalParameter.get_title_name() << " \%\"" << std::endl;
-				gnuplotScriptFile << "set ylabel \"Error in magnitude "  << m->get_title_name() << "\"" << std::endl;
+				gnuplotScriptFile << "set format x \"%g\"\n";
+				gnuplotScriptFile << "set format y \"%g\"\n";
+				gnuplotScriptFile << "set format y2 \"%g\"\n";
+				gnuplotScriptFile << "set xlabel \"Profile\"\n";
+				gnuplotScriptFile << "set y2label \"" << criticalParameter.get_title_name() << " \%\"\n";
+				gnuplotScriptFile << "set ylabel \"Error in magnitude "  << m->get_title_name() << "\"\n";
 				// # remove border on top and right and set color to gray
-				gnuplotScriptFile << "set style line 11 lc rgb '#808080' lt 1" << std::endl;
-				gnuplotScriptFile << "set border 3 back ls 11" << std::endl;
-				gnuplotScriptFile << "set tics nomirror" << std::endl;
-				gnuplotScriptFile << "set y2tics" << std::endl;
+				gnuplotScriptFile << "set style line 11 lc rgb '#808080' lt 1\n";
+				gnuplotScriptFile << "set border 3 back ls 11\n";
+				gnuplotScriptFile << "set tics nomirror\n";
+				gnuplotScriptFile << "set y2tics\n";
 				// Color Paletes
-				gnuplotScriptFile << kUpsetsPalette << std::endl;
+				gnuplotScriptFile << kUpsetsPalette << "\n";
 				// line style
-				gnuplotScriptFile <<  "set style line 1 lc rgb '#ffd35a' lt 3 lw 1 pt 9 ps 1  # --- yellow" << std::endl;
-				gnuplotScriptFile <<  "set style line 2 lc rgb '#0060ad' lt 1 lw 3 pt 7 ps 1.5  # --- blue" << std::endl;
-				gnuplotScriptFile <<  "set style line 3 lc rgb '#0060ad' lt 1 lw 1 pt 7 ps 1.5  # --- blue" << std::endl;
-				gnuplotScriptFile <<  "set style line 4 lc rgb '#ff3a00' lt 1 lw 1 pt 7 ps 1  # --- red" << std::endl;
-				// gnuplotScriptFile <<  "set style line 5 lc rgb '#ff3a00' lt 3 lw 0 pt 9 ps 1  # --- red" << std::endl;
-				// gnuplotScriptFile <<  "set style line 6 lc rgb '#666666' lt 3 lw 2 pt 9 ps 1  # --- grey " << std::endl;
-				gnuplotScriptFile <<  "set boxwidth 0.5 relative" << std::endl;
-				// gnuplotScriptFile <<  "set style fill transparent solid 0.7 noborder" << std::endl;
-				gnuplotScriptFile <<  "set style fill transparent solid 0.5" << std::endl;
+				gnuplotScriptFile <<  "set style line 1 lc rgb '#ffd35a' lt 3 lw 1 pt 9 ps 1  # --- yellow\n";
+				gnuplotScriptFile <<  "set style line 2 lc rgb '#0060ad' lt 1 lw 3 pt 7 ps 1.5  # --- blue\n";
+				gnuplotScriptFile <<  "set style line 3 lc rgb '#0060ad' lt 1 lw 1 pt 7 ps 1.5  # --- blue\n";
+				gnuplotScriptFile <<  "set style line 4 lc rgb '#ff3a00' lt 1 lw 1 pt 7 ps 1  # --- red\n";
+				gnuplotScriptFile <<  "set boxwidth 0.5 relative\n";
+				gnuplotScriptFile <<  "set style fill transparent solid 0.5\n";
 				// // Background
-				gnuplotScriptFile << kWholeBackground << std::endl;
+				gnuplotScriptFile << kWholeBackground << "\n";
 				int magDataIndex = firstMagOffset + dataPerMagnitudePerLine*magCount; // title
 				// crit param
 				gnuplotScriptFile <<  "plot '" << gnuplotDataFile << "' using 1:"<< critParamOffset
 					<<" axis x1y2 with filledcurve x1 ls 1 title '\% "
-					<< criticalParameter.get_title_name() << "', \\" << std::endl;
+					<< criticalParameter.get_title_name() << "', \\\n";
 				// mean of max errors_global in (mean) in magDataIndex+1
 				gnuplotScriptFile <<  "     '" << gnuplotDataFile << "' u 1:" << (magDataIndex+1) << " axis x1y1  w lp ls 2 title '"
-					<< m->get_title_name() << "  (max\\_error\\_global)', \\" << std::endl;
+					<< m->get_title_name() << "  (max\\_error\\_global)', \\\n";
 					gnuplotScriptFile <<  "     '" << gnuplotDataFile << "' u 1:" << (magDataIndex+1) << ":"
-						<< (magDataIndex+3) <<  ":" << (magDataIndex+2) << " w errorbars ls 3 notitle, \\" << std::endl;
+						<< (magDataIndex+3) <<  ":" << (magDataIndex+2) << " w errorbars ls 3 notitle, \\\n";
 				// mean of max error_metric in (mean) in magDataIndex+4
 				gnuplotScriptFile <<  "     '" << gnuplotDataFile << "' u 1:" << (magDataIndex+4) << ":"
-						<< (magDataIndex+6) <<  ":" << (magDataIndex+5) << " w errorbars ls 4 notitle, \\" << std::endl;
+						<< (magDataIndex+6) <<  ":" << (magDataIndex+5) << " w errorbars ls 4 notitle, \\\n";
 				gnuplotScriptFile <<  "     '" << gnuplotDataFile << "' u 1:" << (magDataIndex+4) << " axis x1y1  w lp ls 4 title '"
-						<< m->get_title_name() << "  (max\\_error\\_metric)'" << std::endl;
+						<< m->get_title_name() << "  (max\\_error\\_metric)'\n";
 				// legend
-				gnuplotScriptFile <<  "set key top left" << std::endl;
+				gnuplotScriptFile <<  "set key top left\n";
 
-				gnuplotScriptFile << "unset output" << std::endl;
+				gnuplotScriptFile << "unset output\n";
 				// close file
-				gnuplotScriptFile << "quit" << std::endl;
+				gnuplotScriptFile << "quit\n";
 			}catch (std::exception const& ex) {
 				std::string ex_what = ex.what();
 				log_io->ReportError2AllLogs( "Exception while parsing the file: ex-> " + ex_what );

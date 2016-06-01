@@ -31,7 +31,7 @@ CriticalParameterValueSimulation::CriticalParameterValueSimulation() {
 
 CriticalParameterValueSimulation::~CriticalParameterValueSimulation(){
 	#ifdef DESTRUCTORS_VERBOSE
-		std::cout << "CriticalParameterValueSimulation destructor. direction:" + number2String(this) << std::endl;
+		std::cout << "CriticalParameterValueSimulation destructor. direction:" + number2String(this) << "\n";
 	#endif
 	deleteContentsOfVectorOfPointers( transient_simulations_results );
 }
@@ -478,45 +478,45 @@ int CriticalParameterValueSimulation::CreateGnuplotCriticalParameterEvolution(){
 	// static script
 	std::ofstream gnuplotScriptFile;
 	gnuplotScriptFile.open( gnuplotScriptFilePath.c_str() );
-	gnuplotScriptFile << "set grid" << std::endl;
+	gnuplotScriptFile << "set grid\n";
 	// Axis
-	gnuplotScriptFile << "set format x \"%g\"" << std::endl;
-	gnuplotScriptFile << "set format y \"%g\"" << std::endl;
+	gnuplotScriptFile << "set format x \"%g\"\n";
+	gnuplotScriptFile << "set format y \"%g\"\n";
 
 	// # remove border on top and right and set color to gray
-	gnuplotScriptFile << "set style line 11 lc rgb '#808080' lt 1" << std::endl;
-	gnuplotScriptFile << "set border 3 back ls 11" << std::endl;
-	gnuplotScriptFile << "set tics nomirror" << std::endl;
+	gnuplotScriptFile << "set style line 11 lc rgb '#808080' lt 1\n";
+	gnuplotScriptFile << "set border 3 back ls 11\n";
+	gnuplotScriptFile << "set tics nomirror\n";
 	// line style
-	gnuplotScriptFile <<  "set style line 1 lc rgb '#8b1a0e' pt 6 ps 1 lt 1 lw 2 # --- red" << std::endl;
+	gnuplotScriptFile <<  "set style line 1 lc rgb '#8b1a0e' pt 6 ps 1 lt 1 lw 2 # --- red\n";
 	// Create file
 	critParameterEvolutionDataFile.open( critParameterEvolutionDataPath.c_str() );
 	for( auto const & cv : critical_parameter_values_evolution ){
-		critParameterEvolutionDataFile << cv << std::endl;
+		critParameterEvolutionDataFile << cv << "\n";
 	}
 	critParameterEvolutionDataFile.close();
 	// plots
 	// Svg
 	gnuplotScriptFile <<  "set term svg  size "<< kSvgImageWidth << ","
-		<< kSvgImageHeight << " fname " << kSvgFont << std::endl;
-	gnuplotScriptFile <<  "set output \"" << outputImagePath  << "\"" << std::endl;
+		<< kSvgImageHeight << " fname " << kSvgFont << "\n";
+	gnuplotScriptFile <<  "set output \"" << outputImagePath  << "\"\n";
 
 	// critical parameter
-	gnuplotScriptFile <<  "set xlabel \"Iteration\"" << std::endl;
-	gnuplotScriptFile <<  "set ylabel \"Critical Parameter Value\"" << std::endl;
-	gnuplotScriptFile <<  "set title \"Critical Parameter Value Evolution \"" << std::endl;
-	gnuplotScriptFile <<  "set key bottom right" << std::endl;
+	gnuplotScriptFile <<  "set xlabel \"Iteration\"\n";
+	gnuplotScriptFile <<  "set ylabel \"Critical Parameter Value\"\n";
+	gnuplotScriptFile <<  "set title \"Critical Parameter Value Evolution \"\n";
+	gnuplotScriptFile <<  "set key bottom right\n";
 	if( golden_critical_parameter->get_value_change_mode()!=kSPLineal ){
-		gnuplotScriptFile << "set logscale y" << std::endl;
+		gnuplotScriptFile << "set logscale y\n";
 	}
 	// Plot
 	gnuplotScriptFile <<  "plot '" << critParameterEvolutionDataPath
-		<< "' w lp ls 1 title 'Critical Parameter Value Evolution' " << std::endl;
-	gnuplotScriptFile << "unset output" << std::endl;
+		<< "' w lp ls 1 title 'Critical Parameter Value Evolution' \n";
+	gnuplotScriptFile << "unset output\n";
 	// Add images path
 	critical_parameter_values_evolution_image_path = outputImagePath;
 
-	gnuplotScriptFile << std::endl << "quit" << std::endl;
+	gnuplotScriptFile << "\nquit\n";
 	gnuplotScriptFile.close();
 
 	std::string execCommand = kGnuplotCommand + gnuplotScriptFilePath + kGnuplotEndCommand;

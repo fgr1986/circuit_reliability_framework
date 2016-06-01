@@ -21,7 +21,7 @@ NDSimulationResults::NDSimulationResults() {
 
 NDSimulationResults::~NDSimulationResults() {
 	#ifdef DESTRUCTORS_VERBOSE
-		std::cout<< "NDSimulationResults destructor. direction:" + number2String(this) <<std::endl;
+		std::cout<< "NDSimulationResults destructor. direction:" + number2String(this) << "\n";
 	#endif
 	if( plane_results_structures!=nullptr ){
 		#ifdef DESTRUCTORS_VERBOSE

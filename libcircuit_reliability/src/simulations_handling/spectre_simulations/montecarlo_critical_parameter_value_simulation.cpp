@@ -29,7 +29,7 @@ MontecarloCriticalParameterValueSimulation::MontecarloCriticalParameterValueSimu
 
 MontecarloCriticalParameterValueSimulation::~MontecarloCriticalParameterValueSimulation(){
 	#ifdef DESTRUCTORS_VERBOSE
-		std::cout << "MontecarloCriticalParameterValueSimulation destructor. direction:" + number2String(this) << std::endl;
+		std::cout << "MontecarloCriticalParameterValueSimulation destructor. direction:" + number2String(this) << "\n";
 	#endif
 }
 
@@ -221,7 +221,7 @@ bool MontecarloCriticalParameterValueSimulation::AnalyzeMontecarloResults(){
 	std::ofstream gnuplotMapFile;
 	try {
 		gnuplotMapFile.open( gnuplotMapFilePath.c_str() );
-		gnuplotMapFile << "#montecarlo_iteration #" << golden_critical_parameter->get_name() << std::endl;
+		gnuplotMapFile << "#montecarlo_iteration #" << golden_critical_parameter->get_name() << "\n";
 		// compute statistics
 		unsigned int mcCount = 0;
 		correctly_simulated_count = 0;
@@ -361,17 +361,17 @@ bool MontecarloCriticalParameterValueSimulation::PlotProfileResults(){
 		gnuplotScriptFile << "set format y \"%g\"" << "\n";
 		// gnuplotScriptFile << "set xlabel \""  << pairedParameter.get_title_name() << "\"" << "\n";
 		gnuplotScriptFile << "set xlabel \""  << "Montecarlo Iteration" << "\"" << "\n";
-		gnuplotScriptFile << "set y2label \"Spectre error\"" << std::endl;
+		gnuplotScriptFile << "set y2label \"Spectre error\"\n";
 		gnuplotScriptFile << "set ylabel \" " << golden_critical_parameter->get_title_name() << " \"" << "\n";
 		// # remove border on top and right and set color to gray
 		gnuplotScriptFile << "set style line 11 lc rgb '#808080' lt 1" << "\n";
 		gnuplotScriptFile << "set border 3 back ls 11" << "\n";
 		gnuplotScriptFile << "set tics nomirror" << "\n";
 		// Color Paletes
-		gnuplotScriptFile << kUpsetsPalette << std::endl;
+		gnuplotScriptFile << kUpsetsPalette << "\n";
 		// line style
 		gnuplotScriptFile << "set style line 1 lc rgb '#0060ad' pt 6 ps 1 lt 1 lw 2 # --- blue" << "\n";
-		gnuplotScriptFile <<  "set style line 2 lc rgb '#8b1a0e' pt 1 ps 1 lt 1 lw 2 # --- red" << std::endl;
+		gnuplotScriptFile <<  "set style line 2 lc rgb '#8b1a0e' pt 1 ps 1 lt 1 lw 2 # --- red\n";
 		gnuplotScriptFile << "set style fill solid" << "\n";
 		// // Background
 		gnuplotScriptFile << kWholeBackground << "\n";
@@ -446,7 +446,7 @@ bool MontecarloCriticalParameterValueSimulation::PlotProfileResultsMagnitudes(
 			gnuplotScriptFile << "set border 3 back ls 11" << "\n";
 			gnuplotScriptFile << "set tics nomirror" << "\n";
 			// Color Paletes
-			gnuplotScriptFile << kUpsetsPalette << std::endl;
+			gnuplotScriptFile << kUpsetsPalette << "\n";
 			// line style
 			gnuplotScriptFile << "set style line 1 lc rgb '#5e9c36' pt 6 ps 1 lt 1 lw 2 # --- green" << "\n";
 			gnuplotScriptFile << "set style fill solid" << "\n";

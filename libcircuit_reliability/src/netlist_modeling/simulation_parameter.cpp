@@ -111,9 +111,9 @@ void SimulationParameter::InitSweep(){
 	}
 	// Debug
 	// if( positive ){
-	// 	std::cout << "Param " << name << " is POSITIVE li: " << lineal_inc << " lgi:" << log_inc << std::endl;
+	// 	std::cout << "Param " << name << " is POSITIVE li: " << lineal_inc << " lgi:" << log_inc << "\n";
 	// }else{
-	// 	std::cout << "Param " << name << " is NEGATIVE li: " << lineal_inc << " lgi:" << log_inc << std::endl;
+	// 	std::cout << "Param " << name << " is NEGATIVE li: " << lineal_inc << " lgi:" << log_inc << "\n";
 	// }
 }
 

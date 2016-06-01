@@ -27,16 +27,16 @@ MontecarloSimulationResults::MontecarloSimulationResults() {
 
 MontecarloSimulationResults::~MontecarloSimulationResults(){
 	#ifdef DESTRUCTORS_VERBOSE
-		std::cout<< "MontecarloSimulationResults destructor. direction:" + number2String(this) <<std::endl;
-		std::cout<< "simulation_parameters.clear()" <<std::endl;
+		std::cout<< "MontecarloSimulationResults destructor. direction:" + number2String(this) << "\n";
+		std::cout<< "simulation_parameters.clear()\n";
 	#endif
 	simulation_parameters.clear();
 	#ifdef DESTRUCTORS_VERBOSE
-		std::cout<< "deleteContentsOfVectorOfPointers( magnitudes_errors )" <<std::endl;
+		std::cout<< "deleteContentsOfVectorOfPointers( magnitudes_errors )\n";
 	#endif
 	deleteContentsOfVectorOfPointers( metric_montecarlo_results );
 	#ifdef DESTRUCTORS_VERBOSE
-		std::cout<< "destructor of MontecarloSimulationResults ended" <<std::endl;
+		std::cout<< "destructor of MontecarloSimulationResults ended\n";
 	#endif
 }
 

@@ -28,16 +28,16 @@ GoldenSimulation::GoldenSimulation() {
 GoldenSimulation::~GoldenSimulation(){
 	// only if the vector has been created
 	#ifdef DESTRUCTORS_VERBOSE
-	   std::cout<< "GoldenSimulation destructor. direction:" + number2String(this) <<std::endl;
+	   std::cout<< "GoldenSimulation destructor. direction:" + number2String(this) << "\n";
 	#endif
 	if( process_magnitudes && processed_magnitudes!= nullptr ){
 		#ifdef DESTRUCTORS_VERBOSE
-			std::cout<< "Deleting processed_magnitudes" <<std::endl;
+			std::cout<< "Deleting processed_magnitudes\n";
 		#endif
 		deleteContentsOfVectorOfPointers( *processed_magnitudes );
 		delete processed_magnitudes;
 		#ifdef DESTRUCTORS_VERBOSE
-			std::cout<< "processed_magnitudes deleted" <<std::endl;
+			std::cout<< "processed_magnitudes deleted\n";
 		#endif
 	}
 }
@@ -158,17 +158,17 @@ int GoldenSimulation::CreateGoldenGnuplotTransientImages(){
 	// static script
 	std::ofstream gnuplotScriptFile;
 	gnuplotScriptFile.open( gnuplotScriptFilePath.c_str() );
-	gnuplotScriptFile << "set grid" << std::endl;
+	gnuplotScriptFile << "set grid\n";
 	// Axis
-	gnuplotScriptFile << "set format x \"%g\"" << std::endl;
-	gnuplotScriptFile << "set format y \"%g\"" << std::endl;
+	gnuplotScriptFile << "set format x \"%g\"\n";
+	gnuplotScriptFile << "set format y \"%g\"\n";
 
 	// # remove border on top and right and set color to gray
-	gnuplotScriptFile << "set style line 11 lc rgb '#808080' lt 1" << std::endl;
-	gnuplotScriptFile << "set border 3 back ls 11" << std::endl;
-	gnuplotScriptFile << "set tics nomirror" << std::endl;
+	gnuplotScriptFile << "set style line 11 lc rgb '#808080' lt 1\n";
+	gnuplotScriptFile << "set border 3 back ls 11\n";
+	gnuplotScriptFile << "set tics nomirror\n";
 	// line style
-	gnuplotScriptFile <<  "set style line 1 lc rgb '#5e9c36' pt 6 ps 1 lt 1 lw 2 # --- green" << std::endl;
+	gnuplotScriptFile <<  "set style line 1 lc rgb '#5e9c36' pt 6 ps 1 lt 1 lw 2 # --- green\n";
 	// plots
 	int indexCount = 2;
 	for(std::vector<Magnitude*>::iterator it_mg = ++(processed_magnitudes->begin());
@@ -177,19 +177,19 @@ int GoldenSimulation::CreateGoldenGnuplotTransientImages(){
 			std::string mgName = (*it_mg)->get_title_name();
 			// Svg
 			gnuplotScriptFile <<  "set term svg  size "<< kSvgImageWidth << ","
-				<< kSvgImageHeight << " fname " << kSvgFont << std::endl;
+				<< kSvgImageHeight << " fname " << kSvgFont << "\n";
 			gnuplotScriptFile <<  "set output \"" << outputImagePath << "_m_"
-				<< mgName << kGnuplotTransientSVGSufix << "\"" << std::endl;
+				<< mgName << kGnuplotTransientSVGSufix << "\"\n";
 
 			// magnitudes
-			gnuplotScriptFile <<  "set xlabel \"time\"" << std::endl;
-			gnuplotScriptFile <<  "set ylabel \"" << mgName <<  "\"" << std::endl;
-			gnuplotScriptFile <<  "set title \"" << mgName << " \"" << std::endl;
-			gnuplotScriptFile <<  "set key bottom right" << std::endl;
+			gnuplotScriptFile <<  "set xlabel \"time\"\n";
+			gnuplotScriptFile <<  "set ylabel \"" << mgName <<  "\"\n";
+			gnuplotScriptFile <<  "set title \"" << mgName << " \"\n";
+			gnuplotScriptFile <<  "set key bottom right\n";
 			// Plot
 			gnuplotScriptFile <<  "plot '" << transient_simulation_results.get_processed_file_path() << "' u 1:"
-				+ number2String(indexCount) << " w lp ls 1 title 'golden'" << std::endl;
-			gnuplotScriptFile << "unset output" << std::endl;
+				+ number2String(indexCount) << " w lp ls 1 title 'golden'\n";
+			gnuplotScriptFile << "unset output\n";
 			// Add images path
 			transient_simulation_results.AddTransientImage(
 				outputImagePath + "_m_" + mgName + kGnuplotTransientSVGSufix, (*it_mg)->get_name() );
@@ -199,7 +199,7 @@ int GoldenSimulation::CreateGoldenGnuplotTransientImages(){
 		indexCount++;
 	}
 	// close file
-	gnuplotScriptFile << std::endl << "quit" << std::endl;
+	gnuplotScriptFile << "\nquit\n";
 	gnuplotScriptFile.close();
 
 	std::string execCommand = kGnuplotCommand + gnuplotScriptFilePath + kGnuplotEndCommand;

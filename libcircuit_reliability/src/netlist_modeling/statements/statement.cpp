@@ -46,9 +46,9 @@ void Statement::deepCopyOfChildren(const std::vector<Statement*>& source ) {
 
 Statement::~Statement() {
 	#ifdef DESTRUCTORS_VERBOSE
-		std::cout<< "Statement destructor" << std::endl;
-		std::cout<< "deleteContentsOfVectorOfPointers(children) destructor" << std::endl;
-		std::cout<< "deleteContentsOfVectorOfPointers(parameters) destructor" << std::endl;
+		std::cout<< "Statement destructor\n";
+		std::cout<< "deleteContentsOfVectorOfPointers(children) destructor\n";
+		std::cout<< "deleteContentsOfVectorOfPointers(parameters) destructor\n";
 	#endif
 	// The nodes are deleted in the scope destructor
 	deleteContentsOfVectorOfPointers(children);

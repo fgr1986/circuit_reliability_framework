@@ -25,7 +25,7 @@ AHDLSimulation::AHDLSimulation() {
 
 AHDLSimulation::~AHDLSimulation(){
 	#ifdef DESTRUCTORS_VERBOSE
-	   std::cout<< "AHDLSimulation destructor. direction:" + number2String(this) <<std::endl;
+	   std::cout<< "AHDLSimulation destructor. direction:" + number2String(this) << "\n";
 	#endif
 }
 
