@@ -31,7 +31,7 @@ CriticalParameterValueSimulation::CriticalParameterValueSimulation() {
 
 CriticalParameterValueSimulation::~CriticalParameterValueSimulation(){
 	#ifdef DESTRUCTORS_VERBOSE
-		std::cout << "CriticalParameterValueSimulation destructor. direction:" + number2String(this) << "\n";
+		std::cout << "CriticalParameterValueSimulation destructor. direction:" << this << "\n";
 	#endif
 	deleteContentsOfVectorOfPointers( transient_simulations_results );
 }

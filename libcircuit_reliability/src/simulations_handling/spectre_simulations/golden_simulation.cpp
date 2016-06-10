@@ -28,7 +28,7 @@ GoldenSimulation::GoldenSimulation() {
 GoldenSimulation::~GoldenSimulation(){
 	// only if the vector has been created
 	#ifdef DESTRUCTORS_VERBOSE
-	   std::cout<< "GoldenSimulation destructor. direction:" + number2String(this) << "\n";
+	   std::cout<< "GoldenSimulation destructor. direction:" << this << "\n";
 	#endif
 	if( process_magnitudes && processed_magnitudes!= nullptr ){
 		#ifdef DESTRUCTORS_VERBOSE

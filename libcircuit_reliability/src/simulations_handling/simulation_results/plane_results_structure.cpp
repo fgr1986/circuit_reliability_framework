@@ -18,7 +18,7 @@ PlaneResultsStructure::PlaneResultsStructure() {
 
 PlaneResultsStructure::~PlaneResultsStructure(){
 	#ifdef DESTRUCTORS_VERBOSE
-		std::cout<< "PlaneResultsStructure destructor. direction:" + number2String(this) << "\n";
+		std::cout << "PlaneResultsStructure destructor. direction:" << this << "\n";
 	#endif
 }
 

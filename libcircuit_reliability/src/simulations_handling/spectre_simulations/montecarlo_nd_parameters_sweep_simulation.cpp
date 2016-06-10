@@ -33,7 +33,7 @@ MontecarloNDParametersSweepSimulation::MontecarloNDParametersSweepSimulation() {
 
 MontecarloNDParametersSweepSimulation::~MontecarloNDParametersSweepSimulation(){
 	#ifdef DESTRUCTORS_VERBOSE
-		std::cout << "MontecarloNDParametersSweepSimulation destructor. direction:" + number2String(this) << "\n";
+		std::cout << "MontecarloNDParametersSweepSimulation destructor. direction:" << this << "\n";
 	#endif
 	// deleteContentsOfVectorOfPointers( montecarlo_standard_simulations_vector );
 	// altered parameters have already been destroyed in each montecarlo_standard_simulation destructor

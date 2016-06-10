@@ -29,7 +29,7 @@ MontecarloSimulation::MontecarloSimulation() {
 
 MontecarloSimulation::~MontecarloSimulation(){
 	#ifdef DESTRUCTORS_VERBOSE
-		std::cout << "MontecarloSimulation destructor. direction:" + number2String(this) << "\n";
+		std::cout << "MontecarloSimulation destructor. direction:" << this << "\n";
 	#endif
 }
 

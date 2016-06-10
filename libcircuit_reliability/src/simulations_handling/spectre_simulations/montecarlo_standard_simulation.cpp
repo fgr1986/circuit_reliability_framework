@@ -27,7 +27,7 @@ MontecarloStandardSimulation::MontecarloStandardSimulation() {
 
 MontecarloStandardSimulation::~MontecarloStandardSimulation(){
 	#ifdef DESTRUCTORS_VERBOSE
-		std::cout << "MontecarloStandardSimulation destructor. direction:" + number2String(this) << "\n";
+		std::cout << "MontecarloStandardSimulation destructor. direction:" << this << "\n";
 		std::cout << "Deleting montecarlo_transient_simulation_results\n";
 	#endif
 	deleteContentsOfVectorOfPointers( montecarlo_transient_simulation_results );

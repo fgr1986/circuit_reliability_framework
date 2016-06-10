@@ -495,8 +495,8 @@ protected:
 		const bool magnitudeAnalizableInTWindow, const double& analyzableTimeWindowTF,
 		std::vector<double>::iterator& itGoldenTime, std::vector<double>::iterator& itSimulatedTime );
 
-	void ReportSimulationsLengthError( const Magnitude& goldenTime,
-		const Magnitude& simulatedTime, const std::string& partialId );
+	void ReportSimulationsLengthError( Magnitude& goldenTime,
+		Magnitude& simulatedTime, const std::string& partialId );
 
 	void VerboseStartMagnitudeAnalysis(
 		std::vector<double>::iterator& itGoldenTime, std::vector<double>::iterator& itSimulatedTime,

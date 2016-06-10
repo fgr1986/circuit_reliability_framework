@@ -29,7 +29,7 @@ MontecarloCriticalParameterValueSimulation::MontecarloCriticalParameterValueSimu
 
 MontecarloCriticalParameterValueSimulation::~MontecarloCriticalParameterValueSimulation(){
 	#ifdef DESTRUCTORS_VERBOSE
-		std::cout << "MontecarloCriticalParameterValueSimulation destructor. direction:" + number2String(this) << "\n";
+		std::cout << "MontecarloCriticalParameterValueSimulation destructor. direction:" << this << "\n";
 	#endif
 }
 

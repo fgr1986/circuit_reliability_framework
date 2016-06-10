@@ -85,14 +85,28 @@ unsigned int NDMagnitudesStructure::GetTotalElementsLength(){
 }
 
 void NDMagnitudesStructure::AddMagnitude( Magnitude* magnitude, const unsigned int index ){
+	if( index>= magnitudes_structure->size() ){
+		std::cout << "Accessing NDMagnitudesStructure magnitudes_structure, index: " << index << " size: " <<  magnitudes_structure->size() << "\n";
+		std::cerr << "Accessing NDMagnitudesStructure magnitudes_structure, index: " << index << " size: " <<  magnitudes_structure->size() << "\n";
+	}
 	magnitudes_structure->at(index)->push_back( magnitude );
 }
 
 std::vector<Magnitude*>* NDMagnitudesStructure::GetMagnitudesVector( const unsigned int index ){
+	if( index>= magnitudes_structure->size() ){
+		std::cout << "Accessing NDMagnitudesStructure magnitudes_structure, index: " << index << " size: " <<  magnitudes_structure->size() << "\n";
+		std::cerr << "Accessing NDMagnitudesStructure magnitudes_structure, index: " << index << " size: " <<  magnitudes_structure->size() << "\n";
+		return nullptr;
+	}
 	return magnitudes_structure->at(index);
 }
 
 std::vector<Magnitude*>* NDMagnitudesStructure::GetMetricMagnitudesVector( const unsigned int index ){
+	if( index>= magnitudes_structure->size() ){
+		std::cout << "Accessing NDMagnitudesStructure magnitudes_structure, index: " << index << " size: " <<  magnitudes_structure->size() << "\n";
+		std::cerr << "Accessing NDMagnitudesStructure magnitudes_structure, index: " << index << " size: " <<  magnitudes_structure->size() << "\n";
+		return nullptr;
+	}
 	auto metricMagnitudes = new std::vector<Magnitude*>();
 	for(auto const &m : *magnitudes_structure->at(index)){
 		if(m->get_analyzable()){
@@ -103,5 +117,10 @@ std::vector<Magnitude*>* NDMagnitudesStructure::GetMetricMagnitudesVector( const
 }
 
 std::string NDMagnitudesStructure::GetFilePath( const unsigned int index ){
+	if( index>= magnitudes_structure->size() ){
+		std::cout << "Accessing NDMagnitudesStructure files_structure, index: " << index << " size: " <<  files_structure->size() << "\n";
+		std::cerr << "Accessing NDMagnitudesStructure files_structure, index: " << index << " size: " <<  files_structure->size() << "\n";
+		return "error";
+	}
 	return files_structure->at(index);
 }

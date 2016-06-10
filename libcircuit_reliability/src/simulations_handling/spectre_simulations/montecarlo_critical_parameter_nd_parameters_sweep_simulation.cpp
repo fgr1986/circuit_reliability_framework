@@ -33,7 +33,7 @@ MontecarloCriticalParameterNDParametersSweepSimulation::MontecarloCriticalParame
 
 MontecarloCriticalParameterNDParametersSweepSimulation::~MontecarloCriticalParameterNDParametersSweepSimulation(){
 	#ifdef DESTRUCTORS_VERBOSE
-		std::cout << "MontecarloCriticalParameterNDParametersSweepSimulation destructor. direction:" + number2String(this) << "\n";
+		std::cout << "MontecarloCriticalParameterNDParametersSweepSimulation destructor. direction:" << this << "\n";
 	#endif
 	// deleteContentsOfVectorOfPointers( montecarlo_critical_parameter_value_simulations_vector );
 	// altered parameters have already been destroyed in each montecarlo_standard_simulation destructor

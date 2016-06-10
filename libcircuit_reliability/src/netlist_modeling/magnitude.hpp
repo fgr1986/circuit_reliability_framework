@@ -38,6 +38,7 @@ public:
 	std::string get_enclosed_name() const {return "\"" + name + "\"";}
 	void set_found_in_results(bool found_in_results) { this->found_in_results = found_in_results; }
 	std::vector<double>* get_values() { return &values; }
+	unsigned int get_values_size() const { return values.size(); }
 
 	// Analysis attributes
 	bool get_analyzable() const {return analyzable;}

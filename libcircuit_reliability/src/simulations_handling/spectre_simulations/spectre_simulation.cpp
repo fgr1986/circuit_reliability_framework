@@ -268,13 +268,13 @@ bool SpectreSimulation::CheckEndOfWindow(
 	return false;
 }
 
-void SpectreSimulation::ReportSimulationsLengthError( const Magnitude& goldenTime,
-	const Magnitude& simulatedTime, const std::string& partialId ){
+void SpectreSimulation::ReportSimulationsLengthError( Magnitude& goldenTime,
+	Magnitude& simulatedTime, const std::string& partialId ){
 
 	#ifdef RESULTS_ANALYSIS_VERBOSE
 	log_io->ReportError2AllLogs("Maybe there was an Spectre error previous to this step.");
-	log_io->ReportError2AllLogs("Golden size:" + number2String(goldenTime.get_values()->size()));
-	log_io->ReportError2AllLogs("Altered size:" + number2String(simulatedTime.get_values()->size()));
+	log_io->ReportError2AllLogs("Golden size:" + number2String( goldenTime.get_values_size() ));
+	log_io->ReportError2AllLogs("Altered size:" + number2String( simulatedTime.get_values_size()));
 	if( goldenTime.get_values()->front() != simulatedTime.get_values()->front() ){
 		log_io->ReportError2AllLogs("Golden initial time:" + number2String(goldenTime.get_values()->front()));
 		log_io->ReportError2AllLogs("Altered scenario initial time:" + number2String(simulatedTime.get_values()->front()));

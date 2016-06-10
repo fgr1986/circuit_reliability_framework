@@ -37,7 +37,7 @@ CriticalParameterNDParameterSweepSimulation::CriticalParameterNDParameterSweepSi
 
 CriticalParameterNDParameterSweepSimulation::~CriticalParameterNDParameterSweepSimulation(){
 	#ifdef DESTRUCTORS_VERBOSE
-		std::cout << ReportPlainStandard( "CriticalParameterNDParameterSweepSimulation destructor. direction:" + number2String(this) << "\n";
+		std::cout << "CriticalParameterNDParameterSweepSimulation destructor. direction:" << this << "\n";
 	#endif
 	// deleteContentsOfVectorOfPointers( critical_parameter_value_simulations_vector );
 	// altered parameters have already been destroyed in each critical_parameter_value_simulation destructor
