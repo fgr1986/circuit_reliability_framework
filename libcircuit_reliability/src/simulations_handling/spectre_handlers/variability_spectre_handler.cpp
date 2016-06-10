@@ -26,6 +26,7 @@ VariabilitySpectreHandler::VariabilitySpectreHandler() {
 	this->spectre_command_log_arg = kNotDefinedString;
 	this->spectre_command_folder_arg = kNotDefinedString;
 	this->golden_scenario_folder_path = kNotDefinedString;
+	//
 	// plot
 	this->plot_scatters = false;
 	this->plot_transients = false;
@@ -36,8 +37,12 @@ VariabilitySpectreHandler::VariabilitySpectreHandler() {
 	this->delete_spectre_folders = false;
 	this->save_spectre_transients = true;
 	this->save_processed_transients = true;
-	this->max_parallel_profile_instances = 10;
 	this->golden_magnitudes_structure = nullptr;
+	// montecarlo iterations
+	this->montecarlo_iterations = 1;
+	// parallel
+	this->max_parallel_profile_instances = 2;
+	this->max_parallel_montecarlo_instances = 5;
 }
 
 VariabilitySpectreHandler::~VariabilitySpectreHandler() {
@@ -92,6 +97,27 @@ bool VariabilitySpectreHandler::RunSpectreSimulations(){
 	if( plot_scatters ){
 		log_io->ReportCyanStandard( k2Tab + "Scatters will be plotted." );
 	}
+	// reserve memory, only one altered scenarios
+	simulations.reserve( 1 );
+	// retrieve numruns and set it to '1', for manual handling in kMontecarloNDParametersSweepMode
+	if( simulation_mode->get_id()!=kMontecarloNDParametersSweepMode){
+		log_io->ReportError2AllLogs( "Simulation mode is not kMontecarloNDParametersSweepMode. Aborted." );
+		return false;
+	}
+	SimulationParameter* pMontecarloIterations = nullptr;
+	for( auto & p : simulation_parameters ){
+		if( p->get_name() == kMontecarloIterationsParameterWord){
+			pMontecarloIterations = p;
+			break; // break for
+		}
+	}
+	if( pMontecarloIterations==nullptr ){
+		log_io->ReportError2AllLogs( "param " + kMontecarloIterationsParameterWord +" is null. Required for this simulation mode");
+		return false;
+	}
+	montecarlo_iterations = std::stoi( pMontecarloIterations->get_value() );
+	log_io->ReportPurpleStandard( "Montecarlo iterations: " + number2String(montecarlo_iterations) );
+
 	// Simulate variability
 	MontecarloNDParametersSweepSimulation* sss = new MontecarloNDParametersSweepSimulation();
 	sss->set_n_d_profile_index( 0 );
@@ -101,7 +127,9 @@ bool VariabilitySpectreHandler::RunSpectreSimulations(){
 	// simulation parameters
 	sss->CopySimulationParameters( simulation_parameters );
 	log_io->ReportPurpleStandard( "sss simulation_parameters: " + number2String(sss->get_simulation_parameters()->size()));
-	// montecarlo iterations set from main analysis
+	// montecarlo iterations is NOT set from main analysis
+	sss->set_montecarlo_iterations( montecarlo_iterations );
+	sss->set_max_parallel_montecarlo_instances( max_parallel_montecarlo_instances );
 	// paralell instances
 	// max_parallel_montecarlo_instances controlled by spectre
 	sss->set_max_parallel_profile_instances( max_parallel_profile_instances );

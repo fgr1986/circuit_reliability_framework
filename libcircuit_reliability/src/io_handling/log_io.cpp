@@ -2,15 +2,15 @@
  * @file log_io.cpp
  *
  * @date Created on: April 20, 2013
- * 
+ *
  * @author Author: Fernando García <fgarcia@die.upm.es> <fernando.garca@gmail.com>
- * 
+ *
  * @section DESCRIPTION
- * 
+ *
  * Logger Class.
  * Exports default and error logs.
  * Handles standard output.
- * 
+ *
  */
 
 // c++ std required libraries includes
@@ -25,7 +25,7 @@
 /// Global VERBOSE control
 #define VERBOSE ;
 
-LogIO::LogIO() {	
+LogIO::LogIO() {
 	// Redirecting standard streams
 	pcerr_stream = new std::ofstream( kErrorFile.c_str() );
 	prev_cerr_buf = std::cerr.rdbuf( pcerr_stream->rdbuf() );
@@ -53,11 +53,11 @@ void LogIO::CloseStreams(){
 	// delete &analysis_stream;
 }
 
-void LogIO::ReportStage( std::string text, bool red ){	
+void LogIO::ReportStage( std::string text, bool red ){
 	if(red){
 		ReportRedStandard( kLongDelimiter );
 		ReportRedStandard( kTab + text );
-		ReportRedStandard( kLongDelimiter );		
+		ReportRedStandard( kLongDelimiter );
 	}else{
 		ReportGreenStandard( kLongDelimiter );
 		ReportGreenStandard( kTab + text );
@@ -110,8 +110,8 @@ void LogIO::ReportSubstitution( bool childOfSubcircuit, std::string new_master_n
 	}
 }
 
-void LogIO::ReportStatementNotRadiated( std::string statement_name, std::string parent_id, 
-		std::string parent_name, std::string alteredStatementScopeName ){	
+void LogIO::ReportStatementNotRadiated( std::string statement_name, std::string parent_id,
+		std::string parent_name, std::string alteredStatementScopeName ){
 	ReportPlain2Log( k3Tab + kShortDelimiter );
 	ReportPlain2Log( k3Tab + "|| Statement '" + statement_name+ "'" );
 	ReportPlain2Log( k3Tab + "|| parent_id: " + parent_id );
@@ -123,17 +123,17 @@ void LogIO::ReportStatementNotRadiated( std::string statement_name, std::string 
 
 void LogIO::ReportConfigurationOptions( std::string xml_cadence,
 		std::string xml_tech, std::string xml_file_experiment,
-		std::string folder, std::string threads_number ){	
+		std::string folder, std::string threads_number ){
 	ReportPlainStandard( kTab + kShortDelimiter );
 	ReportPlainStandard( kTab + "|| ExperimentEnvironment Configuration: ||" );
-	ReportPlainStandard( kTab + kShortDelimiter ); 
+	ReportPlainStandard( kTab + kShortDelimiter );
 	ReportPlainStandard( kTab + "-> Date '" + GetCurrentDateTime() );
 	ReportPlainStandard( kTab + "-> Cadence xml conf file '" + xml_cadence + "'" );
 	ReportPlainStandard( kTab + "-> Technology xml conf file '" + xml_tech + "'" );
 	ReportPlainStandard( kTab + "-> Experiment xml conf file '" + xml_file_experiment + "'" );
 	ReportPlainStandard( kTab + "-> Experiment folder '" + folder + "'" );
 	ReportPlainStandard( kTab + "-> Using " +threads_number + " threads" );
-	ReportPlainStandard( kTab + kShortDelimiter ); 
+	ReportPlainStandard( kTab + kShortDelimiter );
 }
 
 
@@ -160,10 +160,10 @@ bool LogIO::ExportReadmeStandardInjection( std::string path2Alteration,
 	std::ofstream outputFile;
 	outputFile.open( oReadmeFile.c_str() );
 
-	outputFile << kLongDelimiter << kEmptyLine 
-		 << kTab << kSpectreHandlerLibTitle << " " << kSpectreHandlerLibVersion << kEmptyLine << kLongDelimiter << kEmptyLine 
+	outputFile << kLongDelimiter << kEmptyLine
+		 << kTab << kSpectreHandlerLibTitle << " " << kSpectreHandlerLibVersion << kEmptyLine << kLongDelimiter << kEmptyLine
 		 << kEmptyLine << "Exported at: " << GetCurrentDateTime() << kEmptyLine
-		 << kEmptyLine << "Altered Statement. Name: '" 
+		 << kEmptyLine << "Altered Statement. Name: '"
 		 << alteredStatementName << "', Master Name: '" << alteredStatementMasterName << "'"
 		 << kEmptyLine << "At node '" << alteredNodeName << "'."
 		 << kEmptyLine << "Scope: " << alteredStatementScopeName << kEmptyLine
@@ -183,10 +183,10 @@ bool LogIO::ExportReadmeStandardSubstitution(  std::string path2Alteration,
 	std::ofstream outputFile;
 	outputFile.open( oReadmeFile.c_str() );
 
-	outputFile << kLongDelimiter << kEmptyLine 
-		 << kTab << kSpectreHandlerLibTitle << " " << kSpectreHandlerLibVersion << kEmptyLine << kLongDelimiter << kEmptyLine 
+	outputFile << kLongDelimiter << kEmptyLine
+		 << kTab << kSpectreHandlerLibTitle << " " << kSpectreHandlerLibVersion << kEmptyLine << kLongDelimiter << kEmptyLine
 		 << kEmptyLine << "Exported at: " << GetCurrentDateTime() << kEmptyLine
-		 << kEmptyLine << "Altered Statement. Name: '" 
+		 << kEmptyLine << "Altered Statement. Name: '"
 		 << alteredStatementName << "', Master Name: '" << alteredStatementMasterName << "'"
 		 << kEmptyLine << "New master_name: '" << newStatementMasterName << "'." << kEmptyLine
 		 << "Full path: " << path2Alteration << kEmptyLine;
@@ -213,7 +213,7 @@ void LogIO::ReportInstanceOfSubcircuitReplacement(
 	ReportPlainStandard( k3Tab + "Instance statement: '" + statement_name + "'" );
 	ReportPlainStandard( k3Tab + "Belonging circuit: '" + circuitName + "'" );
 	ReportPlainStandard( k3Tab + "Instance of (Old subcircuit): '" + oldSubcircuit + "'" );
-	ReportPlainStandard( k3Tab + "Instance of (New subcircuit): '" + newSubcircuit + "'"  );		
+	ReportPlainStandard( k3Tab + "Instance of (New subcircuit): '" + newSubcircuit + "'"  );
 	ReportPlainStandard( k3Tab + kLongDelimiter  );
 	if( injectionMethod){
 		ReportPlainStandard( k3Tab  + "Original injection:"  );
@@ -243,34 +243,34 @@ bool LogIO::ExportReadmeInstanceOfSubcircuitReplacement(  std::string path2Alter
 	std::ofstream outputFile;
 	outputFile.open( oReadmeFile.c_str() );
 
-	outputFile << kLongDelimiter << kEmptyLine 
-		<< kTab << kSpectreHandlerLibTitle << " " << kSpectreHandlerLibVersion 
+	outputFile << kLongDelimiter << kEmptyLine
+		<< kTab << kSpectreHandlerLibTitle << " " << kSpectreHandlerLibVersion
 		<< kEmptyLine << kTab << "Exported at: " << GetCurrentDateTime() << kEmptyLine
 		<< kEmptyLine << kLongDelimiter << kEmptyLine
 		<< kEmptyLine << "Alteration #" << modificationCounter << kEmptyLine
 		<< kEmptyLine << kLongDelimiter << kEmptyLine
 		<< kEmptyLine << deepLevel << kEmptyLine
 		<< kEmptyLine << kLongDelimiter << kEmptyLine
-		<< kEmptyLine << "Substitution:" << kEmptyLine 
+		<< kEmptyLine << "Substitution:" << kEmptyLine
 		<< kEmptyLine << "Instance statement: '" << statement_name << "'"
 		<< kEmptyLine << "Belonging circuit: '" << circuitName << "'"
 		<< kEmptyLine << "Instance of (Old subcircuit): '" << oldSubcircuit << "'"
-		<< kEmptyLine << "Instance of (New subcircuit): '" << newSubcircuit << "'"		
+		<< kEmptyLine << "Instance of (New subcircuit): '" << newSubcircuit << "'"
 		<< kEmptyLine << kLongDelimiter << kEmptyLine;
 	if( injectionMethod){
 		outputFile
-			 << kEmptyLine << "Original injection:" << kEmptyLine 
-			 << kEmptyLine << "Altered Statement. Name: '" 
+			 << kEmptyLine << "Original injection:" << kEmptyLine
+			 << kEmptyLine << "Altered Statement. Name: '"
 			 << alteredStatementName << "', Master Name: '" << alteredStatementMasterName << "'"
 			 << kEmptyLine << "At node '" << alteredParamName << "'."
 			 << kEmptyLine << "Scope: " << alteredScopeName << kEmptyLine;
 	}else{
 		outputFile
-			 << kEmptyLine << "Original substitution:" << kEmptyLine 
-			 << kEmptyLine << "Altered Statement. Name: '" 
+			 << kEmptyLine << "Original substitution:" << kEmptyLine
+			 << kEmptyLine << "Altered Statement. Name: '"
 			 << alteredStatementName << "', Old Master Name: '" << alteredStatementMasterName << "'"
 			 << kEmptyLine << "New Master Name '" << alteredParamName << "'."
-			 << kEmptyLine << "Scope: " << alteredScopeName << kEmptyLine;	
+			 << kEmptyLine << "Scope: " << alteredScopeName << kEmptyLine;
 	}
 	outputFile << "Full path: " << path2Alteration << kEmptyLine;
 	outputFile.close();
@@ -365,11 +365,11 @@ void LogIO::ReportUserInformationNeeded( std::string text ){
 }
 
 void LogIO::ReportError2AllLogs( std::string text ){
-	std::cout << kTab << kRed << text << kEndColor << std::endl;
+	std::cout << kTab << kRed << "[ERROR REPORTED] " << text << kEndColor << std::endl;
 	#ifdef VERBOSE
-		std::clog << kTab << text << std::endl;
+		std::clog << kTab << "[ERROR REPORTED] " << text << std::endl;
 	#endif
-	std::cerr << kTab << text << std::endl;
+	std::cerr << kTab << "[ERROR REPORTED] " << text << std::endl;
 }
 
 void LogIO::ReportThread( const std::string threadInfo, const int level ){

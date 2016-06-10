@@ -21,6 +21,7 @@
 
 class MontecarloStandardSimulation : public SpectreSimulation {
 public:
+	[[deprecated("Replaced by MontecarloSimulation, which has an improved interface")]]
 	MontecarloStandardSimulation();
 	virtual ~MontecarloStandardSimulation();
 
@@ -28,6 +29,14 @@ public:
 	virtual void RunSpectreSimulation();
 
 	void set_montecarlo_iterations( const unsigned int montecarlo_iterations ){ this->montecarlo_iterations = montecarlo_iterations; };
+
+	/**
+	 * @brief Sets max_parallel_montecarlo_instances
+	 *
+	 * @param max_parallel_montecarlo_instances
+	 */
+	void set_max_parallel_montecarlo_instances( unsigned int max_parallel_montecarlo_instances ){
+		this->max_parallel_montecarlo_instances = max_parallel_montecarlo_instances; }
 
 	/**
 	 * @brief gets simulation_results
@@ -42,10 +51,12 @@ public:
 	bool PlotProfileResults();
 
 private:
-
+	///Number of montecarlo instances
 	unsigned int montecarlo_iterations;
 	MontecarloSimulationResults montecarlo_simulation_results;
 	std::vector<TransientSimulationResults*> montecarlo_transient_simulation_results;
+	/// Max parallel instances per montecarlo
+	unsigned int max_parallel_montecarlo_instances;
 
 	/**
 	 * @brief Run the previously configured spectre simulation

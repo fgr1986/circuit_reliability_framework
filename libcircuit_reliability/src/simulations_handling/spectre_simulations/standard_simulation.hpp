@@ -38,6 +38,12 @@ private:
 	/// Pointer to the only simulation results present in the list.
 	TransientSimulationResults basic_simulation_results;
 
+	virtual std::string GetSpectreResultsFilePath(const std::string& currentFolder,
+		const bool& processMainTransient) override;
+
+	virtual std::string GetProcessedResultsFilePath(const std::string& currentFolder,
+		const std::string& localSimulationId, const bool& processMainTransient) override ;
+
 	/**
 	 * @brief Run the previously configured spectre simulation
 	 *

@@ -70,7 +70,7 @@ void MontecarloCriticalParameterNDParametersSweepSimulation::RunSpectreSimulatio
 	unsigned int threadsCount = 0;
 	// current parameter sweep indexes
 	std::vector<unsigned int> parameterCountIndexes(parameters2sweep.size(), 0);
-	montecarlo_critical_parameter_value_simulations_vector.set_group_name("critical_parameter_value_simulations_vector");
+	montecarlo_critical_parameter_value_simulations_vector.set_group_name("montecarlo_critical_parameter_value_simulations_vector");
 	montecarlo_critical_parameter_value_simulations_vector.ReserveSimulationsInMemory( totalThreads );
 	while( threadsCount<totalThreads ){
 		// wait for resources

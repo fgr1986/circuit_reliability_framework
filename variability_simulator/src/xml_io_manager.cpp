@@ -100,14 +100,18 @@ bool XMLIOManager::ReadCadenceXML( const std::string &xmlCadence, int& statement
 		variabilitySpectreHandler.set_spectre_command_log_arg( ptSpectreCommand.get<std::string>("spectre_command_log_arg") );
 		variabilitySpectreHandler.set_spectre_command_folder_arg( ptSpectreCommand.get<std::string>("spectre_command_folder_arg") );
 		variabilitySpectreHandler.set_post_spectre_command( ptSpectreCommand.get<std::string>("post_spectre_command") );
-		// Parallel instances
+		// Concurrent parallel instances
+		// no max_parallel_scenario_instances for variability
+		int maxMontecarloParallelInstances = ptCadence.get<int>("root.max_parallel_montecarlo_instances");
 		int maxParallelProfileInstances = ptCadence.get<int>("root.max_parallel_profile_instances");
-		if( maxParallelProfileInstances<1 ){
-			log_io->ReportError2AllLogs( kTab + "max_parallel_profile_instances are lower than 1.");
+		if(  maxParallelProfileInstances<1 || maxMontecarloParallelInstances<1  ){
+			log_io->ReportError2AllLogs( kTab + "max_parallel_scenario_instances, max_parallel_montecarlo_instances or max_parallel_profile_instances are lower than 1.");
 			return false;
 		}else{
+			log_io->ReportCyanStandard( kTab + "max_parallel_montecarlo_instances: " + number2String(maxMontecarloParallelInstances));
 			log_io->ReportCyanStandard( kTab + "max_parallel_profile_instances: " + number2String(maxParallelProfileInstances));
 		}
+		variabilitySpectreHandler.set_max_parallel_montecarlo_instances( maxMontecarloParallelInstances );
 		variabilitySpectreHandler.set_max_parallel_profile_instances( maxParallelProfileInstances );
 		log_io->ReportPlainStandard( kTab + "Parsing: " );
 		// Primitive names
@@ -832,8 +836,8 @@ bool XMLIOManager::ProcessSimulationParameter(
 		rp->set_allow_find_critical_value( vrp.second.get<bool>("simulation_parameter_allow_find_critical_value")  );
 		log_io->ReportPlain2Log( k3Tab + "-> Parameter value is NOT fixed" );
 		if(rp->get_allow_find_critical_value()){
-			variabilitySpectreHandler.set_critical_parameter( rp );
-			log_io->ReportPlain2Log( k3Tab + "-> Parameter allows_find_critical_value" );
+			log_io->ReportRedStandard( k3Tab + "-> This program does not consider any parameter as critical. Use the other one!" );
+			// variabilitySpectreHandler.set_critical_parameter( rp );
 		}else{
 			log_io->ReportPlain2Log( k3Tab + "-> Parameter does NOT allow_find_critical_value" );
 		}

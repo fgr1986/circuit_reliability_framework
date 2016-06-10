@@ -71,7 +71,7 @@ DIST+=$(DIST_MAKE)
 # DIST+= $(SCRIPTSDIR)/*
 # latex/html example resources
 # md files
-DIST+= ../*.md
+# DIST+= ../*.md
 
 #################
 # Gcc flags     #
@@ -81,7 +81,9 @@ DIST+= ../*.md
 #CPPFLAGS+= -Wall -O3 -g -fdump-tree-original-raw -fdump-tree-all-all -finstrument-functions // rtl graphs, O3
 #CPPFLAGS+= -std=c++11 -Wall -O3 -I $(MATLAB_ROOT)extern/include // Matlab, c++11
 # CPPFLAGS+= -g -std=c++11 -Wall -O3
-CPPFLAGS= -std=c++11 -Wall -O3 -I$(INCLIB)
+
+# CPPFLAGS= -std=c++11 -Wall -O3 -I$(INCLIB)
+CPPFLAGS= -g -std=c++11 -Wall -O3 -I$(INCLIB)
 
 #################
 # Library flags #

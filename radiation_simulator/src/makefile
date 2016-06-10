@@ -15,6 +15,10 @@ VERSION=$(RADIATION_SIMULATOR_VERSION)
 # Compiler def  #
 #################
 CC=g++
+# no debug
+# CPPFLAGS+= -std=c++11 -Wall -O3 -fPIC
+# debug
+CPPFLAGS+= -g -std=c++11 -Wall -O3 -fPIC
 
 ################
 # target files #
@@ -70,10 +74,10 @@ DIST+=$(DIST_MAKE)
 # script examples
 # DIST+= $(SCRIPTSDIR)/*
 # latex/html example resources
-DIST+= ../html_resources/*
-DIST+= ../latex_resources/*
+# DIST+= ../html_resources/*
+# DIST+= ../latex_resources/*
 # md files
-DIST+= ../*.md
+# DIST+= ../*.md
 
 #################
 # Gcc flags     #
@@ -83,7 +87,9 @@ DIST+= ../*.md
 #CPPFLAGS+= -Wall -O3 -g -fdump-tree-original-raw -fdump-tree-all-all -finstrument-functions // rtl graphs, O3
 #CPPFLAGS+= -std=c++11 -Wall -O3 -I $(MATLAB_ROOT)extern/include // Matlab, c++11
 # CPPFLAGS+= -g -std=c++11 -Wall -O3
-CPPFLAGS= -std=c++11 -Wall -O3 -I$(INCLIB) 
+
+# CPPFLAGS= -std=c++11 -Wall -O3 -I$(INCLIB)
+CPPFLAGS= -g -std=c++11 -Wall -O3 -I$(INCLIB)
 
 #################
 # Library flags #
@@ -112,7 +118,7 @@ all: ${EXECUTABLE}
 $(EXECUTABLE): $(OBJECTS) $(HEADERS)
 #	@echo $(HEADERS)
 #g++  -Wall -O3 -g -fdump-tree-original  -c -o parameter.o parameter.cpp
-	$(CC) $(OBJECTS) -o $(EXECDIR)$(EXECUTABLE) $(LDFLAGS) 
+	$(CC) $(OBJECTS) -o $(EXECDIR)$(EXECUTABLE) $(LDFLAGS)
 
 #
 # Cleanning up
@@ -134,4 +140,3 @@ dist:
 run: $(EXE)
 	@echo "Running" $(EXE) "..."
 	@./$(EXECDIR)/$< $(EXE_OPTS)
-

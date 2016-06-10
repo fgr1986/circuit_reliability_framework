@@ -18,7 +18,7 @@
 // Radiation simulator
 // #include "spectre_simulation.hpp"
 #include "spectre_simulations_vector.hpp"
-#include "montecarlo_standard_simulation.hpp"
+#include "montecarlo_simulation.hpp"
 // netlist modeling
 #include "../../netlist_modeling/simulation_parameter.hpp"
 #include "../../netlist_modeling/statements/control_statement.hpp"
@@ -46,6 +46,22 @@ public:
 		this->max_parallel_profile_instances = max_parallel_profile_instances; }
 
 	/**
+	 * @brief Sets max_parallel_montecarlo_instances
+	 *
+	 * @param max_parallel_montecarlo_instances
+	 */
+	void set_max_parallel_montecarlo_instances( unsigned int max_parallel_montecarlo_instances ){
+		this->max_parallel_montecarlo_instances = max_parallel_montecarlo_instances; }
+
+	/**
+	 * @brief Sets montecarlo_iterations
+	 *
+	 * @param montecarlo_iterations
+	 */
+	void set_montecarlo_iterations( unsigned int montecarlo_iterations ){
+		this->montecarlo_iterations = montecarlo_iterations; }
+
+	/**
 	 * @brief gets the plot_last_transients
 	 * @return boolean plot_last_transients
 	 */
@@ -65,6 +81,8 @@ private:
 	SpectreSimulationsVector montecarlo_standard_simulations_vector;
 	/// Max parallel instances per sweep
 	unsigned int max_parallel_profile_instances;
+	/// Max parallel instances per montecarlo
+	unsigned int max_parallel_montecarlo_instances;
 	/// plot last transient
 	bool plot_last_transients;
 	/// data per magnitude per line for gnuplot maps
@@ -86,7 +104,7 @@ private:
 	 * @param threadNumber
 	 * @return The new critical_parameter_value_simulation pointer
 	 */
-	MontecarloStandardSimulation* CreateMontecarloStandardSimulation(
+	MontecarloSimulation* CreateMontecarloSimulation(
 		const std::string currentFolder, const std::vector<unsigned int> & parameterCountIndexes,
 		std::vector<SimulationParameter*>& parameters2sweep, const int threadNumber  );
 		/**
@@ -97,7 +115,7 @@ private:
 	 * @param parameters2sweep
 	 * @param threadNumber
 	 */
-	MontecarloStandardSimulation* CreateProfile(
+	MontecarloSimulation* CreateProfile(
 		const std::vector<unsigned int> & parameterCountIndexes,
 		std::vector<SimulationParameter*>& parameters2sweep, const unsigned int threadNumber );
 
@@ -107,13 +125,13 @@ private:
 	 *
 	 * @param cpv simulation
 	 */
-	void RunProfile( MontecarloStandardSimulation* pCPVS );
+	void RunProfile( MontecarloSimulation* pCPVS );
 
 	bool GenerateAndPlotResults(
 		const std::vector< SimulationParameter* > & parameters2sweep  );
 
 	bool ProcessInterpolateAndAnalyzeSpectreResults(
-			MontecarloStandardSimulation& mcStandardSim );
+			MontecarloSimulation& mcStandardSim );
 
 	bool GenerateAndPlotGeneralResults(
 			const std::vector<Magnitude*>& auxMagnitudes,

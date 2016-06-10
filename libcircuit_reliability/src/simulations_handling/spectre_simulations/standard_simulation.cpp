@@ -21,6 +21,7 @@
 
 StandardSimulation::StandardSimulation() {
 	this->export_processed_magnitudes = true;
+	this->montecarlo_transient_sufix = kNotDefinedString;
 }
 
 StandardSimulation::~StandardSimulation(){
@@ -65,7 +66,7 @@ void StandardSimulation::RunSpectreSimulation( ){
 		#ifdef SPECTRE_SIMULATIONS_VERBOSE
 		log_io->ReportPlain2Log( kTab + "#" + simulation_id + " -> Interpolating spectre_results");
 		#endif
-		if( !InterpolateAndAnalyzeMagnitudes( basic_simulation_results, *analyzedMagnitudes, n_d_profile_index, "s" ) ){
+		if( !InterpolateAndAnalyzeMagnitudes( basic_simulation_results, *analyzedMagnitudes, n_d_profile_index, simulation_id ) ){
 			log_io->ReportError2AllLogs( "Error while interpolating the critical value magnitudes. Scenario #"
 				+ simulation_id );
 			return;
@@ -95,6 +96,42 @@ bool StandardSimulation::TestSetUp(){
 		return false;
 	}
 	return true;
+}
+
+
+std::string StandardSimulation::GetSpectreResultsFilePath(const std::string& currentFolder,
+	const bool& processMainTransient){
+	// for critical_parameter_value_simulations that are nested
+	if( is_montecarlo_nested_simulation ){
+		return currentFolder + kFolderSeparator + kSpectreResultsFolder
+			+ kFolderSeparator + main_analysis->get_name() + "-" + montecarlo_transient_sufix + "_"
+			+ main_transient_analysis->get_name() + kTransientSufix;
+	}else{
+		std::string analysisFinalName = main_analysis->get_name();
+		if( processMainTransient ){
+			analysisFinalName = main_transient_analysis->get_name();
+		}
+		return currentFolder + kFolderSeparator + kSpectreResultsFolder
+			+ kFolderSeparator + analysisFinalName + kTransientSufix;
+	}
+}
+
+std::string StandardSimulation::GetProcessedResultsFilePath(const std::string& currentFolder,
+		const std::string& localSimulationId, const bool& processMainTransient){
+	// for critical_parameter_value_simulations that are nested
+	if( is_montecarlo_nested_simulation ){
+		return top_folder + kFolderSeparator + kResultsFolder + kFolderSeparator
+		+ kResultsDataFolder + kFolderSeparator + kTransientResultsFolder + kFolderSeparator
+		+ kProcessedPrefix + simulation_id + "_m_" + montecarlo_transient_sufix + kDataSufix;
+	}else{
+		std::string analysisFinalName = main_analysis->get_name();
+		if( processMainTransient ){
+			analysisFinalName = main_transient_analysis->get_name();
+		}
+		return top_folder + kFolderSeparator + kResultsFolder + kFolderSeparator + kResultsDataFolder
+			+ kFolderSeparator + kTransientResultsFolder + kFolderSeparator
+			+ localSimulationId + "_" + kProcessedTransientFile;
+	}
 }
 
 int StandardSimulation::RunSpectre( std::string scenarioId ){

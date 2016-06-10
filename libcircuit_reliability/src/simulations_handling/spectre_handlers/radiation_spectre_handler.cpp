@@ -43,11 +43,13 @@ RadiationSpectreHandler::RadiationSpectreHandler() {
 	this->delete_spectre_folders = false;
 	this->save_spectre_transients = true;
 	this->save_processed_transients = true;
+	this->golden_magnitudes_structure = nullptr;
+	// montecarlo iterations
+	this->montecarlo_iterations = 1;
+	// parallel
 	this->max_parallel_profile_instances = 2;
 	this->max_parallel_montecarlo_instances = 5;
 	this->max_parallel_scenario_instances = 2;
-	this->golden_magnitudes_structure = nullptr;
-	this->montecarlo_iterations = 1;
 }
 
 RadiationSpectreHandler::~RadiationSpectreHandler() {
@@ -142,6 +144,7 @@ bool RadiationSpectreHandler::RunSpectreSimulations(){
 		for( auto & p : simulation_parameters ){
 			if( p->get_name() == kMontecarloIterationsParameterWord){
 				pMontecarloIterations = p;
+				break; // break for
 			}
 		}
 		if( pMontecarloIterations==nullptr ){

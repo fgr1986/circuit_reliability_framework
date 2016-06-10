@@ -356,7 +356,7 @@ protected:
 	 */
 	bool InterpolateAndAnalyzeMagnitudes(
 		TransientSimulationResults& transientSimulationResults,
-		std::vector<Magnitude*>& simulatedMagnitudes, const unsigned int& index, const std::string& partialId );
+		std::vector<Magnitude*>& simulatedMagnitudes, const unsigned int index, const std::string partialId );
 
 	/**
 	 * @brief Interpolates and analyzes the selected magnitude
@@ -371,7 +371,7 @@ protected:
 	  */
 	bool InterpolateAndAnalyzeMagnitude( TransientSimulationResults& transientSimulationResults,
 		bool& radiationError, Magnitude& goldenMagnitude, Magnitude& simulatedMagnitude,
-		Magnitude& goldenTime, Magnitude& simulatedTime, const std::string partialId );
+		Magnitude& goldenTime, Magnitude& simulatedTime, const std::string& partialId );
 
 	/**
 	 * @brief Interpolates a value
@@ -484,6 +484,30 @@ protected:
 	 */
 	bool CheckError( const Magnitude& magnitude, const double& currentSimulatedValue,
 		const double& currentGoldenValue, const double& currentMagnitudeError, const double& absErrorMargin  );
+
+	bool Get2AnalyzableTimeWindow(
+		std::vector<double>::iterator& itGoldenTime, std::vector<double>::iterator& itGoldenTimeEnd,
+		std::vector<double>::iterator& itSimulatedTime, std::vector<double>::iterator& itSimulatedTimeEnd,
+		std::vector<double>::iterator& itGoldenMagnitude, std::vector<double>::iterator& itSimulatedMagnitude,
+		double analyzableTimeWindowT0 );
+
+	bool CheckEndOfWindow(
+		const bool magnitudeAnalizableInTWindow, const double& analyzableTimeWindowTF,
+		std::vector<double>::iterator& itGoldenTime, std::vector<double>::iterator& itSimulatedTime );
+
+	void ReportSimulationsLengthError( const Magnitude& goldenTime,
+		const Magnitude& simulatedTime, const std::string& partialId );
+
+	void VerboseStartMagnitudeAnalysis(
+		std::vector<double>::iterator& itGoldenTime, std::vector<double>::iterator& itSimulatedTime,
+		std::vector<double>::iterator& itGoldenMagnitude, std::vector<double>::iterator& itSimulatedMagnitude,
+		const Magnitude& simulatedMagnitude );
+
+	void VerboseReliabilityError( const std::string& errorType,
+		TransientSimulationResults& transientSimulationResults, const std::string& partialId,
+		const std::string& magName, const double& currentTime, const double& currentMagnitudeError,
+		const double& currentSimulatedValue, const double& currentGoldenValue, const double& backSimulatedValue, const double& backGoldenValue,
+		std::vector<double>::iterator& itSimulatedMagnitude, std::vector<double>::iterator& itGoldenMagnitude );
 };
 
 #endif /* SPECTRE_SIMULATION_H */

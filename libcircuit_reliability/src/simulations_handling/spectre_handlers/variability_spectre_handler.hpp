@@ -71,6 +71,14 @@ public:
 	void set_log_io( LogIO* log_io ){ this->log_io = log_io; }
 
 	/**
+	 * @brief Sets montecarlo_iterations
+	 *
+	 * @param montecarlo_iterations
+	 */
+	void set_montecarlo_iterations( unsigned int montecarlo_iterations ){
+		this->montecarlo_iterations = montecarlo_iterations; }
+
+	/**
  	* @details sets simulation_mode and updates selected_radiation_source
  	* @param simulation_mode <SimulationModesHandler*>
  	*/
@@ -113,6 +121,14 @@ public:
 	void set_max_parallel_profile_instances( int max_parallel_profile_instances ){
 		this->max_parallel_profile_instances = max_parallel_profile_instances; }
 
+	/**
+	 * @brief Sets max_parallel_montecarlo_instances
+	 *
+	 * @param max_parallel_montecarlo_instances
+	 */
+	void set_max_parallel_montecarlo_instances( unsigned int max_parallel_montecarlo_instances ){
+		this->max_parallel_montecarlo_instances = max_parallel_montecarlo_instances; }
+
 	void AddMagnitude( Magnitude* magnitude );
 
 	std::vector<SpectreSimulation*>* get_simulations(){ return &simulations; }
@@ -136,22 +152,26 @@ public:
 	 *
 	 * @param critical_parameter
 	 */
-	void set_critical_parameter( SimulationParameter* critical_parameter){
-		this->critical_parameter = critical_parameter;
-	}
+	// void set_critical_parameter( SimulationParameter* critical_parameter){
+	// 	this->critical_parameter = critical_parameter;
+	// }
 
 private:
 
 	/// Simulation parameters
 	std::vector<SimulationParameter*> simulation_parameters;
 	/// Critical parameter
-	SimulationParameter* critical_parameter;
+	// SimulationParameter* critical_parameter;
 	/// Experiment top folder
 	std::string top_folder;
 	/// Simulations
 	std::vector<SpectreSimulation*> simulations;
 	/// Log manager
 	LogIO* log_io;
+
+
+	/// max parallel instances per parameter
+	unsigned int montecarlo_iterations;
 
 	/// saves individually spectre transients
 	bool save_spectre_transients;
@@ -195,6 +215,8 @@ private:
 	int interpolate_plots_ratio;
 	/// max parallel instances per parameter_sweep
 	int max_parallel_profile_instances;
+	/// max parallel instances per parameter
+	unsigned int max_parallel_montecarlo_instances;
 
 	bool SimulateGoldenNetlist( );
 	bool SimulateStandardAHDLNetlist( );

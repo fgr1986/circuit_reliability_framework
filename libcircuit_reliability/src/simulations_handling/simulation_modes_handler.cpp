@@ -300,7 +300,7 @@ void SimulationModesHandler::CreateVariabilityProgramModes(){
 	// Simulation modes
 	/// montecarlo_critical_parameter_nd_parameters_sweep_mode
 	montecarlo_nd_parameters_sweep_mode.set_log_io( log_io );
-	montecarlo_nd_parameters_sweep_mode.set_id( kMontecarloCriticalParameterNDParametersSweepMode );
+	montecarlo_nd_parameters_sweep_mode.set_id( kMontecarloNDParametersSweepMode );
 	montecarlo_nd_parameters_sweep_mode.set_short_description( "Monte Carlo-Sweep Simulation Mode.");
 	montecarlo_nd_parameters_sweep_mode.set_description( "Monte Carlo-Sweep Simulation Mode. Sweeps the chosen parameters"
 		", running the list of analyses (or multiple analyses) for each value of each paired-parameter."

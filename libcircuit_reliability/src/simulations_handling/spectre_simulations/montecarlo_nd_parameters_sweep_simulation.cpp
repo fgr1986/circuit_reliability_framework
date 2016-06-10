@@ -46,7 +46,8 @@ void MontecarloNDParametersSweepSimulation::RunSpectreSimulation( ){
 		log_io->ReportError2AllLogs( "RunSpectreSimulation had not been previously set up. ");
 		return;
 	}
-	montecarlo_iterations = std::stoi( main_analysis->GetParameter(kMontecarloNumRuns)->get_value() );
+	// montecarlo_iterations defined in radiation_handler.
+	// montecarlo_iterations = std::stoi( main_analysis->GetParameter(kMontecarloNumRuns)->get_value() );
 	boost::thread_group mainTG;
 	// params to be sweeped
 	std::vector<SimulationParameter*> parameters2sweep;
@@ -70,14 +71,14 @@ void MontecarloNDParametersSweepSimulation::RunSpectreSimulation( ){
 	unsigned int threadsCount = 0;
 	// current parameter sweep indexes
 	std::vector<unsigned int> parameterCountIndexes(parameters2sweep.size(), 0);
-	montecarlo_standard_simulations_vector.set_group_name("critical_parameter_value_simulations_vector");
+	montecarlo_standard_simulations_vector.set_group_name("montecarlo_simulations_vector");
 	montecarlo_standard_simulations_vector.ReserveSimulationsInMemory( totalThreads );
 	while( threadsCount<totalThreads ){
 		// wait for resources
 		WaitForResources( runningThreads, max_parallel_profile_instances, mainTG );
 		// not needed to copy 'parameterCountIndexes' since without using boost::ref, arguments are copied
 		// to avoid race conditions updating variables
-		MontecarloStandardSimulation* pMSS = CreateProfile(parameterCountIndexes, boost::ref(parameters2sweep), threadsCount);
+		MontecarloSimulation* pMSS = CreateProfile(parameterCountIndexes, boost::ref(parameters2sweep), threadsCount);
 		montecarlo_standard_simulations_vector.AddSpectreSimulation( pMSS );
 		mainTG.add_thread( new boost::thread(&MontecarloNDParametersSweepSimulation::RunProfile, this, boost::ref(pMSS)));
 		// update variables
@@ -88,10 +89,8 @@ void MontecarloNDParametersSweepSimulation::RunSpectreSimulation( ){
 	mainTG.join_all();
 	// check if every simulation ended correctly
 	correctly_simulated = montecarlo_standard_simulations_vector.CheckCorrectlySimulated();
-	#ifdef RESULTS_ANALYSIS_VERBOSE
-		log_io->ReportPlainStandard( k2Tab + "Generating Map files.");
-	#endif
 	// generate map files
+	log_io->ReportPlainStandard( k2Tab + "Generating Map files.");
 	GenerateAndPlotResults( parameters2sweep );
 	// end
 	log_io->ReportPlain2Log( "END OF MontecarloNDParametersSweepSimulation::RunSpectreSimulation" );
@@ -111,7 +110,7 @@ bool MontecarloNDParametersSweepSimulation::TestSetUp(){
 	return true;
 }
 
-MontecarloStandardSimulation* MontecarloNDParametersSweepSimulation::CreateProfile(
+MontecarloSimulation* MontecarloNDParametersSweepSimulation::CreateProfile(
 	const std::vector<unsigned int> & parameterCountIndexes,
 	std::vector< SimulationParameter* > & parameters2sweep, const unsigned int threadNumber ){
 	// Create folder
@@ -136,7 +135,7 @@ MontecarloStandardSimulation* MontecarloNDParametersSweepSimulation::CreateProfi
 		 return nullptr;
 	}
 	// create thread
-	MontecarloStandardSimulation* pMSS = CreateMontecarloStandardSimulation( currentFolder, parameterCountIndexes, parameters2sweep, threadNumber );
+	MontecarloSimulation* pMSS = CreateMontecarloSimulation( currentFolder, parameterCountIndexes, parameters2sweep, threadNumber );
 	if( pMSS==nullptr ){
 		log_io->ReportError2AllLogs( "pMSS is nullptr" );
 		return nullptr;
@@ -144,7 +143,7 @@ MontecarloStandardSimulation* MontecarloNDParametersSweepSimulation::CreateProfi
 	return pMSS;
 }
 
-void MontecarloNDParametersSweepSimulation::RunProfile( MontecarloStandardSimulation* pMSS ){
+void MontecarloNDParametersSweepSimulation::RunProfile( MontecarloSimulation* pMSS ){
 	// acts like a wrapper,
 	// first run spectre, then
 	// as a callback ProcessAndAnalyzeMontecarloTransients
@@ -159,24 +158,24 @@ void MontecarloNDParametersSweepSimulation::RunProfile( MontecarloStandardSimula
 	#ifdef RESULTS_ANALYSIS_VERBOSE
 	log_io->ReportPlainStandard( k2Tab + "Ended RunSpectreSimulation of profile " + pMSS->get_simulation_id());
 	#endif
-	if( ! pMSS->ProcessAndAnalyzeMontecarloTransients() ){
-		log_io->ReportError2AllLogs( k2Tab + "Error in ProcessInterpolateAndAnalyzeSpectreResults of thread " + pMSS->get_simulation_id());
-	}
+	// results are internally processed after RunSpectreSimulation
+	// in MontecarloSimulation
 	#ifdef RESULTS_ANALYSIS_VERBOSE
 	log_io->ReportPlainStandard( k2Tab + "Ended thread " + pMSS->get_simulation_id());
 	#endif
 }
 
-MontecarloStandardSimulation* MontecarloNDParametersSweepSimulation::CreateMontecarloStandardSimulation(
+MontecarloSimulation* MontecarloNDParametersSweepSimulation::CreateMontecarloSimulation(
 		const std::string currentFolder, const std::vector<unsigned int> & parameterCountIndexes,
 		std::vector< SimulationParameter* > & parameters2sweep, const int threadNumber  ){
 	std::string s_threadNumber = number2String(threadNumber);
 	// Simulation
-	MontecarloStandardSimulation* pMSS = new MontecarloStandardSimulation();
+	MontecarloSimulation* pMSS = new MontecarloSimulation();
 	pMSS->set_n_dimensional(true);
 	pMSS->set_n_d_profile_index(threadNumber);
 	pMSS->set_is_nested_simulation( true );
 	pMSS->set_montecarlo_iterations( montecarlo_iterations );
+	pMSS->set_max_parallel_montecarlo_instances( max_parallel_montecarlo_instances );
 	pMSS->set_simulation_id(  simulation_id + "_child_prof_" + s_threadNumber );
 	// pMSS->set_parameter_index( paramIndex );
 	// pMSS->set_sweep_index( sweepIndex );
@@ -215,7 +214,7 @@ MontecarloStandardSimulation* MontecarloNDParametersSweepSimulation::CreateMonte
 	for( auto const &p : parameters2sweep ){
 		if( !pMSS->UpdateParameterValue( *p, number2String( p->GetSweepValue( parameterCountIndexes.at(sweepedParamIndex)))) ){
 			log_io->ReportError2AllLogs( p->get_name()
-				+ " not found in MontecarloStandardSimulation and could not be updated." );
+				+ " not found in MontecarloSimulation and could not be updated." );
 		}
 		++sweepedParamIndex;
 	}
@@ -242,14 +241,22 @@ bool MontecarloNDParametersSweepSimulation::GenerateAndPlotResults(
 		 log_io->ReportError2AllLogs( "Error GenerateAndPlotResults" );
 		 return false;
 	}
+	// fgarcia
+	log_io->ReportPurpleStandard( "[fgarcia][debug] Generating Map files 1");
 	// aux mags
 	auto auxMagnitudes = golden_magnitudes_structure->GetMagnitudesVector( 0 );
+	if( auxMagnitudes==nullptr ){
+		log_io->ReportError2AllLogs("auxMagnitudes is null");
+		return false;
+	}
 	unsigned int totalAnalizableMagnitudes = 0;
 	for( auto const &m : *auxMagnitudes ){
 		if( m->get_analyzable() ){
 			++totalAnalizableMagnitudes;
 		}
 	}
+	// fgarcia
+	log_io->ReportPurpleStandard( "[fgarcia][debug] Generating Map files 2");
 	bool partialResults = true;
 	partialResults = partialResults && GenerateAndPlotGeneralResults( *auxMagnitudes,
 		parameters2sweep, mapsFolder, gnuplotScriptFolder, imagesFolder );
@@ -257,14 +264,18 @@ bool MontecarloNDParametersSweepSimulation::GenerateAndPlotResults(
 		log_io->ReportError2AllLogs( "Unexpected error in GenerateAndPlotGeneralResults" );
 		return false;
 	}
+	// fgarcia
+	log_io->ReportPurpleStandard( "[fgarcia][debug] Generating Map files 3");
 	// b) Profile Scatters
-	// scatter of each profile already plotted in MontecarloStandardSimulation
+	// scatter of each profile already plotted in MontecarloSimulation
 	// c) 3d plots
 	// p1 vs p2 3d plots
 	// std::vector<std::tuple<int,int>>
 	std::set<std::pair<unsigned int,unsigned int>> exportedParamTuples;
 	// reserve memory
 	main_nd_simulation_results.ReservePlanesInMemory( CountInvolvedPlanes(parameters2sweep) );
+	// fgarcia
+	log_io->ReportPurpleStandard( "[fgarcia][debug] Generating Map files 4");
 	unsigned int p1Index = 0;
 	for( auto const &p1 : parameters2sweep ){
 		unsigned int p2Index = 0;
@@ -290,6 +301,8 @@ bool MontecarloNDParametersSweepSimulation::GenerateAndPlotResults(
 					log_io->ReportError2AllLogs( "Error GenerateAndPlotResults" );
 					return false;
 				}
+				// fgarcia
+				log_io->ReportPurpleStandard( "[fgarcia][debug] Generating Map files 5");
 				partialResults = partialResults && GenerateAndPlotParameterPairResults(
 					*auxMagnitudes, totalAnalizableMagnitudes,
 					p1Index, p2Index, parameters2sweep, planesMapsFolder, planesGnuplotScriptFolder, planesImagesFolder );
@@ -402,7 +415,7 @@ bool MontecarloNDParametersSweepSimulation::GenerateAndPlotItemizedPlane(
 		unsigned int p2SweepCount = 0;
 		for( auto& simulation : *(montecarlo_standard_simulations_vector.get_spectre_simulations()) ){
 			if( vectorContains(profileIndexesInPlane, profileCount) ){
-				MontecarloStandardSimulation* mcSSim = dynamic_cast<MontecarloStandardSimulation*>(simulation);
+				MontecarloSimulation* mcSSim = dynamic_cast<MontecarloSimulation*>(simulation);
 				if( p2SweepCount==p2->get_sweep_steps_number() ){
 					p2SweepCount = 0;
 					++p1SweepCount;
@@ -467,7 +480,7 @@ bool MontecarloNDParametersSweepSimulation::GenerateAndPlotGeneralResults(
 		gnuplotSpectreErrorMapFile << "#profileCount #Profile SpectreError \n";
 		unsigned int profileCount = 0;
 		for( auto const &simulation : *(montecarlo_standard_simulations_vector.get_spectre_simulations()) ){
-			MontecarloStandardSimulation* mcSSim = dynamic_cast<MontecarloStandardSimulation*>(simulation);
+			MontecarloSimulation* mcSSim = dynamic_cast<MontecarloSimulation*>(simulation);
 			std::string auxIndexes = "P";
 			std::string auxSpectreError = mcSSim->get_correctly_simulated() ? "0" : "1";
 			for ( auto const &i : auxiliarIndexes ){ auxIndexes += number2String(i); }

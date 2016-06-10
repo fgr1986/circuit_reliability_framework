@@ -224,7 +224,7 @@ bool MontecarloStandardSimulation::ProcessInterpolateAndAnalyzeIndividualSpectre
 	// interpolate and analyze magnitudes
 	if( !InterpolateAndAnalyzeMagnitudes( individualTransientResults, analyzedMagnitudes,
 			n_d_profile_index, individualTransientResults.get_full_id() ) ){
-		log_io->ReportError2AllLogs( "Error while interpolating the critical value magnitudes. Scenario #"  + simulation_id );
+		log_io->ReportError2AllLogs( "Error while interpolating the magnitudes. Scenario #"  + simulation_id );
 		return false;
 	}
 	// delete files if needed in a later stage,

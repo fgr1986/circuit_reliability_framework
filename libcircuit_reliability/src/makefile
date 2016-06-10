@@ -3,7 +3,7 @@
 ##########################################
 
 # # of cores used during compiling
-export MAKEFLAGS="-j $(grep -c ^processor /proc/cpuinfo)"
+# export MAKEFLAGS="-j $(grep -c ^processor /proc/cpuinfo)"
 # export MAKEFLAGS="-j 2"
 # export MAKEFLAGS="-j 1"
 ############
@@ -28,7 +28,11 @@ CC=g++
 
 # fPIC: Position Independent Code means that the generated machine code
 # is not dependent on being located at a specific address in order to work.
-CPPFLAGS+= -std=c++11 -Wall -O3 -fPIC
+
+# no debug
+# CPPFLAGS+= -std=c++11 -Wall -O3 -fPIC
+# debug
+CPPFLAGS+= -g -std=c++11 -Wall -O3 -fPIC
 
 #################
 # Library flags #
@@ -111,12 +115,7 @@ DIST+= ../../library_installation.sh
 # documentation
 # DIST+= ../doc/*
 # conf examples
-DIST+= ../../aux_resources/example_*
-# DIST+= $(CONFDIR)xml/*.xml
-# DIST+= $(CONFDIR)netlists/*
-# latex/html example resources
-# DIST+= ../html_resources/*
-# DIST+= ../latex_resources/*
+# DIST+= ../../aux_resources/example_*
 # md files
 DIST+= ../../aux_resources/*.md
 # bash environment files
