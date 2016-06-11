@@ -1,4 +1,5 @@
 # To Do
+* ***Wait if file not found***
 * **Global results: [CriticalParameterNDParametersSweep] critical parameter value for each Scenario (mean between profiles)**
 * Revise parameter design space exploration ( 10^ is not e^!!)
 * To do: **Spectre errors at altered scenarios should at least simulate critical parameter boundaries, both of them. And what happens when an error appears?**
