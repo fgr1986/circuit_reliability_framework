@@ -40,10 +40,10 @@ MontecarloCriticalParameterNDParametersSweepSimulation::~MontecarloCriticalParam
 	// deleteContentsOfVectorOfPointers( altered_parameters_vector );
 }
 
-void MontecarloCriticalParameterNDParametersSweepSimulation::RunSpectreSimulation( ){
+void MontecarloCriticalParameterNDParametersSweepSimulation::RunSimulation( ){
 	log_io->ReportPurpleStandard( "Running montecarlo_critical_parameter_nd_parameters_sweep_simulation" );
 	if (!TestSetUp()){
-		log_io->ReportError2AllLogs( "RunSpectreSimulation had not been previously set up. ");
+		log_io->ReportError2AllLogs( "RunSimulation had not been previously set up. ");
 		return;
 	}
 	// montecarlo_iterations defined in radiation_handler.
@@ -74,7 +74,7 @@ void MontecarloCriticalParameterNDParametersSweepSimulation::RunSpectreSimulatio
 	montecarlo_critical_parameter_value_simulations_vector.ReserveSimulationsInMemory( totalThreads );
 	while( threadsCount<totalThreads ){
 		// wait for resources
-		WaitForResources( runningThreads, max_parallel_profile_instances, mainTG );
+		WaitForResources( runningThreads, max_parallel_profile_instances, mainTG, threadsCount );
 		// not needed to copy 'parameterCountIndexes' since without using boost::ref, arguments are copied
 		// to avoid race conditions updating variables
 		MontecarloCriticalParameterValueSimulation* pMCPVS = CreateProfile(parameterCountIndexes, boost::ref(parameters2sweep), threadsCount);
@@ -94,7 +94,7 @@ void MontecarloCriticalParameterNDParametersSweepSimulation::RunSpectreSimulatio
 	// generate map files
 	GenerateAndPlotResults( parameters2sweep );
 	// end
-	log_io->ReportPlain2Log( "END OF MontecarloCriticalParameterNDParametersSweepSimulation::RunSpectreSimulation" );
+	log_io->ReportPlain2Log( "END OF MontecarloCriticalParameterNDParametersSweepSimulation::RunSimulation" );
 }
 
 bool MontecarloCriticalParameterNDParametersSweepSimulation::TestSetUp(){
@@ -160,11 +160,11 @@ void MontecarloCriticalParameterNDParametersSweepSimulation::RunProfile(
 		return;
 	}
 	// run threadNumber
-	pMCPVS->RunSpectreSimulation();
+	pMCPVS->RunSimulation();
 	#ifdef RESULTS_ANALYSIS_VERBOSE
-	log_io->ReportPlainStandard( k2Tab + "Ended RunSpectreSimulation of profile " + pMCPVS->get_simulation_id());
+	log_io->ReportPlainStandard( k2Tab + "Ended RunSimulation of profile " + pMCPVS->get_simulation_id());
 	#endif
-	// results are internally processed after RunSpectreSimulation
+	// results are internally processed after RunSimulation
 	// in MontecarloCriticalParameterValueSimulation
 	#ifdef RESULTS_ANALYSIS_VERBOSE
 	log_io->ReportPlainStandard( k2Tab + "Ended thread " + pMCPVS->get_simulation_id());

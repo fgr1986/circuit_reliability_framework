@@ -24,7 +24,7 @@ public:
 	virtual ~GoldenSimulation();
 
 	/// virtual spectre simulation
-	virtual void RunSpectreSimulation();
+	virtual void RunSimulation() override;
 
 	/**
 	 * @brief gets transient_simulation_results

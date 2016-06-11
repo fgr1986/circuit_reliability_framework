@@ -26,7 +26,7 @@ public:
 	virtual ~MontecarloStandardSimulation();
 
 	/// virtual spectre simulation
-	virtual void RunSpectreSimulation();
+	virtual void RunSimulation() override;
 
 	void set_montecarlo_iterations( const unsigned int montecarlo_iterations ){ this->montecarlo_iterations = montecarlo_iterations; };
 

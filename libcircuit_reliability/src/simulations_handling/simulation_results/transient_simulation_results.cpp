@@ -46,6 +46,7 @@ std::string TransientSimulationResults::get_s_reliability_result(){
 }
 
 void TransientSimulationResults::RegisterSimulationParameters( std::vector<SimulationParameter*>* simulationParameters ){
+	simulation_parameters.clear();
 	// it is a std::map, so the structure does not allow to reserve memory
 	for( auto const &p : *simulationParameters ){
 		simulation_parameters.insert(std::make_pair( p->get_name(), p->get_value()));

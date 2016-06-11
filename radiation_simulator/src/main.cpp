@@ -24,6 +24,7 @@
 // Spectre Handler Library
 // Constants includes
 #include "global_functions_and_constants/global_constants.hpp"
+#include "global_functions_and_constants/global_template_functions.hpp" // for GetCurrentDateTime
 // Radiation simulator io includes
 #include "io_handling/log_io.hpp"
 
@@ -38,17 +39,17 @@ static const std::string kAppAuthor = "Fernando García, fgarcia@die.upm.es";
 static const std::string kAppVersionDate = "26/04/2016";
 
 
-// Get current date/time, format is DD-MM-YYYY.HH:mm:ss
-std::string GetCurrentDateTime() {
-	time_t	 now = time(0);
-	struct tm tstruct;
-	char	 buf[80];
-	tstruct = *localtime(&now);
-	// Visit http://en.cppreference.com/w/cpp/chrono/c/strftime
-	// for more information about date/time format
-	strftime(buf, sizeof(buf), "%d-%m-%Y.%X", &tstruct);
-	return buf;
-}
+// // Get current date/time, format is DD-MM-YYYY.HH:mm:ss
+// std::string GetCurrentDateTime("%d-%m-%Y.%X") {
+// 	time_t	 now = time(0);
+// 	struct tm tstruct;
+// 	char	 buf[80];
+// 	tstruct = *localtime(&now);
+// 	// Visit http://en.cppreference.com/w/cpp/chrono/c/strftime
+// 	// for more information about date/time format
+// 	strftime(buf, sizeof(buf), "%d-%m-%Y.%X", &tstruct);
+// 	return buf;
+// }
 
 /*
  * @details main function of radiation simulator
@@ -153,7 +154,7 @@ int main(int argc, char** argv) {
 		return 3;
 	}
 
-	log_io.ReportInfo2AllLogs("Simulations started: " + GetCurrentDateTime());
+	log_io.ReportInfo2AllLogs("Simulations started: " + GetCurrentDateTime("%d-%m-%Y.%X"));
 
 	//Scan sensitive nodes and create radiation scenarios
 	if( !experiment.SimulateRadiatedScenarios( 5 ) ){
@@ -162,7 +163,7 @@ int main(int argc, char** argv) {
 		return 3;
 	}
 
-	log_io.ReportInfo2AllLogs("Simulations ended: " + GetCurrentDateTime());
+	log_io.ReportInfo2AllLogs("Simulations ended: " + GetCurrentDateTime("%d-%m-%Y.%X"));
 
 	log_io.ReportPlain2AllLogs( "End of program, correctly simulated" );
 	log_io.CloseStreams();

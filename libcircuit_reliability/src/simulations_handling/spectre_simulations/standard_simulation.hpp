@@ -24,7 +24,7 @@ public:
 	virtual ~StandardSimulation();
 
 	/// virtual spectre simulation
-	virtual void RunSpectreSimulation();
+	virtual void RunSimulation() override;
 
 	/**
 	 * @brief gets simulation_results

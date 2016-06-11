@@ -32,7 +32,7 @@ SpectreSimulation::SpectreSimulation() {
 	this->process_magnitudes = true;
 	this->export_processed_magnitudes = false;
 	this->export_magnitude_errors = false;
-	this->correctly_simulated = true;
+	this->correctly_simulated = false;
 	this->correctly_processed = false;
 	this->is_nested_simulation = false;
 	this->simulation_id = kNotDefinedString;
@@ -67,14 +67,17 @@ void SpectreSimulation::AddAdditionalSimulationParameter(
 	simulation_parameters->push_back( simulationParameter );
 }
 
-void SpectreSimulation::WaitForResources(
-		unsigned int & threadsCount, const unsigned int& maxThreads, boost::thread_group & tg ){
+void SpectreSimulation::WaitForResources( unsigned int& threadsCount,
+	const unsigned int& maxThreads, boost::thread_group& tg, const unsigned int& thread2BeWaited ){
 	if( threadsCount == maxThreads-1 ){
 		// Wait for threads
 		#ifdef SPECTRE_SIMULATIONS_VERBOSE
-		log_io->ReportPlainStandard( "Scenario # " + simulation_id + " Waiting for resources." );
+		log_io->ReportPlainStandard( "Scenario # " + simulation_id + " Waiting for resources until " + number2String(thread2BeWaited-1) );
 		#endif
 		tg.join_all();
+		#ifdef SPECTRE_SIMULATIONS_VERBOSE
+		log_io->ReportPlainStandard( "Scenario # " + simulation_id + ". OK, next thread " + number2String(thread2BeWaited) );
+		#endif
 		threadsCount = 0;
 	}
 }
@@ -174,12 +177,8 @@ bool SpectreSimulation::InterpolateAndAnalyzeMagnitudes(
 	TransientSimulationResults& transientSimulationResults,
 	std::vector<Magnitude*>& simulatedMagnitudes, const unsigned int index, const std::string partialId  ){
 	bool reliabilityError = false;
-// fgarcia
-log_io->ReportPlain2Log( "[fgarcia] InterpolateAndAnalyzeMagnitudes " + partialId );
 	// obtain std::vector<Magnitude*>* magnitudes
 	auto golden_magnitudes = golden_magnitudes_structure->GetMagnitudesVector( index );
-// fgarcia
-log_io->ReportPlain2Log( "[fgarcia] InterpolateAndAnalyzeMagnitudes a " + partialId );
 	if( simulatedMagnitudes.size()<2 ){
 		log_io->ReportError2AllLogs( "Magnitudes size (including time):" + number2String(simulatedMagnitudes.size())
 			+ " at the scenario #" + partialId);
@@ -213,14 +212,12 @@ log_io->ReportPlain2Log( "[fgarcia] InterpolateAndAnalyzeMagnitudes a " + partia
 	if( reliabilityError ){
 		transientSimulationResults.set_reliability_result( kScenarioSensitive );
 		#ifdef RESULTS_ANALYSIS_VERBOSE
-		log_io->ReportRedStandard( "Reliability error at scenario #" + simulation_id
-			+ " simulation_result #" + transientSimulationResults.get_full_id() );
+		log_io->ReportRedStandard( "Reliability error at scenario #" + partialId + " simulation_result #" + transientSimulationResults.get_full_id() );
 		#endif
 	}else{
 		transientSimulationResults.set_reliability_result( kScenarioNotSensitive);
 		#ifdef RESULTS_ANALYSIS_VERBOSE
-		log_io->ReportCyanStandard( "No radiation error at scenario #" + simulation_id
-			+ " simulation_result #" + transientSimulationResults.get_full_id() );
+		log_io->ReportCyanStandard( "No reliability error at scenario #" + partialId + " simulation_result #" + transientSimulationResults.get_full_id() );
 		#endif
 	}
 	return true;
@@ -347,8 +344,6 @@ bool SpectreSimulation::InterpolateAndAnalyzeMagnitude( TransientSimulationResul
 	#ifdef RESULTS_ANALYSIS_VERBOSE
 		log_io->ReportPlain2Log( kTab + "#" + simulation_id + " " + partialId + " -> Interpolating/Analyzing magnitude " + simulatedMagnitude.get_name() );
 	#endif
-// fgarcia
-log_io->ReportPlain2Log( "[fgarcia] InterpolateAndAnalyzeMagnitude " + partialId + " " + goldenMagnitude.get_name() );
 	// check simulation lengths
 	if( goldenTime.get_values()->front() != simulatedTime.get_values()->front()
 		|| goldenTime.get_values()->back() != simulatedTime.get_values()->back() ){
@@ -531,12 +526,12 @@ log_io->ReportPlain2Log( "[fgarcia] InterpolateAndAnalyzeMagnitude " + partialId
 						errorInit = currentTime;
 						#ifdef RESULTS_ANALYSIS_VERBOSE
 							log_io->ReportPlain2Log( k2Tab + "[POSIBLE RELIABILITY ERROR*] #" + partialId + " Scenario, #" + transientSimulationResults.get_full_id()
-								+ " variation. Found radiation error at time=" + number2String(currentTime) + ". Analyzing if it is only punctual" );
+								+ " variation. Found reliability error at time=" + number2String(currentTime) + ". Analyzing if it is only punctual" );
 						#endif
 					}
 				}else if( onGoingError ) {
 					#ifdef RESULTS_ANALYSIS_VERBOSE
-					log_io->ReportPlain2Log( k2Tab + " #" + partialId + " Scenario, #" + transientSimulationResults.get_full_id() + " variation. Ongoing radiation error fixed at " + number2String(currentTime) );
+					log_io->ReportPlain2Log( k2Tab + " #" + partialId + " Scenario, #" + transientSimulationResults.get_full_id() + " variation. Ongoing reliability error fixed at " + number2String(currentTime) );
 					#endif
 					onGoingError = false;
 				}
@@ -690,22 +685,19 @@ bool SpectreSimulation::ProcessSpectreResults( const std::string& currentFolder,
 	rfp->set_is_golden( isGolden );
 	#ifdef SPECTRE_SIMULATIONS_VERBOSE
 		if(!is_nested_simulation){
-			log_io->ReportPlainStandard( k3Tab + "#" + localSimulationId + " scenario: processing spectre output data."
-				+ " path: '" + spectreResultsFilePath + "'");
+			log_io->ReportPlainStandard( k3Tab + "#" + localSimulationId + " scenario: processing spectre output data." + " path: '" + spectreResultsFilePath + "'");
 		}
 	#endif
 	correctly_processed = rfp->ProcessPSFASCIIUnSorted();
 	if( !correctly_processed ){
-		log_io->ReportError2AllLogs("ProcessPSFASCIIUnSorted failed.");
-		delete rfp;
-		correctly_processed = false;
-		return false;
+		log_io->ReportError2AllLogs("ProcessPSFASCIIUnSorted failed. " + localSimulationId);
+	}else{
+		#ifdef SPECTRE_SIMULATIONS_VERBOSE
+			log_io->ReportPlain2Log( k3Tab + "#" + localSimulationId + " scenario: output data exported. [DELETE] delete rfp;");
+		#endif
 	}
-	#ifdef SPECTRE_SIMULATIONS_VERBOSE
-		log_io->ReportPlain2Log( k3Tab + "#" + localSimulationId + " scenario: output data exported. [DELETE] delete rfp;");
-	#endif
-
-	return true;
+	delete rfp;
+	return correctly_processed;
 }
 
 bool SpectreSimulation::PlotTransient( const std::string& localSimulationId,
@@ -763,7 +755,7 @@ bool SpectreSimulation::ManageSpectreFolder(){
 
 void SpectreSimulation::HandleSpectreSimulation(){
 	// simulation
-	RunSpectreSimulation();
+	RunSimulation();
 	// post simulation
 	if( correctly_simulated ){
 		ManageSpectreFolder();

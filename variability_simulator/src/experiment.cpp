@@ -297,7 +297,7 @@ bool Experiment::CreateVariationScenarios( int stageNumber ){
 bool Experiment::SimulateVariationScenarios( int stageNumber ){
 	bool success;
 	log_io->ReportStage( number2String(stageNumber) + ") Simulating the altered scenarios...", false );
-	success = variability_spectre_handler.RunSpectreSimulations();
+	success = variability_spectre_handler.RunSimulations();
 	if( success ){
 		log_io->ReportInfo2AllLogs( "" );
 		log_io->ReportInfo2AllLogs( k2Tab + "-> Scenarios Simulated." );

@@ -24,7 +24,7 @@ public:
 	virtual ~AHDLSimulation();
 
 	/// virtual spectre simulation
-	virtual void RunSpectreSimulation();
+	virtual void RunSimulation() override;
 
 	/**
 	 * @brief gets basic_simulation_results

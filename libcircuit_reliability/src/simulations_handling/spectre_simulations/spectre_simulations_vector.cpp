@@ -62,3 +62,13 @@ bool SpectreSimulationsVector::CheckCorrectlySimulated(){
 	}
 	return partial_cs;
 }
+
+bool SpectreSimulationsVector::CheckCorrectlyProcessed(){
+	// lambda to compute si there has been any spectre errors
+	// is vector of vector of simulations
+	bool partial_cs = true;
+	for( auto const &s : spectre_simulations ){
+		partial_cs = partial_cs && s->get_correctly_processed();
+	}
+	return partial_cs;
+}

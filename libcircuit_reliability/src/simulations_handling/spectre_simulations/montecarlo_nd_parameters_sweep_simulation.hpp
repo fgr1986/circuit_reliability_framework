@@ -29,7 +29,7 @@ public:
 	virtual ~MontecarloNDParametersSweepSimulation();
 
 	/// virtual spectre simulation
-	virtual void RunSpectreSimulation();
+	virtual void RunSimulation() override;
 
 	/**
 	 * @brief gets the list of spectre_simulations_vector

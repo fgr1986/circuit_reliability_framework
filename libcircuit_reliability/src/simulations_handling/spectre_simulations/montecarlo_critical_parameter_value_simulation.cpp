@@ -51,10 +51,10 @@ bool MontecarloCriticalParameterValueSimulation::TestSetUp(){
 	return true;
 }
 
-void MontecarloCriticalParameterValueSimulation::RunSpectreSimulation( ){
+void MontecarloCriticalParameterValueSimulation::RunSimulation( ){
 	// standard comprobations
 	if (!TestSetUp()){
-		log_io->ReportError2AllLogs( "RunSpectreSimulation had not been previously set up. ");
+		log_io->ReportError2AllLogs( "RunSimulation had not been previously set up. ");
 		return;
 	}
 	if (simulation_parameters==nullptr){
@@ -72,13 +72,13 @@ void MontecarloCriticalParameterValueSimulation::RunSpectreSimulation( ){
 	critical_parameter_value_simulations_vector.ReserveSimulationsInMemory( montecarlo_iterations );
 	while( threadsCount<montecarlo_iterations ){
 		// wait for resources
-		WaitForResources( runningThreads, max_parallel_montecarlo_instances, mainTG );
+		WaitForResources( runningThreads, max_parallel_montecarlo_instances, mainTG, threadsCount );
 		// not needed to copy 'parameterCountIndexes' since without using boost::ref, arguments are copied
 		// to avoid race conditions updating variables
 		CriticalParameterValueSimulation* pCPVS = CreateMonteCarloIteration( threadsCount );
 		critical_parameter_value_simulations_vector.AddSpectreSimulation( pCPVS );
-		// mainTG.add_thread( new boost::thread(&CriticalParameterValueSimulation::RunSpectreSimulation, this, boost::ref(pCPVS)));
-		mainTG.add_thread( new boost::thread(&CriticalParameterValueSimulation::RunSpectreSimulation, boost::ref(pCPVS)));
+		// mainTG.add_thread( new boost::thread(&CriticalParameterValueSimulation::RunSimulation, this, boost::ref(pCPVS)));
+		mainTG.add_thread( new boost::thread(&CriticalParameterValueSimulation::RunSimulation, boost::ref(pCPVS)));
 		// update variables
 		++threadsCount;
 		++runningThreads;

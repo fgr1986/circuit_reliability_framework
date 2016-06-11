@@ -42,9 +42,9 @@ GoldenSimulation::~GoldenSimulation(){
 	}
 }
 
-void GoldenSimulation::RunSpectreSimulation( ){
+void GoldenSimulation::RunSimulation( ){
 	if (!TestSetUp()){
-		log_io->ReportError2AllLogs( "RunSpectreSimulation had not been previously set up. ");
+		log_io->ReportError2AllLogs( "RunSimulation had not been previously set up. ");
 		return;
 	}
 	ConfigureEnvironmentVariables();
@@ -60,16 +60,16 @@ void GoldenSimulation::RunSpectreSimulation( ){
 	// Register Parameters
 	transient_simulation_results.RegisterSimulationParameters(simulation_parameters);
 	transient_simulation_results.set_spectre_result( RunSpectre() );
-	if( process_magnitudes ){
+	if( correctly_simulated && process_magnitudes ){
 		// process
-		log_io->ReportPlain2Log( k2Tab + "#" + simulation_id + " scenario: processing magnitudes.");
+		// log_io->ReportPlain2Log( k2Tab + "#" + simulation_id + " scenario: processing magnitudes.");
 		// Set up magnitudes
-		log_io->ReportPlain2Log( k3Tab + "#" + simulation_id + " scenario: creating magnitudes from golden.");
+		// log_io->ReportPlain2Log( k3Tab + "#" + simulation_id + " scenario: creating magnitudes from golden.");
 		processed_magnitudes = CreateGoldenMagnitudesVector();
-		log_io->ReportPlain2Log( k3Tab + "#" + simulation_id + " scenario: processing results.");
+		// log_io->ReportPlain2Log( k3Tab + "#" + simulation_id + " scenario: processing results.");
 		// process spectre results
 		if( !ProcessSpectreResults( folder, simulation_id, transient_simulation_results, true, *processed_magnitudes, true  ) ){
-			log_io->ReportError2AllLogs( "Error while processing the spectre_results. Scenario #" + simulation_id );
+			log_io->ReportError2AllLogs( "Error while processing GOLDEN spectre_results. Scenario #" + simulation_id );
 			return;
 		}
 		// if simple golden simulation (not sweep)
@@ -78,8 +78,8 @@ void GoldenSimulation::RunSpectreSimulation( ){
 			golden_magnitudes_structure->SimpleInitialization( 1, *processed_magnitudes, singular_results_path );
 		}
 		// plot transiets if required
-		if(plot_transients){
-			log_io->ReportPlain2Log( k3Tab + "Plotting #" + simulation_id + " scenario.");
+		if( correctly_processed && plot_transients ){
+			// log_io->ReportPlain2Log( k3Tab + "Plotting #" + simulation_id + " scenario.");
 			CreateGoldenGnuplotTransientImages();
 		}
 		// delete previous transients, if needed
@@ -103,23 +103,21 @@ int GoldenSimulation::RunSpectre(){
 		+ spectre_command_log_arg + " " + folder + kFolderSeparator + kSpectreLogFile + " "
 		+ spectre_command_folder_arg + " " + folder + kFolderSeparator + kSpectreResultsFolder + " "
 		+ folder + kFolderSeparator + kMainNetlistFile
-		+ " " + post_spectre_command + " " + folder + kFolderSeparator + kSpectreStandardLogsFile ;
-	// log_io->ReportPlainStandard( k2Tab + "#" + simulation_id + " scenario: Simulating singular scenario."  );
-	log_io->ReportPlain2Log( k2Tab + "#" + simulation_id + " scenario: Simulating singular scenario." );
+		+ " " + post_spectre_command + " " + folder + kFolderSeparator + kSpectreStandardLogsFile + ";" ;
+	// log_io->ReportPlain2Log( k2Tab + "#" + simulation_id + " scenario: Simulating singular scenario." );
 	int spectre_result = std::system( execCommand.c_str() ) ;
-	if(spectre_result>0){
+	if( spectre_result>0 ){
 		correctly_simulated = false;
-		log_io->ReportError2AllLogs( "Unexpected Spectre spectre_result for singular scenario #"
-			+ simulation_id + ": spectre output = " + number2String(spectre_result) );
+		log_io->ReportError2AllLogs( "Unexpected Spectre spectre_result for singular scenario #" + simulation_id + ": spectre output = " + number2String(spectre_result) );
 		log_io->ReportError2AllLogs( "Spectre Log Folder " + folder );
 		return spectre_result;
 	}
+	correctly_simulated = true;
 	singular_results_path = top_folder + kFolderSeparator
 		+ kResultsFolder + kFolderSeparator + kResultsDataFolder + kFolderSeparator + kTransientResultsFolder + kFolderSeparator
 		+ simulation_id + "_" + kProcessedTransientFile;
 	#ifdef SPECTRE_SIMULATIONS_VERBOSE
-	log_io->ReportGreenStandard( k2Tab + "#" + simulation_id + " scenario: ENDED."
-		+ " spectre_result=" + number2String(spectre_result) );
+	log_io->ReportGreenStandard( k2Tab + "#" + simulation_id + " scenario: ENDED." + " spectre_result=" + number2String(spectre_result) );
 	#endif
 	return spectre_result;
 }
@@ -134,7 +132,10 @@ std::vector<Magnitude*>* GoldenSimulation::CreateGoldenMagnitudesVector(){
 	#ifdef SPECTRE_SIMULATIONS_VERBOSE
 		log_io->ReportPlain2Log( k2Tab + "#" + simulation_id + " scenario: Setting up Magnitudes" );
 	#endif
-
+	if( magnitudes_2be_found==nullptr ){
+		log_io->ReportError2AllLogs( "null magnitudes_2be_found in CreateGoldenMagnitudesVector, simulation_id:" + simulation_id );
+		return nullptr;
+	}
 	std::vector<Magnitude*>* parameterMagnitudes = new std::vector<Magnitude*>();
 	for( auto const &m : *magnitudes_2be_found ){
 		// Create an empty copy of each magnitude

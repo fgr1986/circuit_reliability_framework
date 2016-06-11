@@ -44,9 +44,9 @@ CriticalParameterNDParameterSweepSimulation::~CriticalParameterNDParameterSweepS
 	// deleteContentsOfVectorOfPointers( altered_parameters_vector );
 }
 
-void CriticalParameterNDParameterSweepSimulation::RunSpectreSimulation( ){
+void CriticalParameterNDParameterSweepSimulation::RunSimulation( ){
 	if (!TestSetUp()){
-		 log_io->ReportError2AllLogs( "RunSpectreSimulation had not been previously set up. ");
+		 log_io->ReportError2AllLogs( "RunSimulation had not been previously set up. ");
 		 return;
 	}
 	boost::thread_group mainTG;
@@ -76,7 +76,7 @@ void CriticalParameterNDParameterSweepSimulation::RunSpectreSimulation( ){
 	critical_parameter_value_simulations_vector.ReserveSimulationsInMemory( totalThreads );
 	while( threadsCount<totalThreads ){
 		// wait for resources
-		WaitForResources( runningThreads, max_parallel_profile_instances, mainTG );
+		WaitForResources( runningThreads, max_parallel_profile_instances, mainTG, threadsCount );
 		// not needed to copy 'parameterCountIndexes' since without using boost::ref, arguments are copied
 		// to avoid race conditions updating variables
 		CriticalParameterValueSimulation* pCPVS = CreateProfile(parameterCountIndexes, boost::ref(parameters2sweep), threadsCount);
@@ -96,7 +96,7 @@ void CriticalParameterNDParameterSweepSimulation::RunSpectreSimulation( ){
 	// generate map files
 	GenerateAndPlotResults( parameters2sweep );
 	// end
-	log_io->ReportPlain2Log( "END OF CriticalParameterNDParameterSweepSimulation::RunSpectreSimulation" );
+	log_io->ReportPlain2Log( "END OF CriticalParameterNDParameterSweepSimulation::RunSimulation" );
 }
 
 CriticalParameterValueSimulation* CriticalParameterNDParameterSweepSimulation::CreateProfile(
@@ -140,7 +140,7 @@ void CriticalParameterNDParameterSweepSimulation::RunProfile( CriticalParameterV
 		return;
 	}
 	// run threadNumber
-	pCPVS->RunSpectreSimulation();
+	pCPVS->RunSimulation();
 	#ifdef RESULTS_ANALYSIS_VERBOSE
 	log_io->ReportPlainStandard( k2Tab + "Ended thread " + pCPVS->get_simulation_id());
 	#endif

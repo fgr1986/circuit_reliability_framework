@@ -73,7 +73,7 @@ void VariabilitySpectreHandler::AddSimulationParameter( SimulationParameter* sim
 	simulation_parameters.push_back(simulationParameter);
 }
 
-bool VariabilitySpectreHandler::RunSpectreSimulations(){
+bool VariabilitySpectreHandler::RunSimulations(){
 	// Report simulation
 	log_io->ReportGreenStandard( kTab + simulation_mode->get_description());
 	log_io->ReportGreenStandard( "RadiationSpectreHandler Simulation Parameters: " + number2String( simulation_parameters.size()) );
@@ -87,7 +87,7 @@ bool VariabilitySpectreHandler::RunSpectreSimulations(){
 	// Golden netlist and Radiation subcircuit AHDL netlist
 	// Golden results are processed
 	if( !SimulateGoldenNetlist() || !SimulateStandardAHDLNetlist() ){
-		log_io->ReportError2AllLogs( "Error while simulation the golden scenario. Aborted." );
+		log_io->ReportError2AllLogs( "Error while simulating or processing the golden scenario. Aborted." );
 		return false;
 	}
 	log_io->ReportCyanStandard( k2Tab + "Simulate variability scenario." );
@@ -119,6 +119,7 @@ bool VariabilitySpectreHandler::RunSpectreSimulations(){
 	log_io->ReportPurpleStandard( "Montecarlo iterations: " + number2String(montecarlo_iterations) );
 
 	// Simulate variability
+	log_io->ReportInfo2AllLogs("[performance] Reliability Simulations started: " + GetCurrentDateTime("%d-%m-%Y.%X"));
 	MontecarloNDParametersSweepSimulation* sss = new MontecarloNDParametersSweepSimulation();
 	sss->set_n_d_profile_index( 0 );
 	sss->set_simulation_id("parent_scenario_" + number2String(radiationScenarioCounter));
@@ -169,11 +170,12 @@ bool VariabilitySpectreHandler::RunSpectreSimulations(){
 	simulations.push_back(sss);
 	// Run the threads
 	log_io->ReportPlainStandard( kTab + "->Simulating variability netlist #" + number2String(radiationScenarioCounter) );
-	tgScenarios.create_thread(boost::bind(&SpectreSimulation::HandleSpectreSimulation, sss));
 	log_io->ReportThread( "Variability Scenario Simulation #" + number2String(radiationScenarioCounter), 1 );
+	tgScenarios.create_thread(boost::bind(&SpectreSimulation::HandleSpectreSimulation, sss));
 	++radiationScenarioCounter;
 	//wait each thread
 	tgScenarios.join_all();
+	log_io->ReportInfo2AllLogs("[performance] Reliability Simulations ended: " + GetCurrentDateTime("%d-%m-%Y.%X"));
 	log_io->ReportPlainStandard( "->All Spectre instances have ended." );
 	log_io->ReportPlainStandard( kTab + "->All simulations have ended." );
 	return true;
@@ -262,7 +264,7 @@ bool VariabilitySpectreHandler::SimulateGoldenAHDLNetlist( ){
 	// ahdl_golden_ss var_AHDL_s destruction
 	// Does not need to be copied because is not a GoldenSimulation member
 	if( ahdl_golden_ss->get_simulation_results()->get_spectre_result() > 0 ){
-		log_io->ReportError2AllLogs( "Error while simulation the golden scenario. Aborted." );
+		log_io->ReportError2AllLogs( "Error while simulating or processing the ahdl_golden_ss scenario. Aborted." );
 		delete ahdl_golden_ss;
 		return false;
 	}
@@ -322,8 +324,8 @@ bool VariabilitySpectreHandler::SimulateGoldenNetlist( ){
 	// Does not need to be copied because is not a GoldenSimulation member
 
 	// Golden netlist
-	if( !golden_ss->get_children_correctly_simulated() ){
-		log_io->ReportError2AllLogs( "Error while simulation the golden scenario. Aborted." );
+	if( !golden_ss->get_children_correctly_simulated() || !golden_ss->get_children_correctly_processed() ){
+		log_io->ReportError2AllLogs( "Error while simulating or processing the golden scenario. Aborted." );
 		delete golden_ss;
 		return false;
 	}

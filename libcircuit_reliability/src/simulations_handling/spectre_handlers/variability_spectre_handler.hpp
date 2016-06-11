@@ -133,7 +133,7 @@ public:
 
 	std::vector<SpectreSimulation*>* get_simulations(){ return &simulations; }
 
-	bool RunSpectreSimulations();
+	bool RunSimulations();
 
 
 	std::vector<SimulationParameter*>* get_simulation_parameters(){

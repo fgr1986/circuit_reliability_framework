@@ -107,7 +107,7 @@ bool RadiationSpectreHandler::ProcessScenarioStatistics(){
 	return globalResults.ProcessScenarioStatistics();
 }
 
-bool RadiationSpectreHandler::RunSpectreSimulations(){
+bool RadiationSpectreHandler::RunSimulations(){
 	// Report simulation
 	log_io->ReportGreenStandard( kTab + simulation_mode->get_description());
 	log_io->ReportGreenStandard( "RadiationSpectreHandler Simulation Parameters: " + number2String( simulation_parameters.size()) );
@@ -121,7 +121,7 @@ bool RadiationSpectreHandler::RunSpectreSimulations(){
 	// Golden netlist and Radiation subcircuit AHDL netlist
 	// Golden results are processed
 	if( !SimulateGoldenNetlist() || !SimulateStandardAHDLNetlist() ){
-		log_io->ReportError2AllLogs( "Error while simulation the golden scenario. Aborted." );
+		log_io->ReportError2AllLogs( "Error while simulating or processing the golden (or ahdl) scenario. Aborted." );
 		return false;
 	}
 	log_io->ReportCyanStandard( k2Tab + "Simulate pool of altered scenarios." );
@@ -155,6 +155,7 @@ bool RadiationSpectreHandler::RunSpectreSimulations(){
 		log_io->ReportPurpleStandard( "Montecarlo iterations: " + number2String(montecarlo_iterations) );
 	}
 	// run
+	log_io->ReportInfo2AllLogs("[performance] Reliability Simulations started: " + GetCurrentDateTime("%d-%m-%Y.%X"));
 	unsigned int concurrentScenarioThreads = 0;
 	for( auto const & as : altered_scenarios ){
 		// limit concurrent parallel scenarios
@@ -276,9 +277,11 @@ bool RadiationSpectreHandler::RunSpectreSimulations(){
 	}
 	//wait each thread
 	tgScenarios.join_all();
+	log_io->ReportInfo2AllLogs("[performance] Reliability Simulations ended: " + GetCurrentDateTime("%d-%m-%Y.%X"));
 	log_io->ReportPlainStandard( "->All Spectre instances have ended." );
 	log_io->ReportPlainStandard( "->Processing scenario statistics." );
 	bool partialResult = ProcessScenarioStatistics();
+	log_io->ReportInfo2AllLogs("[performance] ProcessScenarioStatistics ended: " + GetCurrentDateTime("%d-%m-%Y.%X"));
 	log_io->ReportPlainStandard( kTab + "->All simulations have ended." );
 	return partialResult;
 }
@@ -439,8 +442,8 @@ bool RadiationSpectreHandler::SimulateGoldenNetlist( ){
 		|| simulation_mode->get_id()== kMontecarloCriticalParameterNDParametersSweepMode ){
 		// Golden netlist
 		GoldenNDParametersSweepSimulation* pGPSS =  dynamic_cast<GoldenNDParametersSweepSimulation*>(golden_ss);
-		if( !pGPSS->get_children_correctly_simulated() ){
-			log_io->ReportError2AllLogs( "Error while simulation the golden scenario. Aborted." );
+		if( !pGPSS->get_children_correctly_simulated() || !pGPSS->get_children_correctly_processed() ){
+			log_io->ReportError2AllLogs( "Error while simulating or processing the golden scenario. Aborted." );
 			delete golden_ss;
 			return false;
 		}
@@ -449,7 +452,7 @@ bool RadiationSpectreHandler::SimulateGoldenNetlist( ){
 		GoldenSimulation* pGS =  dynamic_cast<GoldenSimulation*>(golden_ss);
 		if( pGS->get_simulation_results()->get_spectre_result() > 0
 			|| !pGS->get_correctly_processed() ){
-			log_io->ReportError2AllLogs( "Error while simulation the golden scenario. Aborted." );
+			log_io->ReportError2AllLogs( "Error while simulating or processing the golden scenario. Aborted." );
 			delete golden_ss;
 			return false;
 		}

@@ -27,15 +27,26 @@ NDMagnitudesStructure::NDMagnitudesStructure() {
 NDMagnitudesStructure::NDMagnitudesStructure(const NDMagnitudesStructure& orig) {
 	this->group_name = orig.group_name;
 	/// copying the 2D structure
+	/// [nd_index][MagnitudeCount]
 	magnitudes_structure = new std::vector<std::vector<Magnitude*>*>();
 	// reserve memory
 	magnitudes_structure->reserve( orig.magnitudes_structure->size() );
+	unsigned int magCount = orig.magnitudes_structure->front()->size();
+	//debug
+	unsigned int msCount = 0;
 	for( auto const& ms : *(orig.magnitudes_structure) ){
+		if( ms==nullptr ){
+			std::cout << "[Copying NDMagnitudesStructure] ERROR, null ms for index" << msCount << "\n";
+			std::clog << "[Copying NDMagnitudesStructure] ERROR, null ms for index" << msCount << "\n";
+			std::cerr << "[Copying NDMagnitudesStructure] ERROR, null ms for index" << msCount << "\n";
+		}
 		std::vector<Magnitude*>* mv = new std::vector<Magnitude*>();
 		// reserve memory
-		mv->reserve( ms->size() );
+		mv->reserve( magCount );
 		deepCopyVectorOfPointers( *ms, *mv );
 		magnitudes_structure->push_back( mv );
+		// debug
+		++msCount;
 	}
 	/// copying the 2D structure
 	files_structure = new std::vector<std::string>();
@@ -47,7 +58,6 @@ NDMagnitudesStructure::NDMagnitudesStructure(const NDMagnitudesStructure& orig) 
 }
 
 NDMagnitudesStructure::~NDMagnitudesStructure(){
-
 	#ifdef DESTRUCTORS_VERBOSE
 	std::cout << "Deleting NDMagnitudesStructure magnitudes\n";
 	#endif
@@ -96,6 +106,11 @@ std::vector<Magnitude*>* NDMagnitudesStructure::GetMagnitudesVector( const unsig
 	if( index>= magnitudes_structure->size() ){
 		std::cout << "Accessing NDMagnitudesStructure magnitudes_structure, index: " << index << " size: " <<  magnitudes_structure->size() << "\n";
 		std::cerr << "Accessing NDMagnitudesStructure magnitudes_structure, index: " << index << " size: " <<  magnitudes_structure->size() << "\n";
+		return nullptr;
+	}
+	if( magnitudes_structure->at(index)==nullptr ){
+		std::cout << "Accessing NDMagnitudesStructure magnitudes_structure, index (profile): " << index << " returns nullptr\n";
+		std::cerr << "Accessing NDMagnitudesStructure magnitudes_structure, index (profile): " << index << " returns nullptr\n";
 		return nullptr;
 	}
 	return magnitudes_structure->at(index);

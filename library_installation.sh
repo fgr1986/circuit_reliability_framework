@@ -3,7 +3,7 @@
 ############
 # Version  #
 ############
-LIBRARY_VERSION=2.9.2_beta
+LIBRARY_VERSION=2.9.3_beta
 echo "Version $LIBRARY_VERSION"
 
 SOURCES_FOLDER=libcircuit_reliability/src/

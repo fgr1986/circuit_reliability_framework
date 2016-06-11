@@ -47,10 +47,10 @@ bool MontecarloSimulation::TestSetUp(){
 	return true;
 }
 
-void MontecarloSimulation::RunSpectreSimulation( ){
+void MontecarloSimulation::RunSimulation( ){
 	// standard comprobations
 	if (!TestSetUp()){
-		log_io->ReportError2AllLogs( "RunSpectreSimulation had not been previously set up. ");
+		log_io->ReportError2AllLogs( "RunSimulation had not been previously set up. ");
 		return;
 	}
 	if (simulation_parameters==nullptr){
@@ -68,13 +68,13 @@ void MontecarloSimulation::RunSpectreSimulation( ){
 	montecarlo_simulations_vector.ReserveSimulationsInMemory( montecarlo_iterations );
 	while( threadsCount<montecarlo_iterations ){
 		// wait for resources
-		WaitForResources( runningThreads, max_parallel_montecarlo_instances, mainTG );
+		WaitForResources( runningThreads, max_parallel_montecarlo_instances, mainTG, threadsCount );
 		// not needed to copy 'parameterCountIndexes' since without using boost::ref, arguments are copied
 		// to avoid race conditions updating variables
 		StandardSimulation* pSS = CreateMonteCarloIteration( threadsCount );
 		montecarlo_simulations_vector.AddSpectreSimulation( pSS );
-		// mainTG.add_thread( new boost::thread(&StandardSimulation::RunSpectreSimulation, this, boost::ref(pSS)));
-		mainTG.add_thread( new boost::thread(&StandardSimulation::RunSpectreSimulation, boost::ref(pSS)));
+		// mainTG.add_thread( new boost::thread(&StandardSimulation::RunSimulation, this, boost::ref(pSS)));
+		mainTG.add_thread( new boost::thread(&StandardSimulation::RunSimulation, boost::ref(pSS)));
 		// update variables
 		++threadsCount;
 		++runningThreads;
@@ -86,12 +86,13 @@ void MontecarloSimulation::RunSpectreSimulation( ){
 	#endif
 	// check if every simulation ended correctly
 	correctly_simulated = montecarlo_simulations_vector.CheckCorrectlySimulated();
+	correctly_processed = montecarlo_simulations_vector.CheckCorrectlyProcessed();
 	montecarlo_simulation_results.set_spectre_result( correctly_simulated );
 	if( !AnalyzeMontecarloResults() ){
 		 log_io->ReportError2AllLogs( k2Tab + "->[montecarlo_simulation] Error in AnalyzeMontecarloResults()" );
 	}
 	#ifdef RESULTS_ANALYSIS_VERBOSE
-		log_io->ReportPlainStandard( k2Tab + "[montecarlo_simulation] end of RunSpectreSimulation.");
+		log_io->ReportPlainStandard( k2Tab + "[montecarlo_simulation] end of RunSimulation.");
 	#endif
 }
 
@@ -119,7 +120,7 @@ StandardSimulation* MontecarloSimulation::CreateMonteCarloIteration( unsigned in
 	}
 	// Simulation
 	StandardSimulation* pSS = new StandardSimulation();
-	pSS->set_n_dimensional(true);
+	pSS->set_n_dimensional( true );
 	pSS->set_n_d_profile_index( n_d_profile_index );
 	pSS->set_is_nested_simulation( true );
 	pSS->set_is_montecarlo_nested_simulation( true );
@@ -165,7 +166,6 @@ StandardSimulation* MontecarloSimulation::CreateMonteCarloIteration( unsigned in
 	// copy of simulation_parameters
 	pSS->CopySimulationParameters( *simulation_parameters );
 	/// Update numruns parameter
-
 	/// No need to update golden parameter
 	// add firstRunParameter
 	auto firstRunParameter = new SimulationParameter( kFirstRunParamName,
@@ -216,7 +216,7 @@ bool MontecarloSimulation::AnalyzeMontecarloResults(){
 			// last transient results
 			auto tr = pSS->get_basic_simulation_results();
 			if(tr==nullptr){ // double check
-				log_io->ReportError2AllLogs( "[montecarlo_simulation] pSS->get_last_valid_transient_simulation_results() is null: " + pSS->get_simulation_id() );
+				log_io->ReportError2AllLogs( "[fgarcia-debug] pSS->get_last_valid_transient_simulation_results() is null: " + pSS->get_simulation_id() );
 				// update mcCount
 				++mcCount;
 				break; // break for
@@ -227,9 +227,9 @@ bool MontecarloSimulation::AnalyzeMontecarloResults(){
 			unsigned int magCount = 0;
 			// fgarcia
 			if( tr->get_magnitudes_errors()->size() != metricMagnitudes->size() ){
-				log_io->ReportError2AllLogs( "[fgarcia] tr->get_magnitudes_errors()->size() != metricMagnitudes->size(), sim" + pSS->get_simulation_id());
-				log_io->ReportError2AllLogs( "[fgarcia] tr->get_magnitudes_errors()->size(): " + number2String(tr->get_magnitudes_errors()->size()) );
-				log_io->ReportError2AllLogs( "[fgarcia] metricMagnitudes->size(): " + number2String(metricMagnitudes->size()) );
+				log_io->ReportError2AllLogs( "[fgarcia-debug] tr->get_magnitudes_errors()->size() != metricMagnitudes->size(), sim" + pSS->get_simulation_id());
+				log_io->ReportError2AllLogs( "[fgarcia-debug] tr->get_magnitudes_errors()->size(): " + number2String(tr->get_magnitudes_errors()->size()) );
+				log_io->ReportError2AllLogs( "[fgarcia-debug] metricMagnitudes->size(): " + number2String(metricMagnitudes->size()) );
 			}
 			for( auto const &me : *(tr->get_magnitudes_errors()) ){
 				if( me->get_max_abs_error_global()>maxErrorGlobal[magCount] ){

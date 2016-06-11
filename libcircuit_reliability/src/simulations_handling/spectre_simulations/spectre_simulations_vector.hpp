@@ -59,6 +59,12 @@ public:
 	 */
 	bool CheckCorrectlySimulated();
 
+	/**
+	 * @brief Returns wether or not spectre results have correctly been processed
+	 *
+	 */
+	bool CheckCorrectlyProcessed();
+
 	void ReserveSimulationsInMemory( unsigned int simulationsLength );
 
 private:

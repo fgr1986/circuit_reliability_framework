@@ -29,7 +29,7 @@ public:
 	virtual ~GoldenNDParametersSweepSimulation();
 
 	/// virtual spectre simulation
-	virtual void RunSpectreSimulation();
+	virtual void RunSimulation() override;
 
 	/**
 	 * @brief Sets max_parallel_profile_instances
@@ -62,6 +62,15 @@ public:
 		return children_correctly_simulated;
 	}
 
+	/**
+	 * @brief Retrieve children_correctly_processed
+	 * @details Retrieve  children_correctly_processed
+	 * @return processed children_correctly_processed
+	 */
+	bool get_children_correctly_processed(){
+		return children_correctly_processed;
+	}
+
 private:
 
 	/// Simulation results, organizated by parameter (first vector)
@@ -71,6 +80,8 @@ private:
 
 	///  all the children suimulated
 	bool children_correctly_simulated;
+	///  all the children processed
+	bool children_correctly_processed;
 
 	/// Golden Simulation saves the magnitudes here
 	std::vector<Magnitude*>* processed_magnitudes;
@@ -117,10 +128,7 @@ private:
 	 * @param sweepVectorOfMagnitudesVector
 	 * @param sweepVectorOfFiles
 	 */
-	void RunProfile(
-		GoldenSimulation* pGS,
-		std::vector<std::vector<Magnitude*>*>& sweepVectorOfMagnitudesVector,
-		std::vector<std::string>& sweepVectorOfFiles );
+	void RunProfile( GoldenSimulation* pGS );
 
 };
 

@@ -27,7 +27,7 @@ public:
 	virtual ~MontecarloCriticalParameterValueSimulation();
 
 	/// virtual spectre simulation
-	virtual void RunSpectreSimulation();
+	virtual void RunSimulation() override;
 
 	void set_montecarlo_iterations( const unsigned int montecarlo_iterations ){ this->montecarlo_iterations = montecarlo_iterations; };
 	void set_max_parallel_montecarlo_instances( const unsigned int max_parallel_montecarlo_instances ){

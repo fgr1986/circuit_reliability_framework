@@ -223,8 +223,7 @@ bool RAWFormatProcessor::ProcessPSFASCIIUnSorted( ){
 					for( auto const& m : *magnitudes ){
 						if( !m->get_found_in_results()
 							&& ((is_golden && m->get_plottable_in_golden()) || !is_golden) ){
-							log_io->ReportError2AllLogs( "Exception. At least one magnitude has been not found: "
-								+ m->get_name() );
+							log_io->ReportError2AllLogs( "Exception. At least one magnitude has been not found: " + m->get_name() );
 							if(is_golden){
 								log_io->ReportError2AllLogs( "Is golden");
 							}

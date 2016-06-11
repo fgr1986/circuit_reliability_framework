@@ -14,6 +14,20 @@
 
 #define NON_UPDATE_INDEX 666666666
 
+
+/// Get current date/time, myFormat is DD-MM-YYYY.HH:mm:ss ("%d-%m-%Y.%X")
+template<class any_string_like_type>
+std::string GetCurrentDateTime( const any_string_like_type& myFormat ) {
+	time_t	 now = time(0);
+	struct tm tstruct;
+	char	 buf[80];
+	tstruct = *localtime(&now);
+	// Visit http://en.cppreference.com/w/cpp/chrono/c/strftime
+	// for more information about date/time format
+	strftime(buf, sizeof(buf), myFormat, &tstruct);
+	return buf;
+}
+
 /**
 * Auxiliar Template,
 * PlaneProfileIndexesStructure is a Vector of pointers to vectors of any_number

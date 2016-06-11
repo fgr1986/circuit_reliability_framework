@@ -47,9 +47,9 @@ TransientSimulationResults* CriticalParameterValueSimulation::get_last_valid_tra
 	return nullptr;
 }
 
-void CriticalParameterValueSimulation::RunSpectreSimulation(){
+void CriticalParameterValueSimulation::RunSimulation(){
 	if (!TestSetUp()){
-		log_io->ReportError2AllLogs( "RunSpectreSimulation had not been previously set up. ");
+		log_io->ReportError2AllLogs( "RunSimulation had not been previously set up. ");
 		return;
 	}
 	// set up local_critical_parameter
@@ -91,10 +91,13 @@ void CriticalParameterValueSimulation::RunSpectreSimulation(){
 	if( !SimulateParameterCriticalValue( *maxValueResults, parameterVariationCount,
 		currentCriticalParameterValue, localSimulationFolder, localSimulationId) ){
 		if( maxValueResults->get_spectre_result()<=0 ){ //not a spectre problem
+			correctly_simulated = maxValueResults->get_spectre_result()==0;
+			correctly_processed = false;
 			return;
 		}else{
-			// fgarcia
-			log_io->ReportRedStandard("ommiting spectre error in max qcoll");
+			#ifdef SPECTRE_SIMULATIONS_VERBOSE
+			log_io->ReportRedStandard("ommiting spectre error in max qcoll " + simulation_id);
+			#endif
 		}
 	}
 	transient_simulations_results.push_back( maxValueResults );
@@ -120,6 +123,7 @@ void CriticalParameterValueSimulation::RunSpectreSimulation(){
 	if( !SimulateParameterCriticalValue( *minValueResults, parameterVariationCount,
 		currentCriticalParameterValue, localSimulationFolder, localSimulationId ) ){
 		correctly_simulated = minValueResults->get_spectre_result()==0;
+		correctly_processed = false;
 		return;
 	}
 	transient_simulations_results.push_back( minValueResults );
@@ -296,6 +300,7 @@ void CriticalParameterValueSimulation::ReportEndOfCriticalParameterValueSimulati
 		#endif
 	}
 	correctly_simulated = lastResults.get_spectre_result() == 0;
+	correctly_processed = true;
 	// delete previous transients, if needed
 	if(!is_montecarlo_nested_simulation){
 		if( !ManageIndividualResultFiles( lastResults, false ) ){
@@ -364,8 +369,7 @@ bool CriticalParameterValueSimulation::SimulateParameterCriticalValue(
 	#endif
 	// Interpolate results
 	if( !InterpolateAndAnalyzeMagnitudes( simulationResults, *analyzedMagnitudes, n_d_profile_index, localSimulationId ) ){
-		log_io->ReportError2AllLogs( "Error while interpolating the critical value magnitudes. Scenario #"
-			+ simulation_id );
+		log_io->ReportError2AllLogs( "Error while interpolating the critical value magnitudes. Scenario #" + simulation_id );
 		return false;
 	}
 	// delete analyzed magnitudes
@@ -446,6 +450,7 @@ int CriticalParameterValueSimulation::RunSpectre(
 		log_io->ReportError2AllLogs( "Spectre Log Folder " + currentFolder );
 		return spectre_result;
 	}
+	correctly_simulated = true;
 	#ifdef SPECTRE_SIMULATIONS_VERBOSE
 	log_io->ReportGreenStandard( k2Tab + "#" + localSimulationId + " scenario: ENDED."
 		" Parameter change #" + parameterChangeCount + ", spectre_result=" + number2String(spectre_result) );

@@ -26,7 +26,7 @@ public:
 	virtual ~CriticalParameterValueSimulation();
 
 	/// virtual spectre simulation
-	virtual void RunSpectreSimulation();
+	virtual void RunSimulation() override;
 
 	/**
 	 * @brief Set plot_last_transients

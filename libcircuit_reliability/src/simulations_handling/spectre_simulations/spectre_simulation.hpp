@@ -29,13 +29,13 @@ public:
 	virtual ~SpectreSimulation();
 
 	/// called from the simulations handler, it runs the parent_scenario_
-	/// RunSpectreSimulation and PostSimulations (ManageSpectreFolder)
+	/// RunSimulation and PostSimulations (ManageSpectreFolder)
 	void HandleSpectreSimulation();
 
 	/// virtual spectre simulation
 	/// called from HandleSpectreSimulation (simulations handler)
 	/// or by parent simulation threads
-	virtual void RunSpectreSimulation() = 0;
+	virtual void RunSimulation() = 0;
 
 	///Log manager
 	void set_log_io( LogIO* log_io ){ this->log_io = log_io; }
@@ -338,7 +338,7 @@ protected:
 	 * @param thread_group
 	 */
 	void WaitForResources( unsigned int & threadsCount,
-		const unsigned int& maxThreads, boost::thread_group & tg );
+		const unsigned int& maxThreads, boost::thread_group & tg, const unsigned int& thread2BeWaited );
 
 	/**
 	 * @brief [brief description]

@@ -33,10 +33,10 @@ MontecarloStandardSimulation::~MontecarloStandardSimulation(){
 	deleteContentsOfVectorOfPointers( montecarlo_transient_simulation_results );
 }
 
-void MontecarloStandardSimulation::RunSpectreSimulation( ){
+void MontecarloStandardSimulation::RunSimulation( ){
 	// standard comprobations
 	if (!TestSetUp()){
-		log_io->ReportError2AllLogs( "RunSpectreSimulation had not been previously set up. ");
+		log_io->ReportError2AllLogs( "RunSimulation had not been previously set up. ");
 		return;
 	}
 	if (simulation_parameters==nullptr){
@@ -287,6 +287,7 @@ int MontecarloStandardSimulation::RunSpectre( std::string scenarioId ){
 		log_io->ReportError2AllLogs( "Spectre Log Folder: " + folder );
 		return spectre_result;
 	}
+	correctly_simulated = true;
 	#ifdef SPECTRE_SIMULATIONS_VERBOSE
 	log_io->ReportGreenStandard( k2Tab + "#" + scenarioId + " scenario: Simulating ENDED."
 		+ " spectre_result=" + number2String(spectre_result) );

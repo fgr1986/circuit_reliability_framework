@@ -22,6 +22,8 @@
 StandardSimulation::StandardSimulation() {
 	this->export_processed_magnitudes = true;
 	this->montecarlo_transient_sufix = kNotDefinedString;
+	this->correctly_simulated = false;
+	this->n_d_profile_index = kNotDefinedInt;
 }
 
 StandardSimulation::~StandardSimulation(){
@@ -30,9 +32,9 @@ StandardSimulation::~StandardSimulation(){
 	#endif
 }
 
-void StandardSimulation::RunSpectreSimulation( ){
+void StandardSimulation::RunSimulation( ){
 	if (!TestSetUp()){
-		log_io->ReportError2AllLogs( "RunSpectreSimulation had not been previously set up. ");
+		log_io->ReportError2AllLogs( "RunSimulation had not been previously set up. ");
 		return;
 	}
 	if (simulation_parameters==nullptr){
@@ -52,7 +54,7 @@ void StandardSimulation::RunSpectreSimulation( ){
 		return;
 	}
 	basic_simulation_results.set_spectre_result( RunSpectre( simulation_id ) );
-	if( process_magnitudes ){
+	if( correctly_simulated && process_magnitudes ){
 		log_io->ReportPlain2Log( k2Tab + "#" + simulation_id + " scenario: processing results.");
 		// Set up magnitudes
 		std::vector<Magnitude*>* analyzedMagnitudes = CreateMagnitudesVectorFromGoldenMagnitudes( n_d_profile_index );
@@ -152,6 +154,7 @@ int StandardSimulation::RunSpectre( std::string scenarioId ){
 		log_io->ReportError2AllLogs( "Spectre Log Folder: " + folder );
 		return spectre_result;
 	}
+	correctly_simulated = true;
 	#ifdef SPECTRE_SIMULATIONS_VERBOSE
 	log_io->ReportGreenStandard( k2Tab + "#" + scenarioId + " scenario: Simulating ENDED."
 		+ " spectre_result=" + number2String(spectre_result) );

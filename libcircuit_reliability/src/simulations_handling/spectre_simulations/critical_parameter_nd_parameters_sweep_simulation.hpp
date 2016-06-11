@@ -29,7 +29,7 @@ public:
 	virtual ~CriticalParameterNDParameterSweepSimulation();
 
 	/// virtual spectre simulation
-	virtual void RunSpectreSimulation();
+	virtual void RunSimulation() override;
 
 	/**
 	 * @brief get critical parameter value

@@ -354,7 +354,7 @@ bool Experiment::SimulateRadiatedScenarios( int stageNumber ){
 	bool success;
 	log_io->ReportStage( number2String(stageNumber) + ") Simulating the altered scenarios...", false );
 	// log_io->ReportGreenStandard( "-> Simulation Parameters: " + number2String( radiation_spectre_handler.get_simulation_parameters()->size()) );
-	success = radiation_spectre_handler.RunSpectreSimulations();
+	success = radiation_spectre_handler.RunSimulations();
 	if( success ){
 		log_io->ReportInfo2AllLogs( "" );
 		log_io->ReportInfo2AllLogs( k2Tab + "-> Scenarios Simulated." );

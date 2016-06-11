@@ -29,9 +29,9 @@ AHDLSimulation::~AHDLSimulation(){
 	#endif
 }
 
-void AHDLSimulation::RunSpectreSimulation( ){
+void AHDLSimulation::RunSimulation( ){
 	if (!TestSetUp()){
-		log_io->ReportError2AllLogs( "RunSpectreSimulation had not been previously set up. ");
+		log_io->ReportError2AllLogs( "RunSimulation had not been previously set up. ");
 		return;
 	}
 	ConfigureEnvironmentVariables();
@@ -73,6 +73,7 @@ int AHDLSimulation::RunSpectre(){
 		log_io->ReportError2AllLogs( "Spectre Log Folder " + folder );
 		return spectre_result;
 	}
+	correctly_simulated = true;
 	singular_results_path = top_folder + kFolderSeparator
 		+ kResultsFolder + kFolderSeparator + kResultsDataFolder + kFolderSeparator + kTransientResultsFolder + kFolderSeparator
 		+ simulation_id + "_" + kProcessedTransientFile;
