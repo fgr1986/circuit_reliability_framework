@@ -103,9 +103,10 @@ int GoldenSimulation::RunSpectre(){
 		+ spectre_command_log_arg + " " + folder + kFolderSeparator + kSpectreLogFile + " "
 		+ spectre_command_folder_arg + " " + folder + kFolderSeparator + kSpectreResultsFolder + " "
 		+ folder + kFolderSeparator + kMainNetlistFile
-		+ " " + post_spectre_command + " " + folder + kFolderSeparator + kSpectreStandardLogsFile + ";" ;
-	// log_io->ReportPlain2Log( k2Tab + "#" + simulation_id + " scenario: Simulating singular scenario." );
+		+ " " + post_spectre_command + " " + folder + kFolderSeparator + kSpectreStandardLogsFile;
 	int spectre_result = std::system( execCommand.c_str() ) ;
+// debug
+// log_io->ReportRedStandard( "[debug] RunSpectre result for "  + simulation_id +  ": " + number2String(spectre_result) );
 	if( spectre_result>0 ){
 		correctly_simulated = false;
 		log_io->ReportError2AllLogs( "Unexpected Spectre spectre_result for singular scenario #" + simulation_id + ": spectre output = " + number2String(spectre_result) );
@@ -126,7 +127,6 @@ NDMagnitudesStructure* GoldenSimulation::GetGoldenMagnitudes(){
 	NDMagnitudesStructure* gms = new NDMagnitudesStructure(*golden_magnitudes_structure);
 	return gms;
 }
-
 
 std::vector<Magnitude*>* GoldenSimulation::CreateGoldenMagnitudesVector(){
 	#ifdef SPECTRE_SIMULATIONS_VERBOSE

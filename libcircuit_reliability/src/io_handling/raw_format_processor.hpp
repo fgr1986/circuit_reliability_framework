@@ -20,13 +20,13 @@
 class RAWFormatProcessor {
 public:
 	RAWFormatProcessor();
-	RAWFormatProcessor( std::vector<Magnitude*>* magnitudes, 
+	RAWFormatProcessor( std::vector<Magnitude*>* magnitudes,
 		std::string transient_file_path, std::string processed_file_path );
 	virtual ~RAWFormatProcessor();
 
 	bool ProcessPSFASCII( );
 	bool ProcessPSFASCIIUnSorted( );
-	
+
 	void set_export_processed_magnitudes(bool export_processed_magnitudes){
 		this->export_processed_magnitudes = export_processed_magnitudes;
 	}
@@ -38,7 +38,7 @@ public:
 	void set_magnitudes( std::vector<Magnitude*>* magnitudes ) {
 		this->magnitudes = magnitudes;}
 	void set_is_golden( bool is_golden ){ this->is_golden = is_golden; }
-	//Log manager 
+	//Log manager
 	void set_log_io( LogIO* log_io ){ this->log_io = log_io; }
 	bool get_correctly_processed() const{ return correctly_processed ; }
 
@@ -54,6 +54,7 @@ private:
 
 	void RecreateMagnitudesVector();
 	bool ExportMagnitudes2File();
+	bool CheckRequirements();
 
 	// Spectre output files
 	std::string kPSFAsciiValueWord = "VALUE";

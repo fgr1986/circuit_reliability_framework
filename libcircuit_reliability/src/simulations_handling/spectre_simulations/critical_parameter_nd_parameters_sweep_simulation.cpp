@@ -79,13 +79,14 @@ void CriticalParameterNDParameterSweepSimulation::RunSimulation( ){
 		WaitForResources( runningThreads, max_parallel_profile_instances, mainTG, threadsCount );
 		// not needed to copy 'parameterCountIndexes' since without using boost::ref, arguments are copied
 		// to avoid race conditions updating variables
-		CriticalParameterValueSimulation* pCPVS = CreateProfile(parameterCountIndexes, boost::ref(parameters2sweep), threadsCount);
+		// CriticalParameterValueSimulation* pCPVS = CreateProfile(parameterCountIndexes, boost::ref(parameters2sweep), threadsCount);
+		CriticalParameterValueSimulation* pCPVS = CreateProfile(parameterCountIndexes, parameters2sweep, threadsCount);
 		critical_parameter_value_simulations_vector.AddSpectreSimulation( pCPVS );
 		mainTG.add_thread( new boost::thread(&CriticalParameterNDParameterSweepSimulation::RunProfile, this, boost::ref(pCPVS)));
 		// update variables
+		UpdateParameterSweepIndexes( parameterCountIndexes, parameters2sweep);
 		++threadsCount;
 		++runningThreads;
-		UpdateParameterSweepIndexes( parameterCountIndexes, parameters2sweep);
 	}
 	mainTG.join_all();
 	// check if every simulation ended correctly
@@ -100,12 +101,12 @@ void CriticalParameterNDParameterSweepSimulation::RunSimulation( ){
 }
 
 CriticalParameterValueSimulation* CriticalParameterNDParameterSweepSimulation::CreateProfile(
-	const std::vector<unsigned int> & parameterCountIndexes,
-	std::vector< SimulationParameter* > & parameters2sweep, const unsigned int threadNumber ){
+	const std::vector<unsigned int>& parameterCountIndexes,
+	std::vector<SimulationParameter*>& parameters2sweep, const unsigned int ndProfileIndex ){
 	// Create folder
-	std::string s_threadNumber = number2String(threadNumber);
+	std::string s_ndProfileIndex = number2String(ndProfileIndex);
 	std::string currentFolder = folder + kFolderSeparator
-		 + "param_profile_" + s_threadNumber;
+		 + "param_profile_" + s_ndProfileIndex;
 	if( !CreateFolder(currentFolder, true) ){
 		 log_io->ReportError2AllLogs( k2Tab + "-> Error creating folder '" + currentFolder + "'." );
 		 log_io->ReportError2AllLogs( "Error running profile" );
@@ -125,7 +126,7 @@ CriticalParameterValueSimulation* CriticalParameterNDParameterSweepSimulation::C
 	}
 	// create thread
 	CriticalParameterValueSimulation* pCPVS = CreateCriticalParameterValueSimulation(
-		currentFolder, parameterCountIndexes, parameters2sweep, threadNumber);
+		currentFolder, parameterCountIndexes, parameters2sweep, ndProfileIndex);
 	if( pCPVS==nullptr ){
 		log_io->ReportError2AllLogs( "pCPVS is nullptr" );
 		return nullptr;
@@ -139,7 +140,7 @@ void CriticalParameterNDParameterSweepSimulation::RunProfile( CriticalParameterV
 		log_io->ReportError2AllLogs( "pCPVS is nullptr" );
 		return;
 	}
-	// run threadNumber
+	// run ndProfileIndex
 	pCPVS->RunSimulation();
 	#ifdef RESULTS_ANALYSIS_VERBOSE
 	log_io->ReportPlainStandard( k2Tab + "Ended thread " + pCPVS->get_simulation_id());
@@ -147,15 +148,15 @@ void CriticalParameterNDParameterSweepSimulation::RunProfile( CriticalParameterV
 }
 
 CriticalParameterValueSimulation* CriticalParameterNDParameterSweepSimulation::CreateCriticalParameterValueSimulation(
-		const std::string currentFolder, const std::vector<unsigned int> & parameterCountIndexes,
-		std::vector< SimulationParameter* > & parameters2sweep, const int threadNumber  ){
-	std::string s_threadNumber = number2String(threadNumber);
+		const std::string& currentFolder, const std::vector<unsigned int>& parameterCountIndexes,
+		std::vector<SimulationParameter*>& parameters2sweep, const int ndProfileIndex  ){
+	std::string s_ndProfileIndex = number2String(ndProfileIndex);
 	// Simulation
 	CriticalParameterValueSimulation* pCPVS = new CriticalParameterValueSimulation();
 	pCPVS->set_n_dimensional(true);
-	pCPVS->set_n_d_profile_index(threadNumber);
+	pCPVS->set_n_d_profile_index(ndProfileIndex);
 	pCPVS->set_is_nested_simulation( true );
-	pCPVS->set_simulation_id(  "s_" + number2String(altered_scenario_index) + "_prof_" + s_threadNumber );
+	pCPVS->set_simulation_id(  "s_" + number2String(altered_scenario_index) + "_prof_" + s_ndProfileIndex );
 	// pCPVS->set_parameter_index( paramIndex );
 	// pCPVS->set_sweep_index( sweepIndex );
 	pCPVS->set_log_io( log_io );

@@ -217,8 +217,6 @@ bool MontecarloSimulation::AnalyzeMontecarloResults(){
 			auto tr = pSS->get_basic_simulation_results();
 			if(tr==nullptr){ // double check
 				log_io->ReportError2AllLogs( "[fgarcia-debug] pSS->get_last_valid_transient_simulation_results() is null: " + pSS->get_simulation_id() );
-				// update mcCount
-				++mcCount;
 				break; // break for
 			}
 			// statistics
@@ -243,11 +241,18 @@ bool MontecarloSimulation::AnalyzeMontecarloResults(){
 		// update counter
 		++mcCount;
 	} // end foreach
+	#ifdef RESULTS_POST_PROCESSING_VERBOSE
+		log_io->ReportPlainStandard( "sim " + simulation_id + " correctly_simulated_count: " + number2String(correctly_simulated_count) );
+	#endif
+	if( correctly_simulated_count!= montecarlo_iterations ){
+		log_io->ReportRedStandard( "There where spectre errors in sim " + simulation_id + ", correctly_simulated_count: " + number2String(correctly_simulated_count) );
+	}
 	// set file
 	montecarlo_simulation_results.set_critical_parameter_value_data_path("~/no_file_required_in_this_mode");
 	montecarlo_simulation_results.set_mean_critical_parameter_value( kNotDefinedInt );
 	// compute mean
 	for( unsigned int m=0; m<metricMagnitudes->size(); ++m){
+		log_io->ReportPlainStandard( "[debug] " + simulation_id + " [m]: " + number2String(m) + " meanMaxErrorMetric:"  + number2String(meanMaxErrorMetric[m]) );
 		meanMaxErrorMetric[m] = meanMaxErrorMetric[m]/((double) correctly_simulated_count);
 		// compute q12, q34 and median
 		// short
@@ -276,7 +281,7 @@ bool MontecarloSimulation::AnalyzeMontecarloResults(){
 		mMCR->q12_max_error_metric = q12MaxErrorMetric[magCount];
 		mMCR->q34_max_error_metric = q34MaxErrorMetric[magCount];
 		montecarlo_simulation_results.AddMetricMontecarloResults( mMCR );
-		#ifdef RESULTS_ANALYSIS_VERBOSE
+		#ifdef RESULTS_POST_PROCESSING_VERBOSE
 		log_io->ReportGreenStandard( simulation_id +  "-> max_error_global:" + number2String(maxErrorGlobal[magCount])
 			+ " mean_max_error_metric:" + number2String(meanMaxErrorMetric[magCount])
 			+ " b max_error_global:" + number2String(mMCR->max_error_global)

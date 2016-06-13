@@ -97,9 +97,9 @@ private:
 	 * @param threadNumber
 	 * @return The new golden_simulation pointer
 	 */
-	GoldenSimulation* CreateGoldenSimulation(
-			const std::string currentFolder, const std::vector<unsigned int> & parameterCountIndexes,
-			const std::vector<SimulationParameter*>& parameters2sweep, const int threadNumber );
+	// GoldenSimulation* CreateGoldenSimulation(
+	// 		const std::string& currentFolder, const std::vector<unsigned int> & parameterCountIndexes,
+	// 		const std::vector<SimulationParameter*>& parameters2sweep, const unsigned int ndIndex );
 
 	/**
 	 * @brief Virtual overrides TestSetup
@@ -116,7 +116,7 @@ private:
 	 * @param threadNumber
 	 */
 	GoldenSimulation* CreateProfile( const std::vector<unsigned int>& parameterCountIndexes,
-		std::vector<SimulationParameter*>& parameters2sweep, const unsigned int threadNumber );
+		std::vector<SimulationParameter*>& parameters2sweep, const unsigned int ndIndex );
 
 	/**
 	 * @brief Run sweep simulation

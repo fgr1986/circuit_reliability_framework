@@ -103,12 +103,12 @@ private:
 	 * @param currentFolder
 	 * @param parameterCountIndexes
 	 * @param parameters2sweep
-	 * @param threadNumber
+	 * @param ndProfileIndex
 	 * @return The new critical_parameter_value_simulation pointer
 	 */
 	CriticalParameterValueSimulation* CreateCriticalParameterValueSimulation(
-		const std::string currentFolder, const std::vector<unsigned int> & parameterCountIndexes,
-		std::vector<SimulationParameter*>& parameters2sweep, const int threadNumber  );
+		const std::string& currentFolder, const std::vector<unsigned int> & parameterCountIndexes,
+		std::vector<SimulationParameter*>& parameters2sweep, const int ndProfileIndex  );
 
 	/**
 	 * @brief Virtual overrides TestSetup
@@ -123,11 +123,11 @@ private:
 	 *
 	 * @param parameterCountIndexes
 	 * @param parameters2sweep
-	 * @param threadNumber
+	 * @param ndProfileIndex
 	 */
 	CriticalParameterValueSimulation* CreateProfile(
 		const std::vector<unsigned int> & parameterCountIndexes,
-		std::vector<SimulationParameter*>& parameters2sweep, const unsigned int threadNumber );
+		std::vector<SimulationParameter*>& parameters2sweep, const unsigned int ndProfileIndex );
 
 	/**
 	 * @brief Run profile simulation

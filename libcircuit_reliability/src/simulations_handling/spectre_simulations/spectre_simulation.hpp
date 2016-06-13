@@ -170,6 +170,11 @@ public:
 	}
 
 	/**
+	 * @brief get n_d_profile_index
+	 */
+	int get_n_d_profile_index(){ return n_d_profile_index; }
+
+	/**
 	 * @brief Updates a Simulation Parameter
 	 * @details Searches for the simulation_parameter with the name of updatedParameter
 	 * and changes its pointer to updatedParameter
@@ -338,7 +343,7 @@ protected:
 	 * @param thread_group
 	 */
 	void WaitForResources( unsigned int & threadsCount,
-		const unsigned int& maxThreads, boost::thread_group & tg, const unsigned int& thread2BeWaited );
+		const unsigned int maxThreads, boost::thread_group & tg, const unsigned int thread2BeWaited );
 
 	/**
 	 * @brief [brief description]

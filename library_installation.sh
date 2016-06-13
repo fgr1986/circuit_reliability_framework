@@ -6,8 +6,10 @@
 LIBRARY_VERSION=2.9.3_beta
 echo "Version $LIBRARY_VERSION"
 
-SOURCES_FOLDER=libcircuit_reliability/src/
-BINARY_FOLDER=libcircuit_reliability/bin
+SOURCES_FOLDER=/simulation_data/circuit_reliability_framework/installers_last_version/lib_tmp/src/
+BINARY_FOLDER=/simulation_data/circuit_reliability_framework/installers_last_version/lib_tmp/bin
+# SOURCES_FOLDER=libcircuit_reliability/src/
+# BINARY_FOLDER=libcircuit_reliability/bin
 BASH_VARIABLES_FILES=bash_variables/*
 BASH_MAIN_FILE_PATH=~/bash_fgarcia_workspace
 LIBRARY_NAME=libcircuit_reliability.so

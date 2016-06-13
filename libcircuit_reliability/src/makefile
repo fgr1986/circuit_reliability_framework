@@ -3,7 +3,7 @@
 ##########################################
 
 # # of cores used during compiling
-export MAKEFLAGS="-j $(grep -c ^processor /proc/cpuinfo)"
+# export MAKEFLAGS="-j $(grep -c ^processor /proc/cpuinfo)"
 # export MAKEFLAGS="-j 2"
 # export MAKEFLAGS="-j 1"
 ############
@@ -30,9 +30,9 @@ CC=g++
 # is not dependent on being located at a specific address in order to work.
 
 # no debug
-# CPPFLAGS+= -std=c++11 -Wall -O3 -fPIC
+CPPFLAGS+= -std=c++11 -Wall -O3 -fPIC
 # debug
-CPPFLAGS+= -g -std=c++11 -Wall -O3 -fPIC
+# CPPFLAGS+= -g -std=c++11 -Wall -O3 -fPIC
 
 #################
 # Library flags #

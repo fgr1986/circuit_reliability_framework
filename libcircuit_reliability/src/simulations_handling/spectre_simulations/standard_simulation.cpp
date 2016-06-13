@@ -79,9 +79,11 @@ void StandardSimulation::RunSimulation( ){
 			// return false; // program can continue
 		}
 		// delete previous transients, if needed
-		if( !ManageIndividualResultFiles( basic_simulation_results, false ) ){
-			log_io->ReportError2AllLogs( "Error deleting raw data. Scenario #" + simulation_id );
-			// return false; // program can continue
+		if(!is_montecarlo_nested_simulation){
+			if( !ManageIndividualResultFiles( basic_simulation_results, false ) ){
+				log_io->ReportError2AllLogs( "Error deleting raw data. Scenario #" + simulation_id );
+				// return false; // program can continue
+			}
 		}
 		// delete analyzed magnitudes
 		deleteContentsOfVectorOfPointers( *analyzedMagnitudes);

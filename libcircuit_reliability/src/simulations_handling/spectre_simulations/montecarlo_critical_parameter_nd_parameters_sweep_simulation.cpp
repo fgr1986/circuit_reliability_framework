@@ -77,13 +77,13 @@ void MontecarloCriticalParameterNDParametersSweepSimulation::RunSimulation( ){
 		WaitForResources( runningThreads, max_parallel_profile_instances, mainTG, threadsCount );
 		// not needed to copy 'parameterCountIndexes' since without using boost::ref, arguments are copied
 		// to avoid race conditions updating variables
-		MontecarloCriticalParameterValueSimulation* pMCPVS = CreateProfile(parameterCountIndexes, boost::ref(parameters2sweep), threadsCount);
+		MontecarloCriticalParameterValueSimulation* pMCPVS = CreateProfile(parameterCountIndexes, parameters2sweep, threadsCount);
 		montecarlo_critical_parameter_value_simulations_vector.AddSpectreSimulation( pMCPVS );
 		mainTG.add_thread( new boost::thread(&MontecarloCriticalParameterNDParametersSweepSimulation::RunProfile, this, boost::ref(pMCPVS)));
 		// update variables
+		UpdateParameterSweepIndexes( parameterCountIndexes, parameters2sweep);
 		++threadsCount;
 		++runningThreads;
-		UpdateParameterSweepIndexes( parameterCountIndexes, parameters2sweep);
 	}
 	mainTG.join_all();
 	// check if every simulation ended correctly
@@ -116,12 +116,12 @@ bool MontecarloCriticalParameterNDParametersSweepSimulation::TestSetUp(){
 }
 
 MontecarloCriticalParameterValueSimulation* MontecarloCriticalParameterNDParametersSweepSimulation::CreateProfile(
-	const std::vector<unsigned int> & parameterCountIndexes,
-	std::vector< SimulationParameter* > & parameters2sweep, const unsigned int threadNumber ){
+	const std::vector<unsigned int>& parameterCountIndexes,
+	std::vector<SimulationParameter*>& parameters2sweep, const unsigned int ndProfileIndex ){
 	// Create folder
-	std::string s_threadNumber = number2String(threadNumber);
+	std::string s_ndProfileIndex = number2String(ndProfileIndex);
 	std::string currentFolder = folder + kFolderSeparator
-		 + "param_profile_" + s_threadNumber;
+		 + "param_profile_" + s_ndProfileIndex;
 	if( !CreateFolder(currentFolder, true) ){
 		 log_io->ReportError2AllLogs( k2Tab + "-> Error creating folder '" + currentFolder + "'." );
 		 log_io->ReportError2AllLogs( "Error running profile" );
@@ -141,7 +141,7 @@ MontecarloCriticalParameterValueSimulation* MontecarloCriticalParameterNDParamet
 	}
 	// create thread
 	MontecarloCriticalParameterValueSimulation* pMCPVS = CreateMontecarloCriticalParameterValueSimulation(
-		currentFolder, parameterCountIndexes, parameters2sweep, threadNumber );
+		currentFolder, parameterCountIndexes, parameters2sweep, ndProfileIndex );
 	if( pMCPVS==nullptr ){
 		log_io->ReportError2AllLogs( "pMCPVS is nullptr" );
 		return nullptr;
@@ -159,7 +159,7 @@ void MontecarloCriticalParameterNDParametersSweepSimulation::RunProfile(
 		log_io->ReportError2AllLogs( "pMCPVS is nullptr" );
 		return;
 	}
-	// run threadNumber
+	// run ndProfileIndex
 	pMCPVS->RunSimulation();
 	#ifdef RESULTS_ANALYSIS_VERBOSE
 	log_io->ReportPlainStandard( k2Tab + "Ended RunSimulation of profile " + pMCPVS->get_simulation_id());
@@ -172,17 +172,17 @@ void MontecarloCriticalParameterNDParametersSweepSimulation::RunProfile(
 }
 
 MontecarloCriticalParameterValueSimulation* MontecarloCriticalParameterNDParametersSweepSimulation::CreateMontecarloCriticalParameterValueSimulation(
-		const std::string currentFolder, const std::vector<unsigned int> & parameterCountIndexes,
-		std::vector< SimulationParameter* > & parameters2sweep, const int threadNumber  ){
-	std::string s_threadNumber = number2String(threadNumber);
+		const std::string& currentFolder, const std::vector<unsigned int> & parameterCountIndexes,
+		std::vector<SimulationParameter*>& parameters2sweep, const int ndProfileIndex  ){
+	std::string s_ndProfileIndex = number2String(ndProfileIndex);
 	// Simulation
 	MontecarloCriticalParameterValueSimulation* pMCPVS = new MontecarloCriticalParameterValueSimulation();
 	pMCPVS->set_n_dimensional(true);
-	pMCPVS->set_n_d_profile_index(threadNumber);
+	pMCPVS->set_n_d_profile_index(ndProfileIndex);
 	pMCPVS->set_is_nested_simulation( true );
 	pMCPVS->set_montecarlo_iterations( montecarlo_iterations );
 	pMCPVS->set_max_parallel_montecarlo_instances( max_parallel_montecarlo_instances );
-	pMCPVS->set_simulation_id(  simulation_id + "_child_prof_" + s_threadNumber );
+	pMCPVS->set_simulation_id(  simulation_id + "_child_prof_" + s_ndProfileIndex );
 	// pMCPVS->set_parameter_index( paramIndex );
 	// pMCPVS->set_sweep_index( sweepIndex );
 	pMCPVS->set_log_io( log_io );

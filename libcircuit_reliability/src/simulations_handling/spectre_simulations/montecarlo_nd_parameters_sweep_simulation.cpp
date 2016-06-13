@@ -82,9 +82,9 @@ void MontecarloNDParametersSweepSimulation::RunSimulation( ){
 		montecarlo_standard_simulations_vector.AddSpectreSimulation( pMSS );
 		mainTG.add_thread( new boost::thread(&MontecarloNDParametersSweepSimulation::RunProfile, this, boost::ref(pMSS)));
 		// update variables
+		UpdateParameterSweepIndexes( parameterCountIndexes, parameters2sweep);
 		++threadsCount;
 		++runningThreads;
-		UpdateParameterSweepIndexes( parameterCountIndexes, parameters2sweep);
 	}
 	mainTG.join_all();
 	// check if every simulation ended correctly

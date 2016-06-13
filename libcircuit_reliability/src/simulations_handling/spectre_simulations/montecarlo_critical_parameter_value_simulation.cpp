@@ -96,7 +96,8 @@ void MontecarloCriticalParameterValueSimulation::RunSimulation( ){
 	}
 }
 
-CriticalParameterValueSimulation* MontecarloCriticalParameterValueSimulation::CreateMonteCarloIteration( unsigned int montecarloCount ){
+CriticalParameterValueSimulation* MontecarloCriticalParameterValueSimulation::CreateMonteCarloIteration(
+		unsigned int montecarloCount ){
 	// montecarloCount starts in 0,
 	std::string s_montecarloCount = number2String(montecarloCount);
 	std::string currentFolder = folder + kFolderSeparator
@@ -270,6 +271,12 @@ bool MontecarloCriticalParameterValueSimulation::AnalyzeMontecarloResults(){
 	}
 	// close file
 	gnuplotMapFile.close();
+	#ifdef RESULTS_POST_PROCESSING_VERBOSE
+		log_io->ReportPlainStandard( "sim " + simulation_id + " correctly_simulated_count: " + number2String(correctly_simulated_count) );
+	#endif
+	if( correctly_simulated_count!= montecarlo_iterations ){
+		log_io->ReportRedStandard( "There where spectre errors in sim " + simulation_id + ", correctly_simulated_count: " + number2String(correctly_simulated_count) );
+	}
 	// set file
 	montecarlo_simulation_results.set_critical_parameter_value_data_path(gnuplotMapFilePath);
 	// compute mean

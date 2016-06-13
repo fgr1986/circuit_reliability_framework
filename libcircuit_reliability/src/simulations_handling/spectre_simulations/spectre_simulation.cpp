@@ -68,7 +68,7 @@ void SpectreSimulation::AddAdditionalSimulationParameter(
 }
 
 void SpectreSimulation::WaitForResources( unsigned int& threadsCount,
-	const unsigned int& maxThreads, boost::thread_group& tg, const unsigned int& thread2BeWaited ){
+	const unsigned int maxThreads, boost::thread_group& tg, const unsigned int thread2BeWaited ){
 	if( threadsCount == maxThreads-1 ){
 		// Wait for threads
 		#ifdef SPECTRE_SIMULATIONS_VERBOSE

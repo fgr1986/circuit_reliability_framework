@@ -7,6 +7,9 @@
 
 // c++ std libraries
 #include <fstream>
+// # for sleep
+#include <chrono>
+#include <thread>
 // Boost
 #include <boost/algorithm/string.hpp>
 #include "boost/filesystem.hpp"  // includes all needed Boost.Filesystem declarations
@@ -37,20 +40,36 @@ RAWFormatProcessor::RAWFormatProcessor( std::vector<Magnitude*>* magnitudes,
 RAWFormatProcessor::~RAWFormatProcessor() {
 }
 
-bool RAWFormatProcessor::ProcessPSFASCII( ){
+bool RAWFormatProcessor::CheckRequirements(){
 	if( transient_file_path.compare(kEmptyWord)==0
 		|| transient_file_path.compare(kNotDefinedString)== 0){
- 		log_io->ReportError2AllLogs( k2Tab + "ProcessPSFASCII: transient_file_path not defined." );
- 		correctly_processed = false;
-		return correctly_processed;
+		log_io->ReportError2AllLogs( k2Tab + "ProcessPSFASCII: transient_file_path not defined." );
+		// correctly_processed = false;
+		// return correctly_processed;
+		return false;
 	}
 	if( magnitudes== nullptr || magnitudes->size() <= 0){
- 		log_io->ReportError2AllLogs( k2Tab + "ProcessPSFASCII: magnitudes not defined." );
- 		correctly_processed = false;
-		return correctly_processed;
+		log_io->ReportError2AllLogs( k2Tab + "ProcessPSFASCII: magnitudes not defined." );
+		return false;
 	}
+	// wait for spectre buffers to end write operation
 	if( !boost::filesystem::exists(transient_file_path) ){
- 		log_io->ReportError2AllLogs( k2Tab + "File " + transient_file_path + " does not exists!!" );
+		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+	} // last chance
+	if( !boost::filesystem::exists(transient_file_path) ){
+		log_io->ReportError2AllLogs( k2Tab + "File " + transient_file_path + " does not exists!!" );
+		std::string auxCommand = "ls -lah " + transient_file_path +  " >> myDebug.log";
+		std::string auxCommandFull = "echo '" + auxCommand +  "'; " + auxCommand;
+		int auxCommandResult = std::system( auxCommandFull.c_str()  ) ;
+		log_io->ReportError2AllLogs( k2Tab + "[debug] Result of '" + auxCommand + "': " + number2String(auxCommandResult) );
+		return false;
+	}
+	return true;
+}
+
+bool RAWFormatProcessor::ProcessPSFASCII( ){
+	if( !CheckRequirements() ){
+ 		log_io->ReportError2AllLogs( k2Tab + "ProcessPSFASCII: abort." );
  		correctly_processed = false;
 		return correctly_processed;
 	}
@@ -124,19 +143,8 @@ bool RAWFormatProcessor::ProcessPSFASCII( ){
 }
 
 bool RAWFormatProcessor::ProcessPSFASCIIUnSorted( ){
-	if( transient_file_path.compare(kEmptyWord)==0
-		|| transient_file_path.compare(kNotDefinedString)== 0){
- 		log_io->ReportError2AllLogs( k2Tab + "ProcessPSFASCII: transient_file_path not defined." );
- 		correctly_processed = false;
-		return correctly_processed;
-	}
-	if( magnitudes==nullptr || magnitudes->size() <= 0){
- 		log_io->ReportError2AllLogs( k2Tab + "ProcessPSFASCII: magnitudes not defined." );
- 		correctly_processed = false;
-		return correctly_processed;
-	}
-	if( !boost::filesystem::exists(transient_file_path) ){
-		log_io->ReportError2AllLogs( k2Tab + "File " + transient_file_path + " does not exists!!" );
+	if( !CheckRequirements() ){
+		log_io->ReportError2AllLogs( k2Tab + "ProcessPSFASCII: abort." );
 		correctly_processed = false;
 		return correctly_processed;
 	}
@@ -306,6 +314,7 @@ bool RAWFormatProcessor::ExportMagnitudes2File(){
 	if( processed_file_path.compare(kEmptyWord)==0
 		|| processed_file_path.compare(kNotDefinedString)== 0){
  		log_io->ReportError2AllLogs( k2Tab + "ProcessPSFASCII: processed_file_path not defined." );
+		correctly_processed = false;
 		return false;
 	}
 	// Export output
@@ -313,6 +322,7 @@ bool RAWFormatProcessor::ExportMagnitudes2File(){
 	outputFile.open(processed_file_path.c_str());
 	if (!outputFile){
 		log_io->ReportError2AllLogs( kTab + "error writing " + processed_file_path);
+		correctly_processed = false;
 		return false;
 	}
 	std::string m_names;

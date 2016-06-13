@@ -12,6 +12,7 @@
  *
  */
 
+#include <atomic>
 // math
 #include <cmath>
 // Boost
@@ -46,7 +47,7 @@ GoldenNDParametersSweepSimulation::~GoldenNDParametersSweepSimulation(){
 	// deleteContentsOfVectorOfPointers( golden_simulations_vector );
 }
 
-void GoldenNDParametersSweepSimulation::RunSimulation( ){
+void GoldenNDParametersSweepSimulation::RunSimulation(){
 	if (!TestSetUp()){
 		log_io->ReportError2AllLogs( "RunSimulation had not been previously set up. ");
 		return;
@@ -82,6 +83,9 @@ void GoldenNDParametersSweepSimulation::RunSimulation( ){
 	log_io->ReportThread( "Total threads to be simulated: " + number2String(totalThreads) + ". Max number of sweep threads: " + number2String(max_parallel_profile_instances), 1 );
 	// parallel threads control
 	unsigned int runningThreads = 0;
+	// // made atomic
+	// std::atomic<unsigned int> threadsCount(0);
+	// threadsCount = 0;
 	unsigned int threadsCount = 0;
 	// current parameter sweep indexes
 	std::vector<unsigned int> parameterCountIndexes(parameters2sweep.size(), 0);
@@ -91,6 +95,7 @@ void GoldenNDParametersSweepSimulation::RunSimulation( ){
 	// Threads Creation
 	while( threadsCount<totalThreads ){
 		// wait for resources
+		// debug
 		WaitForResources( runningThreads, max_parallel_profile_instances, mainTG, threadsCount );
 		// concurrent: ref vs resource copy issues in nd-crit sim type
 		GoldenSimulation* pGS = CreateProfile(parameterCountIndexes, parameters2sweep, threadsCount);
@@ -103,9 +108,9 @@ void GoldenNDParametersSweepSimulation::RunSimulation( ){
 		golden_simulations_vector.AddSpectreSimulation( pGS );
 		mainTG.add_thread( new boost::thread(&GoldenNDParametersSweepSimulation::RunProfile, this, boost::ref(pGS) ));
 		// update variables
+		UpdateParameterSweepIndexes( parameterCountIndexes, parameters2sweep);
 		++threadsCount;
 		++runningThreads;
-		UpdateParameterSweepIndexes( parameterCountIndexes, parameters2sweep);
 	}
 	mainTG.join_all();
 	log_io->ReportPlain2Log( "GoldenNDParametersSweepSimulation: mainTG.join_all()" );
@@ -133,10 +138,10 @@ void GoldenNDParametersSweepSimulation::RunSimulation( ){
 
 GoldenSimulation* GoldenNDParametersSweepSimulation::CreateProfile(
 	const std::vector<unsigned int>& parameterCountIndexes,
-	std::vector<SimulationParameter*>& parameters2sweep, const unsigned int threadNumber ){
+	std::vector<SimulationParameter*>& parameters2sweep, const unsigned int ndIndex ){
 	// Create folder
-	std::string s_threadNumber = number2String(threadNumber);
-	std::string currentFolder = folder + kFolderSeparator + "param_profile_" + s_threadNumber;
+	std::string s_ndIndex = number2String(ndIndex);
+	std::string currentFolder = folder + kFolderSeparator + "param_profile_" + s_ndIndex;
 	if( !CreateFolder(currentFolder, true) ){
 		log_io->ReportError2AllLogs( k2Tab + "-> Error creating folder '" + currentFolder + "'." );
 		log_io->ReportError2AllLogs( "Error running profile" );
@@ -155,30 +160,13 @@ GoldenSimulation* GoldenNDParametersSweepSimulation::CreateProfile(
 		return nullptr;
 	}
 	// create thread
-	GoldenSimulation* pGS = CreateGoldenSimulation( currentFolder, parameterCountIndexes, parameters2sweep, threadNumber);
-	if( pGS==nullptr ){
-		log_io->ReportError2AllLogs( "pGS is nullptr" );
-		return nullptr;
-	}
-	return pGS;
-}
-
-void GoldenNDParametersSweepSimulation::RunProfile(	GoldenSimulation* pGS ){
-	// run threadNumber
-	#ifdef SPECTRE_SIMULATIONS_VERBOSE
-		log_io->ReportThread( "Golden thread: #" + pGS->get_simulation_id(), 3 );
-	#endif
-	pGS->RunSimulation();
-}
-
-GoldenSimulation* GoldenNDParametersSweepSimulation::CreateGoldenSimulation(
-		const std::string currentFolder, const std::vector<unsigned int>& parameterCountIndexes,
-		const std::vector<SimulationParameter*>& parameters2sweep, const int ndIndex ){
-	std::string s_ndIndex = number2String(ndIndex);
-	// Simulation
+	// GoldenSimulation* pGS = CreateGoldenSimulation( currentFolder, parameterCountIndexes,
+	// 	parameters2sweep, ndIndex );
 	GoldenSimulation* pGS = new GoldenSimulation();
 	pGS->set_is_nested_simulation( true );
 	pGS->set_simulation_id(  "golden_param_profile_" + s_ndIndex );
+	// debug
+	std::clog << "[debug] B CreateGoldenSimulation " << pGS->get_simulation_id() << " with number2String(ndIndex) '" << ndIndex << "'\n";
 	pGS->set_n_dimensional(true);
 	pGS->set_n_d_profile_index(ndIndex);
 	pGS->set_log_io( log_io );
@@ -221,6 +209,14 @@ GoldenSimulation* GoldenNDParametersSweepSimulation::CreateGoldenSimulation(
 		++sweepedParamIndex;
 	}
 	return pGS;
+}
+
+void GoldenNDParametersSweepSimulation::RunProfile(	GoldenSimulation* pGS ){
+	// run ndIndex
+	#ifdef SPECTRE_SIMULATIONS_VERBOSE
+		log_io->ReportThread( "Golden thread: #" + pGS->get_simulation_id(), 3 );
+	#endif
+	pGS->RunSimulation();
 }
 
 bool GoldenNDParametersSweepSimulation::TestSetUp(){
