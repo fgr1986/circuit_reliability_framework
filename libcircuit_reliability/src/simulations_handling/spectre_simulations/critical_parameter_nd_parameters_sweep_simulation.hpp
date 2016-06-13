@@ -135,7 +135,7 @@ private:
 	 *
 	 * @param cpv simulation
 	 */
-	void RunProfile( CriticalParameterValueSimulation* pCPVS );
+	// void RunProfile( CriticalParameterValueSimulation* pCPVS );
 
 	/// Results Handling
 

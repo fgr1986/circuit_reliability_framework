@@ -72,9 +72,14 @@ void MontecarloSimulation::RunSimulation( ){
 		// not needed to copy 'parameterCountIndexes' since without using boost::ref, arguments are copied
 		// to avoid race conditions updating variables
 		StandardSimulation* pSS = CreateMonteCarloIteration( threadsCount );
+		if( pSS==nullptr ){
+			log_io->ReportError2AllLogs( "Null CreateProfile " + number2String(threadsCount) );
+			correctly_simulated = false;
+			correctly_processed = false;
+			return;
+		}
 		montecarlo_simulations_vector.AddSpectreSimulation( pSS );
-		// mainTG.add_thread( new boost::thread(&StandardSimulation::RunSimulation, this, boost::ref(pSS)));
-		mainTG.add_thread( new boost::thread(&StandardSimulation::RunSimulation, boost::ref(pSS)));
+		mainTG.add_thread( new boost::thread(boost::bind(&StandardSimulation::RunSimulation, pSS)) );
 		// update variables
 		++threadsCount;
 		++runningThreads;

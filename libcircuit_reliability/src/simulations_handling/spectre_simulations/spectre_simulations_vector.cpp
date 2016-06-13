@@ -72,3 +72,16 @@ bool SpectreSimulationsVector::CheckCorrectlyProcessed(){
 	}
 	return partial_cs;
 }
+
+void SpectreSimulationsVector::ReportChildrenCorrectness(){
+	for( auto const &s : spectre_simulations ){
+		if( !s->get_correctly_simulated() ){
+			std::cout << "Sim: " << s->get_simulation_id() << " was not correctly simulated\n";
+			std::clog << "Sim: " << s->get_simulation_id() << " was not correctly simulated\n";
+		}
+		if( !s->get_correctly_processed() ){
+			std::cout << "Sim: " << s->get_simulation_id() << " was not correctly processed\n";
+			std::clog << "Sim: " << s->get_simulation_id() << " was not correctly processed\n";
+		}
+	}
+}

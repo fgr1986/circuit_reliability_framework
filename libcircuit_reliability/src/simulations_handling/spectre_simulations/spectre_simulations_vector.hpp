@@ -65,6 +65,8 @@ public:
 	 */
 	bool CheckCorrectlyProcessed();
 
+	void ReportChildrenCorrectness();
+
 	void ReserveSimulationsInMemory( unsigned int simulationsLength );
 
 private:

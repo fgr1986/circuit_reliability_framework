@@ -171,6 +171,8 @@ bool VariabilitySpectreHandler::RunSimulations(){
 	// Run the threads
 	log_io->ReportPlainStandard( kTab + "->Simulating variability netlist #" + number2String(radiationScenarioCounter) );
 	log_io->ReportThread( "Variability Scenario Simulation #" + number2String(radiationScenarioCounter), 1 );
+	// fgarcia, this reference can be a problem¿?
+	// boost::thread radiation_t(boost::bind(&SpectreSimulation::HandleSpectreSimulation, boost::ref(sss)));
 	tgScenarios.create_thread(boost::bind(&SpectreSimulation::HandleSpectreSimulation, sss));
 	++radiationScenarioCounter;
 	//wait each thread
@@ -213,8 +215,9 @@ bool VariabilitySpectreHandler::SimulateStandardAHDLNetlist( ){
 	var_AHDL_s->set_ahdl_shipdb_env( kEnableAHDLFolderSHIPDB + ahdl_shipdb_folder_path  );
 	log_io->ReportPurpleStandard( "Simulating var_AHDL netlist.");
 	log_io->ReportThread( "AHDL scenario.", 1);
-	boost::thread radiation_t(boost::bind(&SpectreSimulation::HandleSpectreSimulation, boost::ref(var_AHDL_s)));
-	radiation_t.join();
+	// check others
+	boost::thread var_AHDL_t(boost::bind(&SpectreSimulation::HandleSpectreSimulation, var_AHDL_s));
+	var_AHDL_t.join();
 	log_io->ReportGreenStandard( "var_AHDL netlist simulated.");
 	if(var_AHDL_s->get_simulation_results()->get_spectre_result() > 0){
 		log_io->ReportError2AllLogs( "WARNING: while simulation the ahdl scenario." );
@@ -255,8 +258,8 @@ bool VariabilitySpectreHandler::SimulateGoldenAHDLNetlist( ){
 	ahdl_golden_ss->set_ahdl_shipdb_env( kEnableAHDLFolderSHIPDB + ahdl_shipdb_folder_path + "_golden" );
 	log_io->ReportPurpleStandard( "Simulating AHDL golden netlist.");
 	log_io->ReportThread( "AHDL Golden scenario.", 1);
-	boost::thread golden_t(boost::bind(&SpectreSimulation::HandleSpectreSimulation, boost::ref(ahdl_golden_ss)));
-	golden_t.join();
+	boost::thread ahdl_golden_t(boost::bind(&SpectreSimulation::HandleSpectreSimulation, ahdl_golden_ss));
+	ahdl_golden_t.join();
 	log_io->ReportGreenStandard( "AHDL Golden netlist simulated and processed.");
 
 	// We copy the golden magnitudes, because ahdl_golden_ss object is going to be destroyed
@@ -314,7 +317,7 @@ bool VariabilitySpectreHandler::SimulateGoldenNetlist( ){
 	golden_ss->set_ahdl_shipdb_env( kEnableAHDLFolderSHIPDB + ahdl_shipdb_folder_path + "_golden" );
 	log_io->ReportPurpleStandard( "Simulating golden netlist.");
 	log_io->ReportThread( "Golden scenario.", 1);
-	boost::thread golden_t(boost::bind(&SpectreSimulation::HandleSpectreSimulation, boost::ref(golden_ss)));
+	boost::thread golden_t(boost::bind(&SpectreSimulation::HandleSpectreSimulation, golden_ss));
 	golden_t.join();
 	log_io->ReportGreenStandard( "Golden netlist simulated and processed.");
 

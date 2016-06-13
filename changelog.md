@@ -12,27 +12,16 @@
 * Weighted Nodes
 
 # Changelog of version 2.9.3_beta
-* Title/legend improvements in plots
-* **montecarlo_critical_parameter_nd_parameters_sweep_simulation** simulation mode
-* **montecarlo_critical_parameter_nd_parameters_sweep_simulation** creates **montecarlo_critical_parameter_simulation** threads.
-* **montecarlo_critical_parameter_simulation** creates **critical_parameter_value_simulation** threads,
-* **critical_parameter_value_simulation** transients now may -or not, depending on wheter montecarlo analysis is present- include sufixes **001**, **002**, etc,
-* Introduced **montecarlo_iterations** as a simulation parameter:
-
-		<!-- new in 2.9.2_beta -->
-		<!-- required by montecarlo_critical_parameter_n_d_parameters_sweep_analysis -->
-		<simulation_parameter>
-			<simulation_parameter_name>montecarlo_iterations</simulation_parameter_name>
-			<simulation_parameter_default_value>3</simulation_parameter_default_value>
-			<simulation_parameter_fixed>true</simulation_parameter_fixed>
-			<simulation_parameter_golden_fixed>true</simulation_parameter_golden_fixed>
-		</simulation_parameter>
+* Intermediate interface **RunProfile** has been removed
 
 # Version 2.x.y
 
 ## Version 2.9.y (3.0 betas)
 
-* Changelog of version 2.9.2_beta and 2.9.3_beta
+* Changelog of version 2.9.3_beta
+	* Intermediate interface **RunProfile** has been removed
+
+* Changelog of version 2.9.2_beta
 	* Title/legend improvements in plots
 	* **montecarlo_critical_parameter_nd_parameters_sweep_simulation** simulation mode
 	* **montecarlo_critical_parameter_nd_parameters_sweep_simulation** creates **montecarlo_critical_parameter_simulation** threads.

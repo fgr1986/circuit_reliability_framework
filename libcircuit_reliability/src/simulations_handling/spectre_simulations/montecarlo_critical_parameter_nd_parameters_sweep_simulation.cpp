@@ -74,12 +74,19 @@ void MontecarloCriticalParameterNDParametersSweepSimulation::RunSimulation( ){
 	montecarlo_critical_parameter_value_simulations_vector.ReserveSimulationsInMemory( totalThreads );
 	while( threadsCount<totalThreads ){
 		// wait for resources
-		WaitForResources( runningThreads, max_parallel_profile_instances, mainTG, threadsCount );
-		// not needed to copy 'parameterCountIndexes' since without using boost::ref, arguments are copied
-		// to avoid race conditions updating variables
+		WaitForResources( runningThreads, max_parallel_profile_instances, mainTG, threadsCount );		
+		// CreateProfile sets all parameter values, and after the simulation object
+		// is created it can be updated.
+		// Thus, it avoids race conditions when updating parameterCountIndexes and parameters2sweep
 		MontecarloCriticalParameterValueSimulation* pMCPVS = CreateProfile(parameterCountIndexes, parameters2sweep, threadsCount);
+		if( pMCPVS==nullptr ){
+			log_io->ReportError2AllLogs( "Null CreateProfile " + number2String(threadsCount) );
+			correctly_simulated = false;
+			correctly_processed = false;
+			return;
+		}
 		montecarlo_critical_parameter_value_simulations_vector.AddSpectreSimulation( pMCPVS );
-		mainTG.add_thread( new boost::thread(&MontecarloCriticalParameterNDParametersSweepSimulation::RunProfile, this, boost::ref(pMCPVS)));
+		mainTG.add_thread( new boost::thread(boost::bind(&MontecarloCriticalParameterValueSimulation::RunSimulation, pMCPVS)) );
 		// update variables
 		UpdateParameterSweepIndexes( parameterCountIndexes, parameters2sweep);
 		++threadsCount;
@@ -88,6 +95,7 @@ void MontecarloCriticalParameterNDParametersSweepSimulation::RunSimulation( ){
 	mainTG.join_all();
 	// check if every simulation ended correctly
 	correctly_simulated = montecarlo_critical_parameter_value_simulations_vector.CheckCorrectlySimulated();
+	correctly_processed = montecarlo_critical_parameter_value_simulations_vector.CheckCorrectlyProcessed();
 	#ifdef RESULTS_ANALYSIS_VERBOSE
 		log_io->ReportPlainStandard( k2Tab + "Generating Map files.");
 	#endif
@@ -147,28 +155,6 @@ MontecarloCriticalParameterValueSimulation* MontecarloCriticalParameterNDParamet
 		return nullptr;
 	}
 	return pMCPVS;
-}
-
-void MontecarloCriticalParameterNDParametersSweepSimulation::RunProfile(
-	MontecarloCriticalParameterValueSimulation* pMCPVS ){
-	// acts like a wrapper,
-	// first run spectre, then
-	// as a callback ProcessAndAnalyzeMontecarloTransients
-	// double check
-	if( pMCPVS==nullptr ){
-		log_io->ReportError2AllLogs( "pMCPVS is nullptr" );
-		return;
-	}
-	// run ndProfileIndex
-	pMCPVS->RunSimulation();
-	#ifdef RESULTS_ANALYSIS_VERBOSE
-	log_io->ReportPlainStandard( k2Tab + "Ended RunSimulation of profile " + pMCPVS->get_simulation_id());
-	#endif
-	// results are internally processed after RunSimulation
-	// in MontecarloCriticalParameterValueSimulation
-	#ifdef RESULTS_ANALYSIS_VERBOSE
-	log_io->ReportPlainStandard( k2Tab + "Ended thread " + pMCPVS->get_simulation_id());
-	#endif
 }
 
 MontecarloCriticalParameterValueSimulation* MontecarloCriticalParameterNDParametersSweepSimulation::CreateMontecarloCriticalParameterValueSimulation(

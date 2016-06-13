@@ -76,13 +76,19 @@ void CriticalParameterNDParameterSweepSimulation::RunSimulation( ){
 	critical_parameter_value_simulations_vector.ReserveSimulationsInMemory( totalThreads );
 	while( threadsCount<totalThreads ){
 		// wait for resources
-		WaitForResources( runningThreads, max_parallel_profile_instances, mainTG, threadsCount );
-		// not needed to copy 'parameterCountIndexes' since without using boost::ref, arguments are copied
-		// to avoid race conditions updating variables
-		// CriticalParameterValueSimulation* pCPVS = CreateProfile(parameterCountIndexes, boost::ref(parameters2sweep), threadsCount);
+		WaitForResources( runningThreads, max_parallel_profile_instances, mainTG, threadsCount );		
+		// CreateProfile sets all parameter values, and after the simulation object
+		// is created it can be updated.
+		// Thus, it avoids race conditions when updating parameterCountIndexes and parameters2sweep
 		CriticalParameterValueSimulation* pCPVS = CreateProfile(parameterCountIndexes, parameters2sweep, threadsCount);
+		if( pCPVS==nullptr ){
+			log_io->ReportError2AllLogs( "Null CreateProfile " + number2String(threadsCount) );
+			correctly_simulated = false;
+			correctly_processed = false;
+			return;
+		}
 		critical_parameter_value_simulations_vector.AddSpectreSimulation( pCPVS );
-		mainTG.add_thread( new boost::thread(&CriticalParameterNDParameterSweepSimulation::RunProfile, this, boost::ref(pCPVS)));
+		mainTG.add_thread( new boost::thread(boost::bind(&CriticalParameterValueSimulation::RunSimulation, pCPVS)) );
 		// update variables
 		UpdateParameterSweepIndexes( parameterCountIndexes, parameters2sweep);
 		++threadsCount;
@@ -91,6 +97,7 @@ void CriticalParameterNDParameterSweepSimulation::RunSimulation( ){
 	mainTG.join_all();
 	// check if every simulation ended correctly
 	correctly_simulated = critical_parameter_value_simulations_vector.CheckCorrectlySimulated();
+	correctly_processed = critical_parameter_value_simulations_vector.CheckCorrectlyProcessed();
 	#ifdef RESULTS_ANALYSIS_VERBOSE
 		log_io->ReportPlainStandard( k2Tab + "Generating Map files.");
 	#endif
@@ -132,19 +139,6 @@ CriticalParameterValueSimulation* CriticalParameterNDParameterSweepSimulation::C
 		return nullptr;
 	}
 	return pCPVS;
-}
-
-void CriticalParameterNDParameterSweepSimulation::RunProfile( CriticalParameterValueSimulation* pCPVS ){
-	// double check
-	if( pCPVS==nullptr ){
-		log_io->ReportError2AllLogs( "pCPVS is nullptr" );
-		return;
-	}
-	// run ndProfileIndex
-	pCPVS->RunSimulation();
-	#ifdef RESULTS_ANALYSIS_VERBOSE
-	log_io->ReportPlainStandard( k2Tab + "Ended thread " + pCPVS->get_simulation_id());
-	#endif
 }
 
 CriticalParameterValueSimulation* CriticalParameterNDParameterSweepSimulation::CreateCriticalParameterValueSimulation(

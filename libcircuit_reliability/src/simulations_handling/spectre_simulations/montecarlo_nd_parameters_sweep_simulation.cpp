@@ -76,11 +76,18 @@ void MontecarloNDParametersSweepSimulation::RunSimulation( ){
 	while( threadsCount<totalThreads ){
 		// wait for resources
 		WaitForResources( runningThreads, max_parallel_profile_instances, mainTG, threadsCount );
-		// not needed to copy 'parameterCountIndexes' since without using boost::ref, arguments are copied
-		// to avoid race conditions updating variables
-		MontecarloSimulation* pMSS = CreateProfile(parameterCountIndexes, boost::ref(parameters2sweep), threadsCount);
+		// CreateProfile sets all parameter values, and after the simulation object
+		// is created it can be updated.
+		// Thus, it avoids race conditions when updating parameterCountIndexes and parameters2sweep
+		MontecarloSimulation* pMSS = CreateProfile(parameterCountIndexes, parameters2sweep, threadsCount);
+		if( pMSS==nullptr ){
+			log_io->ReportError2AllLogs( "Null CreateProfile " + number2String(threadsCount) );
+			correctly_simulated = false;
+			correctly_processed = false;
+			return;
+		}
 		montecarlo_standard_simulations_vector.AddSpectreSimulation( pMSS );
-		mainTG.add_thread( new boost::thread(&MontecarloNDParametersSweepSimulation::RunProfile, this, boost::ref(pMSS)));
+		mainTG.add_thread( new boost::thread(boost::bind(&MontecarloSimulation::RunSimulation, pMSS)) );
 		// update variables
 		UpdateParameterSweepIndexes( parameterCountIndexes, parameters2sweep);
 		++threadsCount;
@@ -89,6 +96,7 @@ void MontecarloNDParametersSweepSimulation::RunSimulation( ){
 	mainTG.join_all();
 	// check if every simulation ended correctly
 	correctly_simulated = montecarlo_standard_simulations_vector.CheckCorrectlySimulated();
+	correctly_processed = montecarlo_standard_simulations_vector.CheckCorrectlyProcessed();
 	// generate map files
 	log_io->ReportPlainStandard( k2Tab + "Generating Map files.");
 	GenerateAndPlotResults( parameters2sweep );

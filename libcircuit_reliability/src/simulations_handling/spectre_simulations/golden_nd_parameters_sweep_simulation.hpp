@@ -118,18 +118,6 @@ private:
 	GoldenSimulation* CreateProfile( const std::vector<unsigned int>& parameterCountIndexes,
 		std::vector<SimulationParameter*>& parameters2sweep, const unsigned int ndIndex );
 
-	/**
-	 * @brief Run sweep simulation
-	 * @details Run sweep simulation
-	 *
-	 * @param parameterCountIndexes
-	 * @param parameters2sweep
-	 * @param threadNumber
-	 * @param sweepVectorOfMagnitudesVector
-	 * @param sweepVectorOfFiles
-	 */
-	void RunProfile( GoldenSimulation* pGS );
-
 };
 
 #endif /* GOLDEN_ND_PARAMETERS_SWEEP_SIMULATION_H */

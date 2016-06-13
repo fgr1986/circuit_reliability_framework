@@ -39,11 +39,11 @@ public:
 
 	///Log manager
 	void set_log_io( LogIO* log_io ){ this->log_io = log_io; }
-	void set_altered_scenario_index( int altered_scenario_index ){
+	void set_altered_scenario_index( const int altered_scenario_index ){
 		this->altered_scenario_index = altered_scenario_index;
 	}
 
-	void set_folder(std::string folder){
+	void set_folder( const std::string& folder){
 		this->folder = folder;
 	}
 
@@ -52,19 +52,19 @@ public:
 	 *
 	 * @param top_folder
 	 */
-	void set_top_folder(std::string top_folder){
+	void set_top_folder( const std::string& top_folder){
 		this->top_folder = top_folder;
 	}
 	// save spectre transients
-	void set_save_spectre_transients(bool save_spectre_transients){ this->save_spectre_transients = save_spectre_transients;}
+	void set_save_spectre_transients( const bool save_spectre_transients){ this->save_spectre_transients = save_spectre_transients;}
 	// save intermediate results (processed transients)
-	void set_save_processed_transients(bool save_processed_transients){ this->save_processed_transients = save_processed_transients;}
+	void set_save_processed_transients( const bool save_processed_transients){ this->save_processed_transients = save_processed_transients;}
 	// delete_spectre_folders
-	void set_delete_spectre_folders(bool delete_spectre_folders){ this->delete_spectre_folders = delete_spectre_folders;}
+	void set_delete_spectre_folders( const bool delete_spectre_folders){ this->delete_spectre_folders = delete_spectre_folders;}
 
 	int get_altered_scenario_index() const { return altered_scenario_index; }
 
-	NDMagnitudesStructure* get_golden_magnitudes_structure() {return golden_magnitudes_structure;}
+	NDMagnitudesStructure* get_golden_magnitudes_structure() const {return golden_magnitudes_structure;}
 
 	std::string get_folder() const{ return folder; }
 	std::string get_ahdl_simdb_env() const{ return ahdl_simdb_env; }
@@ -87,11 +87,11 @@ public:
 	// Magnitudes
 	void set_golden_magnitudes_structure( NDMagnitudesStructure* golden_magnitudes_structure ){
 		this->golden_magnitudes_structure = golden_magnitudes_structure; }
-	void set_process_magnitudes( bool process_magnitudes ){
+	void set_process_magnitudes( const bool process_magnitudes ){
 		this->process_magnitudes = process_magnitudes; }
-	void set_export_magnitude_errors( bool export_magnitude_errors){
+	void set_export_magnitude_errors( const bool export_magnitude_errors){
 		this->export_magnitude_errors = export_magnitude_errors; }
-	void set_export_processed_magnitudes( bool export_processed_magnitudes ){
+	void set_export_processed_magnitudes( const bool export_processed_magnitudes ){
 		this->export_processed_magnitudes = export_processed_magnitudes; }
 
 	void set_main_analysis( AnalysisStatement* main_analysis){ this->main_analysis = main_analysis;}
@@ -108,12 +108,12 @@ public:
 
 
 	bool get_plot_scatters(){ return plot_scatters; }
-	void set_plot_scatters( bool plot_scatters) { this->plot_scatters = plot_scatters; }
+	void set_plot_scatters( const bool plot_scatters) { this->plot_scatters = plot_scatters; }
 
 	bool get_plot_transients(){ return plot_transients; }
-	void set_plot_transients( bool plot_transients) { this->plot_transients = plot_transients; }
+	void set_plot_transients( const bool plot_transients) { this->plot_transients = plot_transients; }
 
-	void set_interpolate_plots_ratio( int interpolate_plots_ratio ){ this->interpolate_plots_ratio = interpolate_plots_ratio; }
+	void set_interpolate_plots_ratio( const int interpolate_plots_ratio ){ this->interpolate_plots_ratio = interpolate_plots_ratio; }
 	int get_interpolate_plots_ratio() const{ return interpolate_plots_ratio; }
 
 	void AddAdditionalSimulationParameter( SimulationParameter* simulationParameter );
@@ -123,11 +123,11 @@ public:
 	 *
 	 * @param is_nested_simulation
 	 */
-	void set_is_nested_simulation( bool is_nested_simulation ){
+	void set_is_nested_simulation( const bool is_nested_simulation ){
 		this->is_nested_simulation = is_nested_simulation;
 	}
 
-	void set_is_montecarlo_nested_simulation( bool is_montecarlo_nested_simulation ){
+	void set_is_montecarlo_nested_simulation( const bool is_montecarlo_nested_simulation ){
 		this->is_montecarlo_nested_simulation = is_montecarlo_nested_simulation;
 	}
 
@@ -140,7 +140,7 @@ public:
 	 *
 	 * @param simulation_id
 	 */
-	void set_simulation_id( std::string simulation_id ){
+	void set_simulation_id( const std::string& simulation_id ){
 		this->simulation_id = simulation_id;
 	}
 
@@ -156,7 +156,7 @@ public:
 	 *
 	 * @param n_dimensional
 	 */
-	void set_n_dimensional( bool n_dimensional ){
+	void set_n_dimensional( const bool n_dimensional ){
 		this->n_dimensional = n_dimensional;
 	}
 
@@ -165,7 +165,7 @@ public:
 	 *
 	 * @param n_d_profile_index
 	 */
-	void set_n_d_profile_index( int n_d_profile_index ){
+	void set_n_d_profile_index( const int n_d_profile_index ){
 		this->n_d_profile_index = n_d_profile_index;
 	}
 

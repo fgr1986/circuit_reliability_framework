@@ -72,13 +72,19 @@ void MontecarloCriticalParameterValueSimulation::RunSimulation( ){
 	critical_parameter_value_simulations_vector.ReserveSimulationsInMemory( montecarlo_iterations );
 	while( threadsCount<montecarlo_iterations ){
 		// wait for resources
-		WaitForResources( runningThreads, max_parallel_montecarlo_instances, mainTG, threadsCount );
-		// not needed to copy 'parameterCountIndexes' since without using boost::ref, arguments are copied
-		// to avoid race conditions updating variables
+		WaitForResources( runningThreads, max_parallel_montecarlo_instances, mainTG, threadsCount );		
+		// CreateProfile sets all parameter values, and after the simulation object
+		// is created it can be updated.
+		// Thus, it avoids race conditions when updating parameterCountIndexes and parameters2sweep
 		CriticalParameterValueSimulation* pCPVS = CreateMonteCarloIteration( threadsCount );
+		if( pCPVS==nullptr ){
+			log_io->ReportError2AllLogs( "Null CreateProfile " + number2String(threadsCount) );
+			correctly_simulated = false;
+			correctly_processed = false;
+			return;
+		}
 		critical_parameter_value_simulations_vector.AddSpectreSimulation( pCPVS );
-		// mainTG.add_thread( new boost::thread(&CriticalParameterValueSimulation::RunSimulation, this, boost::ref(pCPVS)));
-		mainTG.add_thread( new boost::thread(&CriticalParameterValueSimulation::RunSimulation, boost::ref(pCPVS)));
+		mainTG.add_thread( new boost::thread(boost::bind(&CriticalParameterValueSimulation::RunSimulation, pCPVS)) );
 		// update variables
 		++threadsCount;
 		++runningThreads;
@@ -90,6 +96,7 @@ void MontecarloCriticalParameterValueSimulation::RunSimulation( ){
 	#endif
 	// check if every simulation ended correctly
 	correctly_simulated = critical_parameter_value_simulations_vector.CheckCorrectlySimulated();
+	correctly_processed = critical_parameter_value_simulations_vector.CheckCorrectlyProcessed();
 	montecarlo_simulation_results.set_spectre_result( correctly_simulated );
 	if( !AnalyzeMontecarloResults() ){
 		 log_io->ReportError2AllLogs( k2Tab + "-> Error in AnalyzeMontecarloResults()" );

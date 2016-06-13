@@ -95,9 +95,10 @@ void GoldenNDParametersSweepSimulation::RunSimulation(){
 	// Threads Creation
 	while( threadsCount<totalThreads ){
 		// wait for resources
-		// debug
-		WaitForResources( runningThreads, max_parallel_profile_instances, mainTG, threadsCount );
-		// concurrent: ref vs resource copy issues in nd-crit sim type
+		WaitForResources( runningThreads, max_parallel_profile_instances, mainTG, threadsCount );		
+		// CreateProfile sets all parameter values, and after the simulation object
+		// is created it can be updated.
+		// Thus, it avoids race conditions when updating parameterCountIndexes and parameters2sweep
 		GoldenSimulation* pGS = CreateProfile(parameterCountIndexes, parameters2sweep, threadsCount);
 		if( pGS==nullptr ){
 			log_io->ReportError2AllLogs( "Null CreateProfile " + number2String(threadsCount) );
@@ -106,7 +107,7 @@ void GoldenNDParametersSweepSimulation::RunSimulation(){
 			return;
 		}
 		golden_simulations_vector.AddSpectreSimulation( pGS );
-		mainTG.add_thread( new boost::thread(&GoldenNDParametersSweepSimulation::RunProfile, this, boost::ref(pGS) ));
+		mainTG.add_thread( new boost::thread(boost::bind(&GoldenSimulation::RunSimulation, pGS)) );
 		// update variables
 		UpdateParameterSweepIndexes( parameterCountIndexes, parameters2sweep);
 		++threadsCount;
@@ -133,6 +134,9 @@ void GoldenNDParametersSweepSimulation::RunSimulation(){
 	correctly_processed = golden_simulations_vector.CheckCorrectlyProcessed();
 	children_correctly_simulated = correctly_simulated;
 	children_correctly_processed = correctly_processed;
+	if( !children_correctly_simulated || !children_correctly_processed){
+		golden_simulations_vector.ReportChildrenCorrectness();
+	}
 	log_io->ReportPlain2Log( "END OF GoldenNDParametersSweepSimulation::RunSimulation" );
 }
 
@@ -159,6 +163,8 @@ GoldenSimulation* GoldenNDParametersSweepSimulation::CreateProfile(
 		log_io->ReportError2AllLogs( "Error running sweep" );
 		return nullptr;
 	}
+	// debug
+	std::clog << "[debug] A directory " << currentFolder << " created with number2String(ndIndex) '" << ndIndex << "'\n";
 	// create thread
 	// GoldenSimulation* pGS = CreateGoldenSimulation( currentFolder, parameterCountIndexes,
 	// 	parameters2sweep, ndIndex );
@@ -202,21 +208,14 @@ GoldenSimulation* GoldenNDParametersSweepSimulation::CreateProfile(
 		if( !p->get_golden_fixed() ){
 			// update val only when required,
 			if( !pGS->UpdateParameterValue( *p, number2String( p->GetSweepValue( parameterCountIndexes.at(sweepedParamIndex)) ) ) ){
-				log_io->ReportError2AllLogs( p->get_name()
-					+ " not found in CriticalParameterValueSimulation and could not be updated." );
+				log_io->ReportError2AllLogs( p->get_name() + " not found in GoldenSimulation and could not be updated." );
 			}
 		}
 		++sweepedParamIndex;
 	}
+	// debug
+	std::clog << "[debug] C thread " << currentFolder << " created with number2String(ndIndex) '" << ndIndex << "'\n";
 	return pGS;
-}
-
-void GoldenNDParametersSweepSimulation::RunProfile(	GoldenSimulation* pGS ){
-	// run ndIndex
-	#ifdef SPECTRE_SIMULATIONS_VERBOSE
-		log_io->ReportThread( "Golden thread: #" + pGS->get_simulation_id(), 3 );
-	#endif
-	pGS->RunSimulation();
 }
 
 bool GoldenNDParametersSweepSimulation::TestSetUp(){
