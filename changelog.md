@@ -4,12 +4,12 @@
 * **To do: Latex/Html export**
 * **TO DO** simulation_parameter_golden_fixed in radiation scenarios
 * **¿TO DO? Regex for large components (ports)**
-* **Create folder should be 'static' in a IO Class**
 * **Instance. Nodes instead absolute nodes**
 * Weighted Nodes
 
 # Changelog of version 3.0.0
 * Clean build for *smacd_2016*, including all *v2.9.y* improvements and bug fixes.
+* **CreateFolder** Method is a global template function
 
 # Version 3.x.y
 
@@ -17,6 +17,7 @@
 
 * Changelog of version 3.0.0
 	* Clean build for *smacd_2016*, including all *v2.9.y* improvements and bug fixes.
+	* **CreateFolder** Method is a global template function
 
 # Version 2.x.y
 
