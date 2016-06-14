@@ -328,7 +328,7 @@ bool CriticalParameterValueSimulation::SimulateParameterCriticalValue(
 	// fgarcia
 	// Create the folder structure
 	localSimulationFolder = folder + kFolderSeparator + kIntermediateSimulationsFolder + "_pvc_" + s_parameterVariationCount;
-	if( !CreateFolder(localSimulationFolder, true) ){
+	if( !CreateFolder(localSimulationFolder, true ) ){
 		log_io->ReportError2AllLogs( k2Tab + "-> Error creating folder '" + localSimulationFolder + "'." );
 		return false;
 	}

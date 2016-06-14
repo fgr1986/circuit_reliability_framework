@@ -316,16 +316,6 @@ protected:
 	bool ExportParametersCircuit( std::string currentFolder, int auxCount );
 
 	/**
-	 * @brief Creates a folder
-	 *
-	 * @param folder
-	 * @param deletePreviousFolder
-	 *
-	 * @return true if the method correctly ends.
-	 */
-	bool CreateFolder( std::string folder, bool deletePreviousFolder );
-
-	/**
 	 * @brief Shows the ahdl environment variables
 	 */
 	void ShowEnvironmentVariables();

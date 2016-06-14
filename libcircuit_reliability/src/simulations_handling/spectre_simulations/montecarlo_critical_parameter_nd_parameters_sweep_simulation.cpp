@@ -74,7 +74,7 @@ void MontecarloCriticalParameterNDParametersSweepSimulation::RunSimulation( ){
 	montecarlo_critical_parameter_value_simulations_vector.ReserveSimulationsInMemory( totalThreads );
 	while( threadsCount<totalThreads ){
 		// wait for resources
-		WaitForResources( runningThreads, max_parallel_profile_instances, mainTG, threadsCount );		
+		WaitForResources( runningThreads, max_parallel_profile_instances, mainTG, threadsCount );
 		// CreateProfile sets all parameter values, and after the simulation object
 		// is created it can be updated.
 		// Thus, it avoids race conditions when updating parameterCountIndexes and parameters2sweep
@@ -130,7 +130,7 @@ MontecarloCriticalParameterValueSimulation* MontecarloCriticalParameterNDParamet
 	std::string s_ndProfileIndex = number2String(ndProfileIndex);
 	std::string currentFolder = folder + kFolderSeparator
 		 + "param_profile_" + s_ndProfileIndex;
-	if( !CreateFolder(currentFolder, true) ){
+	if( !CreateFolder(currentFolder, true ) ){
 		 log_io->ReportError2AllLogs( k2Tab + "-> Error creating folder '" + currentFolder + "'." );
 		 log_io->ReportError2AllLogs( "Error running profile" );
 		 return nullptr;
@@ -231,7 +231,7 @@ bool MontecarloCriticalParameterNDParametersSweepSimulation::GenerateAndPlotResu
 	std::string imagesFolder =  top_folder + kFolderSeparator
 		 + kResultsFolder + kFolderSeparator + kResultsImagesFolder + kFolderSeparator + kMontecarloCriticalParameterNDParametersSweepResultsFolder + kFolderSeparator
 		 + "scenario_" + simulation_id;
-	if( !CreateFolder(mapsFolder, true) || !CreateFolder(imagesFolder, true) || !CreateFolder(gnuplotScriptFolder, true) ){
+	if( !CreateFolder(mapsFolder, true ) || !CreateFolder(imagesFolder, true ) || !CreateFolder(gnuplotScriptFolder, true ) ){
 		 log_io->ReportError2AllLogs( k2Tab + "-> Error creating folders: '"
 		 + mapsFolder + " and " + imagesFolder + "'." );
 		 log_io->ReportError2AllLogs( "Error GenerateAndPlotResults" );
@@ -284,7 +284,7 @@ bool MontecarloCriticalParameterNDParametersSweepSimulation::GenerateAndPlotResu
 					 + p1->get_file_name() + "_" + p2->get_file_name();
 				std::string planesImagesFolder = imagesFolder + kFolderSeparator
 					 + p1->get_file_name() + "_" + p2->get_file_name();
-				if( !CreateFolder(planesMapsFolder, true) || !CreateFolder(planesImagesFolder, true) || !CreateFolder(planesGnuplotScriptFolder, true) ){
+				if( !CreateFolder(planesMapsFolder, true ) || !CreateFolder(planesImagesFolder, true ) || !CreateFolder(planesGnuplotScriptFolder, true ) ){
 					log_io->ReportError2AllLogs( k2Tab + "-> Error creating folders: '"
 						+ planesMapsFolder + " and " + planesImagesFolder + "'." );
 					log_io->ReportError2AllLogs( "Error GenerateAndPlotResults" );

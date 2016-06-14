@@ -123,7 +123,7 @@ bool Experiment::ConfigureEnvironment(){
 bool Experiment::CreateFolders(){
 	log_io->ReportPlainStandard( k2Tab + "Creating output folders." );
 	// Create results folder
-	if( circuit_io_handler.CreateFolder(experiment_folder, true) ) {
+	if( CreateFolder(experiment_folder, true) ) {
 		log_io->ReportPlainStandard( k2Tab + "-> Results stored in '" + experiment_folder + "'." );
 	} else {
 		log_io->ReportError2AllLogs( k2Tab + "-> Error creating folder '" + experiment_folder + "'." );
@@ -142,115 +142,115 @@ bool Experiment::CreateFolders(){
 	//	->generated pdf
 
 	// results folders
-	if( !circuit_io_handler.CreateFolder( results_folder , false ) ){
+	if( !CreateFolder( results_folder , false ) ){
 		log_io->ReportError2AllLogs( k2Tab + "-> Error creating folder '" + results_folder + "'." );
 		return false;
 	}
 	// data
 	std::string dataFolder = results_folder + kFolderSeparator + kResultsDataFolder;
-	if( !circuit_io_handler.CreateFolder( dataFolder, false ) ){
+	if( !CreateFolder( dataFolder, false ) ){
 		log_io->ReportError2AllLogs( k2Tab + "-> Error creating folder '" + dataFolder+ "'." );
 		return false;
 	}
-	if( !circuit_io_handler.CreateFolder( dataFolder + kFolderSeparator + kMontecarloNDParametersSweepResultsFolder, false ) ){
+	if( !CreateFolder( dataFolder + kFolderSeparator + kMontecarloNDParametersSweepResultsFolder, false ) ){
 		log_io->ReportError2AllLogs( k2Tab + "-> Error creating folder '"
 			+ dataFolder + kFolderSeparator + kMontecarloNDParametersSweepResultsFolder + "'." );
 		return false;
 	}
-	if( !circuit_io_handler.CreateFolder( dataFolder + kFolderSeparator + kMontecarloNDParametersSweepResultsFolderSubProfiles, false ) ){
+	if( !CreateFolder( dataFolder + kFolderSeparator + kMontecarloNDParametersSweepResultsFolderSubProfiles, false ) ){
 		log_io->ReportError2AllLogs( k2Tab + "-> Error creating folder '"
 			+ dataFolder + kFolderSeparator + kMontecarloNDParametersSweepResultsFolderSubProfiles + "'." );
 		return false;
 	}
-	if( !circuit_io_handler.CreateFolder( dataFolder + kFolderSeparator + kTransientResultsFolder, false ) ){
+	if( !CreateFolder( dataFolder + kFolderSeparator + kTransientResultsFolder, false ) ){
 		log_io->ReportError2AllLogs( k2Tab + "-> Error creating folder '"
 			+ dataFolder + kFolderSeparator + kTransientResultsFolder + "'." );
 		return false;
 	}
-	if( !circuit_io_handler.CreateFolder( dataFolder + kFolderSeparator + kSummaryResultsFolder, false ) ){
+	if( !CreateFolder( dataFolder + kFolderSeparator + kSummaryResultsFolder, false ) ){
 		log_io->ReportError2AllLogs( k2Tab + "-> Error creating folder '"
 			+ dataFolder + kFolderSeparator + kSummaryResultsFolder + "'." );
 		return false;
 	}
 	// gnuplot_scripts
 	std::string gnuplotScriptsFolder = results_folder + kFolderSeparator + kResultsGnuplotScriptsFolder;
-	if( !circuit_io_handler.CreateFolder( gnuplotScriptsFolder, false ) ){
+	if( !CreateFolder( gnuplotScriptsFolder, false ) ){
 		log_io->ReportError2AllLogs( k2Tab + "-> Error creating folder '"
 			+gnuplotScriptsFolder + "'." );
 		return false;
 	}
-	if( !circuit_io_handler.CreateFolder( gnuplotScriptsFolder + kFolderSeparator + kMontecarloNDParametersSweepResultsFolder, false ) ){
+	if( !CreateFolder( gnuplotScriptsFolder + kFolderSeparator + kMontecarloNDParametersSweepResultsFolder, false ) ){
 		log_io->ReportError2AllLogs( k2Tab + "-> Error creating folder '"
 			+ gnuplotScriptsFolder + kFolderSeparator + kMontecarloNDParametersSweepResultsFolder + "'." );
 		return false;
 	}
-	if( !circuit_io_handler.CreateFolder( gnuplotScriptsFolder + kFolderSeparator + kMontecarloNDParametersSweepResultsFolderSubProfiles, false ) ){
+	if( !CreateFolder( gnuplotScriptsFolder + kFolderSeparator + kMontecarloNDParametersSweepResultsFolderSubProfiles, false ) ){
 		log_io->ReportError2AllLogs( k2Tab + "-> Error creating folder '"
 			+ dataFolder + kFolderSeparator + kMontecarloNDParametersSweepResultsFolderSubProfiles + "'." );
 		return false;
 	}
-	if( !circuit_io_handler.CreateFolder( gnuplotScriptsFolder + kFolderSeparator + kTransientResultsFolder, false ) ){
+	if( !CreateFolder( gnuplotScriptsFolder + kFolderSeparator + kTransientResultsFolder, false ) ){
 		log_io->ReportError2AllLogs( k2Tab + "-> Error creating folder '"
 			+ gnuplotScriptsFolder + kFolderSeparator + kTransientResultsFolder + "'." );
 		return false;
 	}
-	if( !circuit_io_handler.CreateFolder( gnuplotScriptsFolder + kFolderSeparator + kSummaryResultsFolder, false ) ){
+	if( !CreateFolder( gnuplotScriptsFolder + kFolderSeparator + kSummaryResultsFolder, false ) ){
 		log_io->ReportError2AllLogs( k2Tab + "-> Error creating folder '"
 			+ gnuplotScriptsFolder + kFolderSeparator + kSummaryResultsFolder + "'." );
 		return false;
 	}
 	// images
 	std::string imagesFolder = results_folder + kFolderSeparator + kResultsImagesFolder;
-	if( !circuit_io_handler.CreateFolder( imagesFolder, false ) ){
+	if( !CreateFolder( imagesFolder, false ) ){
 		log_io->ReportError2AllLogs( k2Tab + "-> Error creating folder '"
 			+ imagesFolder + "'." );
 		return false;
 	}
-	if( !circuit_io_handler.CreateFolder( imagesFolder + kFolderSeparator + kMontecarloNDParametersSweepResultsFolder, false ) ){
+	if( !CreateFolder( imagesFolder + kFolderSeparator + kMontecarloNDParametersSweepResultsFolder, false ) ){
 		log_io->ReportError2AllLogs( k2Tab + "-> Error creating folder '"
 			+ imagesFolder + kFolderSeparator + kMontecarloNDParametersSweepResultsFolder + "'." );
 		return false;
 	}
-	if( !circuit_io_handler.CreateFolder( imagesFolder + kFolderSeparator + kMontecarloNDParametersSweepResultsFolderSubProfiles, false ) ){
+	if( !CreateFolder( imagesFolder + kFolderSeparator + kMontecarloNDParametersSweepResultsFolderSubProfiles, false ) ){
 		log_io->ReportError2AllLogs( k2Tab + "-> Error creating folder '"
 			+ dataFolder + kFolderSeparator + kMontecarloNDParametersSweepResultsFolderSubProfiles + "'." );
 		return false;
 	}
-	if( !circuit_io_handler.CreateFolder( imagesFolder + kFolderSeparator + kTransientResultsFolder, false ) ){
+	if( !CreateFolder( imagesFolder + kFolderSeparator + kTransientResultsFolder, false ) ){
 		log_io->ReportError2AllLogs( k2Tab + "-> Error creating folder '"
 			+ imagesFolder + kFolderSeparator + kTransientResultsFolder + "'." );
 		return false;
 	}
-	if( !circuit_io_handler.CreateFolder( imagesFolder + kFolderSeparator + kSummaryResultsFolder, false ) ){
+	if( !CreateFolder( imagesFolder + kFolderSeparator + kSummaryResultsFolder, false ) ){
 		log_io->ReportError2AllLogs( k2Tab + "-> Error creating folder '"
 			+ imagesFolder + kFolderSeparator + kSummaryResultsFolder + "'." );
 		return false;
 	}
 	// Create compiled_components_folder folder
-	if( !circuit_io_handler.CreateFolder( compiled_components_folder , false ) ){
+	if( !CreateFolder( compiled_components_folder , false ) ){
 		log_io->ReportError2AllLogs( k2Tab + "-> Error creating folder '" + compiled_components_folder + "'." );
 		return false;
 	}
-	circuit_io_handler.CreateFolder( compiled_components_folder + kFolderSeparator + "SHIPDB", false );
-	circuit_io_handler.CreateFolder( compiled_components_folder + kFolderSeparator + "SIMDB", false );
-	circuit_io_handler.CreateFolder( compiled_components_folder + kFolderSeparator + "SHIPDB_golden", false );
-	circuit_io_handler.CreateFolder( compiled_components_folder + kFolderSeparator + "SIMDB_golden", false );
+	CreateFolder( compiled_components_folder + kFolderSeparator + "SHIPDB", false );
+	CreateFolder( compiled_components_folder + kFolderSeparator + "SIMDB", false );
+	CreateFolder( compiled_components_folder + kFolderSeparator + "SHIPDB_golden", false );
+	CreateFolder( compiled_components_folder + kFolderSeparator + "SIMDB_golden", false );
 	// Create golden folder
-	if( !circuit_io_handler.CreateFolder( golden_folder , false ) ){
+	if( !CreateFolder( golden_folder , false ) ){
 		log_io->ReportError2AllLogs( k2Tab + "-> Error creating folder '" + golden_folder + "'." );
 		return false;
 	}
-	if( !circuit_io_handler.CreateFolder( golden_ahdl_folder , false ) ){
+	if( !CreateFolder( golden_ahdl_folder , false ) ){
 		log_io->ReportError2AllLogs( k2Tab + "-> Error creating folder '" + golden_ahdl_folder + "'." );
 		return false;
 	}
 	// Create variations_ahdl_folder folder
-	if( !circuit_io_handler.CreateFolder( variations_ahdl_folder, false ) ){
+	if( !CreateFolder( variations_ahdl_folder, false ) ){
 		log_io->ReportError2AllLogs( k2Tab + "-> Error creating folder '" + variations_ahdl_folder + "'." );
 		return false;
 	}
 	// Create the scenarios folder
-	if( !circuit_io_handler.CreateFolder( variation_scenario_folder, false ) ){
+	if( !CreateFolder( variation_scenario_folder, false ) ){
 		log_io->ReportError2AllLogs( k2Tab + "-> Error creating folder '" + variation_scenario_folder + "'." );
 		return false;
 	}

@@ -2,14 +2,14 @@
  * @file experiment.hpp
  *
  * @date Created on: November 15, 2013
- * 
+ *
  * @author Author: Fernando García <fgarcia@die.upm.es> <fernando.garca@gmail.com>
- * 
+ *
  * @section DESCRIPTION
- * 
+ *
  * This Class is manages the whole experiment, handling the different actuators.
  * It is the first responsible of parsing, analyzing and simulating the circuits.
- * 
+ *
  */
 
 #ifndef EXPERIMENT_H
@@ -35,17 +35,17 @@
 #include "netlist_modeling/statements/instance_statement.hpp"
 #include "netlist_modeling/node.hpp"
 // Simulation handling includes
-#include "simulations_handling/simulation_modes_handler.hpp" 
+#include "simulations_handling/simulation_modes_handler.hpp"
 #include "simulations_handling/spectre_handlers/variability_spectre_handler.hpp"
 
 class Experiment {
 public:
 	/// Default constructor
 	Experiment();
-	
+
 	/// Destructor
 	virtual ~Experiment();
-	
+
 	/**
  	* @details set_i_netlist_file method
  	* @param i_netlist_file <std::string> set i_netlist_file
@@ -77,7 +77,7 @@ public:
 	std::string get_experiment_title() const {return experiment_title;};
 	/**
  	* @details set_experiment_title method
- 	* @param experiment_title <std::string> set experiment experiment_title 
+ 	* @param experiment_title <std::string> set experiment experiment_title
  	*/
 	void set_experiment_title(std::string experiment_title) {
 		this->experiment_title = experiment_title; }
@@ -88,7 +88,7 @@ public:
 	std::string get_experiment_folder() const {return experiment_folder;};
 	/**
  	* @details set_experiment_folder method
- 	* @param experiment_folder <std::string> set experiment experiment_folder 
+ 	* @param experiment_folder <std::string> set experiment experiment_folder
  	*/
 	void set_experiment_folder(std::string experiment_folder) {
 		this->experiment_folder = experiment_folder; }
@@ -96,7 +96,7 @@ public:
  	* @details get_permissive_parsing_mode method
  	* @return experiment permissive parsing mode parameter <std::string>
  	*/
-	bool get_permissive_parsing_mode() const {return permissive_parsing_mode;}; 
+	bool get_permissive_parsing_mode() const {return permissive_parsing_mode;};
 	/**
  	* @details set_permissive_parsing_mode method
  	* @param permissive_parsing_mode <std::string> set permissive parsing mode parameter
@@ -199,7 +199,7 @@ private:
 	bool export_matlab_script;
 	/// Creates the main folder structure for the experiment
 	bool CreateFolders();
-	
+
 };
 
 #endif /* EXPERIMENT_H */

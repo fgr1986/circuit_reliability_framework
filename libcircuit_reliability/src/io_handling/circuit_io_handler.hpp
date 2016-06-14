@@ -2,16 +2,16 @@
  * @file circuit_io_handler.hpp
  *
  * @date Created on:Jan 22, 2014
- * 
+ *
  * @author Author: Fernando García <fgarcia@die.upm.es> <fernando.garca@gmail.com>
- * 
+ *
  * @section DESCRIPTION
- * 
+ *
  * This Class performs two key tasks:
  *     + Parses the different circuits
  *     + Handles the netlist circuits exportation.
  * Additionally, it has the main folder creation method.
- * 
+ *
  */
 
 #ifndef CIRCUIT_IO_HANDLER_H
@@ -19,20 +19,20 @@
 
 ///CircuitIOHandler Class
 // c++ std libraries includes
-#include <string> 
+#include <string>
 // radiation simulator io includes
 #include "log_io.hpp"
 // radiation simulator includes
 #include "../experiment_environment.hpp"
 #include "../post_parsing_statement_handler.hpp"
-// simulations handling 
+// simulations handling
 #include "../simulations_handling/simulation_mode.hpp"
 // #include "../simulations_handling/spectre_handler.hpp"
 // netlist modeling includes
 #include "../netlist_modeling/magnitude.hpp"
 #include "../netlist_modeling/statements/statement.hpp"
 #include "../netlist_modeling/statements/circuit_statement.hpp"
- 
+
 class CircuitIOHandler {
 
 public:
@@ -41,14 +41,6 @@ public:
 	/// Default destructor
 	virtual ~CircuitIOHandler();
 
-	/**
- 	* @details Creates a folder
- 	* @param folder <std::string> Path of the folder to be created.
- 	* @param deletePreviousFolder <bool> Previously delete the folder.
- 	* @return true if the folder has been correctly created.
- 	*/
-	bool CreateFolder( std::string folder, bool deletePreviousFolder );
-	
 	/**
  	* @details Reads (parses) the injection radiation sources from a netlist.
  	* @param permissiveParsingMode <const bool> Permisive parsing mode.
@@ -71,7 +63,7 @@ public:
  	* @param permissiveParsingMode <const bool> Permisive parsing mode.
  	* @return true if the method correctly ends.
  	*/
-	bool ReadMainNetlist( int stateNumber, std::string netlistFile, 
+	bool ReadMainNetlist( int stateNumber, std::string netlistFile,
 		CircuitStatement& mainCircuit, const bool permissiveParsingMode );
 
 	/**
@@ -82,7 +74,7 @@ public:
  	* @return true if the method correctly ends.
  	*/
 	bool ExportNonAlteredNetlist( CircuitStatement& circuit, bool isMain, std::string folder );
-	
+
 	/**
  	* @details Exports an altered circuit
  	* @param circuit <CircuitStatement&> Circuit to be exported.
@@ -97,7 +89,7 @@ public:
 	/**
  	* @details Exports a circuit with a simple alteration:
  	* either the injection of a simple node or the substitution of a simple statement.
- 	* 
+ 	*
  	* @param radiationCircuit <CircuitStatement&> Radiation circuit
  	* @param alteredCircuit <CircuitStatement&> Circuit altered.
  	* @param mainCircuit <CircuitStatement&> Main circuit.
@@ -111,7 +103,7 @@ public:
 	/**
  	* @details Exports a circuit with a complex alteration:
  	* either the injection/substitution of a subcircuit child.
- 	* 
+ 	*
  	* @param radiationCircuit <CircuitStatement&> Radiation circuit.
  	* @param alteredCircuit <CircuitStatement&> Circuit altered.
  	* @param alteredStatementsCircuit <CircuitStatement&> Circuit including the chain of altered statements.
@@ -126,7 +118,7 @@ public:
 
 	/**
  	* @details Exports a singluar circuit.
- 	* 
+ 	*
  	* @param singularFolder <std::string> Path to where export the circuit.
  	* @param singularCircuit <CircuitStatement&> Singular circuit to be exported.
  	* @return true if the method correctly ends.
@@ -135,23 +127,23 @@ public:
 
 	/// Sets the mode selector
 	void set_simulation_mode( SimulationMode* simulation_mode) { this->simulation_mode = simulation_mode; }
-	/// Sets the log manager 
+	/// Sets the log manager
 	void set_log_io( LogIO* log_io ){ this->log_io = log_io; }
 	/// Sets the experiment environment
 	void set_experiment_environment( ExperimentEnvironment* experiment_environment ) {
 		this->experiment_environment = experiment_environment;}
-	/// Sets the Dependence trees handler 
+	/// Sets the Dependence trees handler
 	void set_post_parsing_statement_handler( PostParsingStatementHandler* post_parsing_statement_handler ) {
 		this->post_parsing_statement_handler = post_parsing_statement_handler;}
-	
+
 	/**
 	 * @brief Adds a magnitude to the vector of magnitudes
-	 * 
+	 *
 	 * @param magnitude
 	 */
 	void AddMagnitude( Magnitude* magnitude );
 
-	
+
 private:
 	/// Simulation mode manager
 	SimulationMode* simulation_mode;
@@ -160,7 +152,7 @@ private:
 	/// Experiment environment.
 	ExperimentEnvironment* experiment_environment;
 	/// Dependence trees handler.
-	PostParsingStatementHandler* post_parsing_statement_handler;	
+	PostParsingStatementHandler* post_parsing_statement_handler;
 	/// List of magnitudes, needed to create the 'monitors'
 	/// and save the magnitudes transients
 	std::vector<Magnitude* > magnitudes;
@@ -184,11 +176,11 @@ private:
 		CircuitStatement& circuit, CircuitStatement& parentCircuit,
 		bool isMain, int& circuitCount, int& statementCount,
 		bool& parsingSpectreCode, const bool permissiveParsingMode );
-	
+
 	/**
  	* @details Tests if a netlist has been already parsed
  	* @param path <std::string> Circuit netlist file.
- 	* 
+ 	*
  	* @return true if the netlist has already been parsed
  	*/
 	bool NetlistAlreadyParsed( std::string path );
@@ -196,7 +188,7 @@ private:
 	/**
 	 * @brief Adds required simulation statements
 	 * @details Adds the corresponding analysis statements and related control statements
-	 * 
+	 *
 	 * @param circuit CircuitStatement& target circuit
 	 */
 	void AddSimulationSpecialStatements( CircuitStatement& circuit );

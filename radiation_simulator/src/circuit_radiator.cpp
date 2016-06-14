@@ -189,7 +189,7 @@ bool CircuitRadiator::SubstituteSimpleStatement( Statement& statement,
 	int& modificationCounter ){
 	bool success = true;
 	std::string alteredFolder = GetRadiatedFolderName( modificationCounter );
-	if( !circuit_io_handler->CreateFolder( alteredFolder, false ) ){
+	if( !CreateFolder( alteredFolder, false ) ){
 		log_io->ReportError2AllLogs( k2Tab + "-> Error creating folder '" + alteredFolder + "'." );
 		return false;
 	}
@@ -407,7 +407,7 @@ bool CircuitRadiator::InjectNodeOfSubcircuitChild( Node& node,
 bool CircuitRadiator::InjectSimpleNode( Node& node, InstanceStatement& statement, int& modificationCounter ){
 	bool success = true;
 	std::string alteredFolder = GetRadiatedFolderName( modificationCounter );
-	if( !circuit_io_handler->CreateFolder( alteredFolder, false ) ){
+	if( !CreateFolder( alteredFolder, false ) ){
 		log_io->ReportError2AllLogs( k2Tab + "-> Error creating folder '" + alteredFolder + "'." );
 		return false;
 	}
@@ -571,7 +571,7 @@ bool CircuitRadiator::ReplaceAlteredSubcircuitInstance(std::string& deepLevel, s
 		}
 		// Export netlists
 		std::string alteredFolder = GetRadiatedFolderName( modificationCounter );
-		if( !circuit_io_handler->CreateFolder( alteredFolder, false ) ){
+		if( !CreateFolder( alteredFolder, false ) ){
 			log_io->ReportError2AllLogs( k2Tab + "-> Error creating folder '" + alteredFolder + "'." );
 			return false;
 		}

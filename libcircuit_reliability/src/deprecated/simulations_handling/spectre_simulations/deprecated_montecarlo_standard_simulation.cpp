@@ -307,7 +307,7 @@ bool MontecarloStandardSimulation::PlotProfileResults(){
 		+ kResultsFolder + kFolderSeparator + kResultsImagesFolder + kFolderSeparator
 		+ kMontecarloNDParametersSweepResultsFolderSubProfiles + kFolderSeparator
 		+ "profile_" + number2String( n_d_profile_index );
-	if( !CreateFolder(imagesFolder, true) || !CreateFolder(gnuplotScriptFolder, true) ){
+	if( !CreateFolder(imagesFolder, true, log_io) || !CreateFolder(gnuplotScriptFolder, true, log_io) ){
 		log_io->ReportError2AllLogs( k2Tab + "-> Error creating folders: '"
 			+ gnuplotScriptFolder + " and " + imagesFolder + "'." );
 		log_io->ReportError2AllLogs( "Error GenerateAndPlotResults" );

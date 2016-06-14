@@ -109,7 +109,7 @@ CriticalParameterValueSimulation* MontecarloCriticalParameterValueSimulation::Cr
 	std::string s_montecarloCount = number2String(montecarloCount);
 	std::string currentFolder = folder + kFolderSeparator
 		 + "m_" + s_montecarloCount;
-	if( !CreateFolder(currentFolder, true) ){
+	if( !CreateFolder(currentFolder, true ) ){
 		 log_io->ReportError2AllLogs( k2Tab + "-> Error creating folder '" + currentFolder + "'." );
 		 log_io->ReportError2AllLogs( "Error running profile" );
 		 return nullptr;
@@ -360,7 +360,7 @@ bool MontecarloCriticalParameterValueSimulation::PlotProfileResults(){
 		+ kResultsFolder + kFolderSeparator + kResultsImagesFolder + kFolderSeparator
 		+ kMontecarloCriticalParameterNDParametersSweepResultsFolderSubProfiles + kFolderSeparator
 		+ "profile_" + number2String( n_d_profile_index );
-	if( !CreateFolder(imagesFolder, true) || !CreateFolder(gnuplotScriptFolder, true) ){
+	if( !CreateFolder(imagesFolder, true ) || !CreateFolder(gnuplotScriptFolder, true ) ){
 		log_io->ReportError2AllLogs( k2Tab + "-> Error creating folders: '"
 			+ gnuplotScriptFolder + " and " + imagesFolder + "'." );
 		log_io->ReportError2AllLogs( "Error GenerateAndPlotResults" );

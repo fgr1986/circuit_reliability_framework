@@ -32,28 +32,6 @@ CircuitIOHandler::~CircuitIOHandler() {
 	#endif
 }
 
-bool CircuitIOHandler::CreateFolder( std::string folder, bool deletePreviousFolder ){
-	bool dirCreated = false;
-	try{
-		if( deletePreviousFolder ){
-			boost::filesystem::remove_all( folder );
-		}
-		boost::filesystem::path dir( folder );
-		dirCreated = boost::filesystem::create_directory(dir) ;
-		#ifdef NETLIST_EXPORT_VERBOSE
-			if ( dirCreated ) {
-				log_io->ReportPlain2Log( k3Tab + "-> New folder has been created: '" + folder + "'." );
-			}else{
-				log_io->ReportError2AllLogs( k2Tab + "-> Error creating folder '" + folder + "'." );
-			}
-		#endif
-	} catch (const boost::filesystem::filesystem_error& e) {
-		log_io->ReportError2AllLogs( k2Tab + "-> Error creating folder '" + folder + "'." );
-		log_io->ReportError2AllLogs( k2Tab + e.what() );
-	}
-	return dirCreated;
-}
-
 void CircuitIOHandler::AddSimulationSpecialStatements( CircuitStatement& circuit ){
 	log_io->ReportPlain2Log( "Adding our analysis statement to the main circuit.");
 	if( simulation_mode==nullptr ){
@@ -236,9 +214,7 @@ bool CircuitIOHandler::ExportSingularNetlist( std::string singularFolder, Circui
 			log_io->ReportPlainStandard( k2Tab + "-> Creating golden folder." );
 		#endif
 		if( !CreateFolder( singularFolder, false ) ){
-			#ifdef NETLIST_EXPORT_VERBOSE
-				log_io->ReportError2AllLogs( k2Tab + "-> Error creating folder '" + singularFolder + "'." );
-			#endif
+			log_io->ReportError2AllLogs( k2Tab + "-> Error creating folder '" + singularFolder + "'." );
 			return false;
 		}
 	}

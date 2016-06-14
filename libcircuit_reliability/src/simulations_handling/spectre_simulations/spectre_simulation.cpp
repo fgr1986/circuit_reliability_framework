@@ -82,22 +82,6 @@ void SpectreSimulation::WaitForResources( unsigned int& threadsCount,
 	}
 }
 
-bool SpectreSimulation::CreateFolder( std::string folder2Create, bool deletePreviousFolder ){
-	if( deletePreviousFolder ){
-		boost::filesystem::remove_all( folder2Create );
-	}
-	boost::filesystem::path dir( folder2Create );
-	bool dirCreated = boost::filesystem::create_directory(dir) ;
-	#ifdef NETLIST_EXPORT_VERBOSE
-		if ( dirCreated ) {
-			log_io->ReportPlain2Log( k3Tab + "-> New folder has been created: '" + folder2Create + "'." );
-		}else{
-			log_io->ReportError2AllLogs( k2Tab + "-> Error creating folder '" + folder2Create + "'." );
-		}
-	#endif
-	return dirCreated;
-}
-
 bool SpectreSimulation::UpdateParameterValue( SimulationParameter& updatedParameter,
 	std::string newValue ){
 	if(simulation_parameters == nullptr){

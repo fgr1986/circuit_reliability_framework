@@ -146,7 +146,7 @@ GoldenSimulation* GoldenNDParametersSweepSimulation::CreateProfile(
 	// Create folder
 	std::string s_ndIndex = number2String(ndIndex);
 	std::string currentFolder = folder + kFolderSeparator + "param_profile_" + s_ndIndex;
-	if( !CreateFolder(currentFolder, true) ){
+	if( !CreateFolder(currentFolder, true ) ){
 		log_io->ReportError2AllLogs( k2Tab + "-> Error creating folder '" + currentFolder + "'." );
 		log_io->ReportError2AllLogs( "Error running profile" );
 		return nullptr;

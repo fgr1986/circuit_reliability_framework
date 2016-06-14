@@ -34,9 +34,9 @@ static const std::string kPermissiveParsingMode = "permissive";
 static const std::string kStrictParsingMode = "strict";
 
 static const std::string kAppTitle = "Variability Simulator";
-static const std::string kAppVersion = "v2.9.2_beta";
+static const std::string kAppVersion = "v3.0.0";
 static const std::string kAppAuthor = "Fernando García, fgarcia@die.upm.es";
-static const std::string kAppVersionDate = "26/04/2016";
+static const std::string kAppVersionDate = "14/06/2016";
 
 // Get current date/time, format is DD-MM-YYYY.HH:mm:ss
 // std::string GetCurrentDateTime() {

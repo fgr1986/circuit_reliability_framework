@@ -1,18 +1,22 @@
 # To Do
-* **Global results: [CriticalParameterNDParametersSweep] critical parameter value for each Scenario (mean between profiles)**
+* **Global results: [CriticalParameterNDParametersSweep] critical parameter value for each Scenario (mean between profiles) ?**
 * Revise parameter design space exploration ( 10^ is not e^!!)
-* To do: **Spectre errors at altered scenarios should at least simulate critical parameter boundaries, both of them. And what happens when an error appears?**
 * **To do: Latex/Html export**
-* **TO DO** include default '1' and '0' analog values for upper/lower error omissions.
 * **TO DO** simulation_parameter_golden_fixed in radiation scenarios
 * **¿TO DO? Regex for large components (ports)**
 * **Create folder should be 'static' in a IO Class**
 * **Instance. Nodes instead absolute nodes**
 * Weighted Nodes
 
-# Changelog of version 2.9.3_beta
-* Intermediate interface **RunProfile** has been removed
-* Mayor improvements handling handling **thread_group** items
+# Changelog of version 3.0.0
+* Clean build for *smacd_2016*, including all *v2.9.y* improvements and bug fixes.
+
+# Version 3.x.y
+
+## Version 3.0.y
+
+* Changelog of version 3.0.0
+	* Clean build for *smacd_2016*, including all *v2.9.y* improvements and bug fixes.
 
 # Version 2.x.y
 
@@ -21,6 +25,9 @@
 * Changelog of version 2.9.3_beta
 	* Intermediate interface **RunProfile** has been removed
 	* Mayor improvements handling handling **thread_group** items
+	* Deprecated folder **deprecated** has been created, inside with deprecated classes are organized maintaining their previous structure. **Within this folder no items are automatically compiled neither linked**.
+	* Class **MontecarloStandardSimulation** has been deprecated (files *deprecated_montecarlo_standard_simulation.cpp* and *deprecated_montecarlo_standard_simulation.hpp*)
+	* Done: *Spectre errors at altered scenarios should at least simulate critical parameter boundaries, both of them. And what happens when an error appears?*
 
 * Changelog of version 2.9.2_beta
 	* Title/legend improvements in plots

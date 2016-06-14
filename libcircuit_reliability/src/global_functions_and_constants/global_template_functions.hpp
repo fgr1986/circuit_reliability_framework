@@ -3,13 +3,14 @@
 
 /// c++ std libraries includes
 #include <algorithm>
-
 #include <vector>
 #include <set>
 #include <string>
 #include <sstream>
 // std::cout
 #include <iostream>
+// includes all needed Boost.Filesystem declarations
+#include "boost/filesystem.hpp"
 
 
 #define NON_UPDATE_INDEX 666666666
@@ -26,6 +27,23 @@ std::string GetCurrentDateTime( const any_string_like_type& myFormat ) {
 	// for more information about date/time format
 	strftime(buf, sizeof(buf), myFormat, &tstruct);
 	return buf;
+}
+
+template<class any_string_like_type>
+bool CreateFolder( const any_string_like_type& folder, const bool deletePreviousFolder ){
+	bool dirCreated = false;
+	try{
+		if( deletePreviousFolder ){
+			boost::filesystem::remove_all( folder );
+		}
+		boost::filesystem::path dir( folder );
+		dirCreated = boost::filesystem::create_directory(dir);
+	} catch (const boost::filesystem::filesystem_error& e) {
+		std::cout << "\t\t-> [ERROR] Error creating folder '" << folder << "' " << e.what();
+		std::cerr << "\t\t-> [ERROR] Error creating folder '" << folder << "' " << e.what();
+		std::clog << "\t\t-> [ERROR] Error creating folder '" << folder << "' " << e.what();
+	}
+	return dirCreated;
 }
 
 /**

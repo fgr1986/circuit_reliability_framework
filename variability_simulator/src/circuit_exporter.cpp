@@ -1,5 +1,5 @@
 /**
- * @file circuit_radiator.cpp
+ * @file circuit_exporter.cpp
  *
  * @date Created on: Jan 20, 2014
  *

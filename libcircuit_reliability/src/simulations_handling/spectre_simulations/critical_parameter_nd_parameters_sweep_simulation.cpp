@@ -114,7 +114,7 @@ CriticalParameterValueSimulation* CriticalParameterNDParameterSweepSimulation::C
 	std::string s_ndProfileIndex = number2String(ndProfileIndex);
 	std::string currentFolder = folder + kFolderSeparator
 		 + "param_profile_" + s_ndProfileIndex;
-	if( !CreateFolder(currentFolder, true) ){
+	if( !CreateFolder(currentFolder, true ) ){
 		 log_io->ReportError2AllLogs( k2Tab + "-> Error creating folder '" + currentFolder + "'." );
 		 log_io->ReportError2AllLogs( "Error running profile" );
 		 return nullptr;
@@ -245,7 +245,7 @@ bool CriticalParameterNDParameterSweepSimulation::GenerateAndPlotResults(
  	std::string imagesFolder =  top_folder + kFolderSeparator
  		 + kResultsFolder + kFolderSeparator + kResultsImagesFolder + kFolderSeparator + kCriticalParameterNDParametersSweepResultsFolder + kFolderSeparator
  		 + "scenario_" + simulation_id;
-	if( !CreateFolder(mapsFolder, true) || !CreateFolder(imagesFolder, true) || !CreateFolder(gnuplotScriptFolder, true) ){
+	if( !CreateFolder(mapsFolder, true) || !CreateFolder(imagesFolder, true ) || !CreateFolder(gnuplotScriptFolder, true ) ){
 		 log_io->ReportError2AllLogs( k2Tab + "-> Error creating folders: '"
 		 + mapsFolder + " and " + imagesFolder + "'." );
 		 log_io->ReportError2AllLogs( "Error GenerateAndPlotResults" );
@@ -297,7 +297,7 @@ bool CriticalParameterNDParameterSweepSimulation::GenerateAndPlotResults(
 					 + p1->get_file_name() + "_" + p2->get_file_name();
 				std::string planesImagesFolder = imagesFolder + kFolderSeparator
 					 + p1->get_file_name() + "_" + p2->get_file_name();
-				if( !CreateFolder(planesMapsFolder, true) || !CreateFolder(planesImagesFolder, true) || !CreateFolder(planesGnuplotScriptFolder, true) ){
+				if( !CreateFolder(planesMapsFolder, true ) || !CreateFolder(planesImagesFolder, true ) || !CreateFolder(planesGnuplotScriptFolder, true ) ){
 					log_io->ReportError2AllLogs( k2Tab + "-> Error creating folders: '"
 						+ planesMapsFolder + " and " + planesImagesFolder + "'." );
 					log_io->ReportError2AllLogs( "Error GenerateAndPlotResults" );
