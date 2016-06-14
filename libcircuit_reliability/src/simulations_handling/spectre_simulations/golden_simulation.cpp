@@ -105,8 +105,6 @@ int GoldenSimulation::RunSpectre(){
 		+ folder + kFolderSeparator + kMainNetlistFile
 		+ " " + post_spectre_command + " " + folder + kFolderSeparator + kSpectreStandardLogsFile;
 	int spectre_result = std::system( execCommand.c_str() ) ;
-// debug
-// log_io->ReportRedStandard( "[debug] RunSpectre result for "  + simulation_id +  ": " + number2String(spectre_result) );
 	if( spectre_result>0 ){
 		correctly_simulated = false;
 		log_io->ReportError2AllLogs( "Unexpected Spectre spectre_result for singular scenario #" + simulation_id + ": spectre output = " + number2String(spectre_result) );

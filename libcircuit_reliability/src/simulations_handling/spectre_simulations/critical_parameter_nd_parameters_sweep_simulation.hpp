@@ -129,14 +129,6 @@ private:
 		const std::vector<unsigned int> & parameterCountIndexes,
 		std::vector<SimulationParameter*>& parameters2sweep, const unsigned int ndProfileIndex );
 
-	/**
-	 * @brief Run profile simulation
-	 * @details Run sweep simulation
-	 *
-	 * @param cpv simulation
-	 */
-	// void RunProfile( CriticalParameterValueSimulation* pCPVS );
-
 	/// Results Handling
 
 	int GnuplotGeneralResults(

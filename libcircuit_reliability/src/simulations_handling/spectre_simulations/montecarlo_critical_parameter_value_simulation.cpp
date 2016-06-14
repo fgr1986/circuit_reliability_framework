@@ -72,7 +72,7 @@ void MontecarloCriticalParameterValueSimulation::RunSimulation( ){
 	critical_parameter_value_simulations_vector.ReserveSimulationsInMemory( montecarlo_iterations );
 	while( threadsCount<montecarlo_iterations ){
 		// wait for resources
-		WaitForResources( runningThreads, max_parallel_montecarlo_instances, mainTG, threadsCount );		
+		WaitForResources( runningThreads, max_parallel_montecarlo_instances, mainTG, threadsCount );
 		// CreateProfile sets all parameter values, and after the simulation object
 		// is created it can be updated.
 		// Thus, it avoids race conditions when updating parameterCountIndexes and parameters2sweep
@@ -195,6 +195,7 @@ bool MontecarloCriticalParameterValueSimulation::AnalyzeMontecarloResults(){
 
 	bool partialResult = true;
 	// create metric magnitudes structure
+	unsigned int upsetsCount = 0;
 	auto metricMagnitudes = golden_magnitudes_structure->GetMetricMagnitudesVector(0);
 	double maxErrorGlobal [metricMagnitudes->size()];
 	double maxErrorMetric [metricMagnitudes->size()];
@@ -247,15 +248,18 @@ bool MontecarloCriticalParameterValueSimulation::AnalyzeMontecarloResults(){
 					++mcCount;
 					break; // break for
 				}
-				// statistics
+				// compute statistics
+				if( tr->get_reliability_result()!=kScenarioNotSensitive ){
+					++upsetsCount;
+				}
 				++correctly_simulated_count;
 				// magnitudes
 				unsigned int magCount = 0;
 				// fgarcia
 				if( tr->get_magnitudes_errors()->size() != metricMagnitudes->size() ){
-					log_io->ReportError2AllLogs( "[fgarcia] tr->get_magnitudes_errors()->size() != metricMagnitudes->size():" );
-					log_io->ReportError2AllLogs( "[fgarcia] tr->get_magnitudes_errors()->size(): " + number2String(tr->get_magnitudes_errors()->size()) );
-					log_io->ReportError2AllLogs( "[fgarcia] metricMagnitudes->size(): " + number2String(metricMagnitudes->size()) );
+					log_io->ReportError2AllLogs( "[fgarcia-debug] tr->get_magnitudes_errors()->size() != metricMagnitudes->size():" );
+					log_io->ReportError2AllLogs( "[fgarcia-debug] tr->get_magnitudes_errors()->size(): " + number2String(tr->get_magnitudes_errors()->size()) );
+					log_io->ReportError2AllLogs( "[fgarcia-debug] metricMagnitudes->size(): " + number2String(metricMagnitudes->size()) );
 				}
 				for( auto const &me : *(tr->get_magnitudes_errors()) ){
 					if( me->get_max_abs_error_global()>maxErrorGlobal[magCount] ){
@@ -284,6 +288,8 @@ bool MontecarloCriticalParameterValueSimulation::AnalyzeMontecarloResults(){
 	if( correctly_simulated_count!= montecarlo_iterations ){
 		log_io->ReportRedStandard( "There where spectre errors in sim " + simulation_id + ", correctly_simulated_count: " + number2String(correctly_simulated_count) );
 	}
+	// report results
+	montecarlo_simulation_results.set_upsets_count(upsetsCount);
 	// set file
 	montecarlo_simulation_results.set_critical_parameter_value_data_path(gnuplotMapFilePath);
 	// compute mean

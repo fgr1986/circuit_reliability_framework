@@ -166,8 +166,7 @@ bool ExperimentEnvironment::TestIsCanonicalFolderExcluded( const std::string& ex
 		return false;
 	}
 	for( auto const & ecf : excluded_canonical_folders ) {
-		// fgarcia debug
-		log_io->ReportPlain2Log( kTab + "comparing '" + ecf + "' with '" + excluded_canonical_folder + "'" );
+		log_io->ReportPlain2Log( kTab + "[debug] comparing '" + ecf + "' with '" + excluded_canonical_folder + "'" );
 		if( boost::starts_with( excluded_canonical_folder, ecf) ) {
 			return true;
 		}

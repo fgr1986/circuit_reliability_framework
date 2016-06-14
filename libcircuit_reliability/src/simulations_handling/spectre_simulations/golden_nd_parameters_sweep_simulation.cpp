@@ -95,7 +95,7 @@ void GoldenNDParametersSweepSimulation::RunSimulation(){
 	// Threads Creation
 	while( threadsCount<totalThreads ){
 		// wait for resources
-		WaitForResources( runningThreads, max_parallel_profile_instances, mainTG, threadsCount );		
+		WaitForResources( runningThreads, max_parallel_profile_instances, mainTG, threadsCount );
 		// CreateProfile sets all parameter values, and after the simulation object
 		// is created it can be updated.
 		// Thus, it avoids race conditions when updating parameterCountIndexes and parameters2sweep
@@ -163,16 +163,12 @@ GoldenSimulation* GoldenNDParametersSweepSimulation::CreateProfile(
 		log_io->ReportError2AllLogs( "Error running sweep" );
 		return nullptr;
 	}
-	// debug
-	std::clog << "[debug] A directory " << currentFolder << " created with number2String(ndIndex) '" << ndIndex << "'\n";
 	// create thread
 	// GoldenSimulation* pGS = CreateGoldenSimulation( currentFolder, parameterCountIndexes,
 	// 	parameters2sweep, ndIndex );
 	GoldenSimulation* pGS = new GoldenSimulation();
 	pGS->set_is_nested_simulation( true );
 	pGS->set_simulation_id(  "golden_param_profile_" + s_ndIndex );
-	// debug
-	std::clog << "[debug] B CreateGoldenSimulation " << pGS->get_simulation_id() << " with number2String(ndIndex) '" << ndIndex << "'\n";
 	pGS->set_n_dimensional(true);
 	pGS->set_n_d_profile_index(ndIndex);
 	pGS->set_log_io( log_io );
@@ -213,8 +209,6 @@ GoldenSimulation* GoldenNDParametersSweepSimulation::CreateProfile(
 		}
 		++sweepedParamIndex;
 	}
-	// debug
-	std::clog << "[debug] C thread " << currentFolder << " created with number2String(ndIndex) '" << ndIndex << "'\n";
 	return pGS;
 }
 

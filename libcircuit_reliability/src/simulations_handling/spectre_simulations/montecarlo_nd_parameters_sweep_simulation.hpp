@@ -119,14 +119,6 @@ private:
 		const std::vector<unsigned int> & parameterCountIndexes,
 		std::vector<SimulationParameter*>& parameters2sweep, const unsigned int threadNumber );
 
-	/**
-	 * @brief Run profile simulation
-	 * @details Run sweep simulation
-	 *
-	 * @param cpv simulation
-	 */
-	void RunProfile( MontecarloSimulation* pCPVS );
-
 	bool GenerateAndPlotResults(
 		const std::vector< SimulationParameter* > & parameters2sweep  );
 

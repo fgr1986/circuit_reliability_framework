@@ -151,28 +151,6 @@ MontecarloSimulation* MontecarloNDParametersSweepSimulation::CreateProfile(
 	return pMSS;
 }
 
-void MontecarloNDParametersSweepSimulation::RunProfile( MontecarloSimulation* pMSS ){
-	// acts like a wrapper,
-	// first run spectre, then
-	// as a callback ProcessAndAnalyzeMontecarloTransients
-
-	// double check
-	if( pMSS==nullptr ){
-		log_io->ReportError2AllLogs( "pMSS is nullptr" );
-		return;
-	}
-	// run threadNumber
-	pMSS->RunSimulation();
-	#ifdef RESULTS_ANALYSIS_VERBOSE
-	log_io->ReportPlainStandard( k2Tab + "Ended RunSimulation of profile " + pMSS->get_simulation_id());
-	#endif
-	// results are internally processed after RunSimulation
-	// in MontecarloSimulation
-	#ifdef RESULTS_ANALYSIS_VERBOSE
-	log_io->ReportPlainStandard( k2Tab + "Ended thread " + pMSS->get_simulation_id());
-	#endif
-}
-
 MontecarloSimulation* MontecarloNDParametersSweepSimulation::CreateMontecarloSimulation(
 		const std::string currentFolder, const std::vector<unsigned int> & parameterCountIndexes,
 		std::vector< SimulationParameter* > & parameters2sweep, const int threadNumber  ){

@@ -76,7 +76,7 @@ void CriticalParameterNDParameterSweepSimulation::RunSimulation( ){
 	critical_parameter_value_simulations_vector.ReserveSimulationsInMemory( totalThreads );
 	while( threadsCount<totalThreads ){
 		// wait for resources
-		WaitForResources( runningThreads, max_parallel_profile_instances, mainTG, threadsCount );		
+		WaitForResources( runningThreads, max_parallel_profile_instances, mainTG, threadsCount );
 		// CreateProfile sets all parameter values, and after the simulation object
 		// is created it can be updated.
 		// Thus, it avoids race conditions when updating parameterCountIndexes and parameters2sweep
@@ -393,8 +393,6 @@ bool CriticalParameterNDParameterSweepSimulation::GenerateAndPlotParameterPairRe
 	planeStructure->ResizeItemizedPlanesMemory( planes->size() );
 	planeStructure->set_plane_id( number2String(p1Index) + "_" + number2String(p2Index) );
 	for( auto const &planeIndexes : *planes ){
-		// debug
-		// PrintIndexes( * plane );
 		partialResults = partialResults && GenerateAndPlotItemizedPlane(
 			auxMagnitudes, p1Index, p2Index, itemizedCount++,
 			parameters2sweep, mapsFolder, gnuplotScriptFolder, imagesFolder, *planeIndexes, *planeStructure);
@@ -457,9 +455,6 @@ bool CriticalParameterNDParameterSweepSimulation::GenerateAndPlotItemizedPlane(
 		for( auto const &simulation : *(critical_parameter_value_simulations_vector.get_spectre_simulations()) ){
 			if( vectorContains(profileIndexesInPlane, profileCount) ){
 				CriticalParameterValueSimulation* convSim = dynamic_cast<CriticalParameterValueSimulation*>(simulation);
-				// debug
-				// std::string auxIndexes = "P";
-				// for ( auto i : auxiliarIndexes ){ auxIndexes += number2String(i); }
 				if( p2SweepCount==p2->get_sweep_steps_number() ){
 					p2SweepCount = 0;
 					++p1SweepCount;
