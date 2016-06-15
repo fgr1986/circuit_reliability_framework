@@ -40,7 +40,7 @@ public:
 	 * vector to be removed but NOT its contents
 	 * @return magnitudes_vector
 	 */
-	std::vector<Magnitude*>* GetMetricMagnitudesVector( const unsigned int nd_index );
+	std::vector<Magnitude*>* GetBasicMetricMagnitudesVector() const;
 
 
 	/**
@@ -48,7 +48,7 @@ public:
 	 * vector to be removed but NOT its contents
 	 * @return magnitudes_vector
 	 */
-	std::vector<Magnitude*>* GetPlottableMagnitudesVector( const unsigned int nd_index );
+	std::vector<Magnitude*>* GetBasicPlottableMagnitudesVector() const;
 
 	/**
 	 * @brief gets the path to the golden result file
@@ -121,6 +121,12 @@ private:
 	/// files_structure where the magnitudes are stored
 	/// [nd_index]
 	std::vector<std::string>* files_structure;
+	// to increase performance
+	mutable std::vector<Magnitude*>* metrics_magnitudes_vector;
+	mutable std::vector<Magnitude*>* plottable_magnitudes_vector;
+	mutable bool valid_useful_magnitude_vectors{false};
+
+	bool CreateUsefulMagnitudeVectors() const;
 };
 
 #endif /* N_D_MAGNITUDES_STRUCTURE_H */

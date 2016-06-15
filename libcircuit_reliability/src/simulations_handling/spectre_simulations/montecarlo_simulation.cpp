@@ -188,7 +188,7 @@ bool MontecarloSimulation::AnalyzeMontecarloResults(){
 	bool partialResult = true;
 	// create metric magnitudes structure
 	unsigned int upsetsCount = 0;
-	auto metricMagnitudes = golden_magnitudes_structure->GetMetricMagnitudesVector(0);
+	auto metricMagnitudes = golden_magnitudes_structure->GetBasicMetricMagnitudesVector();
 	double maxErrorGlobal [metricMagnitudes->size()];
 	double maxErrorMetric [metricMagnitudes->size()];
 	double minErrorMetric [metricMagnitudes->size()];
@@ -349,7 +349,7 @@ bool MontecarloSimulation::PlotProfileResultsMagnitudes(
 	unsigned int magCount = 0;
 	unsigned int magResultIndex = 2;
 	// for each plotable
-	for( auto const &mag : *(golden_magnitudes_structure->GetPlottableMagnitudesVector(0)) ){
+	for( auto const &mag : *(golden_magnitudes_structure->GetBasicPlottableMagnitudesVector()) ){
 		// title
 		std::string title = mag->get_title_name() +  ", " +  simulation_id +  " montecarlo scatter";
 		// Files

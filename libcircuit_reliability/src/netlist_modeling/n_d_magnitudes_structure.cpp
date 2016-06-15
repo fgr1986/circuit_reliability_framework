@@ -22,6 +22,10 @@ NDMagnitudesStructure::NDMagnitudesStructure() {
 	this->group_name = kNotDefinedString;
 	this->magnitudes_structure = nullptr;
 	this->files_structure = nullptr;
+	this->valid_useful_magnitude_vectors = false;
+	// useful magnitude_vectors
+	metrics_magnitudes_vector = new std::vector<Magnitude*>();
+	plottable_magnitudes_vector = new std::vector<Magnitude*>();
 }
 
 NDMagnitudesStructure::NDMagnitudesStructure(const NDMagnitudesStructure& orig) {
@@ -29,6 +33,9 @@ NDMagnitudesStructure::NDMagnitudesStructure(const NDMagnitudesStructure& orig) 
 	/// copying the 2D structure
 	/// [nd_index][MagnitudeCount]
 	magnitudes_structure = new std::vector<std::vector<Magnitude*>*>();
+	// useful magnitude_vectors
+	metrics_magnitudes_vector = new std::vector<Magnitude*>();
+	plottable_magnitudes_vector = new std::vector<Magnitude*>();
 	// reserve memory
 	magnitudes_structure->reserve( orig.magnitudes_structure->size() );
 	unsigned int magCount = orig.magnitudes_structure->front()->size();
@@ -55,6 +62,8 @@ NDMagnitudesStructure::NDMagnitudesStructure(const NDMagnitudesStructure& orig) 
 	for( auto const& f : *(orig.files_structure) ){
 		files_structure->push_back( std::string( f ) );
 	}
+	// subvectors
+	this->valid_useful_magnitude_vectors = CreateUsefulMagnitudeVectors();
 }
 
 NDMagnitudesStructure::~NDMagnitudesStructure(){
@@ -88,6 +97,8 @@ void NDMagnitudesStructure::SimpleInitialization( const unsigned int totalIndexe
 		// file set_files_structure
 		files_structure->push_back( goldenFilePath );
 	}
+	// subvectors
+	this->valid_useful_magnitude_vectors = CreateUsefulMagnitudeVectors();
 }
 
 unsigned int NDMagnitudesStructure::GetTotalElementsLength(){
@@ -100,6 +111,7 @@ void NDMagnitudesStructure::AddMagnitude( Magnitude* magnitude, const unsigned i
 		std::cerr << "Accessing NDMagnitudesStructure magnitudes_structure, index: " << index << " size: " <<  magnitudes_structure->size() << "\n";
 	}
 	magnitudes_structure->at(index)->push_back( magnitude );
+	this->valid_useful_magnitude_vectors = false;
 }
 
 std::vector<Magnitude*>* NDMagnitudesStructure::GetMagnitudesVector( const unsigned int index ){
@@ -116,36 +128,6 @@ std::vector<Magnitude*>* NDMagnitudesStructure::GetMagnitudesVector( const unsig
 	return magnitudes_structure->at(index);
 }
 
-std::vector<Magnitude*>* NDMagnitudesStructure::GetMetricMagnitudesVector( const unsigned int index ){
-	if( index>= magnitudes_structure->size() ){
-		std::cout << "Accessing NDMagnitudesStructure magnitudes_structure, index: " << index << " size: " <<  magnitudes_structure->size() << "\n";
-		std::cerr << "Accessing NDMagnitudesStructure magnitudes_structure, index: " << index << " size: " <<  magnitudes_structure->size() << "\n";
-		return nullptr;
-	}
-	auto metricMagnitudes = new std::vector<Magnitude*>();
-	for(auto const &m : *magnitudes_structure->at(index)){
-		if(m->get_analyzable()){
-			metricMagnitudes->push_back(m);
-		}
-	}
-	return metricMagnitudes;
-}
-
-std::vector<Magnitude*>* NDMagnitudesStructure::GetPlottableMagnitudesVector( const unsigned int index ){
-	if( index>= magnitudes_structure->size() ){
-		std::cout << "Accessing NDMagnitudesStructure magnitudes_structure, index: " << index << " size: " <<  magnitudes_structure->size() << "\n";
-		std::cerr << "Accessing NDMagnitudesStructure magnitudes_structure, index: " << index << " size: " <<  magnitudes_structure->size() << "\n";
-		return nullptr;
-	}
-	auto plottableMagnitudes = new std::vector<Magnitude*>();
-	for(auto const &m : *magnitudes_structure->at(index)){
-		if(m->get_plottable()){
-			plottableMagnitudes->push_back(m);
-		}
-	}
-	return plottableMagnitudes;
-}
-
 std::string NDMagnitudesStructure::GetFilePath( const unsigned int index ){
 	if( index>= magnitudes_structure->size() ){
 		std::cout << "Accessing NDMagnitudesStructure files_structure, index: " << index << " size: " <<  files_structure->size() << "\n";
@@ -153,4 +135,55 @@ std::string NDMagnitudesStructure::GetFilePath( const unsigned int index ){
 		return "error";
 	}
 	return files_structure->at(index);
+}
+
+bool NDMagnitudesStructure::CreateUsefulMagnitudeVectors() const{
+	// clear, do not delete contents
+	if( metrics_magnitudes_vector!=nullptr ){
+		metrics_magnitudes_vector->clear();
+	}
+	if( plottable_magnitudes_vector!=nullptr ){
+		plottable_magnitudes_vector->clear();
+	}
+	metrics_magnitudes_vector = new std::vector<Magnitude*>();
+	plottable_magnitudes_vector = new std::vector<Magnitude*>();
+	if( magnitudes_structure->size()<=0 ){
+		std::cout << "[ERROR] NDMagnitudesStructure magnitudes_structure is null or empty\n";
+		std::cerr << "[ERROR] NDMagnitudesStructure magnitudes_structure is null or empty\n";
+		return false;
+	}
+	// accessing magnitudes_structure->at(0) (basic usage, no data other than names will be used)
+	for(auto const &m : *magnitudes_structure->at(0)){
+		if( m->get_analyzable() ){
+			metrics_magnitudes_vector->push_back(m);
+		}
+		if( m->get_plottable() ){
+			plottable_magnitudes_vector->push_back(m);
+		}
+	}
+	return true;
+}
+
+std::vector<Magnitude*>* NDMagnitudesStructure::GetBasicMetricMagnitudesVector() const{
+	if( !valid_useful_magnitude_vectors ){
+		if( !CreateUsefulMagnitudeVectors() ){
+			std::cout << "[ERROR] Called from NDMagnitudesStructure::GetBasicMetricMagnitudesVector\n";
+			std::cerr << "[ERROR] Called from NDMagnitudesStructure::GetBasicMetricMagnitudesVector\n";
+			return nullptr;
+		}
+		valid_useful_magnitude_vectors = true;
+	}
+	return metrics_magnitudes_vector;
+}
+
+std::vector<Magnitude*>* NDMagnitudesStructure::GetBasicPlottableMagnitudesVector() const{
+	if( !valid_useful_magnitude_vectors ){
+		if( !CreateUsefulMagnitudeVectors() ){
+			std::cout << "[ERROR] Called from NDMagnitudesStructure::GetBasicPlottableMagnitudesVector\n";
+			std::cerr << "[ERROR] Called from NDMagnitudesStructure::GetBasicPlottableMagnitudesVector\n";
+			return nullptr;
+		}
+		valid_useful_magnitude_vectors = true;
+	}
+	return plottable_magnitudes_vector;
 }
