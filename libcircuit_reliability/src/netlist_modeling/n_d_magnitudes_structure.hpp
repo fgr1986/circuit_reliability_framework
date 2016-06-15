@@ -42,6 +42,14 @@ public:
 	 */
 	std::vector<Magnitude*>* GetMetricMagnitudesVector( const unsigned int nd_index );
 
+
+	/**
+	 * @brief gets the lists of plotable magnitudes
+	 * vector to be removed but NOT its contents
+	 * @return magnitudes_vector
+	 */
+	std::vector<Magnitude*>* GetPlottableMagnitudesVector( const unsigned int nd_index );
+
 	/**
 	 * @brief gets the path to the golden result file
 	 * @return path to the golden result file

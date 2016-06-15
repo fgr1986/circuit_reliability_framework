@@ -10,6 +10,7 @@
 # Changelog of version 3.0.0
 * Clean build for *smacd_2016*, including all *v2.9.y* improvements and bug fixes.
 * **CreateFolder** Method is a global template function
+* Minor *profile scatter* plotting bug has been corrected.
 
 # Version 3.x.y
 
@@ -18,6 +19,7 @@
 * Changelog of version 3.0.0
 	* Clean build for *smacd_2016*, including all *v2.9.y* improvements and bug fixes.
 	* **CreateFolder** Method is a global template function
+	* Minor *profile scatter* plotting bug has been corrected.
 
 # Version 2.x.y
 

@@ -131,6 +131,21 @@ std::vector<Magnitude*>* NDMagnitudesStructure::GetMetricMagnitudesVector( const
 	return metricMagnitudes;
 }
 
+std::vector<Magnitude*>* NDMagnitudesStructure::GetPlottableMagnitudesVector( const unsigned int index ){
+	if( index>= magnitudes_structure->size() ){
+		std::cout << "Accessing NDMagnitudesStructure magnitudes_structure, index: " << index << " size: " <<  magnitudes_structure->size() << "\n";
+		std::cerr << "Accessing NDMagnitudesStructure magnitudes_structure, index: " << index << " size: " <<  magnitudes_structure->size() << "\n";
+		return nullptr;
+	}
+	auto plottableMagnitudes = new std::vector<Magnitude*>();
+	for(auto const &m : *magnitudes_structure->at(index)){
+		if(m->get_plottable()){
+			plottableMagnitudes->push_back(m);
+		}
+	}
+	return plottableMagnitudes;
+}
+
 std::string NDMagnitudesStructure::GetFilePath( const unsigned int index ){
 	if( index>= magnitudes_structure->size() ){
 		std::cout << "Accessing NDMagnitudesStructure files_structure, index: " << index << " size: " <<  files_structure->size() << "\n";

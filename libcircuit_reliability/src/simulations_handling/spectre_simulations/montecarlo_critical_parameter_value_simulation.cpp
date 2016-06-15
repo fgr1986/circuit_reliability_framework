@@ -448,9 +448,10 @@ bool MontecarloCriticalParameterValueSimulation::PlotProfileResultsMagnitudes(
 	// for each plotable and analizable magnitude
 	unsigned int magCount = 0;
 	unsigned int magResultIndex = 2;
-	for( auto const &mmr : *(montecarlo_simulation_results.get_metric_montecarlo_results()) ){
+	// for each plotable
+	for( auto const &mag : *(golden_magnitudes_structure->GetPlottableMagnitudesVector(0)) ){
 		// title
-		std::string title = mmr->metric_magnitude_name +  ", " +  simulation_id +  " montecarlo scatter";
+		std::string title = mag->get_title_name() +  ", " +  simulation_id +  " montecarlo scatter";
 		// Files
 		std::string gnuplotScriptFilePath = gnuplotScriptFolder + kFolderSeparator
 			 + simulation_id + "_mag_" + number2String(magCount) + "_scatter" + kGnuPlotScriptSufix;
@@ -473,7 +474,7 @@ bool MontecarloCriticalParameterValueSimulation::PlotProfileResultsMagnitudes(
 			gnuplotScriptFile << "set format y \"%g\"" << "\n";
 			// gnuplotScriptFile << "set xlabel \""  << pairedParameter.get_title_name() << "\"" << "\n";
 			gnuplotScriptFile << "set xlabel \""  << "Profile" << "\"" << "\n";
-			gnuplotScriptFile << "set ylabel \" " << mmr->metric_magnitude_name << " \"" << "\n";
+			gnuplotScriptFile << "set ylabel \" " << mag->get_title_name() << " \"" << "\n";
 			// # remove border on top and right and set color to gray
 			gnuplotScriptFile << "set style line 11 lc rgb '#808080' lt 1" << "\n";
 			gnuplotScriptFile << "set border 3 back ls 11" << "\n";
@@ -514,8 +515,13 @@ bool MontecarloCriticalParameterValueSimulation::PlotProfileResultsMagnitudes(
 		}
 		// Exec comand
 		std::string execCommand = kGnuplotCommand + gnuplotScriptFilePath + kGnuplotEndCommand;
-		// Image paths
-		mmr->mc_scatter_image_path = outputImagePath;
+		// Image paths for montecarlo results
+		if( mag->get_analyzable() ){
+			auto mcsr = montecarlo_simulation_results.get_metric_montecarlo_results();
+			std::for_each( mcsr->begin(), mcsr->end(), [&mag, &outputImagePath]( metric_montecarlo_results_t*& mmr) {  //arg taken by reference
+				if(mmr->metric_magnitude_name==mag->get_name()){ mmr->mc_scatter_image_path = outputImagePath; };
+			});
+		}
 		// plot
 		partialResults += std::system( execCommand.c_str() );
 		// update counters
