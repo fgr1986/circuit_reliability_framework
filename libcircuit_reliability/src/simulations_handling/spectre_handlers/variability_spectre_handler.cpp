@@ -1,16 +1,17 @@
 /*
- * spectre_handler.cpp
+ * variability_spectre_handler.cpp
  *
  *  Created on: Feb 03, 2014
  *      Author: fernando
  */
 
-// Radiation simulator
+// Reliability simulator
 #include "variability_spectre_handler.hpp"
 #include "../spectre_simulations/golden_simulation.hpp"
 #include "../spectre_simulations/golden_nd_parameters_sweep_simulation.hpp"
 #include "../spectre_simulations/ahdl_simulation.hpp"
 #include "../spectre_simulations/montecarlo_nd_parameters_sweep_simulation.hpp"
+#include "../../io_handling/results_processor.hpp"
 // constants
 #include "../../global_functions_and_constants/global_template_functions.hpp"
 #include "../../global_functions_and_constants/global_constants.hpp"
@@ -73,6 +74,13 @@ void VariabilitySpectreHandler::AddSimulationParameter( SimulationParameter* sim
 	simulation_parameters.push_back(simulationParameter);
 }
 
+
+bool VariabilitySpectreHandler::ExportProfilesList(){
+	log_io->ReportGreenStandard( "Exporting profiles list" );
+	ResultsProcessor rp;
+	return rp.ExportProfilesList(top_folder, simulation_parameters);
+}
+
 bool VariabilitySpectreHandler::RunSimulations(){
 	// Report simulation
 	log_io->ReportGreenStandard( kTab + simulation_mode->get_description());
@@ -96,6 +104,11 @@ bool VariabilitySpectreHandler::RunSimulations(){
 	}
 	if( plot_scatters ){
 		log_io->ReportCyanStandard( k2Tab + "Scatters will be plotted." );
+	}
+	// exporting the scenario path (id) and altered instance
+	log_io->ReportCyanStandard( k2Tab + "Exporting scenarios and profiles." );
+	if( !ExportProfilesList() ){
+		log_io->ReportError2AllLogs( kTab + "Error exporting scenarios and profiles." );
 	}
 	// reserve memory, only one altered scenarios
 	simulations.reserve( 1 );

@@ -1,11 +1,11 @@
 /*
- * spectre_handler.cpp
+ * radiation_spectre_handler.cpp
  *
  *  Created on: Feb 03, 2014
  *      Author: fernando, fgarcia@die.upm.es
  */
 
-// Radiation simulator
+// Reliability simulator
 #include "radiation_spectre_handler.hpp"
 #include "../spectre_simulations/golden_simulation.hpp"
 #include "../spectre_simulations/golden_nd_parameters_sweep_simulation.hpp"

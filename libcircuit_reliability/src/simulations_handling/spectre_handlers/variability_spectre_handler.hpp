@@ -221,6 +221,7 @@ private:
 	bool SimulateGoldenNetlist( );
 	bool SimulateStandardAHDLNetlist( );
 	bool SimulateGoldenAHDLNetlist();
+	bool ExportProfilesList();
 
 };
 
