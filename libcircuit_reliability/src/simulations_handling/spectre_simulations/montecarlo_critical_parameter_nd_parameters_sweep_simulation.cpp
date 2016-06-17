@@ -789,7 +789,7 @@ int MontecarloCriticalParameterNDParametersSweepSimulation::GnuplotPlaneMagnitud
 			// Offset for xtics
 			gnuplotScriptFile << "set ytics left offset 0,-0.5\n";
 			// Format
-			gnuplotScriptFile << "set format cb \"%g%%\"\n";
+			gnuplotScriptFile << "set format cb \"%g\"\n";
 			// Color Paletes
 			gnuplotScriptFile << kUpsetsPalette << "\n";
 			// Background
