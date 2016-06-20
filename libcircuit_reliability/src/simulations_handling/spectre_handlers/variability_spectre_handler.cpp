@@ -36,8 +36,8 @@ VariabilitySpectreHandler::VariabilitySpectreHandler() {
 	// files
 	this->export_magnitude_errors = false;
 	this->delete_spectre_folders = false;
-	this->save_spectre_transients = true;
-	this->save_processed_transients = true;
+	this->delete_spectre_transients = true;
+	this->delete_processed_transients = true;
 	this->golden_magnitudes_structure = nullptr;
 	// montecarlo iterations
 	this->montecarlo_iterations = 1;
@@ -88,10 +88,6 @@ bool VariabilitySpectreHandler::RunSimulations(){
 	// Thread group
 	boost::thread_group tgScenarios;
 	int radiationScenarioCounter = 0;
-	// transient results handling
-	if(delete_spectre_folders){
-		save_spectre_transients = true;
-	}
 	// Golden netlist and Radiation subcircuit AHDL netlist
 	// Golden results are processed
 	if( !SimulateGoldenNetlist() || !SimulateStandardAHDLNetlist() ){
@@ -163,11 +159,11 @@ bool VariabilitySpectreHandler::RunSimulations(){
 	sss->set_altered_statement_path( "none" );
 	// result files
 	sss->set_delete_spectre_folders( delete_spectre_folders );
-	sss->set_save_spectre_transients( save_spectre_transients );
-	sss->set_save_processed_transients( save_processed_transients );
+	sss->set_delete_spectre_transients( delete_spectre_transients );
+	sss->set_delete_processed_transients( delete_processed_transients );
 	// export_processed_magnitudes true, because of scatter plots,
-	// and instead of save_processed_transients || plot_transients || plot_last_transients
-	sss->set_export_processed_magnitudes( save_processed_transients ||
+	// and instead of delete_processed_transients || plot_transients || plot_last_transients
+	sss->set_export_processed_magnitudes( !delete_processed_transients ||
 		plot_scatters || plot_transients || plot_last_transients );
 	sss->set_plot_scatters( plot_scatters );
 	sss->set_plot_transients( plot_transients );
@@ -258,8 +254,8 @@ bool VariabilitySpectreHandler::SimulateGoldenAHDLNetlist( ){
 	ahdl_golden_ss->set_process_magnitudes( false );
 	ahdl_golden_ss->set_export_magnitude_errors( false );
 	ahdl_golden_ss->set_delete_spectre_folders( delete_spectre_folders );
-	ahdl_golden_ss->set_save_spectre_transients( false );
-	ahdl_golden_ss->set_save_processed_transients( false );
+	ahdl_golden_ss->set_delete_spectre_transients( false );
+	ahdl_golden_ss->set_delete_processed_transients( false );
 	// Spectre command and args
 	ahdl_golden_ss->set_spectre_command( spectre_command );
 	ahdl_golden_ss->set_pre_spectre_command( pre_spectre_command );
@@ -317,8 +313,8 @@ bool VariabilitySpectreHandler::SimulateGoldenNetlist( ){
 	golden_ss->set_process_magnitudes( true );
 	golden_ss->set_export_magnitude_errors( false );
 	golden_ss->set_delete_spectre_folders( delete_spectre_folders );
-	golden_ss->set_save_spectre_transients( save_spectre_transients );
-	golden_ss->set_save_processed_transients( true );
+	golden_ss->set_delete_spectre_transients( delete_spectre_transients );
+	golden_ss->set_delete_processed_transients( true );
 	// Spectre command and args
 	golden_ss->set_spectre_command( spectre_command );
 	golden_ss->set_pre_spectre_command( pre_spectre_command );

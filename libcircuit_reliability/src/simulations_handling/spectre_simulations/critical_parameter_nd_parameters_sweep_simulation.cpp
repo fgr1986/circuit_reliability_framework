@@ -168,8 +168,8 @@ CriticalParameterValueSimulation* CriticalParameterNDParameterSweepSimulation::C
 	pCPVS->set_top_folder( top_folder );
 	pCPVS->set_folder( currentFolder );
 	pCPVS->set_altered_statement_path( altered_statement_path );
-	pCPVS->set_save_spectre_transients( save_spectre_transients );
-	pCPVS->set_save_processed_transients( save_processed_transients );
+	pCPVS->set_delete_spectre_transients( delete_spectre_transients );
+	pCPVS->set_delete_processed_transients( delete_processed_transients );
 	pCPVS->set_plot_scatters( plot_scatters );
 	pCPVS->set_plot_transients( plot_transients );
 	pCPVS->set_plot_last_transients( plot_last_transients );

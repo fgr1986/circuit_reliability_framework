@@ -96,6 +96,10 @@ void MontecarloSimulation::RunSimulation( ){
 	if( !AnalyzeMontecarloResults() ){
 		 log_io->ReportError2AllLogs( k2Tab + "->[montecarlo_simulation] Error in AnalyzeMontecarloResults()" );
 	}
+	// resources management
+	if( correctly_simulated ){
+		ManageSpectreFolder();
+	}
 	#ifdef RESULTS_ANALYSIS_VERBOSE
 		log_io->ReportPlainStandard( k2Tab + "[montecarlo_simulation] end of RunSimulation.");
 	#endif
@@ -158,8 +162,8 @@ StandardSimulation* MontecarloSimulation::CreateMonteCarloIteration( unsigned in
 	pSS->set_top_folder( top_folder );
 	pSS->set_folder( currentFolder );
 	pSS->set_altered_statement_path( altered_statement_path );
-	pSS->set_save_spectre_transients( save_spectre_transients );
-	pSS->set_save_processed_transients( save_processed_transients );
+	pSS->set_delete_spectre_transients( delete_spectre_transients );
+	pSS->set_delete_processed_transients( delete_processed_transients );
 	pSS->set_plot_scatters( false );
 	pSS->set_plot_transients( plot_transients );
 	pSS->set_interpolate_plots_ratio( interpolate_plots_ratio );

@@ -60,14 +60,14 @@ public:
 	void set_ahdl_shipdb_folder_path(std::string ahdl_shipdb_folder_path) { this->ahdl_shipdb_folder_path = ahdl_shipdb_folder_path; }
 	void set_ahdl_simdb_folder_path(std::string ahdl_simdb_folder_path) { this->ahdl_simdb_folder_path = ahdl_simdb_folder_path; }
 	// Save individual transients
-	void set_save_spectre_transients(bool save_spectre_transients){ this->save_spectre_transients = save_spectre_transients;}
-	bool get_save_spectre_transients() const{return save_spectre_transients;}
+	void set_delete_spectre_transients(bool delete_spectre_transients){ this->delete_spectre_transients = delete_spectre_transients;}
+	bool get_delete_spectre_transients() const{return delete_spectre_transients;}
 	// save spectre files and folders
 	void set_delete_spectre_folders(bool delete_spectre_folders){ this->delete_spectre_folders = delete_spectre_folders;}
 	bool get_delete_spectre_folders() const{return delete_spectre_folders;}
 	// save processed files
-	void set_save_processed_transients(bool save_processed_transients){ this->save_processed_transients = save_processed_transients;}
-	bool get_save_processed_transients() const{return save_processed_transients;}
+	void set_delete_processed_transients(bool delete_processed_transients){ this->delete_processed_transients = delete_processed_transients;}
+	bool get_delete_processed_transients() const{return delete_processed_transients;}
 	//Log manager
 	void set_log_io( LogIO* log_io ){ this->log_io = log_io; }
 
@@ -174,9 +174,9 @@ private:
 	LogIO* log_io;
 
 	/// saves individually spectre transients
-	bool save_spectre_transients;
+	bool delete_spectre_transients;
 	/// saves individually processed transients
-	bool save_processed_transients;
+	bool delete_processed_transients;
 	/// deletes spectre folders
 	bool delete_spectre_folders;
 	/// plot scatter plots

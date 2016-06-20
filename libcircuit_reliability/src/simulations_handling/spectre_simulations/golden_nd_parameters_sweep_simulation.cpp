@@ -187,8 +187,8 @@ GoldenSimulation* GoldenNDParametersSweepSimulation::CreateProfile(
 	pGS->set_top_folder( top_folder );
 	pGS->set_folder( currentFolder );
 	pGS->set_altered_statement_path( altered_statement_path );
-	pGS->set_save_spectre_transients( save_spectre_transients );
-	pGS->set_save_processed_transients( save_processed_transients );
+	pGS->set_delete_spectre_transients( delete_spectre_transients );
+	pGS->set_delete_processed_transients( delete_processed_transients );
 	pGS->set_plot_transients( plot_transients );
 	pGS->set_main_analysis( main_analysis );
 	pGS->set_main_transient_analysis( main_transient_analysis );

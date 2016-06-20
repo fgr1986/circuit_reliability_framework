@@ -56,9 +56,9 @@ public:
 		this->top_folder = top_folder;
 	}
 	// save spectre transients
-	void set_save_spectre_transients( const bool save_spectre_transients){ this->save_spectre_transients = save_spectre_transients;}
+	void set_delete_spectre_transients( const bool delete_spectre_transients){ this->delete_spectre_transients = delete_spectre_transients;}
 	// save intermediate results (processed transients)
-	void set_save_processed_transients( const bool save_processed_transients){ this->save_processed_transients = save_processed_transients;}
+	void set_delete_processed_transients( const bool delete_processed_transients){ this->delete_processed_transients = delete_processed_transients;}
 	// delete_spectre_folders
 	void set_delete_spectre_folders( const bool delete_spectre_folders){ this->delete_spectre_folders = delete_spectre_folders;}
 
@@ -251,9 +251,9 @@ protected:
 	/// delete_spectre_folders
 	bool delete_spectre_folders;
 	/// Save spectre transients
-	bool save_spectre_transients;
+	bool delete_spectre_transients;
 	/// Save intermediate simulation results
-	bool save_processed_transients;
+	bool delete_processed_transients;
 	/// plot scatters
 	bool plot_scatters;
 	/// plot all transients

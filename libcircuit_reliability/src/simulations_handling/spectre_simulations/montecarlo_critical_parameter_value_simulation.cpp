@@ -101,6 +101,13 @@ void MontecarloCriticalParameterValueSimulation::RunSimulation( ){
 	if( !AnalyzeMontecarloResults() ){
 		 log_io->ReportError2AllLogs( k2Tab + "-> Error in AnalyzeMontecarloResults()" );
 	}
+	// resources management
+	if( correctly_simulated ){
+		ManageSpectreFolder();
+	}
+	#ifdef RESULTS_ANALYSIS_VERBOSE
+		log_io->ReportPlainStandard( k2Tab + "[montecarlo_critical_parameter_simulation] end of RunSimulation.");
+	#endif
 }
 
 CriticalParameterValueSimulation* MontecarloCriticalParameterValueSimulation::CreateMonteCarloIteration(
@@ -161,8 +168,8 @@ CriticalParameterValueSimulation* MontecarloCriticalParameterValueSimulation::Cr
 	pCPVS->set_top_folder( top_folder );
 	pCPVS->set_folder( currentFolder );
 	pCPVS->set_altered_statement_path( altered_statement_path );
-	pCPVS->set_save_spectre_transients( save_spectre_transients );
-	pCPVS->set_save_processed_transients( save_processed_transients );
+	pCPVS->set_delete_spectre_transients( delete_spectre_transients );
+	pCPVS->set_delete_processed_transients( delete_processed_transients );
 	pCPVS->set_plot_scatters( false );
 	pCPVS->set_plot_transients( plot_transients );
 	pCPVS->set_plot_last_transients( plot_last_transients );

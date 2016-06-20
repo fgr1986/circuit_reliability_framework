@@ -180,8 +180,9 @@ MontecarloSimulation* MontecarloNDParametersSweepSimulation::CreateMontecarloSim
 	pMSS->set_top_folder( top_folder );
 	pMSS->set_folder( currentFolder );
 	pMSS->set_altered_statement_path( altered_statement_path );
-	pMSS->set_save_spectre_transients( save_spectre_transients );
-	pMSS->set_save_processed_transients( save_processed_transients );
+	pMSS->set_delete_spectre_folders( delete_spectre_folders );
+	pMSS->set_delete_spectre_transients( delete_spectre_transients );
+	pMSS->set_delete_processed_transients( delete_processed_transients );
 	pMSS->set_plot_scatters( plot_scatters );
 	pMSS->set_plot_transients( plot_transients );
 	// pMSS->set_plot_last_transients( plot_last_transients );

@@ -24,8 +24,8 @@ SpectreSimulation::SpectreSimulation() {
 	this->altered_scenario_index = kNotDefinedInt;
 	this->folder = kNotDefinedString;
 	this->top_folder = kNotDefinedString;
-	this->save_spectre_transients = true;
-	this->save_processed_transients = true;
+	this->delete_spectre_transients = true;
+	this->delete_processed_transients = true;
 	this->delete_spectre_folders = false;
 	this->ahdl_simdb_env = kNotDefinedString;
 	this->ahdl_shipdb_env = kNotDefinedString;
@@ -584,7 +584,9 @@ double SpectreSimulation::InterpolateValue( bool& interpolationError,
 
 void SpectreSimulation::ConfigureEnvironmentVariables(){
 	// AHDL compiled components environment configuration
+	#ifdef SPECTRE_SIMULATIONS_VERBOSE
 	log_io->ReportPlain2Log( " #" + simulation_id + " AHDL compiled components environment configuration." );
+	#endif
 	int env_result = putenv( (char*)kEnableAHDL.c_str() );
 	// SIMDB
 	env_result += putenv( (char*)ahdl_simdb_env.c_str() );
@@ -597,35 +599,29 @@ void SpectreSimulation::ConfigureEnvironmentVariables(){
 }
 
 void SpectreSimulation::ShowEnvironmentVariables(){
+	#ifdef SPECTRE_SIMULATIONS_VERBOSE
 	std::string message;
 	const char* env_variable;
 	message = " #" + simulation_id + " $CDS_AHDLCMI_ENABLE: ";
 	if( (env_variable=std::getenv("CDS_AHDLCMI_ENABLE")) != nullptr){
 		message += env_variable ;
 	}
-	#ifdef SPECTRE_SIMULATIONS_VERBOSE
 	log_io->ReportPlain2Log( message );
-	#endif
 	message = " #" + simulation_id + " $CDS_AHDLCMI_SIMDB_DIR: ";
 	if( (env_variable=std::getenv("CDS_AHDLCMI_SIMDB_DIR")) != nullptr){
 		message += env_variable;
 	}
-	#ifdef SPECTRE_SIMULATIONS_VERBOSE
 	log_io->ReportPlain2Log( message );
-	#endif
 	message = " #" + simulation_id + " $CDS_AHDLCMI_SHIPDB_COPY: ";
 	if( (env_variable=std::getenv("CDS_AHDLCMI_SHIPDB_COPY")) != nullptr){
 		message += env_variable ;
 	}
-	#ifdef SPECTRE_SIMULATIONS_VERBOSE
 	log_io->ReportPlain2Log( message );
-	#endif
 	message = " #" + simulation_id + " $CDS_AHDLCMI_SHIPDB_DIR: ";
 	if( (env_variable=std::getenv("CDS_AHDLCMI_SHIPDB_DIR")) != nullptr){
 		message += env_variable;
 	}
-	#ifdef SPECTRE_SIMULATIONS_VERBOSE
-		log_io->ReportPlain2Log( message );
+	log_io->ReportPlain2Log( message );
 	#endif
 }
 
@@ -700,16 +696,12 @@ bool SpectreSimulation::PlotTransient( const std::string& localSimulationId,
 
 bool SpectreSimulation::ManageIndividualResultFiles(
 	TransientSimulationResults& transientSimulationResults, bool isGolden ){
-	// #ifdef SPECTRE_SIMULATIONS_VERBOSE
-	// 	log_io->ReportPlainStandard( "ManageIndividualResultFiles #" + simulation_id );
-	// #endif
 	bool handlingResult = true;
-	// fgarcia, if delete_spectre_folders then this is not needed
-	if( !save_spectre_transients && !delete_spectre_folders ){
-		handlingResult = ManageIndividualSpectreFiles(transientSimulationResults);
+	if( delete_spectre_transients ){
+		handlingResult = ManageIndividualSpectreFiles( transientSimulationResults );
 	}
-	if(!isGolden && !save_processed_transients ){
-		handlingResult = handlingResult && ManageIndividualProcessedFiles(transientSimulationResults);
+	if( !isGolden && delete_processed_transients ){
+		handlingResult = handlingResult && ManageIndividualProcessedFiles( transientSimulationResults );
 	}
 	return handlingResult;
 }
@@ -737,6 +729,7 @@ bool SpectreSimulation::ManageSpectreFolder(){
 	return true;
 }
 
+/// called from spectre_handler (variability_spectre_handler or radiation_spectre_handler)
 void SpectreSimulation::HandleSpectreSimulation(){
 	// simulation
 	RunSimulation();

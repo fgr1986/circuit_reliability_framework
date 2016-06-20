@@ -283,20 +283,20 @@ bool XMLIOManager::ReadExperimentXML( const std::string &xmlExperiment, int& sta
 		log_io->ReportPlainStandard( kTab + "Experiment title: " + experimentTitle );
 		log_io->ReportPlainStandard( kTab + "Experiment file writen for radiation_simulator version: "
 			+ ptExperiment.get<std::string>("root.radiation_simulator_target_version") );
-		// Additional labels: **delete_spectre_folders save_spectre_transients save_processed_transients**
+		// Additional labels: **delete_spectre_folders delete_spectre_transients delete_processed_transients**
 		// delete_spectre_folders
 		variabilitySpectreHandler.set_delete_spectre_folders( ptExperiment.get<bool>("root.delete_spectre_folders") );
 		log_io->ReportPlainStandard( variabilitySpectreHandler.get_delete_spectre_folders() ?
 			kTab + "Experiment will delete cadence spectre files." :
 			kTab + "Experiment will not delete cadence spectre files." );
-		// save_spectre_transients
-		variabilitySpectreHandler.set_save_spectre_transients( ptExperiment.get<bool>("root.save_spectre_transients") );
-		log_io->ReportPlainStandard( variabilitySpectreHandler.get_save_spectre_transients() ?
+		// delete_spectre_transients
+		variabilitySpectreHandler.set_delete_spectre_transients( ptExperiment.get<bool>("root.delete_spectre_transients") );
+		log_io->ReportPlainStandard( variabilitySpectreHandler.get_delete_spectre_transients() ?
 			kTab + "Experiment will save individually cadence transients." :
 			kTab + "Experiment will not individually save cadence transients." );
-		// save_processed_transients
-		variabilitySpectreHandler.set_save_processed_transients( ptExperiment.get<bool>("root.save_processed_transients") );
-		log_io->ReportPlainStandard( variabilitySpectreHandler.get_save_processed_transients() ?
+		// delete_processed_transients
+		variabilitySpectreHandler.set_delete_processed_transients( ptExperiment.get<bool>("root.delete_processed_transients") );
+		log_io->ReportPlainStandard( variabilitySpectreHandler.get_delete_processed_transients() ?
 			kTab + "Experiment will save individually processed transients." :
 			kTab + "Experiment will not individually save processed transients." );
 

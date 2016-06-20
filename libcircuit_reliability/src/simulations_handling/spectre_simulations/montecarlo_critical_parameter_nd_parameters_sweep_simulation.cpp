@@ -186,8 +186,9 @@ MontecarloCriticalParameterValueSimulation* MontecarloCriticalParameterNDParamet
 	pMCPVS->set_top_folder( top_folder );
 	pMCPVS->set_folder( currentFolder );
 	pMCPVS->set_altered_statement_path( altered_statement_path );
-	pMCPVS->set_save_spectre_transients( save_spectre_transients );
-	pMCPVS->set_save_processed_transients( save_processed_transients );
+	pMCPVS->set_delete_spectre_folders( delete_spectre_folders );
+	pMCPVS->set_delete_spectre_transients( delete_spectre_transients );
+	pMCPVS->set_delete_processed_transients( delete_processed_transients );
 	pMCPVS->set_plot_scatters( plot_scatters );
 	pMCPVS->set_plot_transients( plot_transients );
 	// pMCPVS->set_plot_last_transients( plot_last_transients );
