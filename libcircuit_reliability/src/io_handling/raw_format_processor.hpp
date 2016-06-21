@@ -21,19 +21,24 @@ class RAWFormatProcessor {
 public:
 	RAWFormatProcessor();
 	RAWFormatProcessor( std::vector<Magnitude*>* magnitudes,
-		std::string transient_file_path, std::string processed_file_path );
+		const std::string& transient_file_path, const std::string& processed_file_path, const std::string& log_file_path  );
 	virtual ~RAWFormatProcessor();
 
 	bool ProcessPSFASCII( );
-	bool ProcessPSFASCIIUnSorted( );
+	// bool ProcessPSFASCIIUnSorted();
+
+	bool PrepProcessTransientMagnitudes( std::vector<Magnitude*>* unsortedMags,
+		std::vector<Magnitude*>* sortedMags, const std::string& spectreResultTrans );
 
 	void set_export_processed_magnitudes(bool export_processed_magnitudes){
 		this->export_processed_magnitudes = export_processed_magnitudes;
 	}
 	void set_format(int format){ this->format = format; }
-	void set_transient_file_path( std::string transient_file_path ) {
+	void set_log_file_path( const std::string& log_file_path ) {
+		this->log_file_path = log_file_path;}
+	void set_transient_file_path( const std::string& transient_file_path ) {
 		this->transient_file_path = transient_file_path;}
-	void set_processed_file_path( std::string processed_file_path ) {
+	void set_processed_file_path( const std::string& processed_file_path ) {
 		this->processed_file_path = processed_file_path;}
 	void set_magnitudes( std::vector<Magnitude*>* magnitudes ) {
 		this->magnitudes = magnitudes;}
@@ -46,6 +51,7 @@ private:
 	LogIO* log_io;
 	std::string transient_file_path;
 	std::string processed_file_path;
+	std::string log_file_path;
 	std::vector<Magnitude*>* magnitudes;
 	int format;
 	bool correctly_processed;
@@ -57,6 +63,7 @@ private:
 	bool CheckRequirements();
 
 	// Spectre output files
+	std::string kPSFAsciiTraceWord = "TRACE";
 	std::string kPSFAsciiValueWord = "VALUE";
 	std::string kPSFAsciiEndWord = "END";
 };

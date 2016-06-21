@@ -161,7 +161,7 @@ bool SpectreSimulation::InterpolateAndAnalyzeMagnitudes(
 	TransientSimulationResults& transientSimulationResults,
 	std::vector<Magnitude*>& simulatedMagnitudes, const unsigned int index, const std::string partialId  ){
 	bool reliabilityError = false;
-	// obtain std::vector<Magnitude*>* magnitudes
+	// obtain std::vector<Magnitude*>* magnitudes depending on its profile index
 	auto golden_magnitudes = golden_magnitudes_structure->GetMagnitudesVector( index );
 	if( simulatedMagnitudes.size()<2 ){
 		log_io->ReportError2AllLogs( "Magnitudes size (including time):" + number2String(simulatedMagnitudes.size())
@@ -176,7 +176,7 @@ bool SpectreSimulation::InterpolateAndAnalyzeMagnitudes(
 	std::vector<Magnitude*>::iterator it_m = ++(simulatedMagnitudes.begin());
 	for(std::vector<Magnitude*>::iterator it_mg = ++(golden_magnitudes->begin());
 		it_mg != golden_magnitudes->end(); it_mg++){
-		if( (*it_mg)->get_analyzable() ){
+		if( (*it_mg)->get_analyzable() && (*it_mg)->is_transient_magnitude() ){
 			#ifdef SPECTRE_SIMULATIONS_VERBOSE
 				log_io->ReportPlain2Log( kTab + (*it_mg)->get_name()
 					+ " magnitude of scenario #" + simulation_id + " partial_id=" + partialId + " will be analyzed.");
@@ -189,6 +189,8 @@ bool SpectreSimulation::InterpolateAndAnalyzeMagnitudes(
 				transientSimulationResults.set_reliability_result( kScenarioSensitive );
 				return false;
 			}
+		}else if( (*it_mg)->get_analyzable() ){
+
 		}
 		// update simulated magnitude to match golden magnitude
 		++it_m;
@@ -625,6 +627,10 @@ void SpectreSimulation::ShowEnvironmentVariables(){
 	#endif
 }
 
+std::string SpectreSimulation::GetSpectreLogFilePath( const std::string& currentFolder ){
+	return currentFolder + kFolderSeparator + kSpectreStandardLogsFile;
+}
+
 std::string SpectreSimulation::GetSpectreResultsFilePath(const std::string& currentFolder,
 	const bool& processMainTransient){
 	std::string analysisFinalName = main_analysis->get_name();
@@ -651,6 +657,7 @@ bool SpectreSimulation::ProcessSpectreResults( const std::string& currentFolder,
 	std::vector<Magnitude*>& myParameterMagnitudes, const bool& isGolden ){
 	// obtain paths
 	std::string spectreResultsFilePath = GetSpectreResultsFilePath( currentFolder, processMainTransient);
+	std::string spectreLogFilePath = GetSpectreLogFilePath( currentFolder );
 	std::string processedResultsFilePath = GetProcessedResultsFilePath( currentFolder,
 		localSimulationId, processMainTransient);
 	transientSimulationResults.set_original_file_path( spectreResultsFilePath );
@@ -660,6 +667,7 @@ bool SpectreSimulation::ProcessSpectreResults( const std::string& currentFolder,
 	rfp->set_format( kGnuPlot );
 	rfp->set_magnitudes( &myParameterMagnitudes );
 	rfp->set_transient_file_path( spectreResultsFilePath );
+	rfp->set_log_file_path( spectreLogFilePath );
 	rfp->set_processed_file_path( processedResultsFilePath ) ;
 	rfp->set_export_processed_magnitudes( export_processed_magnitudes );
 	rfp->set_is_golden( isGolden );
@@ -668,9 +676,9 @@ bool SpectreSimulation::ProcessSpectreResults( const std::string& currentFolder,
 			log_io->ReportPlainStandard( k3Tab + "#" + localSimulationId + " scenario: processing spectre output data." + " path: '" + spectreResultsFilePath + "'");
 		}
 	#endif
-	correctly_processed = rfp->ProcessPSFASCIIUnSorted();
+	correctly_processed = rfp->ProcessPSFASCII();
 	if( !correctly_processed ){
-		log_io->ReportError2AllLogs("ProcessPSFASCIIUnSorted failed. " + localSimulationId);
+		log_io->ReportError2AllLogs("ProcessPSFASCII failed. " + localSimulationId);
 	}else{
 		#ifdef SPECTRE_SIMULATIONS_VERBOSE
 			log_io->ReportPlain2Log( k3Tab + "#" + localSimulationId + " scenario: output data exported. [DELETE] delete rfp;");

@@ -207,6 +207,8 @@ private:
 	// ahdl ddbb
 	std::string ahdl_shipdb_folder_path;
 	std::string ahdl_simdb_folder_path;
+	// Unsorted Magnitudes which are going to be processed
+	std::vector<Magnitude*> unsorted_magnitudes_2be_found;
 	// Magnitudes which are going to be processed
 	std::vector<Magnitude*> magnitudes_2be_found;
 	// Golden Magnitudes
@@ -222,6 +224,8 @@ private:
 	bool SimulateStandardAHDLNetlist( );
 	bool SimulateGoldenAHDLNetlist();
 	bool ExportProfilesList();
+
+	bool ReorderMagnitudes( const std::string& spectreResultTrans );
 
 };
 

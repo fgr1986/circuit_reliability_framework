@@ -12,6 +12,7 @@
 #include "../spectre_simulations/ahdl_simulation.hpp"
 #include "../spectre_simulations/montecarlo_nd_parameters_sweep_simulation.hpp"
 #include "../../io_handling/results_processor.hpp"
+#include "../../io_handling/raw_format_processor.hpp"
 // constants
 #include "../../global_functions_and_constants/global_template_functions.hpp"
 #include "../../global_functions_and_constants/global_constants.hpp"
@@ -53,6 +54,8 @@ VariabilitySpectreHandler::~VariabilitySpectreHandler() {
 	#endif
 	deleteContentsOfVectorOfPointers( simulation_parameters );
 	deleteContentsOfVectorOfPointers( magnitudes_2be_found );
+	// ReorderMagnitudes clears unsorted_magnitudes_2be_found
+	// deleteContentsOfVectorOfPointers( unsorted_magnitudes_2be_found );
 	if( golden_magnitudes_structure ){
 		#ifdef DESTRUCTORS_VERBOSE
 			log_io->ReportPlainStandard( "golden_magnitudes_structure");
@@ -88,10 +91,10 @@ bool VariabilitySpectreHandler::RunSimulations(){
 	// Thread group
 	boost::thread_group tgScenarios;
 	int radiationScenarioCounter = 0;
-	// Golden netlist and Radiation subcircuit AHDL netlist
+	// Golden netlist and AHDL netlist
 	// Golden results are processed
-	if( !SimulateGoldenNetlist() || !SimulateStandardAHDLNetlist() ){
-		log_io->ReportError2AllLogs( "Error while simulating or processing the golden scenario. Aborted." );
+	if( !SimulateStandardAHDLNetlist() || !SimulateGoldenNetlist() ){
+		log_io->ReportError2AllLogs( "Error while simulating or processing the golden or ahdl scenario. Aborted." );
 		return false;
 	}
 	log_io->ReportCyanStandard( k2Tab + "Simulate variability scenario." );
@@ -231,8 +234,34 @@ bool VariabilitySpectreHandler::SimulateStandardAHDLNetlist( ){
 	if(var_AHDL_s->get_simulation_results()->get_spectre_result() > 0){
 		log_io->ReportError2AllLogs( "WARNING: while simulation the ahdl scenario." );
 	}
+
+	// Reorder magnitudes
+	bool partialResult = ReorderMagnitudes( var_AHDL_s->GetSpectreResultsFilePath() );
 	delete var_AHDL_s;
-	return true;
+	return partialResult;
+}
+
+bool VariabilitySpectreHandler::ReorderMagnitudes( const std::string& spectreResultTrans ){
+	RAWFormatProcessor rfp;
+	// debug
+	log_io->ReportCyanStandard( "Unsorted" );
+	for( auto const& m : unsorted_magnitudes_2be_found){
+		log_io->ReportCyanStandard( m->get_name() );
+	}
+	bool partialResult = rfp.PrepProcessTransientMagnitudes( &unsorted_magnitudes_2be_found, &magnitudes_2be_found, spectreResultTrans );
+	// debug
+	log_io->ReportCyanStandard( "Sorted" );
+	for( auto const& m : magnitudes_2be_found){
+		log_io->ReportCyanStandard( m->get_name() );
+	}
+	// free memory
+	deleteContentsOfVectorOfPointers( unsorted_magnitudes_2be_found );
+	// debug
+	log_io->ReportCyanStandard( "Sorted 2" );
+	for( auto const& m : magnitudes_2be_found){
+		log_io->ReportCyanStandard( m->get_name() );
+	}
+	return partialResult;
 }
 
 bool VariabilitySpectreHandler::SimulateGoldenAHDLNetlist( ){
@@ -271,10 +300,6 @@ bool VariabilitySpectreHandler::SimulateGoldenAHDLNetlist( ){
 	ahdl_golden_t.join();
 	log_io->ReportGreenStandard( "AHDL Golden netlist simulated and processed.");
 
-	// We copy the golden magnitudes, because ahdl_golden_ss object is going to be destroyed
-	// analysis/radiation parameters are pointers, and they are not destroyed in the
-	// ahdl_golden_ss var_AHDL_s destruction
-	// Does not need to be copied because is not a GoldenSimulation member
 	if( ahdl_golden_ss->get_simulation_results()->get_spectre_result() > 0 ){
 		log_io->ReportError2AllLogs( "Error while simulating or processing the ahdl_golden_ss scenario. Aborted." );
 		delete ahdl_golden_ss;
@@ -291,6 +316,8 @@ bool VariabilitySpectreHandler::SimulateGoldenNetlist( ){
 		log_io->ReportError2AllLogs( "Error in AHDL Golden");
 		return false;
 	}
+	// preorder magnitudes
+
 	// Golden netlist
 	GoldenNDParametersSweepSimulation* golden_ss
 		= new GoldenNDParametersSweepSimulation();
@@ -351,5 +378,5 @@ bool VariabilitySpectreHandler::SimulateGoldenNetlist( ){
 }
 
 void VariabilitySpectreHandler::AddMagnitude( Magnitude* magnitude ){
-	this->magnitudes_2be_found.push_back( magnitude );
+	this->unsorted_magnitudes_2be_found.push_back( magnitude );
 }

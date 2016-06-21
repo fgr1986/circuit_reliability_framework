@@ -28,6 +28,7 @@
 #include "global_functions_and_constants/global_template_functions.hpp"
 #include "global_functions_and_constants/statements_constants.hpp"
 // Netlist modeling includes
+#include "netlist_modeling/ocean_eval_magnitude.hpp"
 #include "netlist_modeling/parameter.hpp"
 #include "netlist_modeling/simulation_parameter.hpp"
 #include "netlist_modeling/statements/analysis_statement.hpp"
@@ -613,7 +614,13 @@ bool XMLIOManager::ProcessSimulationModeChildControlStatement(
 
 bool XMLIOManager::ProcessMagnitude(boost::property_tree::ptree::value_type const &v,
 	int& statementCounter, VariabilitySpectreHandler& variabilitySpectreHandler, CircuitIOHandler& circuitIOHandler){
-	Magnitude* mag = new Magnitude( v.second.get<std::string>("magnitude_name") );
+	Magnitude* mag;
+	// new in v3.0.1
+	if( v.second.get<bool>("magnitude_transient_magnitude") ){
+	 mag = new Magnitude( v.second.get<std::string>("magnitude_name") );
+	}else{
+		mag = new OceanEvalMagnitude( v.second.get<std::string>("magnitude_name") );
+	}
 	// plottable
 	mag->set_plottable( v.second.get<bool>("magnitude_plottable") );
 	if( mag->get_plottable() ){
@@ -626,27 +633,34 @@ bool XMLIOManager::ProcessMagnitude(boost::property_tree::ptree::value_type cons
 	// analyzable
 	mag->set_analyzable( v.second.get<bool>("magnitude_analyzable") );
 	if(mag->get_analyzable()){
-		mag->set_analyze_error_in_time( v.second.get<bool>("magnitude_analyze_error_in_time") );
-		mag->set_ommit_upper_threshold( v.second.get<bool>("magnitude_ommit_upper_threshold"));
-		mag->set_ommit_lower_threshold( v.second.get<bool>("magnitude_ommit_lower_threshold"));
-		mag->set_abs_error_margin_ones( v.second.get<double>("magnitude_abs_error_margin_ones") );
-		mag->set_abs_error_margin_zeros( v.second.get<double>("magnitude_abs_error_margin_zeros") );
-		mag->set_abs_error_margin_default( v.second.get<double>("magnitude_abs_error_margin_default") );
-		if( mag->get_abs_error_margin_ones() <= 0 || mag->get_abs_error_margin_zeros() <= 0
-			|| mag->get_abs_error_margin_default() <= 0 ){
-			log_io->ReportError2AllLogs("magnitude abs error margins of magnitude '"
-				+ mag->get_name() + "' less or equal than '0'");
-			return false;
-		}
-		mag->set_error_threshold_ones( v.second.get<double>("magnitude_error_threshold_ones") );
-		mag->set_error_threshold_zeros( v.second.get<double>("magnitude_error_threshold_zeros") );
-		if( mag->get_error_threshold_ones() <= 0 || mag->get_error_threshold_zeros() <= 0 ){
-			log_io->ReportError2AllLogs("magnitude abs error margins of magnitude '"
-				+ mag->get_name() + "' less or equal than '0'");
-			return false;
+ 		mag->set_analyze_error_in_time( v.second.get<bool>("magnitude_analyze_error_in_time") );
+		// standard voltage/current verilog-a signal
+		if( mag->is_transient_magnitude() ){
+			mag->set_analyze_error_in_time( v.second.get<bool>("magnitude_analyze_error_in_time") );
+			mag->set_ommit_upper_threshold( v.second.get<bool>("magnitude_ommit_upper_threshold"));
+			mag->set_ommit_lower_threshold( v.second.get<bool>("magnitude_ommit_lower_threshold"));
+			mag->set_abs_error_margin_ones( v.second.get<double>("magnitude_abs_error_margin_ones") );
+			mag->set_abs_error_margin_zeros( v.second.get<double>("magnitude_abs_error_margin_zeros") );
+			mag->set_abs_error_margin_default( v.second.get<double>("magnitude_abs_error_margin_default") );
+			if( mag->get_abs_error_margin_ones() <= 0 || mag->get_abs_error_margin_zeros() <= 0
+				|| mag->get_abs_error_margin_default() <= 0 ){
+				log_io->ReportError2AllLogs("magnitude abs error margins of magnitude '"
+					+ mag->get_name() + "' less or equal than '0'");
+				return false;
+			}
+			mag->set_error_threshold_ones( v.second.get<double>("magnitude_error_threshold_ones") );
+			mag->set_error_threshold_zeros( v.second.get<double>("magnitude_error_threshold_zeros") );
+			if( mag->get_error_threshold_ones() <= 0 || mag->get_error_threshold_zeros() <= 0 ){
+				log_io->ReportError2AllLogs("magnitude abs error margins of magnitude '"
+					+ mag->get_name() + "' less or equal than '0'");
+				return false;
+			}
+		}else{ //oceanEval expresion
+			auto pOceanEvalMag = dynamic_cast<OceanEvalMagnitude*>(mag);
+			pOceanEvalMag->set_abs_error_margin( v.second.get<bool>("magnitude_abs_error_margin") );
 		}
 	}
-	if(mag->get_analyze_error_in_time()){
+	if( mag->is_transient_magnitude() && mag->get_analyze_error_in_time() ){
 		mag->set_error_time_span_zeros( v.second.get<double>("magnitude_error_time_span_zeros") );
 		mag->set_error_time_span_ones( v.second.get<double>("magnitude_error_time_span_ones") );
 		mag->set_error_time_span_default( v.second.get<double>("magnitude_error_time_span_default") );

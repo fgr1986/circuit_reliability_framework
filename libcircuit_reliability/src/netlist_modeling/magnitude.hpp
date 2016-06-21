@@ -34,8 +34,8 @@ public:
 	std::string get_name() const {return name;}
 	std::string get_title_name() const;
 	std::string get_file_name() const;
+	std::string get_enclosed_name() const;
 	bool get_found_in_results() const {return found_in_results;}
-	std::string get_enclosed_name() const {return "\"" + name + "\"";}
 	void set_found_in_results(bool found_in_results) { this->found_in_results = found_in_results; }
 	std::vector<double>* get_values() { return &values; }
 	unsigned int get_values_size() const { return values.size(); }
@@ -87,15 +87,20 @@ public:
 	bool get_plottable_in_golden() const{ return plottable_in_golden; }
 	void set_plottable_in_golden( bool plottable_in_golden ){this->plottable_in_golden = plottable_in_golden;}
 
+	bool is_transient_magnitude() const{ return transient_magnitude; }
+
 	void AddValue( double value );
 	double GetValue( int position );
 
-private:
+protected:
 	std::string name;
 	mutable std::string title_name;
 	mutable std::string file_name;
+	mutable std::string enclosed_name;
 	mutable bool valid_formatted_names{false};
 	std::vector<double> values;
+	// new in v3.0.1, is this magnitude a transient like magnitude?
+	bool transient_magnitude;
 	bool found_in_results;
 	/// plottable
 	bool plottable;
@@ -122,6 +127,8 @@ private:
 	bool ommit_upper_threshold;
 	/// do not take into account lower voltages
 	bool ommit_lower_threshold;
+
+	Magnitude(){ this->transient_magnitude=false; };
 };
 
 #endif /* MAGNITUDE_H */

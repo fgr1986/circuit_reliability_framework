@@ -52,7 +52,8 @@ DIST_DIR=../dist/
 ###################
 ## Dist elements ##
 ###################
-DIST= $(EXECDIR)$(EXECUTABLE)
+# DIST= $(EXECDIR)$(EXECUTABLE)
+DIST= $(EXECDIR)
 # Headers to be included in dist tar
 DIST_HEADERS=  $(addprefix "../src/", $(HEADERS))
 # SRC cpp to be included in dist tar

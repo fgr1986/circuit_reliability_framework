@@ -48,7 +48,6 @@ DIST_DIR=../dist/
 ###################
 ## Dist elements ##
 ###################
-DIST= $(EXECDIR)$(EXECUTABLE)
 # Headers to be included in dist tar
 DIST_HEADERS=  $(addprefix "../src/", $(HEADERS))
 # SRC cpp to be included in dist tar
@@ -56,6 +55,8 @@ DIST_CPP=  $(addprefix "../src/", $(SRC))
 # makefile to be included in dist tar
 DIST_MAKE= $(addprefix "../src/", makefile)
 # headers
+# DIST= $(EXECDIR)$(EXECUTABLE)
+DIST= $(EXECDIR)
 DIST+=$(DIST_HEADERS)
 # src cpp
 DIST+=$(DIST_CPP)

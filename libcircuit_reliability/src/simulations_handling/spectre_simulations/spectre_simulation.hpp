@@ -448,6 +448,8 @@ protected:
 	 */
 	virtual bool TestSetUp() = 0;
 
+	std::string GetSpectreLogFilePath( const std::string& currentFolder );
+
 	virtual std::string GetSpectreResultsFilePath(const std::string& currentFolder,
 		const bool& processMainTransient);
 

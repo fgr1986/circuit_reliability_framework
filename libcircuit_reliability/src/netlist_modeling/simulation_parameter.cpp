@@ -104,7 +104,7 @@ void SimulationParameter::InitSweep(){
 	if( allowLog ){
 		if( positive ){
 			// (log(b/a)-log(a/a))/ (N-1)
-			this->log_inc = std::log(value_max/value_min )/(sweep_steps_number-1);
+			this->log_inc = std::log(value_max/value_min)/(sweep_steps_number-1);
 		}else{
 			this->log_inc = - std::log(std::abs(value_max/value_min))/(sweep_steps_number-1);
 		}

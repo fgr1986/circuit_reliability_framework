@@ -46,6 +46,8 @@ public:
 	 */
 	std::string get_singular_results_path() const{ return singular_results_path; }
 
+	std::string GetSpectreResultsFilePath();
+
 private:
 	/// Simulation Results
 	TransientSimulationResults basic_simulation_results;

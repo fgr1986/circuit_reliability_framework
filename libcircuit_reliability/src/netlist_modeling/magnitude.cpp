@@ -13,7 +13,9 @@
 #include "../global_functions_and_constants/name_functions.hpp"
 
 Magnitude::Magnitude( const std::string& name) {
+  this->transient_magnitude = true;
 	this->name = name;
+	this->enclosed_name = "\"" + name + "\"";
 	this->title_name = TitleWithoutIllegalChars( name );
 	this->file_name = FilenameWithoutIllegalChars( name );
 	this->valid_formatted_names = true;
@@ -40,12 +42,15 @@ Magnitude::Magnitude( const std::string& name) {
 }
 
 Magnitude::Magnitude(const Magnitude& orig) {
+  this->transient_magnitude = true;
 	this->name = orig.name;
 	if( !orig.valid_formatted_names ){
+		this->enclosed_name = "\"" + name + "\"";
 		this->title_name = TitleWithoutIllegalChars( name );
 		this->file_name = FilenameWithoutIllegalChars( name );
 		this->valid_formatted_names = true;
 	}else{
+		this->enclosed_name = orig.enclosed_name;
 		this->title_name = orig.title_name;
 		this->file_name = orig.file_name;
 		this->valid_formatted_names = true;
@@ -81,12 +86,15 @@ Magnitude::Magnitude(const Magnitude& orig) {
 }
 
 Magnitude::Magnitude(const Magnitude& orig, bool copyValues) {
+  this->transient_magnitude = true;
 	this->name = orig.name;
 	if( !orig.valid_formatted_names ){
+		this->enclosed_name = "\"" + name + "\"";
 		this->title_name = TitleWithoutIllegalChars( name );
 		this->file_name = FilenameWithoutIllegalChars( name );
 		this->valid_formatted_names = true;
 	}else{
+		this->enclosed_name = orig.enclosed_name;
 		this->title_name = orig.title_name;
 		this->file_name = orig.file_name;
 		this->valid_formatted_names = true;
@@ -128,6 +136,7 @@ Magnitude::~Magnitude() {
 
 std::string Magnitude::get_title_name() const{
 	if( !valid_formatted_names ){
+		this->enclosed_name = "\"" + name + "\"";
 		this->title_name = TitleWithoutIllegalChars( name );
 		this->file_name = FilenameWithoutIllegalChars( name );
 		this->valid_formatted_names = true;
@@ -135,8 +144,19 @@ std::string Magnitude::get_title_name() const{
 	return title_name;
 }
 
+std::string Magnitude::get_enclosed_name() const{
+	if( !valid_formatted_names ){
+		this->enclosed_name = "\"" + name + "\"";
+		this->title_name = TitleWithoutIllegalChars( name );
+		this->file_name = FilenameWithoutIllegalChars( name );
+		this->valid_formatted_names = true;
+	}
+	return enclosed_name;
+}
+
 std::string Magnitude::get_file_name() const{
 	if( !valid_formatted_names ){
+		this->enclosed_name = "\"" + name + "\"";
 		this->title_name = TitleWithoutIllegalChars( name );
 		this->file_name = FilenameWithoutIllegalChars( name );
 		this->valid_formatted_names = true;
@@ -146,6 +166,7 @@ std::string Magnitude::get_file_name() const{
 
 void Magnitude::set_name( const std::string name ){
 	this->name = name;
+	this->enclosed_name = "\"" + name + "\"";
 	this->title_name = TitleWithoutIllegalChars( name );
 	this->file_name = FilenameWithoutIllegalChars( name );
 	this->valid_formatted_names = true;

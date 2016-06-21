@@ -84,3 +84,9 @@ int AHDLSimulation::RunSpectre(){
 	#endif
 	return spectre_result;
 }
+
+std::string AHDLSimulation::GetSpectreResultsFilePath(){
+	// instead main_analysis use main_transient_analysis
+	return folder + kFolderSeparator + kSpectreResultsFolder
+		+ kFolderSeparator + main_transient_analysis->get_name() + kTransientSufix;
+}
