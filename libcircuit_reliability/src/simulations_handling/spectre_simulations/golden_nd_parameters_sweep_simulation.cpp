@@ -193,6 +193,7 @@ GoldenSimulation* GoldenNDParametersSweepSimulation::CreateProfile(
 	pGS->set_main_analysis( main_analysis );
 	pGS->set_main_transient_analysis( main_transient_analysis );
 	pGS->set_process_magnitudes( true );
+	// golden always true
 	pGS->set_export_processed_magnitudes( true );
 	pGS->set_export_magnitude_errors( export_magnitude_errors );
 	// copy of simulation_parameters

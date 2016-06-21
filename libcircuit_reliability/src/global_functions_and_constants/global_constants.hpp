@@ -18,11 +18,11 @@
 // XML exporting logs
 // #define XML_EXPORT_VERBOSE ;
 // PSFASCII processing log
-#define PSFASCII_VERBOSE ;
+// #define PSFASCII_VERBOSE ;
 // Spectre handler log
-#define SPECTRE_SIMULATIONS_VERBOSE ;
+// #define SPECTRE_SIMULATIONS_VERBOSE ;
 // Result analysis verbose
-#define RESULTS_ANALYSIS_VERBOSE ; // for each transient etc
+// #define RESULTS_ANALYSIS_VERBOSE ; // for each transient etc
 // #define RESULTS_POST_PROCESSING_VERBOSE ; // for montecarlo etc
 // Result destructors verbose
 // #define DESTRUCTORS_VERBOSE ;

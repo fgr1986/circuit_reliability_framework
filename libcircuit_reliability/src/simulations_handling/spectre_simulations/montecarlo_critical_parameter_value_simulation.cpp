@@ -177,7 +177,7 @@ CriticalParameterValueSimulation* MontecarloCriticalParameterValueSimulation::Cr
 	pCPVS->set_main_analysis( main_analysis );
 	pCPVS->set_main_transient_analysis( main_transient_analysis );
 	pCPVS->set_process_magnitudes( true );
-	pCPVS->set_export_processed_magnitudes( true );
+	pCPVS->set_export_processed_magnitudes( export_processed_magnitudes );
 	pCPVS->set_export_magnitude_errors( export_magnitude_errors );
 	// copy of simulation_parameters
 	pCPVS->CopySimulationParameters( *simulation_parameters );

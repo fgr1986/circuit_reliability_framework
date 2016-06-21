@@ -28,7 +28,8 @@ VariabilitySpectreHandler::VariabilitySpectreHandler() {
 	this->spectre_command_log_arg = kNotDefinedString;
 	this->spectre_command_folder_arg = kNotDefinedString;
 	this->golden_scenario_folder_path = kNotDefinedString;
-	//
+	// export_processed_magnitudes
+	this->export_processed_magnitudes = false;
 	// plot
 	this->plot_scatters = false;
 	this->plot_transients = false;
@@ -163,11 +164,11 @@ bool VariabilitySpectreHandler::RunSimulations(){
 	// result files
 	sss->set_delete_spectre_folders( delete_spectre_folders );
 	sss->set_delete_spectre_transients( delete_spectre_transients );
-	sss->set_delete_processed_transients( delete_processed_transients );
 	// export_processed_magnitudes true, because of scatter plots,
 	// and instead of delete_processed_transients || plot_transients || plot_last_transients
-	sss->set_export_processed_magnitudes( !delete_processed_transients ||
+	sss->set_export_processed_magnitudes( export_processed_magnitudes ||
 		plot_scatters || plot_transients || plot_last_transients );
+	sss->set_delete_processed_transients( sss->get_export_processed_magnitudes() && delete_processed_transients );
 	sss->set_plot_scatters( plot_scatters );
 	sss->set_plot_transients( plot_transients );
 	sss->set_export_magnitude_errors( export_magnitude_errors );
@@ -243,24 +244,14 @@ bool VariabilitySpectreHandler::SimulateStandardAHDLNetlist( ){
 
 bool VariabilitySpectreHandler::ReorderMagnitudes( const std::string& spectreResultTrans ){
 	RAWFormatProcessor rfp;
-	// debug
-	log_io->ReportCyanStandard( "Unsorted" );
-	for( auto const& m : unsorted_magnitudes_2be_found){
-		log_io->ReportCyanStandard( m->get_name() );
-	}
 	bool partialResult = rfp.PrepProcessTransientMagnitudes( &unsorted_magnitudes_2be_found, &magnitudes_2be_found, spectreResultTrans );
 	// debug
-	log_io->ReportCyanStandard( "Sorted" );
+	log_io->ReportCyanStandard( "Sorted Magnitudes to be found" );
 	for( auto const& m : magnitudes_2be_found){
 		log_io->ReportCyanStandard( m->get_name() );
 	}
 	// free memory
 	deleteContentsOfVectorOfPointers( unsorted_magnitudes_2be_found );
-	// debug
-	log_io->ReportCyanStandard( "Sorted 2" );
-	for( auto const& m : magnitudes_2be_found){
-		log_io->ReportCyanStandard( m->get_name() );
-	}
 	return partialResult;
 }
 

@@ -151,6 +151,9 @@ public:
 	 */
 	std::string get_simulation_id() const{ return simulation_id; }
 
+
+ bool get_export_processed_magnitudes() const{ return export_processed_magnitudes; }
+
 	/**
 	 * @brief Set n_dimensional
 	 *

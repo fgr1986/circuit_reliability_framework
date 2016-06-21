@@ -170,7 +170,7 @@ StandardSimulation* MontecarloSimulation::CreateMonteCarloIteration( unsigned in
 	pSS->set_main_analysis( main_analysis );
 	pSS->set_main_transient_analysis( main_transient_analysis );
 	pSS->set_process_magnitudes( true );
-	pSS->set_export_processed_magnitudes( true );
+	pSS->set_export_processed_magnitudes( export_processed_magnitudes );
 	pSS->set_export_magnitude_errors( export_magnitude_errors );
 	// copy of simulation_parameters
 	pSS->CopySimulationParameters( *simulation_parameters );

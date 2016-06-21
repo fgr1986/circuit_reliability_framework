@@ -102,6 +102,9 @@ public:
 		this->variation_scenario_folder_path = variation_scenario_folder_path;
 	}
 
+	void set_export_processed_magnitudes( const bool export_processed_magnitudes ) { this->export_processed_magnitudes = export_processed_magnitudes; }
+	bool get_export_processed_magnitudes() const{ return export_processed_magnitudes; }
+	
 	void set_plot_scatters( bool plot_scatters ) { this->plot_scatters = plot_scatters; }
 	bool get_plot_scatters(){ return plot_scatters; }
 	bool get_plot_transients(){ return plot_transients; }
@@ -179,6 +182,8 @@ private:
 	bool delete_processed_transients;
 	/// deletes spectre folders
 	bool delete_spectre_folders;
+	/// export explicit
+	bool export_processed_magnitudes;
 	/// plot scatter plots
 	bool plot_scatters;
 	/// plot transients

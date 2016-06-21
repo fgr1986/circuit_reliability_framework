@@ -15,6 +15,7 @@
 #include "../spectre_simulations/montecarlo_critical_parameter_nd_parameters_sweep_simulation.hpp"
 
 #include "../../io_handling/results_processor.hpp"
+#include "../../io_handling/raw_format_processor.hpp"
 
 #include "../simulation_results/global_results.hpp"
 #include "../spectre_simulations/critical_parameter_value_simulation.hpp"
@@ -33,6 +34,8 @@ RadiationSpectreHandler::RadiationSpectreHandler() {
 	this->spectre_command_log_arg = kNotDefinedString;
 	this->spectre_command_folder_arg = kNotDefinedString;
 	this->golden_scenario_folder_path = kNotDefinedString;
+	// export_processed_magnitudes
+	this->export_processed_magnitudes = false;
 	// plot
 	this->plot_scatters = false;
 	this->plot_transients = false;
@@ -59,6 +62,8 @@ RadiationSpectreHandler::~RadiationSpectreHandler() {
 	#endif
 	deleteContentsOfVectorOfPointers( simulation_parameters );
 	deleteContentsOfVectorOfPointers( magnitudes_2be_found );
+	// ReorderMagnitudes clears unsorted_magnitudes_2be_found
+	// deleteContentsOfVectorOfPointers( unsorted_magnitudes_2be_found );
 	if( golden_magnitudes_structure ){
 		#ifdef DESTRUCTORS_VERBOSE
 			log_io->ReportPlainStandard( "golden_magnitudes_structure");
@@ -249,9 +254,9 @@ bool RadiationSpectreHandler::RunSimulations(){
 		// result files
 		sss->set_delete_spectre_folders( delete_spectre_folders );
 		sss->set_delete_spectre_transients( delete_spectre_transients );
-		sss->set_delete_processed_transients( delete_processed_transients );
-		sss->set_export_processed_magnitudes( !delete_processed_transients ||
+		sss->set_export_processed_magnitudes( export_processed_magnitudes ||
 			plot_scatters || plot_transients || plot_last_transients );
+		sss->set_delete_processed_transients( sss->get_export_processed_magnitudes() && delete_processed_transients );
 		sss->set_plot_scatters( plot_scatters );
 		sss->set_plot_transients( plot_transients );
 		sss->set_export_magnitude_errors( export_magnitude_errors );
@@ -320,9 +325,24 @@ bool RadiationSpectreHandler::SimulateStandardAHDLNetlist( ){
 	if(radiation_AHDL_s->get_simulation_results()->get_spectre_result() > 0){
 		log_io->ReportError2AllLogs( "WARNING: while simulation the ahdl scenario." );
 	}
+	// Reorder magnitudes
+	bool partialResult = ReorderMagnitudes( radiation_AHDL_s->GetSpectreResultsFilePath() );
 	delete radiation_AHDL_s;
-	log_io->ReportPurpleStandard( "ahdl_golden_ss deleted");
-	return true;
+	log_io->ReportPurpleStandard( "radiation_AHDL_s deleted");
+	return partialResult;
+}
+
+bool RadiationSpectreHandler::ReorderMagnitudes( const std::string& spectreResultTrans ){
+	RAWFormatProcessor rfp;
+	bool partialResult = rfp.PrepProcessTransientMagnitudes( &unsorted_magnitudes_2be_found, &magnitudes_2be_found, spectreResultTrans );
+	// debug
+	log_io->ReportCyanStandard( "Sorted Magnitudes to be found" );
+	for( auto const& m : magnitudes_2be_found){
+		log_io->ReportCyanStandard( m->get_name() );
+	}
+	// free memory
+	deleteContentsOfVectorOfPointers( unsorted_magnitudes_2be_found );
+	return partialResult;
 }
 
 bool RadiationSpectreHandler::SimulateGoldenAHDLNetlist( ){
@@ -463,5 +483,5 @@ bool RadiationSpectreHandler::SimulateGoldenNetlist( ){
 }
 
 void RadiationSpectreHandler::AddMagnitude( Magnitude* magnitude ){
-	this->magnitudes_2be_found.push_back( magnitude );
+	this->unsorted_magnitudes_2be_found.push_back( magnitude );
 }

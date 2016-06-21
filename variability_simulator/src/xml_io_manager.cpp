@@ -300,7 +300,12 @@ bool XMLIOManager::ReadExperimentXML( const std::string &xmlExperiment, int& sta
 		log_io->ReportPlainStandard( variabilitySpectreHandler.get_delete_processed_transients() ?
 			kTab + "Experiment will save individually processed transients." :
 			kTab + "Experiment will not individually save processed transients." );
-
+		variabilitySpectreHandler.set_export_processed_magnitudes( ptExperiment.get<bool>("root.export_processed_magnitudes") );
+		if(variabilitySpectreHandler.get_export_processed_magnitudes()){
+			log_io->ReportPlainStandard( kTab + "Experiment will export_processed_magnitudes.");
+		}else{
+			log_io->ReportPlainStandard( kTab + "Experiment will not export_processed_magnitudes.");
+		}
 		variabilitySpectreHandler.set_plot_scatters( ptExperiment.get<bool>("root.plot_scatters") );
 		if(variabilitySpectreHandler.get_plot_scatters()){
 			log_io->ReportPlainStandard( kTab + "Experiment will plot all the scatters.");

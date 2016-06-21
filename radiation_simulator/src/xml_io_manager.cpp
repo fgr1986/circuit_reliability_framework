@@ -308,6 +308,12 @@ bool XMLIOManager::ReadExperimentXML( const std::string &xmlExperiment, int& sta
 		}else{
 			log_io->ReportPlainStandard( kTab + "Experiment will NOT export magnitude errors.");
 		}
+		radiationSpectreHandler.set_export_processed_magnitudes( ptExperiment.get<bool>("root.export_processed_magnitudes") );
+		if(radiationSpectreHandler.get_export_processed_magnitudes()){
+			log_io->ReportPlainStandard( kTab + "Experiment will export_processed_magnitudes.");
+		}else{
+			log_io->ReportPlainStandard( kTab + "Experiment will not export_processed_magnitudes.");
+		}
 		radiationSpectreHandler.set_plot_scatters( ptExperiment.get<bool>("root.plot_scatters") );
 		if(radiationSpectreHandler.get_plot_scatters()){
 			log_io->ReportPlainStandard( kTab + "Experiment will plot all the scatters.");
@@ -759,7 +765,7 @@ bool XMLIOManager::ProcessSimulationModeChildControlStatement(
 }
 
 bool XMLIOManager::ProcessMagnitude(boost::property_tree::ptree::value_type const &v,
-	int& statementCounter, VariabilitySpectreHandler& variabilitySpectreHandler, CircuitIOHandler& circuitIOHandler){
+	int& statementCounter, RadiationSpectreHandler& radiationSpectreHandler, CircuitIOHandler& circuitIOHandler){
 	Magnitude* mag;
 	// new in v3.0.1
 	if( v.second.get<bool>("magnitude_transient_magnitude") ){
@@ -823,7 +829,7 @@ bool XMLIOManager::ProcessMagnitude(boost::property_tree::ptree::value_type cons
 			mag->set_analyzable_time_window_tf( v.second.get<double>("magnitude_analyzable_time_window_tf") );
 		}
 	}
-	variabilitySpectreHandler.AddMagnitude( mag );
+	radiationSpectreHandler.AddMagnitude( mag );
 	circuitIOHandler.AddMagnitude( mag );
 	return true;
 }
