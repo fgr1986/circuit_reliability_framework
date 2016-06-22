@@ -29,7 +29,7 @@
 #include "../simulations_handling/simulation_mode.hpp"
 // #include "../simulations_handling/spectre_handler.hpp"
 // netlist modeling includes
-#include "../netlist_modeling/magnitude.hpp"
+#include "../metric_modeling/metric.hpp"
 #include "../netlist_modeling/statements/statement.hpp"
 #include "../netlist_modeling/statements/circuit_statement.hpp"
 
@@ -137,11 +137,11 @@ public:
 		this->post_parsing_statement_handler = post_parsing_statement_handler;}
 
 	/**
-	 * @brief Adds a magnitude to the vector of magnitudes
+	 * @brief Adds a metric to the vector of metrics
 	 *
-	 * @param magnitude
+	 * @param metric
 	 */
-	void AddMagnitude( Magnitude* magnitude );
+	void AddMetric( Metric* metric );
 
 
 private:
@@ -153,9 +153,9 @@ private:
 	ExperimentEnvironment* experiment_environment;
 	/// Dependence trees handler.
 	PostParsingStatementHandler* post_parsing_statement_handler;
-	/// List of magnitudes, needed to create the 'monitors'
-	/// and save the magnitudes transients
-	std::vector<Magnitude* > magnitudes;
+	/// List of metrics, needed to create the 'monitors'
+	/// and save the metrics transients
+	std::vector<Metric*> metrics;
 	/// List of parsed circuits.
 	std::vector<std::string> parsed_circuits;
 

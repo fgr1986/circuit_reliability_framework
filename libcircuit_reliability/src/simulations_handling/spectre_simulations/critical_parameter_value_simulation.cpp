@@ -355,26 +355,26 @@ bool CriticalParameterValueSimulation::SimulateParameterCriticalValue(
 			+ number2String(simulationResults.get_spectre_result()) + ". Scenario #"  + localSimulationId );
 		return false;
 	}
-	// Set up magnitudes
-	std::vector<Magnitude*>* analyzedMagnitudes = CreateMagnitudesVectorFromGoldenMagnitudes( n_d_profile_index );
-	// Reading magnitudes
-	if( !ProcessSpectreResults( localSimulationFolder, localSimulationId, simulationResults, false, *analyzedMagnitudes, false ) ){
+	// Set up metrics
+	std::vector<Metric*>* analyzedMetrics = CreateMetricsVectorFromGoldenMetrics( n_d_profile_index );
+	// Reading metrics
+	if( !ProcessSpectreResults( localSimulationFolder, localSimulationId, simulationResults, false, *analyzedMetrics, false ) ){
 		log_io->ReportError2AllLogs( "Error while processing the critical value simulation spectre_results. Scenario #"
 			+ simulation_id );
 		return false;
 	}
-	// Interpolating and analyzing magnitudes
+	// Interpolating and analyzing metrics
 	#ifdef SPECTRE_SIMULATIONS_VERBOSE
 	log_io->ReportPlain2Log( kTab + "#" + simulation_id + " -> Interpolating spectre_results");
 	#endif
 	// Interpolate results
-	if( !InterpolateAndAnalyzeMagnitudes( simulationResults, *analyzedMagnitudes, n_d_profile_index, localSimulationId ) ){
-		log_io->ReportError2AllLogs( "Error while interpolating the critical value magnitudes. Scenario #" + simulation_id );
+	if( !InterpolateAndAnalyzeMetrics( simulationResults, *analyzedMetrics, n_d_profile_index, localSimulationId ) ){
+		log_io->ReportError2AllLogs( "Error while interpolating the critical value metrics. Scenario #" + simulation_id );
 		return false;
 	}
-	// delete analyzed magnitudes
-	deleteContentsOfVectorOfPointers( *analyzedMagnitudes);
-	delete analyzedMagnitudes;
+	// delete analyzed metrics
+	deleteContentsOfVectorOfPointers( *analyzedMetrics);
+	delete analyzedMetrics;
 	return true;
 }
 
@@ -386,8 +386,8 @@ bool CriticalParameterValueSimulation::TestSetUp(){
 	}else if(folder.compare("")==0){
 		log_io->ReportError2AllLogs( "nullptr folder ");
 		return false;
-	}else if( golden_magnitudes_structure== nullptr){
-		log_io->ReportError2AllLogs( "nullptr golden_magnitudes_structure");
+	}else if( golden_metrics_structure== nullptr){
+		log_io->ReportError2AllLogs( "nullptr golden_metrics_structure");
 		return false;
 	}
 	return true;

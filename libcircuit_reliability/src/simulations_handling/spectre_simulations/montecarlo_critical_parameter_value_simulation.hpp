@@ -80,7 +80,7 @@ private:
 
 	bool PlotProfileResults();
 
-	bool PlotProfileResultsMagnitudes(
+	bool PlotProfileResultsMetrics(
 		const std::string& gnuplotScriptFolder, const std::string& imagesFolder );
 
 };

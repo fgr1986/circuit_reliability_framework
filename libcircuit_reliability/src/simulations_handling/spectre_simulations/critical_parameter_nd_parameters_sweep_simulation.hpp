@@ -77,7 +77,7 @@ public:
 	 */
 	void set_plot_last_transients( bool plot_last_transients) { this->plot_last_transients = plot_last_transients; }
 
-	std::vector<unsigned int>* get_magnitude_column_indexes(){ return &magnitude_column_indexes; }
+	std::vector<unsigned int>* get_metric_column_indexes(){ return &metric_column_indexes; }
 
 private:
 
@@ -92,11 +92,11 @@ private:
 	int max_parallel_profile_instances;
 	/// plot last transient
 	bool plot_last_transients;
-	/// data per magnitude per line for gnuplot maps
-	const int data_per_magnitude_per_line = 3;
-	std::vector<unsigned int> magnitude_column_indexes;
+	/// data per metric per line for gnuplot maps
+	const int data_per_metric_per_line = 3;
+	std::vector<unsigned int> metric_column_indexes;
 
-	bool InitMagnitudeColumnIndexes( const std::vector<Magnitude*>& auxMagnitudes );
+	bool InitMetricColumnIndexes( const std::vector<Metric*>& auxMetrics );
 	/**
 	 * @brief Creates a new critical_parameter_value_simulation instance
 	 *
@@ -139,22 +139,22 @@ private:
 		const std::vector< SimulationParameter* > & parameters2sweep  );
 
 	bool GenerateAndPlotGeneralResults(
-		const std::vector<Magnitude*>& auxMagnitudes,
+		const std::vector<Metric*>& auxMetrics,
 		const std::vector<SimulationParameter*>& parameters2sweep,
 		const std::string& mapsFolder, const std::string& gnuplotScriptFolder, const std::string& imagesFolder );
 
-	int GnuplotGeneralMetricMagnitudeResults(
-		const std::vector<Magnitude*>& analyzedMagnitudes, double& maxCritCharge,
+	int GnuplotGeneralMetricMetricResults(
+		const std::vector<Metric*>& analyzedMetrics, double& maxCritCharge,
 		const std::string& mapsFolder, const std::string& gnuplotScriptFolder, const std::string& imagesFolder );
 
 	bool GenerateAndPlotParameterPairResults(
-		const std::vector<Magnitude*>& auxMagnitudes, const unsigned int& totalAnalizableMagnitudes,
+		const std::vector<Metric*>& auxMetrics, const unsigned int& totalAnalizableMetrics,
 		const unsigned int& p1Index, const unsigned int& p2Index,
 		const std::vector<SimulationParameter*>& parameters2sweep,
 		const std::string& mapsFolder, const std::string& gnuplotScriptFolder, const std::string& imagesFolder );
 
 	bool GenerateAndPlotItemizedPlane(
-		const std::vector<Magnitude*>& auxMagnitudes,
+		const std::vector<Metric*>& auxMetrics,
 		const unsigned int& p1Index, const unsigned int& p2Index, const unsigned int& itemizedCount,
 		const std::vector<SimulationParameter*>& parameters2sweep,
 		const std::string& mapsFolder, const std::string& gnuplotScriptFolder, const std::string& imagesFolder,
@@ -166,8 +166,8 @@ private:
 		const std::string& partialPlaneId, const std::string& gnuplotDataFile,
 		const std::string& gnuplotScriptFolder, const std::string& imagesFolder  );
 
-	int GnuplotPlaneMagnitudeResults(
-		const std::vector<Magnitude*>& analyzedMagnitudes,
+	int GnuplotPlaneMetricResults(
+		const std::vector<Metric*>& analyzedMetrics,
 		PlaneResultsStructure& plane, const bool isPartialPlane,
 		const SimulationParameter& p1, const SimulationParameter& p2,
 		const unsigned int& partialPlaneCount,

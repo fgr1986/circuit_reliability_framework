@@ -23,7 +23,7 @@ TransientSimulationResults::TransientSimulationResults() {
 	this->reliability_result = kScenarioNotAnalyzed;
 	this->full_id = kNotDefinedString;
 	this->title = kNotDefinedString;
-	this->has_magnitudes_errors = false;
+	this->has_metrics_errors = false;
 }
 
 TransientSimulationResults::~TransientSimulationResults(){
@@ -33,9 +33,9 @@ TransientSimulationResults::~TransientSimulationResults(){
 	#endif
 	simulation_parameters.clear();
 	#ifdef DESTRUCTORS_VERBOSE
-		std::cout<< "deleteContentsOfVectorOfPointers( magnitudes_errors )\n";
+		std::cout<< "deleteContentsOfVectorOfPointers( metrics_errors )\n";
 	#endif
-	deleteContentsOfVectorOfPointers( magnitudes_errors );
+	deleteContentsOfVectorOfPointers( metrics_errors );
 	#ifdef DESTRUCTORS_VERBOSE
 		std::cout<< "destructor of TransientSimulationResults ended\n";
 	#endif
@@ -53,8 +53,8 @@ void TransientSimulationResults::RegisterSimulationParameters( std::vector<Simul
 	}
 }
 
-void TransientSimulationResults::AddMagnitudeErrors( MagnitudeErrors* magnitudeErrors ){
-	magnitudes_errors.push_back( magnitudeErrors );
+void TransientSimulationResults::AddMetricErrors( MetricErrors* metricErrors ){
+	metrics_errors.push_back( metricErrors );
 }
 
 void TransientSimulationResults::AddTransientImage(

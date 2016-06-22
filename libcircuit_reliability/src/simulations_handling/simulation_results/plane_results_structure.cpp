@@ -22,12 +22,12 @@ PlaneResultsStructure::~PlaneResultsStructure(){
 	#endif
 }
 
-void PlaneResultsStructure::AddGeneralMagnitudeImagePath( const std::string& path, const std::string& title ){
-	general_magnitudes_image_paths.insert( std::make_pair(path, title) );
+void PlaneResultsStructure::AddGeneralMetricImagePath( const std::string& path, const std::string& title ){
+	general_metrics_image_paths.insert( std::make_pair(path, title) );
 }
 
 void PlaneResultsStructure::ResizeItemizedPlanesMemory( unsigned int planesCount ){
-	itemized_magnitudes_image_paths.resize(planesCount);
+	itemized_metrics_image_paths.resize(planesCount);
 }
 
 void PlaneResultsStructure::AddItemizedDataPath( const std::string& path, const std::string& title ){
@@ -38,8 +38,8 @@ void PlaneResultsStructure::AddItemizedImagePath( const std::string& path, const
 	itemized_image_paths.insert( std::make_pair(path, title) );
 }
 
-void PlaneResultsStructure::AddItemizedMagnitudeImagePath( const unsigned int& planeIndex,
+void PlaneResultsStructure::AddItemizedMetricImagePath( const unsigned int& planeIndex,
 		const std::string& path, const std::string& title ){
-	itemized_magnitudes_image_paths.at(planeIndex).insert(
+	itemized_metrics_image_paths.at(planeIndex).insert(
 		std::make_pair(path, title) );
 }

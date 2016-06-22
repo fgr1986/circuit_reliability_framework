@@ -41,10 +41,10 @@ public:
 
 	void ReservePlanesInMemory( unsigned int planesLength );
 
-	// void AddGeneralMagnitudeDataPath( const std::string& path, const std::string& title );
-	void AddGeneralMagnitudeImagePath( const std::string& path, const std::string& title );
-	// std::map<std::string,std::string>* get_general_magnitudes_data_paths(){ return & general_magnitudes_data_paths; };
-	std::map<std::string,std::string>* get_general_magnitudes_image_paths(){ return & general_magnitudes_image_paths; };
+	// void AddGeneralMetricDataPath( const std::string& path, const std::string& title );
+	void AddGeneralMetricImagePath( const std::string& path, const std::string& title );
+	// std::map<std::string,std::string>* get_general_metrics_data_paths(){ return & general_metrics_data_paths; };
+	std::map<std::string,std::string>* get_general_metrics_image_paths(){ return & general_metrics_image_paths; };
 
 protected:
 	// // Log manager
@@ -57,10 +57,10 @@ protected:
 	// general results
 	std::string general_image_path;
 	std::string general_data_path;
-	// for each magnitude, a map with magnitude (path_title)
-	std::map<std::string,std::string> general_magnitudes_image_paths;
+	// for each metric, a map with metric (path_title)
+	std::map<std::string,std::string> general_metrics_image_paths;
 	// data is the same as general_data_path
-	// std::map<std::string,std::string> general_magnitudes_data_paths;
+	// std::map<std::string,std::string> general_metrics_data_paths;
 	// each combination of p1-p2
 	std::vector<PlaneResultsStructure*>* plane_results_structures;
 };

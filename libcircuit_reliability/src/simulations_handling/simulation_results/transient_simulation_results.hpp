@@ -20,7 +20,7 @@
 #include <vector>
 #include <map>
 // Radiation simulator
-#include "../magnitude_errors.hpp"
+#include "../../metric_modeling/metric_errors.hpp"
 #include "../../netlist_modeling/simulation_parameter.hpp"
 
 class TransientSimulationResults {
@@ -43,12 +43,12 @@ public:
 	void RegisterSimulationParameters( std::vector<SimulationParameter*>* simulationParameters );
 
 	/**
-	* @brief Adds a new Magnitude-error pair
+	* @brief Adds a new Metric-error pair
 	*
-	* @param magnitude
+	* @param metric
 	* @param error
 	*/
-	void AddMagnitudeErrors( MagnitudeErrors* magnitudeErrors );
+	void AddMetricErrors( MetricErrors* metricErrors );
 
 	/**
 	* @brief set spectre_result
@@ -83,10 +83,10 @@ public:
 	std::string get_s_reliability_result();
 
 	/**
-	* @brief gets the lists of errors in the magnitudes
-	* @return magnitudes_errors
+	* @brief gets the lists of errors in the metrics
+	* @return metrics_errors
 	*/
-	std::vector<MagnitudeErrors*>* get_magnitudes_errors(){ return &magnitudes_errors; }
+	std::vector<MetricErrors*>* get_metrics_errors(){ return &metrics_errors; }
 
 	/**
 	* @brief get simulation_parameters list
@@ -165,21 +165,21 @@ public:
 	std::string get_title() const{ return title; }
 
 	/**
-	* @brief returns true if there has been any error in any magnitude
-	* @return has_magnitudes_errors
+	* @brief returns true if there has been any error in any metric
+	* @return has_metrics_errors
 	*/
-	bool get_has_magnitudes_errors() const{return has_magnitudes_errors;}
+	bool get_has_metrics_errors() const{return has_metrics_errors;}
 
-	void set_has_magnitudes_errors( bool has_magnitudes_errors ){ this->has_magnitudes_errors = has_magnitudes_errors; }
+	void set_has_metrics_errors( bool has_metrics_errors ){ this->has_metrics_errors = has_metrics_errors; }
 
 private:
 	/// simulated parameters: name-value
 	std::map<std::string,std::string> simulation_parameters;
-	/// magnitude errors:
-	/// one per magnitude
-	std::vector<MagnitudeErrors*> magnitudes_errors;
-	/// has magnitude errors
-	bool has_magnitudes_errors;
+	/// metric errors:
+	/// one per metric
+	std::vector<MetricErrors*> metrics_errors;
+	/// has metric errors
+	bool has_metrics_errors;
 	/// spectre result
 	int spectre_result;
 	/// reliability result

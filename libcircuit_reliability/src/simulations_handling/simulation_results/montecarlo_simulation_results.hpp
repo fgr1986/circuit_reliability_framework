@@ -20,13 +20,13 @@
 #include <vector>
 #include <map>
 // Radiation simulator
-#include "../magnitude_errors.hpp"
+#include "../../metric_modeling/metric_errors.hpp"
 #include "../../netlist_modeling/simulation_parameter.hpp"
 
 // structure containing the summary results
 // regarding a specific metric of several montecarlo transients
 struct metric_montecarlo_results_t {
-	std::string metric_magnitude_name;
+	std::string metric_name;
 	std::string mc_scatter_image_path;
 	// includes punctual errors
 	double max_error_global;
@@ -65,8 +65,8 @@ public:
 	int get_spectre_result() const { return spectre_result; }
 
 	/**
-	* @brief gets the lists of errors in the magnitudes
-	* @return magnitudes_errors
+	* @brief gets the lists of errors in the metrics
+	* @return metrics_errors
 	*/
 	std::vector<metric_montecarlo_results_t*>* get_metric_montecarlo_results(){ return &metric_montecarlo_results; }
 
@@ -148,7 +148,7 @@ private:
 	std::string critical_parameter_value_image_path;
 	/// results for montecarlo_critical_parameter_value_simulation_nd_parameter sim
 	std::string critical_parameter_value_data_path;
-	/// magnitude errors: magnitude-has_error
+	/// metric errors: metric-has_error
 	std::vector<metric_montecarlo_results_t*> metric_montecarlo_results;
 	/// spectre result
 	int spectre_result;

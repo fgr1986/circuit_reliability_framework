@@ -6,7 +6,8 @@
  */
 
  #include <iostream>
-/// radiation simulator
+
+/// reliability simulator
 #include "magnitude.hpp"
 /// constants
 #include "../global_functions_and_constants/global_constants.hpp"
@@ -131,51 +132,17 @@ Magnitude::Magnitude(const Magnitude& orig, bool copyValues) {
 	}
 }
 
+Magnitude* Magnitude::GetCopy() {
+	return new Magnitude(*this);
+}
+
 Magnitude::~Magnitude() {
-}
-
-std::string Magnitude::get_title_name() const{
-	if( !valid_formatted_names ){
-		this->enclosed_name = "\"" + name + "\"";
-		this->title_name = TitleWithoutIllegalChars( name );
-		this->file_name = FilenameWithoutIllegalChars( name );
-		this->valid_formatted_names = true;
-	}
-	return title_name;
-}
-
-std::string Magnitude::get_enclosed_name() const{
-	if( !valid_formatted_names ){
-		this->enclosed_name = "\"" + name + "\"";
-		this->title_name = TitleWithoutIllegalChars( name );
-		this->file_name = FilenameWithoutIllegalChars( name );
-		this->valid_formatted_names = true;
-	}
-	return enclosed_name;
-}
-
-std::string Magnitude::get_file_name() const{
-	if( !valid_formatted_names ){
-		this->enclosed_name = "\"" + name + "\"";
-		this->title_name = TitleWithoutIllegalChars( name );
-		this->file_name = FilenameWithoutIllegalChars( name );
-		this->valid_formatted_names = true;
-	}
-	return file_name;
-}
-
-void Magnitude::set_name( const std::string name ){
-	this->name = name;
-	this->enclosed_name = "\"" + name + "\"";
-	this->title_name = TitleWithoutIllegalChars( name );
-	this->file_name = FilenameWithoutIllegalChars( name );
-	this->valid_formatted_names = true;
 }
 
 void Magnitude::AddValue( double value ){
 	values.push_back( value );
 }
 
-double Magnitude::GetValue( int position ){
-	return values.at( position );
+double Magnitude::get_value_at( const int index ){
+	return values.at( index );
 }

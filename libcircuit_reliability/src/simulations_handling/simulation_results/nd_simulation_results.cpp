@@ -40,10 +40,10 @@ void NDSimulationResults::ReservePlanesInMemory( unsigned int planesLength ){
 	plane_results_structures->reserve(planesLength);
 }
 
-// void NDSimulationResults::AddGeneralMagnitudeDataPath( const std::string& path, const std::string& title ){
-// 	general_magnitudes_data_paths.insert( std::make_pair(path, title) );
+// void NDSimulationResults::AddGeneralMetricDataPath( const std::string& path, const std::string& title ){
+// 	general_metrics_data_paths.insert( std::make_pair(path, title) );
 // }
 
-void NDSimulationResults::AddGeneralMagnitudeImagePath( const std::string& path, const std::string& title ){
-	general_magnitudes_image_paths.insert( std::make_pair(path, title) );
+void NDSimulationResults::AddGeneralMetricImagePath( const std::string& path, const std::string& title ){
+	general_metrics_image_paths.insert( std::make_pair(path, title) );
 }

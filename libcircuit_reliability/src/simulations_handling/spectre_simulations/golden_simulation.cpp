@@ -13,15 +13,18 @@
 
 // Radiation simulator
 #include "golden_simulation.hpp"
-// constants
+
 #include "../../io_handling/raw_format_processor.hpp"
+
+#include "../../metric_modeling/ocean_eval_metric.hpp"
+// constants
 #include "../../global_functions_and_constants/global_constants.hpp"
 #include "../../global_functions_and_constants/global_template_functions.hpp"
 #include "../../global_functions_and_constants/files_folders_io_constants.hpp"
 #include "../../global_functions_and_constants/gnuplot_constants.hpp"
 
 GoldenSimulation::GoldenSimulation() {
-	this->export_processed_magnitudes = true;
+	this->export_processed_metrics = true;
 	this->singular_results_path = kNotDefinedString;
 }
 
@@ -30,14 +33,14 @@ GoldenSimulation::~GoldenSimulation(){
 	#ifdef DESTRUCTORS_VERBOSE
 	   std::cout<< "GoldenSimulation destructor. direction:" << this << "\n";
 	#endif
-	if( process_magnitudes && processed_magnitudes!= nullptr ){
+	if( process_metrics && processed_metrics!= nullptr ){
 		#ifdef DESTRUCTORS_VERBOSE
-			std::cout<< "Deleting processed_magnitudes\n";
+			std::cout<< "Deleting processed_metrics\n";
 		#endif
-		deleteContentsOfVectorOfPointers( *processed_magnitudes );
-		delete processed_magnitudes;
+		deleteContentsOfVectorOfPointers( *processed_metrics );
+		delete processed_metrics;
 		#ifdef DESTRUCTORS_VERBOSE
-			std::cout<< "processed_magnitudes deleted\n";
+			std::cout<< "processed_metrics deleted\n";
 		#endif
 	}
 }
@@ -60,22 +63,22 @@ void GoldenSimulation::RunSimulation( ){
 	// Register Parameters
 	transient_simulation_results.RegisterSimulationParameters(simulation_parameters);
 	transient_simulation_results.set_spectre_result( RunSpectre() );
-	if( correctly_simulated && process_magnitudes ){
+	if( correctly_simulated && process_metrics ){
 		// process
-		// log_io->ReportPlain2Log( k2Tab + "#" + simulation_id + " scenario: processing magnitudes.");
-		// Set up magnitudes
-		// log_io->ReportPlain2Log( k3Tab + "#" + simulation_id + " scenario: creating magnitudes from golden.");
-		processed_magnitudes = CreateGoldenMagnitudesVector();
+		// log_io->ReportPlain2Log( k2Tab + "#" + simulation_id + " scenario: processing metrics.");
+		// Set up metrics
+		// log_io->ReportPlain2Log( k3Tab + "#" + simulation_id + " scenario: creating metrics from golden.");
+		processed_metrics = CreateGoldenMetricsVector();
 		// log_io->ReportPlain2Log( k3Tab + "#" + simulation_id + " scenario: processing results.");
 		// process spectre results
-		if( !ProcessSpectreResults( folder, simulation_id, transient_simulation_results, true, *processed_magnitudes, true  ) ){
+		if( !ProcessSpectreResults( folder, simulation_id, transient_simulation_results, true, *processed_metrics, true  ) ){
 			log_io->ReportError2AllLogs( "Error while processing GOLDEN spectre_results. Scenario #" + simulation_id );
 			return;
 		}
 		// if simple golden simulation (not sweep)
 		if(!is_nested_simulation){
-			golden_magnitudes_structure = new NDMagnitudesStructure();
-			golden_magnitudes_structure->SimpleInitialization( 1, *processed_magnitudes, singular_results_path );
+			golden_metrics_structure = new NDMetricsStructure();
+			golden_metrics_structure->SimpleInitialization( 1, *processed_metrics, singular_results_path );
 		}
 		// plot transiets if required
 		if( correctly_processed && plot_transients ){
@@ -121,25 +124,31 @@ int GoldenSimulation::RunSpectre(){
 	return spectre_result;
 }
 
-NDMagnitudesStructure* GoldenSimulation::GetGoldenMagnitudes(){
-	NDMagnitudesStructure* gms = new NDMagnitudesStructure(*golden_magnitudes_structure);
+NDMetricsStructure* GoldenSimulation::GetGoldenMetrics(){
+	NDMetricsStructure* gms = new NDMetricsStructure(*golden_metrics_structure);
 	return gms;
 }
 
-std::vector<Magnitude*>* GoldenSimulation::CreateGoldenMagnitudesVector(){
+std::vector<Metric*>* GoldenSimulation::CreateGoldenMetricsVector(){
 	#ifdef SPECTRE_SIMULATIONS_VERBOSE
-		log_io->ReportPlain2Log( k2Tab + "#" + simulation_id + " scenario: Setting up Magnitudes" );
+		log_io->ReportPlain2Log( k2Tab + "#" + simulation_id + " scenario: Setting up Metrics" );
 	#endif
-	if( magnitudes_2be_found==nullptr ){
-		log_io->ReportError2AllLogs( "null magnitudes_2be_found in CreateGoldenMagnitudesVector, simulation_id:" + simulation_id );
+	if( metrics_2be_found==nullptr ){
+		log_io->ReportError2AllLogs( "null metrics_2be_found in CreateGoldenMetricsVector, simulation_id:" + simulation_id );
 		return nullptr;
 	}
-	std::vector<Magnitude*>* parameterMagnitudes = new std::vector<Magnitude*>();
-	for( auto const &m : *magnitudes_2be_found ){
-		// Create an empty copy of each magnitude
-		parameterMagnitudes->push_back( new Magnitude(*m, false) );
+	std::vector<Metric*>* parameterMetrics = new std::vector<Metric*>();
+	for( auto const &m : *metrics_2be_found ){
+		// Create an empty copy of each metric
+		if( m->is_transient_magnitude() ){
+			auto pMag = static_cast<Magnitude*>( m );
+			parameterMetrics->push_back( new Magnitude(*pMag, false) );
+		}else{
+			auto pOceanEvalMag = static_cast<OceanEvalMetric*>( m );
+			parameterMetrics->push_back( new OceanEvalMetric(* pOceanEvalMag) );
+		}
 	}
-	return parameterMagnitudes;
+	return parameterMetrics;
 }
 
 
@@ -170,30 +179,33 @@ int GoldenSimulation::CreateGoldenGnuplotTransientImages(){
 	gnuplotScriptFile <<  "set style line 1 lc rgb '#5e9c36' pt 6 ps 1 lt 1 lw 2 # --- green\n";
 	// plots
 	int indexCount = 2;
-	for(std::vector<Magnitude*>::iterator it_mg = ++(processed_magnitudes->begin());
-		it_mg != processed_magnitudes->end(); it_mg++){
-		if( (*it_mg)->get_plottable()  && (*it_mg)->get_found_in_results() ){
-			std::string mgName = (*it_mg)->get_title_name();
-			// Svg
-			gnuplotScriptFile <<  "set term svg  size "<< kSvgImageWidth << ","
-				<< kSvgImageHeight << " fname " << kSvgFont << "\n";
-			gnuplotScriptFile <<  "set output \"" << outputImagePath << "_m_"
-				<< mgName << kGnuplotTransientSVGSufix << "\"\n";
+	for(std::vector<Metric*>::iterator it_mg = ++(processed_metrics->begin());
+		it_mg != processed_metrics->end(); ++it_mg){
+		if( (*it_mg)->is_transient_magnitude() ){
+			auto pMag = static_cast<Magnitude*>(*it_mg);
 
-			// magnitudes
-			gnuplotScriptFile <<  "set xlabel \"time\"\n";
-			gnuplotScriptFile <<  "set ylabel \"" << mgName <<  "\"\n";
-			gnuplotScriptFile <<  "set title \"" << mgName << " \"\n";
-			gnuplotScriptFile <<  "set key bottom right\n";
-			// Plot
-			gnuplotScriptFile <<  "plot '" << transient_simulation_results.get_processed_file_path() << "' u 1:"
-				+ number2String(indexCount) << " w lp ls 1 title 'golden'\n";
-			gnuplotScriptFile << "unset output\n";
-			// Add images path
-			transient_simulation_results.AddTransientImage(
-				outputImagePath + "_m_" + mgName + kGnuplotTransientSVGSufix, (*it_mg)->get_name() );
-		}else if( (*it_mg)->get_plottable() ){
-			log_io->ReportError2AllLogs( (*it_mg)->get_name() + " not found in results." );
+			if( pMag->get_plottable()  && pMag->get_found_in_results() ){
+				std::string mgName = (*it_mg)->get_title_name();
+				// Svg
+				gnuplotScriptFile <<  "set term svg  size "<< kSvgImageWidth << ","
+					<< kSvgImageHeight << " fname " << kSvgFont << "\n";
+				gnuplotScriptFile <<  "set output \"" << outputImagePath << "_m_"
+					<< mgName << kGnuplotTransientSVGSufix << "\"\n";
+				// metrics
+				gnuplotScriptFile <<  "set xlabel \"time\"\n";
+				gnuplotScriptFile <<  "set ylabel \"" << mgName <<  "\"\n";
+				gnuplotScriptFile <<  "set title \"" << mgName << " \"\n";
+				gnuplotScriptFile <<  "set key bottom right\n";
+				// Plot
+				gnuplotScriptFile <<  "plot '" << transient_simulation_results.get_processed_file_path() << "' u 1:"
+					+ number2String(indexCount) << " w lp ls 1 title 'golden'\n";
+				gnuplotScriptFile << "unset output\n";
+				// Add images path
+				transient_simulation_results.AddTransientImage(
+					outputImagePath + "_m_" + mgName + kGnuplotTransientSVGSufix, (*it_mg)->get_name() );
+			}else if( pMag->get_plottable() ){
+				log_io->ReportError2AllLogs( (*it_mg)->get_name() + " not found in results." );
+			}
 		}
 		indexCount++;
 	}

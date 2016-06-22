@@ -56,7 +56,7 @@ if [ -d $INCLUDE_CIRCUIT_RELIABILITY_DIRECTORY ]; then
 	## copy all the headers, preserving the folders structure
 	# rsync -avm --include='*.hpp' -f 'hide,! */' $SOURCES_FOLDER $INCLUDE_CIRCUIT_RELIABILITY_DIRECTORY
 	# copy all the headers, preserving the folders structure
-	rsync -avm --include='*.*' -f 'hide,! */' $SOURCES_FOLDER $INCLUDE_CIRCUIT_RELIABILITY_DIRECTORY
+	sudo rsync -avm --include='*.*' -f 'hide,! */' $SOURCES_FOLDER $INCLUDE_CIRCUIT_RELIABILITY_DIRECTORY
 else
 	echo ""
 	echo ""
@@ -77,7 +77,7 @@ if [ -d $LIB_PATH_CIRCUIT_RELIABILITY_DIRECTORY ]; then
 	echo ""
 	echo ""
 	echo "Copying binary files in $LIB_PATH_CIRCUIT_RELIABILITY_DIRECTORY"
-	cp $BINARY_FOLDER/$BINARY $LIB_PATH_CIRCUIT_RELIABILITY_DIRECTORY
+	sudo cp $BINARY_FOLDER/$BINARY $LIB_PATH_CIRCUIT_RELIABILITY_DIRECTORY
 
 #	Creates library link
 	echo "Creates library link:    ln -sf $LIB_PATH_CIRCUIT_RELIABILITY_DIRECTORY/$BINARY $LIB_PATH_CIRCUIT_RELIABILITY_DIRECTORY/$LIBRARY_NAME "

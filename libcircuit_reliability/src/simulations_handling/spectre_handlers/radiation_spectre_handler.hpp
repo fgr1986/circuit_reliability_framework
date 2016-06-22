@@ -21,8 +21,8 @@
 #include "../../io_handling/log_io.hpp"
 // Netlist modeling
 #include "../../netlist_modeling/altered_scenario_summary.hpp"
-#include "../../netlist_modeling/magnitude.hpp"
-#include "../../netlist_modeling/n_d_magnitudes_structure.hpp"
+#include "../../metric_modeling/metric.hpp"
+#include "../../metric_modeling/n_d_metrics_structure.hpp"
 #include "../../netlist_modeling/statements/radiation_source_subcircuit_statement.hpp"
 
 class RadiationSpectreHandler {
@@ -86,15 +86,15 @@ public:
 		this->top_folder = top_folder;
 	}
 
-	void set_export_processed_magnitudes( const bool export_processed_magnitudes ) { this->export_processed_magnitudes = export_processed_magnitudes; }
-	bool get_export_processed_magnitudes() const{ return export_processed_magnitudes; }
+	void set_export_processed_metrics( const bool export_processed_metrics ) { this->export_processed_metrics = export_processed_metrics; }
+	bool get_export_processed_metrics() const{ return export_processed_metrics; }
 
 	void set_plot_scatters( const bool plot_scatters ) { this->plot_scatters = plot_scatters; }
 	bool get_plot_scatters(){ return plot_scatters; }
-	bool get_export_magnitude_errors(){ return export_magnitude_errors; }
+	bool get_export_metric_errors(){ return export_metric_errors; }
 	void set_plot_transients( bool plot_transients ) { this->plot_transients = plot_transients; }
 	bool get_plot_transients(){ return plot_transients; }
-	void set_export_magnitude_errors( bool export_magnitude_errors ) { this->export_magnitude_errors = export_magnitude_errors; }
+	void set_export_metric_errors( bool export_metric_errors ) { this->export_metric_errors = export_metric_errors; }
 
 	bool get_plot_last_transients(){ return plot_last_transients; }
 	void set_plot_last_transients( bool plot_last_transients) { this->plot_last_transients = plot_last_transients; }
@@ -135,7 +135,7 @@ public:
 		this->max_parallel_scenario_instances = max_parallel_scenario_instances; }
 
 
-	void AddMagnitude( Magnitude* magnitude );
+	void AddMetric( Metric* metric );
 	void AddScenarioFolderPath( const int alteredScenarioId,
 		const std::string alteredScenarioFolderPath, const std::string alteredStatementPath );
 
@@ -183,7 +183,7 @@ private:
 	/// deletes spectre folders
 	bool delete_spectre_folders;
 	/// export  (explicit)
-	bool export_processed_magnitudes;
+	bool export_processed_metrics;
 	/// plot scatter plots
 	bool plot_scatters;
 	/// plot transients
@@ -191,8 +191,8 @@ private:
 	/// only for critical_parameter_1d_parameter_sweep_simulation
 	/// (and others involving critical_parameter_simulation arrays)
 	bool plot_last_transients;
-	/// exports magnitude errors
-	bool export_magnitude_errors;
+	/// exports metric errors
+	bool export_metric_errors;
 
 	/// max parallel instances per parameter
 	unsigned int montecarlo_iterations;
@@ -214,12 +214,12 @@ private:
 	std::vector<AlteredScenarioSummary*> altered_scenarios;
 	std::string ahdl_shipdb_folder_path;
 	std::string ahdl_simdb_folder_path;
-	// Unsorted Magnitudes which are going to be processed
-	std::vector<Magnitude*> unsorted_magnitudes_2be_found;
-	// Magnitudes which are going to be processed
-	std::vector<Magnitude*> magnitudes_2be_found;
-	// Golden Magnitudes
-	NDMagnitudesStructure* golden_magnitudes_structure;
+	// Unsorted Metrics which are going to be processed
+	std::vector<Metric*> unsorted_metrics_2be_found;
+	// Metrics which are going to be processed
+	std::vector<Metric*> metrics_2be_found;
+	// Golden Metrics
+	NDMetricsStructure* golden_metrics_structure;
 	bool export_matlab_script;
 	int interpolate_plots_ratio;
 	/// max parallel instances per parameter_sweep
@@ -244,7 +244,7 @@ private:
 
 	bool ProcessScenarioStatistics();
 
-	bool ReorderMagnitudes( const std::string& spectreResultTrans );
+	bool ReorderMetrics( const std::string& spectreResultTrans );
 };
 
 #endif /* RADIATION_SPECTRE_HANDLER_H */

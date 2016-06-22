@@ -1,5 +1,5 @@
  /**
- * @file magnitude_errors.cpp
+ * @file metric_errors.cpp
  *
  * @date Created on: March 28, 2014
  *
@@ -7,26 +7,26 @@
  *
  * @section DESCRIPTION
  *
- * This MagnitudeErrors Class body.
+ * This MetricErrors Class body.
  *
  */
 
 // Radiation simulator
-#include "magnitude_errors.hpp"
+#include "metric_errors.hpp"
 // constants
 #include "../global_functions_and_constants/global_constants.hpp"
 
-MagnitudeErrors::MagnitudeErrors() {
-	this->magnitude_name = kNotDefinedString;
+MetricErrors::MetricErrors() {
+	this->metric_name = kNotDefinedString;
 	this->has_errors = false;
 	this->max_abs_error= 0;
 	this->max_abs_error_global = 0;
 }
 
-MagnitudeErrors::~MagnitudeErrors(){
+MetricErrors::~MetricErrors(){
 	error_timing.clear();
 }
 
-void MagnitudeErrors::AddErrorTiming( std::string start, std::string stop ){
+void MetricErrors::AddErrorTiming( std::string start, std::string stop ){
 	error_timing.insert(std::make_pair(start, stop));
 }

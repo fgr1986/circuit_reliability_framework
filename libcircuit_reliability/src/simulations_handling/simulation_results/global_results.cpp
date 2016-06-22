@@ -97,10 +97,10 @@ bool GlobalResults::ProcessCriticalParameterValueSimulationMode(){
 	std::ofstream outputFile;
 	std::string outputFilePath = data_folder + "/" + kSummaryFile.c_str();
 	SimulationParameter* criticalParameter = nullptr;
-	std::vector<Magnitude*>* auxMagnitudes = nullptr;
+	std::vector<Metric*>* auxMetrics = nullptr;
 	unsigned int firstMagOffset = 9;
 	unsigned int critParamOffset = 8;
-	unsigned int dataPerMagnitudePerLine = 3;
+	unsigned int dataPerMetricPerLine = 3;
 	try{
 		outputFile.open( outputFilePath );
 		if (!outputFile){
@@ -110,9 +110,9 @@ bool GlobalResults::ProcessCriticalParameterValueSimulationMode(){
 		// aux variables
 		criticalParameter = (* simulations->begin())->get_golden_critical_parameter();
 		// aux mags
-		auxMagnitudes = ((* simulations->begin())->get_golden_magnitudes_structure())->GetMagnitudesVector( 0 );
-		if( criticalParameter == nullptr || auxMagnitudes==nullptr ){
-			log_io->ReportError2AllLogs( "null criticalParameter or auxMagnitudes");
+		auxMetrics = ((* simulations->begin())->get_golden_metrics_structure())->GetMetricsVector( 0 );
+		if( criticalParameter == nullptr || auxMetrics==nullptr ){
+			log_io->ReportError2AllLogs( "null criticalParameter or auxMetrics");
 			return false;
 		}
 		outputFile << "# Summary file for standard simulation mode\n";
@@ -133,9 +133,9 @@ bool GlobalResults::ProcessCriticalParameterValueSimulationMode(){
 				<< " " << affectedByMaxVal
 				<< " " << pCPVS->get_critical_parameter_value();
 			// mag errors
-			auto magErrors = pCPVS->get_last_valid_transient_simulation_results()->get_magnitudes_errors();
+			auto magErrors = pCPVS->get_last_valid_transient_simulation_results()->get_metrics_errors();
 			for( auto const &m : *magErrors ){
-				outputFile << " " << m->get_magnitude_name() << " " << m->get_max_abs_error_global()
+				outputFile << " " << m->get_metric_name() << " " << m->get_max_abs_error_global()
 					<< " " << m->get_max_abs_error();
 			}
 			outputFile << "\n";
@@ -150,16 +150,16 @@ bool GlobalResults::ProcessCriticalParameterValueSimulationMode(){
 	// plot it!
 	if( correctlyExported ){
 		correctlyExported = correctlyExported & PlotCriticalParameterValueSimulationMode(
-			*auxMagnitudes, critParamOffset, firstMagOffset,
-			dataPerMagnitudePerLine, *criticalParameter, outputFilePath);
+			*auxMetrics, critParamOffset, firstMagOffset,
+			dataPerMetricPerLine, *criticalParameter, outputFilePath);
 	}
 	// fgarcia, is it already finished?
 	return correctlyExported;
 }
 
 bool GlobalResults::PlotCriticalParameterValueSimulationMode(
-		const std::vector<Magnitude*>& analyzedMagnitudes, const unsigned int &critParamOffset,
-		const unsigned int& firstMagOffset, const unsigned int& dataPerMagnitudePerLine,
+		const std::vector<Metric*>& analyzedMetrics, const unsigned int &critParamOffset,
+		const unsigned int& firstMagOffset, const unsigned int& dataPerMetricPerLine,
 		const SimulationParameter& criticalParameter, const std::string& gnuplotDataFile ){
 	int partialResult = 0;
 	bool correctlyExported = true;
@@ -217,9 +217,9 @@ bool GlobalResults::PlotCriticalParameterValueSimulationMode(
 	// Exec comand
 	std::string execCommand = kGnuplotCommand + generalGSFPath + kGnuplotEndCommand;
 	partialResult += std::system( execCommand.c_str() );
-	// plot magnitudes
+	// plot metrics
 	unsigned int magCount = 0;
-	for( auto const &m : analyzedMagnitudes ){
+	for( auto const &m : analyzedMetrics ){
 		if( m->get_analyzable() ){
 			// Files
 			std::string gnuplotScriptFilePath = gnuplot_script_folder + kFolderSeparator
@@ -243,7 +243,7 @@ bool GlobalResults::PlotCriticalParameterValueSimulationMode(
 				gnuplotScriptFile << "set format y2 \"%g\"\n";
 				gnuplotScriptFile << "set xlabel \"Profile\"\n";
 				gnuplotScriptFile << "set y2label \"" << criticalParameter.get_title_name() << " \%\"\n";
-				gnuplotScriptFile << "set ylabel \"Error in magnitude "  << m->get_title_name() << "\"\n";
+				gnuplotScriptFile << "set ylabel \"Error in metric "  << m->get_title_name() << "\"\n";
 				// # remove border on top and right and set color to gray
 				gnuplotScriptFile << "set style line 11 lc rgb '#808080' lt 1\n";
 				gnuplotScriptFile << "set border 3 back ls 11\n";
@@ -262,7 +262,7 @@ bool GlobalResults::PlotCriticalParameterValueSimulationMode(
 				gnuplotScriptFile <<  "set style fill transparent solid 0.5\n";
 				// // Background
 				gnuplotScriptFile << kWholeBackground << "\n";
-				int magDataIndex = firstMagOffset + dataPerMagnitudePerLine*magCount; // title
+				int magDataIndex = firstMagOffset + dataPerMetricPerLine*magCount; // title
 				gnuplotScriptFile <<  "plot '" << gnuplotDataFile << "' using 1:"<< critParamOffset
 					<<" axis x1y2 with filledcurve x1 ls 3 title '\% "
 					<< criticalParameter.get_title_name() << "', \\\n";
@@ -309,7 +309,7 @@ bool GlobalResults::ProcessCriticalParameterNDParametersSweepSimulationMode(){
 	std::map<std::string, std::string> paths;
 	ResultsProcessor rp;
 	auto pFirstMagColumnIndexes= ( dynamic_cast<CriticalParameterNDParameterSweepSimulation*>(
-		(*simulations->begin())) )->get_magnitude_column_indexes();
+		(*simulations->begin())) )->get_metric_column_indexes();
 	for( auto const &s : *simulations ){
 		auto pCPNDPSS = dynamic_cast<CriticalParameterNDParameterSweepSimulation*>(s);
 		paths.insert( std::make_pair(
@@ -321,24 +321,24 @@ bool GlobalResults::ProcessCriticalParameterNDParametersSweepSimulationMode(){
 	// plot it!
 	if( partialResult ){
 		SimulationParameter* criticalParameter = nullptr;
-		std::vector<Magnitude*>* auxMagnitudes = nullptr;
+		std::vector<Metric*>* auxMetrics = nullptr;
 		// # not that each computed column will have mean, max and min values
 		// #profCount #Profile #Qcoll #MAG_i_name #MAG_i_maxErrorGlobal #MAG_i_maxErrorMetric
 		unsigned int firstMagOffset = 6;
 		unsigned int critParamOffset = 3;
-		unsigned int dataPerMagnitudePerLine = 3;
+		unsigned int dataPerMetricPerLine = 3;
 		// aux variables
 		criticalParameter = (* simulations->begin())->get_golden_critical_parameter();
 		// aux mags
-		auxMagnitudes = ((* simulations->begin())->get_golden_magnitudes_structure())->GetMagnitudesVector( 0 );
-		if( criticalParameter == nullptr || auxMagnitudes==nullptr ){
-			log_io->ReportError2AllLogs( "null criticalParameter or auxMagnitudes");
+		auxMetrics = ((* simulations->begin())->get_golden_metrics_structure())->GetMetricsVector( 0 );
+		if( criticalParameter == nullptr || auxMetrics==nullptr ){
+			log_io->ReportError2AllLogs( "null criticalParameter or auxMetrics");
 			return false;
 		}
 		// create gnuplot scatter map graphs
 		partialResult = partialResult & PlotCriticalParameterNDParametersSweepSimulationMode(
-			*auxMagnitudes, critParamOffset, firstMagOffset,
-			dataPerMagnitudePerLine, *criticalParameter, outputFilePath);
+			*auxMetrics, critParamOffset, firstMagOffset,
+			dataPerMetricPerLine, *criticalParameter, outputFilePath);
 	}
 	// fgarcia
 	// critical parameter value for each Scenario (mean between profiles)
@@ -347,8 +347,8 @@ bool GlobalResults::ProcessCriticalParameterNDParametersSweepSimulationMode(){
 }
 
 bool GlobalResults::PlotCriticalParameterNDParametersSweepSimulationMode(
-		const std::vector<Magnitude*>& analyzedMagnitudes, const unsigned int &critParamOffset,
-		const unsigned int& firstMagOffset, const unsigned int& dataPerMagnitudePerLine,
+		const std::vector<Metric*>& analyzedMetrics, const unsigned int &critParamOffset,
+		const unsigned int& firstMagOffset, const unsigned int& dataPerMetricPerLine,
 		const SimulationParameter& criticalParameter, const std::string& gnuplotDataFile ){
 	int partialResult = 0;
 	bool correctlyExported = true;
@@ -414,9 +414,9 @@ bool GlobalResults::PlotCriticalParameterNDParametersSweepSimulationMode(
 	// Exec comand
 	std::string execCommand = kGnuplotCommand + generalGSFPath + kGnuplotEndCommand;
 	partialResult += std::system( execCommand.c_str() );
-	// plot magnitudes
+	// plot metrics
 	unsigned int magCount = 0;
-	for( auto const &m : analyzedMagnitudes ){
+	for( auto const &m : analyzedMetrics ){
 		if( m->get_analyzable() ){
 			// Files
 			std::string gnuplotScriptFilePath = gnuplot_script_folder + kFolderSeparator
@@ -440,7 +440,7 @@ bool GlobalResults::PlotCriticalParameterNDParametersSweepSimulationMode(
 				gnuplotScriptFile << "set format y2 \"%g\"\n";
 				gnuplotScriptFile << "set xlabel \"Profile\"\n";
 				gnuplotScriptFile << "set y2label \"" << criticalParameter.get_title_name() << " \%\"\n";
-				gnuplotScriptFile << "set ylabel \"Error in magnitude "  << m->get_title_name() << "\"\n";
+				gnuplotScriptFile << "set ylabel \"Error in metric "  << m->get_title_name() << "\"\n";
 				// # remove border on top and right and set color to gray
 				gnuplotScriptFile << "set style line 11 lc rgb '#808080' lt 1\n";
 				gnuplotScriptFile << "set border 3 back ls 11\n";
@@ -457,7 +457,7 @@ bool GlobalResults::PlotCriticalParameterNDParametersSweepSimulationMode(
 				gnuplotScriptFile <<  "set style fill transparent solid 0.5\n";
 				// // Background
 				gnuplotScriptFile << kWholeBackground << "\n";
-				int magDataIndex = firstMagOffset + dataPerMagnitudePerLine*magCount; // title
+				int magDataIndex = firstMagOffset + dataPerMetricPerLine*magCount; // title
 				// crit param
 				gnuplotScriptFile <<  "plot '" << gnuplotDataFile << "' using 1:"<< critParamOffset
 					<<" axis x1y2 with filledcurve x1 ls 1 title '\% "
@@ -512,7 +512,7 @@ bool GlobalResults::ProcessMontecarloCriticalParameterNDParametersSweepMode(){
 	std::map<std::string, std::string> paths;
 	ResultsProcessor rp;
 	auto pFirstMagColumnIndexes= ( dynamic_cast<MontecarloCriticalParameterNDParametersSweepSimulation*>(
-		(*simulations->begin())) )->get_magnitude_column_indexes();
+		(*simulations->begin())) )->get_metric_column_indexes();
 	for( auto const &s : *simulations ){
 		auto pMCPNDPSS = dynamic_cast<MontecarloCriticalParameterNDParametersSweepSimulation*>(s);
 		paths.insert( std::make_pair(
@@ -524,24 +524,24 @@ bool GlobalResults::ProcessMontecarloCriticalParameterNDParametersSweepMode(){
 	// plot it!
 	if( partialResult ){
 		SimulationParameter* criticalParameter = nullptr;
-		std::vector<Magnitude*>* auxMagnitudes = nullptr;
+		std::vector<Metric*>* auxMetrics = nullptr;
 		// # not that each computed column will have mean, max and min values
 		// #profCount #Profile #Qcoll #MAG_i_name #MAG_i_maxErrorGlobal #MAG_i_maxErrorMetric
 		unsigned int firstMagOffset = 6;
 		unsigned int critParamOffset = 3;
-		unsigned int dataPerMagnitudePerLine = 3;
+		unsigned int dataPerMetricPerLine = 3;
 		// aux variables
 		criticalParameter = (* simulations->begin())->get_golden_critical_parameter();
 		// aux mags
-		auxMagnitudes = ((* simulations->begin())->get_golden_magnitudes_structure())->GetMagnitudesVector( 0 );
-		if( criticalParameter == nullptr || auxMagnitudes==nullptr ){
-			log_io->ReportError2AllLogs( "null criticalParameter or auxMagnitudes");
+		auxMetrics = ((* simulations->begin())->get_golden_metrics_structure())->GetMetricsVector( 0 );
+		if( criticalParameter == nullptr || auxMetrics==nullptr ){
+			log_io->ReportError2AllLogs( "null criticalParameter or auxMetrics");
 			return false;
 		}
 		// create gnuplot scatter map graphs
 		partialResult = partialResult & PlotMontecarloCriticalParameterNDParametersSweepMode(
-			*auxMagnitudes, critParamOffset, firstMagOffset,
-			dataPerMagnitudePerLine, *criticalParameter, outputFilePath);
+			*auxMetrics, critParamOffset, firstMagOffset,
+			dataPerMetricPerLine, *criticalParameter, outputFilePath);
 	}
 	// fgarcia
 	// critical parameter value for each Scenario (mean between profiles)
@@ -551,8 +551,8 @@ bool GlobalResults::ProcessMontecarloCriticalParameterNDParametersSweepMode(){
 
 
 bool GlobalResults::PlotMontecarloCriticalParameterNDParametersSweepMode(
-		const std::vector<Magnitude*>& analyzedMagnitudes, const unsigned int &critParamOffset,
-		const unsigned int& firstMagOffset, const unsigned int& dataPerMagnitudePerLine,
+		const std::vector<Metric*>& analyzedMetrics, const unsigned int &critParamOffset,
+		const unsigned int& firstMagOffset, const unsigned int& dataPerMetricPerLine,
 		const SimulationParameter& criticalParameter, const std::string& gnuplotDataFile ){
 	int partialResult = 0;
 	bool correctlyExported = true;
@@ -615,9 +615,9 @@ bool GlobalResults::PlotMontecarloCriticalParameterNDParametersSweepMode(
 	// Exec comand
 	std::string execCommand = kGnuplotCommand + generalGSFPath + kGnuplotEndCommand;
 	partialResult += std::system( execCommand.c_str() );
-	// plot magnitudes
+	// plot metrics
 	unsigned int magCount = 0;
-	for( auto const &m : analyzedMagnitudes ){
+	for( auto const &m : analyzedMetrics ){
 		if( m->get_analyzable() ){
 			// Files
 			std::string gnuplotScriptFilePath = gnuplot_script_folder + kFolderSeparator
@@ -641,7 +641,7 @@ bool GlobalResults::PlotMontecarloCriticalParameterNDParametersSweepMode(
 				gnuplotScriptFile << "set format y2 \"%g\"\n";
 				gnuplotScriptFile << "set xlabel \"Profile\"\n";
 				gnuplotScriptFile << "set y2label \"" << criticalParameter.get_title_name() << " \%\"\n";
-				gnuplotScriptFile << "set ylabel \"Error in magnitude "  << m->get_title_name() << "\"\n";
+				gnuplotScriptFile << "set ylabel \"Error in metric "  << m->get_title_name() << "\"\n";
 				// # remove border on top and right and set color to gray
 				gnuplotScriptFile << "set style line 11 lc rgb '#808080' lt 1\n";
 				gnuplotScriptFile << "set border 3 back ls 11\n";
@@ -658,7 +658,7 @@ bool GlobalResults::PlotMontecarloCriticalParameterNDParametersSweepMode(
 				gnuplotScriptFile <<  "set style fill transparent solid 0.5\n";
 				// // Background
 				gnuplotScriptFile << kWholeBackground << "\n";
-				int magDataIndex = firstMagOffset + dataPerMagnitudePerLine*magCount; // title
+				int magDataIndex = firstMagOffset + dataPerMetricPerLine*magCount; // title
 				// crit param
 				gnuplotScriptFile <<  "plot '" << gnuplotDataFile << "' using 1:"<< critParamOffset
 					<<" axis x1y2 with filledcurve x1 ls 1 title '\% "

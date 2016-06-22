@@ -47,38 +47,38 @@ public:
 	std::string get_singular_results_path() const{ return singular_results_path; }
 
 	/**
-	 * @brief Retrieve Processed Magnitudes
-	 * @details Retrieve Processed Magnitudes
-	 * @return magnitudes vector
+	 * @brief Retrieve Processed Metrics
+	 * @details Retrieve Processed Metrics
+	 * @return metrics vector
 	 */
-	std::vector<Magnitude*>* get_processed_magnitudes() { return processed_magnitudes; }
+	std::vector<Metric*>* get_processed_metrics() { return processed_metrics; }
 
 	/**
-	 * @brief Sets magnitudes_2be_found
-	 * @parammagnitudes_2be_found
+	 * @brief Sets metrics_2be_found
+	 * @parammetrics_2be_found
 	 */
-	void set_magnitudes_2be_found( std::vector<Magnitude*>* magnitudes_2be_found ){
-		this->magnitudes_2be_found = magnitudes_2be_found; }
+	void set_metrics_2be_found( std::vector<Metric*>* metrics_2be_found ){
+		this->metrics_2be_found = metrics_2be_found; }
 
 	/**
-	 * @brief Retrieve Processed Magnitudes
-	 * @details Retrieve Processed Magnitudes
-	 * @return processed NDMagnitudesStructure
+	 * @brief Retrieve Processed Metrics
+	 * @details Retrieve Processed Metrics
+	 * @return processed NDMetricsStructure
 	 */
-	NDMagnitudesStructure* GetGoldenMagnitudes();
+	NDMetricsStructure* GetGoldenMetrics();
 
 private:
 	/// Simulation Results
 	TransientSimulationResults transient_simulation_results;
 	/// Singular results path
 	std::string singular_results_path;
-	/// Golden Simulation saves the magnitudes here
-	std::vector<Magnitude*>* processed_magnitudes;
-	/// Magnitudes to be found
-	std::vector<Magnitude*>* magnitudes_2be_found;
+	/// Golden Simulation saves the metrics here
+	std::vector<Metric*>* processed_metrics;
+	/// Metrics to be found
+	std::vector<Metric*>* metrics_2be_found;
 
 
-	std::vector<Magnitude*>* CreateGoldenMagnitudesVector();
+	std::vector<Metric*>* CreateGoldenMetricsVector();
 
 	/**
 	 * @brief Run the previously configured spectre simulation

@@ -45,6 +45,7 @@ LDFLAGS= -L/usr/lib -lboost_thread -lboost_regex -lboost_filesystem -lboost_syst
 ######################
 SRC= $(wildcard *.cpp)
 SRC+= $(wildcard io_handling/*.cpp)
+SRC+= $(wildcard metric_modeling/*.cpp)
 SRC+= $(wildcard netlist_modeling/*.cpp)
 SRC+= $(wildcard netlist_modeling/statements/*.cpp)
 SRC+= $(wildcard simulations_handling/*.cpp)
@@ -63,6 +64,7 @@ OBJECTS= $(SRC:.cpp=.o)
 ######################
 HEADERS= $(wildcard *.hpp)
 HEADERS+= $(wildcard io_handling/*.hpp)
+HEADERS+= $(wildcard metric_modeling/*.hpp)
 HEADERS+= $(wildcard netlist_modeling/*.hpp)
 HEADERS+= $(wildcard netlist_modeling/statements/*.hpp)
 HEADERS+= $(wildcard simulations_handling/*.hpp)
@@ -143,6 +145,7 @@ clean:
 	rm -f *.o *~
 	@echo "Cleaning up subdirectories..."
 	rm -f io_handling/*.o io_handling/*~
+	rm -f metric_modeling/*.o metric_modeling/*~
 	rm -f netlist_modeling/*.o netlist_modeling/*~
 	rm -f netlist_modeling/statements/*.o netlist_modeling/statements/*~
 	rm -f simulations_handling/*.o simulations_handling/*~

@@ -11,7 +11,8 @@
 
 // Reliability simulator
 #include "spectre_simulation.hpp"
-#include "../magnitude_errors.hpp"
+#include "../../metric_modeling/ocean_eval_metric.hpp"
+#include "../../metric_modeling/metric_errors.hpp"
 #include "../../io_handling/raw_format_processor.hpp"
 // constants
 #include "../../global_functions_and_constants/gnuplot_constants.hpp"
@@ -29,9 +30,9 @@ SpectreSimulation::SpectreSimulation() {
 	this->delete_spectre_folders = false;
 	this->ahdl_simdb_env = kNotDefinedString;
 	this->ahdl_shipdb_env = kNotDefinedString;
-	this->process_magnitudes = true;
-	this->export_processed_magnitudes = false;
-	this->export_magnitude_errors = false;
+	this->process_metrics = true;
+	this->export_processed_metrics = false;
+	this->export_metric_errors = false;
 	this->correctly_simulated = false;
 	this->correctly_processed = false;
 	this->is_nested_simulation = false;
@@ -157,42 +158,43 @@ bool SpectreSimulation::ExportParametersCircuit( std::string currentFolder,
 
 // paramIndex and sweepIndex response to param_index and sweep_index for nested simulations
 // but while called from 'parent' simulations, they are different parameters
-bool SpectreSimulation::InterpolateAndAnalyzeMagnitudes(
+bool SpectreSimulation::InterpolateAndAnalyzeMetrics(
 	TransientSimulationResults& transientSimulationResults,
-	std::vector<Magnitude*>& simulatedMagnitudes, const unsigned int index, const std::string partialId  ){
+	std::vector<Metric*>& simulatedMetrics, const unsigned int index, const std::string partialId  ){
 	bool reliabilityError = false;
-	// obtain std::vector<Magnitude*>* magnitudes depending on its profile index
-	auto golden_magnitudes = golden_magnitudes_structure->GetMagnitudesVector( index );
-	if( simulatedMagnitudes.size()<2 ){
-		log_io->ReportError2AllLogs( "Magnitudes size (including time):" + number2String(simulatedMagnitudes.size())
+	// obtain std::vector<Metric*>* metrics depending on its profile index
+	auto golden_metrics = golden_metrics_structure->GetMetricsVector( index );
+	if( simulatedMetrics.size()<2 ){
+		log_io->ReportError2AllLogs( "Metrics size (including time):" + number2String(simulatedMetrics.size())
 			+ " at the scenario #" + partialId);
 			return false;
 	}
-	if( golden_magnitudes->size()<2 ){
-		log_io->ReportError2AllLogs( "golden_magnitudes size (including time):" + number2String(golden_magnitudes->size())
+	if( golden_metrics->size()<2 ){
+		log_io->ReportError2AllLogs( "golden_metrics size (including time):" + number2String(golden_metrics->size())
 			+ " at the scenario #" + partialId);
 			return false;
 	}
-	std::vector<Magnitude*>::iterator it_m = ++(simulatedMagnitudes.begin());
-	for(std::vector<Magnitude*>::iterator it_mg = ++(golden_magnitudes->begin());
-		it_mg != golden_magnitudes->end(); it_mg++){
+	auto pTimeGolden = static_cast<Magnitude*>(*(golden_metrics->begin()));
+	auto pTimeSim = static_cast<Magnitude*>(*(simulatedMetrics.begin()));
+	std::vector<Metric*>::iterator it_m = ++(simulatedMetrics.begin());
+	// for each metric
+	for(std::vector<Metric*>::iterator it_mg = ++(golden_metrics->begin()); it_mg != golden_metrics->end(); ++it_mg){
 		if( (*it_mg)->get_analyzable() && (*it_mg)->is_transient_magnitude() ){
+			auto pMagGolden = static_cast<Magnitude*>(*it_mg);
+			auto pMagSim = static_cast<Magnitude*>(*it_m);
 			#ifdef SPECTRE_SIMULATIONS_VERBOSE
-				log_io->ReportPlain2Log( kTab + (*it_mg)->get_name()
-					+ " magnitude of scenario #" + simulation_id + " partial_id=" + partialId + " will be analyzed.");
+				log_io->ReportPlain2Log( kTab + (*it_mg)->get_name() + " metric of scenario #" + simulation_id + " partial_id=" + partialId + " will be analyzed.");
 			#endif
 			if( !InterpolateAndAnalyzeMagnitude( transientSimulationResults, reliabilityError,
-					**it_mg, **it_m, **(golden_magnitudes->begin()), **(simulatedMagnitudes.begin()),
-					partialId )) {
-				log_io->ReportError2AllLogs( "Error interpolating magnitude " + (*it_mg)->get_name()
-					+ " at the scenario #" + partialId);
+					*pMagGolden, *pMagSim, *pTimeGolden, *pTimeSim, partialId )) {
+				log_io->ReportError2AllLogs( "Error interpolating magnitude " + (*it_mg)->get_name() + " at the scenario #" + partialId);
 				transientSimulationResults.set_reliability_result( kScenarioSensitive );
 				return false;
 			}
 		}else if( (*it_mg)->get_analyzable() ){
-
+			// fgarcia
 		}
-		// update simulated magnitude to match golden magnitude
+		// update simulated metric to match golden metric
 		++it_m;
 	}
 	if( reliabilityError ){
@@ -212,12 +214,12 @@ bool SpectreSimulation::InterpolateAndAnalyzeMagnitudes(
 bool SpectreSimulation::Get2AnalyzableTimeWindow(
 	std::vector<double>::iterator& itGoldenTime, std::vector<double>::iterator& itGoldenTimeEnd,
 	std::vector<double>::iterator& itSimulatedTime, std::vector<double>::iterator& itSimulatedTimeEnd,
-	std::vector<double>::iterator& itGoldenMagnitude, std::vector<double>::iterator& itSimulatedMagnitude,
+	std::vector<double>::iterator& itGoldenMetric, std::vector<double>::iterator& itSimulatedMetric,
 	double analyzableTimeWindowT0 ){
 	// starting time is the window t0
 	while( itGoldenTime < itGoldenTimeEnd && *itGoldenTime < analyzableTimeWindowT0 ){
 		++itGoldenTime;
-		++itGoldenMagnitude;
+		++itGoldenMetric;
 	}
 	if( itGoldenTime == itGoldenTimeEnd ){
 		// log_io->ReportError2AllLogs( "Invalid t0 window for simulation #" + partialId );
@@ -225,7 +227,7 @@ bool SpectreSimulation::Get2AnalyzableTimeWindow(
 	}
 	while( itSimulatedTime < itSimulatedTimeEnd && *itSimulatedTime < analyzableTimeWindowT0 ){
 		++itSimulatedTime;
-		++itSimulatedMagnitude;
+		++itSimulatedMetric;
 	}
 	if( itSimulatedTime == itSimulatedTimeEnd ){
 		// log_io->ReportError2AllLogs( "Invalid t0 window for simulation #" + partialId );
@@ -235,11 +237,11 @@ bool SpectreSimulation::Get2AnalyzableTimeWindow(
 }
 
 bool SpectreSimulation::CheckEndOfWindow(
-	const bool magnitudeAnalizableInTWindow, const double& analyzableTimeWindowTF,
+	const bool metricAnalizableInTWindow, const double& analyzableTimeWindowTF,
 	std::vector<double>::iterator& itGoldenTime, std::vector<double>::iterator& itSimulatedTime ){
 	// fgarcia note:
 	//best performance I think
-	if( magnitudeAnalizableInTWindow
+	if( metricAnalizableInTWindow
 			&& ( *itGoldenTime > analyzableTimeWindowTF || *itSimulatedTime > analyzableTimeWindowTF ) ){
 			#ifdef RESULTS_ANALYSIS_VERBOSE
 				log_io->ReportPlain2Log("reached window tf: " + number2String(analyzableTimeWindowTF) );
@@ -275,10 +277,10 @@ void SpectreSimulation::ReportSimulationsLengthError( Magnitude& goldenTime,
 		+ partialId + " do not coincide with golden scenario timing.");
 }
 
-void SpectreSimulation::VerboseStartMagnitudeAnalysis(
+void SpectreSimulation::VerboseStartMetricAnalysis(
 	std::vector<double>::iterator& itGoldenTime, std::vector<double>::iterator& itSimulatedTime,
-	std::vector<double>::iterator& itGoldenMagnitude, std::vector<double>::iterator& itSimulatedMagnitude,
-	const Magnitude& simulatedMagnitude ){
+	std::vector<double>::iterator& itGoldenMetric, std::vector<double>::iterator& itSimulatedMetric,
+	const Metric& simulatedMetric ){
 	#ifdef RESULTS_ANALYSIS_VERBOSE
 		log_io->ReportPlain2Log("****************************" );
 		log_io->ReportPlain2Log("****************************" );
@@ -286,16 +288,16 @@ void SpectreSimulation::VerboseStartMagnitudeAnalysis(
 		log_io->ReportPlain2Log("itSimulatedTime at start: " + number2String(*itSimulatedTime) );
 
 		log_io->ReportPlain2Log("****************************" );
-		log_io->ReportPlain2Log("currentGoldenValue at start: " + number2String(*itGoldenMagnitude) );
-		log_io->ReportPlain2Log("currentSimulatedValue at start: " + number2String(*itSimulatedMagnitude) );
+		log_io->ReportPlain2Log("currentGoldenValue at start: " + number2String(*itGoldenMetric) );
+		log_io->ReportPlain2Log("currentSimulatedValue at start: " + number2String(*itSimulatedMetric) );
 		log_io->ReportPlain2Log("****************************" );
 
-		log_io->ReportPlain2Log("get_abs_error_margin_default : " + number2String(simulatedMagnitude.get_abs_error_margin_default()) );
-		log_io->ReportPlain2Log("get_error_time_span_default : " + number2String(simulatedMagnitude.get_error_time_span_default()) );
-		log_io->ReportPlain2Log("get_error_threshold_ones : " + number2String(simulatedMagnitude.get_error_threshold_ones()) );
-		log_io->ReportPlain2Log("get_error_time_span_ones : " + number2String(simulatedMagnitude.get_error_time_span_ones()) );
-		log_io->ReportPlain2Log("get_abs_error_margin_zeros : " + number2String(simulatedMagnitude.get_abs_error_margin_zeros()) );
-		log_io->ReportPlain2Log("get_error_time_span_zeros : " + number2String(simulatedMagnitude.get_error_time_span_zeros()) );
+		log_io->ReportPlain2Log("get_abs_error_margin_default : " + number2String(simulatedMetric.get_abs_error_margin_default()) );
+		log_io->ReportPlain2Log("get_error_time_span_default : " + number2String(simulatedMetric.get_error_time_span_default()) );
+		log_io->ReportPlain2Log("get_error_threshold_ones : " + number2String(simulatedMetric.get_error_threshold_ones()) );
+		log_io->ReportPlain2Log("get_error_time_span_ones : " + number2String(simulatedMetric.get_error_time_span_ones()) );
+		log_io->ReportPlain2Log("get_abs_error_margin_zeros : " + number2String(simulatedMetric.get_abs_error_margin_zeros()) );
+		log_io->ReportPlain2Log("get_error_time_span_zeros : " + number2String(simulatedMetric.get_error_time_span_zeros()) );
 		log_io->ReportPlain2Log("****************************" );
 		log_io->ReportPlain2Log("****************************" );
 	#endif
@@ -303,23 +305,23 @@ void SpectreSimulation::VerboseStartMagnitudeAnalysis(
 
 void SpectreSimulation::VerboseReliabilityError( const std::string& errorType,
 	TransientSimulationResults& transientSimulationResults, const std::string& partialId,
-	const std::string& magName, const double& currentTime, const double& currentMagnitudeError,
+	const std::string& magName, const double& currentTime, const double& currentMetricError,
 	const double& currentSimulatedValue, const double& currentGoldenValue, const double& backSimulatedValue, const double& backGoldenValue,
-	std::vector<double>::iterator& itSimulatedMagnitude, std::vector<double>::iterator& itGoldenMagnitude ){
+	std::vector<double>::iterator& itSimulatedMetric, std::vector<double>::iterator& itGoldenMetric ){
 	#ifdef RESULTS_ANALYSIS_VERBOSE
 		log_io->ReportPlain2Log( k2Tab + "[RELIABILITY ERROR] #" + partialId
 			+ " Scenario, #" + transientSimulationResults.get_full_id()
 			+ " variation. Found reliability error, " + errorType + ", at time=" + number2String(currentTime)
-			+ " magnitude " + magName
-			+ " currentMagnitudeError:" + number2String(currentMagnitudeError)
+			+ " metric " + magName
+			+ " currentMetricError:" + number2String(currentMetricError)
 			+ kEmptyLine
 			+ " currentSimulatedValue:" + number2String(currentSimulatedValue)
 			+ " backSimulatedValue: "+ number2String(backSimulatedValue)
-			+ " *itSimulatedMagnitude:" + number2String(*itSimulatedMagnitude)
+			+ " *itSimulatedMetric:" + number2String(*itSimulatedMetric)
 			+ kEmptyLine
 			+ " currentGoldenValue:" + number2String(currentGoldenValue)
 			+ " backGoldenValue: "+ number2String(backGoldenValue)
-			+ " *itGoldenMagnitude:" + number2String(*itGoldenMagnitude) );
+			+ " *itGoldenMetric:" + number2String(*itGoldenMetric) );
 	#endif
 }
 
@@ -328,7 +330,7 @@ bool SpectreSimulation::InterpolateAndAnalyzeMagnitude( TransientSimulationResul
 	Magnitude& goldenTime, Magnitude& simulatedTime, const std::string& partialId ){
 
 	#ifdef RESULTS_ANALYSIS_VERBOSE
-		log_io->ReportPlain2Log( kTab + "#" + simulation_id + " " + partialId + " -> Interpolating/Analyzing magnitude " + simulatedMagnitude.get_name() );
+		log_io->ReportPlain2Log( kTab + "#" + simulation_id + " " + partialId + " -> Interpolating/Analyzing metric " + simulatedMagnitude.get_name() );
 	#endif
 	// check simulation lengths
 	if( goldenTime.get_values()->front() != simulatedTime.get_values()->front()
@@ -339,24 +341,24 @@ bool SpectreSimulation::InterpolateAndAnalyzeMagnitude( TransientSimulationResul
 			return false;
 		}
 	}
-	// MagnitudeError
-	MagnitudeErrors* magnitudeErrors = new MagnitudeErrors();
-	magnitudeErrors->set_magnitude_name( simulatedMagnitude.get_name() );
+	// MetricError
+	MetricErrors* metricErrors = new MetricErrors();
+	metricErrors->set_metric_name( simulatedMagnitude.get_name() );
 	// add it
-	transientSimulationResults.AddMagnitudeErrors( magnitudeErrors );
+	transientSimulationResults.AddMetricErrors( metricErrors );
 
 	// Values Pointers: goldenTime, simulatedTime, goldenMagnitude, simulatedMagnitude
 	// all are std::vector<double>::iterator
 	auto itGoldenTime = goldenTime.get_values()->begin();
 	auto itSimulatedTime = simulatedTime.get_values()->begin();
-	auto itGoldenMagnitude = goldenMagnitude.get_values()->begin();
-	auto itSimulatedMagnitude = simulatedMagnitude.get_values()->begin();
+	auto itGoldenMetric = goldenMagnitude.get_values()->begin();
+	auto itSimulatedMetric = simulatedMagnitude.get_values()->begin();
 	// End pointers
 	auto itGoldenTimeEnd = goldenTime.get_values()->end();
 	auto itSimulatedTimeEnd = simulatedTime.get_values()->end();
 
-	// magnitudes errors
-	bool magnitudeError = false;
+	// metrics errors
+	bool metricError = false;
 	bool onGoingError = false;
 	double errorInit = 0.0;
 	// statistics
@@ -371,14 +373,14 @@ bool SpectreSimulation::InterpolateAndAnalyzeMagnitude( TransientSimulationResul
 	std::ofstream computedErrorFile;
 	try{
 		// export mag errors
-		if( export_magnitude_errors ){
+		if( export_metric_errors ){
 			computedErrorFile.open( computedErrorFilePath.c_str() );
 			computedErrorFile << "# ID: " << partialId << "\n";
 			computedErrorFile << "# Mag: " << goldenMagnitude.get_name() << "\n";
 			computedErrorFile << "# time currentAbsError maxAbsError maxAbsErrorGlobal goldenValue simulatedValue\n";
 		}
 		// current error etc
-		double currentMagnitudeError;
+		double currentMetricError;
 		double currentSimulatedValue;
 		double currentGoldenValue;
 		double backSimulatedValue;
@@ -392,11 +394,11 @@ bool SpectreSimulation::InterpolateAndAnalyzeMagnitude( TransientSimulationResul
 		// First step omitted (time=0.0)
 		currentTime = *(++itGoldenTime);
 		++itSimulatedTime;
-		// init magnitudes values
-		backGoldenValue = *itGoldenMagnitude++;
-		backSimulatedValue = *itSimulatedMagnitude++;
-		currentSimulatedValue = *itSimulatedMagnitude;
-		currentGoldenValue = *itGoldenMagnitude;
+		// init metrics values
+		backGoldenValue = *itGoldenMetric++;
+		backSimulatedValue = *itSimulatedMetric++;
+		currentSimulatedValue = *itSimulatedMetric;
+		currentGoldenValue = *itGoldenMetric;
 
 		// Interpolation
 		// InterpolateValue: Params double x1, double x2, double y1, double y2, double a
@@ -406,7 +408,7 @@ bool SpectreSimulation::InterpolateAndAnalyzeMagnitude( TransientSimulationResul
 		if( goldenMagnitude.get_analyze_error_in_time_window() ){
 			if( !Get2AnalyzableTimeWindow( itGoldenTime, itGoldenTimeEnd,
 				itSimulatedTime, itSimulatedTimeEnd,
-				itGoldenMagnitude, itSimulatedMagnitude,
+				itGoldenMetric, itSimulatedMetric,
 				goldenMagnitude.get_analyzable_time_window_t0()) ){
 				log_io->ReportError2AllLogs( "Invalid t0 window for simulation #" + partialId );
 				return false;
@@ -415,13 +417,13 @@ bool SpectreSimulation::InterpolateAndAnalyzeMagnitude( TransientSimulationResul
 		// update current/backtime
 		currentTime = std::min( *itGoldenTime, *itSimulatedTime );
 		backTime = currentTime;
-		currentSimulatedValue = *itSimulatedMagnitude;
-		currentGoldenValue = *itGoldenMagnitude;
+		currentSimulatedValue = *itSimulatedMetric;
+		currentGoldenValue = *itGoldenMetric;
 		backSimulatedValue = currentSimulatedValue;
 		backGoldenValue = currentGoldenValue;
 		// report if needed
-		VerboseStartMagnitudeAnalysis( itGoldenTime, itSimulatedTime,
-			itGoldenMagnitude, itSimulatedMagnitude, simulatedMagnitude );
+		VerboseStartMetricAnalysis( itGoldenTime, itSimulatedTime,
+			itGoldenMetric, itSimulatedMetric, simulatedMagnitude );
 
 		// main while loop
 		while ( itGoldenTime < itGoldenTimeEnd && itSimulatedTime < itSimulatedTimeEnd && !interpolationError ) {
@@ -436,37 +438,37 @@ bool SpectreSimulation::InterpolateAndAnalyzeMagnitude( TransientSimulationResul
 				// time
 				currentTime = *itGoldenTime++;
 				++itSimulatedTime;
-				// magnitude
-				currentSimulatedValue = *itSimulatedMagnitude++;
-				currentGoldenValue = *itGoldenMagnitude++;
+				// metric
+				currentSimulatedValue = *itSimulatedMetric++;
+				currentGoldenValue = *itGoldenMetric++;
 			} else if ( *itGoldenTime < *itSimulatedTime ) {
 				// time
 				currentTime = *itGoldenTime++;
-				// magnitudes
-				currentGoldenValue = *itGoldenMagnitude++;
+				// metrics
+				currentGoldenValue = *itGoldenMetric++;
 				currentSimulatedValue = InterpolateValue( interpolationError, backTime, *itSimulatedTime,
-					backSimulatedValue, *itSimulatedMagnitude, currentTime);
+					backSimulatedValue, *itSimulatedMetric, currentTime);
 			} else {
 				// time
 				currentTime = *itSimulatedTime++;
-				// magnitudes
-				currentSimulatedValue = *itSimulatedMagnitude++;
+				// metrics
+				currentSimulatedValue = *itSimulatedMetric++;
 				currentGoldenValue = InterpolateValue( interpolationError, backTime, *itGoldenTime,
-					backGoldenValue, *itGoldenMagnitude, currentTime);
+					backGoldenValue, *itGoldenMetric, currentTime);
 			}
 			// Update back variables
 			backTime = currentTime;
 			backSimulatedValue = currentSimulatedValue;
 			backGoldenValue = currentGoldenValue;
 			// Error
-			currentMagnitudeError = std::abs( currentGoldenValue - currentSimulatedValue );
+			currentMetricError = std::abs( currentGoldenValue - currentSimulatedValue );
 			// Max Abs Error Global
-			if( maxAbsErrorGlobal<currentMagnitudeError ){
-				maxAbsErrorGlobal = currentMagnitudeError;
+			if( maxAbsErrorGlobal<currentMetricError ){
+				maxAbsErrorGlobal = currentMetricError;
 			}
 			// for statistics
-			if( export_magnitude_errors ){
-				computedErrorFile << currentTime << " " << currentMagnitudeError << " "
+			if( export_metric_errors ){
+				computedErrorFile << currentTime << " " << currentMetricError << " "
 				<< maxAbsError << " " << maxAbsErrorGlobal << " " << currentGoldenValue << " " << currentSimulatedValue << "\n";
 			}
 			// Analyze error
@@ -484,27 +486,27 @@ bool SpectreSimulation::InterpolateAndAnalyzeMagnitude( TransientSimulationResul
 			// Punctual errors
 			if ( !simulatedMagnitude.get_analyze_error_in_time() ) {
 				if ( CheckError( simulatedMagnitude, currentSimulatedValue, currentGoldenValue,
-						currentMagnitudeError, absErrorMargin ) ) {
-					magnitudeErrors->AddErrorTiming( number2String(currentTime), "");
+						currentMetricError, absErrorMargin ) ) {
+					metricErrors->AddErrorTiming( number2String(currentTime), "");
 					reliabilityError = true;
-					magnitudeError = true;
+					metricError = true;
 					updateMaxAbsError = true;
 					VerboseReliabilityError( "punctual error", transientSimulationResults, partialId, simulatedMagnitude.get_name(),
-						currentTime, currentMagnitudeError, currentSimulatedValue, currentGoldenValue, backSimulatedValue, backGoldenValue,
-						itSimulatedMagnitude, itGoldenMagnitude );
+						currentTime, currentMetricError, currentSimulatedValue, currentGoldenValue, backSimulatedValue, backGoldenValue,
+						itSimulatedMetric, itGoldenMetric );
 				}
 			}else{
-				if ( CheckError( simulatedMagnitude, currentSimulatedValue, currentGoldenValue, currentMagnitudeError, absErrorMargin ) ) {
+				if ( CheckError( simulatedMagnitude, currentSimulatedValue, currentGoldenValue, currentMetricError, absErrorMargin ) ) {
 					if( onGoingError ){
 						if ( currentTime - errorInit > absErrorTimeSpan ) {
 							if( !reliabilityError ){
 								VerboseReliabilityError( "non punctual error", transientSimulationResults, partialId, simulatedMagnitude.get_name(),
-									currentTime, currentMagnitudeError, currentSimulatedValue, currentGoldenValue, backSimulatedValue, backGoldenValue,
-									itSimulatedMagnitude, itGoldenMagnitude );
+									currentTime, currentMetricError, currentSimulatedValue, currentGoldenValue, backSimulatedValue, backGoldenValue,
+									itSimulatedMetric, itGoldenMetric );
 							}
-							magnitudeErrors->AddErrorTiming( number2String(errorInit), number2String(currentTime));
+							metricErrors->AddErrorTiming( number2String(errorInit), number2String(currentTime));
 							reliabilityError = true;
-							magnitudeError = true;
+							metricError = true;
 							updateMaxAbsError = true;
 						}
 					} else {
@@ -524,48 +526,48 @@ bool SpectreSimulation::InterpolateAndAnalyzeMagnitude( TransientSimulationResul
 			}
 
 			// Max Abs Error
-			if( updateMaxAbsError && maxAbsError<currentMagnitudeError ){
-				maxAbsError = currentMagnitudeError;
+			if( updateMaxAbsError && maxAbsError<currentMetricError ){
+				maxAbsError = currentMetricError;
 			}
 		} // end of while
 		if(interpolationError){
-			log_io->ReportError2AllLogs( "-> #" + partialId + " Interpolation error at magnitude " + simulatedMagnitude.get_name());
-			magnitudeErrors->set_has_errors( true );
-			transientSimulationResults.set_has_magnitudes_errors( true );
-			transientSimulationResults.AddMagnitudeErrors( magnitudeErrors );
+			log_io->ReportError2AllLogs( "-> #" + partialId + " Interpolation error at metric " + simulatedMagnitude.get_name());
+			metricErrors->set_has_errors( true );
+			transientSimulationResults.set_has_metrics_errors( true );
+			transientSimulationResults.AddMetricErrors( metricErrors );
 			return false;
 		}
 		#ifdef SPECTRE_SIMULATIONS_VERBOSE
 			log_io->ReportPlain2Log( "-> #" + partialId + " Scenario, #" + transientSimulationResults.get_full_id()
-						+ " variation, magnitude " + simulatedMagnitude.get_name() + " Analyzed.");
+						+ " variation, metric " + simulatedMagnitude.get_name() + " Analyzed.");
 		#endif
 		// report results
-		magnitudeErrors->set_max_abs_error( maxAbsError );
-		magnitudeErrors->set_max_abs_error_global( maxAbsErrorGlobal );
-		magnitudeErrors->set_has_errors( magnitudeError );
-		if( magnitudeError ){
-			transientSimulationResults.set_has_magnitudes_errors( true );
+		metricErrors->set_max_abs_error( maxAbsError );
+		metricErrors->set_max_abs_error_global( maxAbsErrorGlobal );
+		metricErrors->set_has_errors( metricError );
+		if( metricError ){
+			transientSimulationResults.set_has_metrics_errors( true );
 		}
 	}catch (std::exception const& ex) {
 		std::string ex_what = ex.what();
-		log_io->ReportError2AllLogs( "Exception in " + simulation_id + " " + partialId + " -> Interpolating/Analyzing magnitude " + simulatedMagnitude.get_name() );
+		log_io->ReportError2AllLogs( "Exception in " + simulation_id + " " + partialId + " -> Interpolating/Analyzing metric " + simulatedMagnitude.get_name() );
 		log_io->ReportError2AllLogs( ex_what );
-		transientSimulationResults.set_has_magnitudes_errors( true );
+		transientSimulationResults.set_has_metrics_errors( true );
 		partialResult = false;
 	}
-	if( export_magnitude_errors ){
+	if( export_metric_errors ){
 		computedErrorFile.close();
 	}
 	return partialResult;
 }
 
 bool SpectreSimulation::CheckError( const Magnitude& magnitude, const double& currentSimulatedValue,
-	const double& currentGoldenValue, const double& currentMagnitudeError, const double& absErrorMargin ){
+	const double& currentGoldenValue, const double& currentMetricError, const double& absErrorMargin ){
 // fgarcia needs a revision, we require from a default '1' and '0' level
-	return  ( currentMagnitudeError > absErrorMargin ) &&
+	return  ( currentMetricError > absErrorMargin ) &&
 				!( (magnitude.get_ommit_upper_threshold() && currentGoldenValue > magnitude.get_error_threshold_ones() )
 					|| (magnitude.get_ommit_lower_threshold() && currentGoldenValue < magnitude.get_error_threshold_zeros()) );
-	// return  currentMagnitudeError > absErrorMargin;
+	// return  currentMetricError > absErrorMargin;
 }
 
 double SpectreSimulation::InterpolateValue( bool& interpolationError,
@@ -654,7 +656,7 @@ std::string SpectreSimulation::GetProcessedResultsFilePath(const std::string& cu
 
 bool SpectreSimulation::ProcessSpectreResults( const std::string& currentFolder, const std::string& localSimulationId,
 	TransientSimulationResults& transientSimulationResults, const bool& processMainTransient,
-	std::vector<Magnitude*>& myParameterMagnitudes, const bool& isGolden ){
+	std::vector<Metric*>& myParameterMetrics, const bool& isGolden ){
 	// obtain paths
 	std::string spectreResultsFilePath = GetSpectreResultsFilePath( currentFolder, processMainTransient);
 	std::string spectreLogFilePath = GetSpectreLogFilePath( currentFolder );
@@ -665,20 +667,20 @@ bool SpectreSimulation::ProcessSpectreResults( const std::string& currentFolder,
 	// Raw Format Processor
 	RAWFormatProcessor* rfp = new RAWFormatProcessor();
 	rfp->set_format( kGnuPlot );
-	rfp->set_magnitudes( &myParameterMagnitudes );
+	rfp->set_metrics( &myParameterMetrics );
 	rfp->set_transient_file_path( spectreResultsFilePath );
 	rfp->set_log_file_path( spectreLogFilePath );
 	rfp->set_processed_file_path( processedResultsFilePath ) ;
-	rfp->set_export_processed_magnitudes( export_processed_magnitudes );
+	rfp->set_export_processed_metrics( export_processed_metrics );
 	rfp->set_is_golden( isGolden );
 	#ifdef SPECTRE_SIMULATIONS_VERBOSE
 		if(!is_nested_simulation){
 			log_io->ReportPlainStandard( k3Tab + "#" + localSimulationId + " scenario: processing spectre output data." + " path: '" + spectreResultsFilePath + "'");
 		}
 	#endif
-	correctly_processed = rfp->ProcessPSFASCII();
+	correctly_processed = rfp->ProcessSpectreResults();
 	if( !correctly_processed ){
-		log_io->ReportError2AllLogs("ProcessPSFASCII failed. " + localSimulationId);
+		log_io->ReportError2AllLogs("ProcessSpectreResults failed. " + localSimulationId);
 	}else{
 		#ifdef SPECTRE_SIMULATIONS_VERBOSE
 			log_io->ReportPlain2Log( k3Tab + "#" + localSimulationId + " scenario: output data exported. [DELETE] delete rfp;");
@@ -747,29 +749,35 @@ void SpectreSimulation::HandleSpectreSimulation(){
 	}
 }
 
-std::vector<Magnitude*>* SpectreSimulation::CreateMagnitudesVectorFromGoldenMagnitudes(
+std::vector<Metric*>* SpectreSimulation::CreateMetricsVectorFromGoldenMetrics(
 	const unsigned int& profileIndex ){
 	#ifdef SPECTRE_SIMULATIONS_VERBOSE
-		log_io->ReportPlain2Log( k2Tab + "#" + simulation_id + " scenario: Setting up Magnitudes" );
+		log_io->ReportPlain2Log( k2Tab + "#" + simulation_id + " scenario: Setting up Metrics" );
 		log_io->ReportPlain2Log( k2Tab + "#param_profile: " + number2String(profileIndex) );
 	#endif
-	if( profileIndex>=golden_magnitudes_structure->GetTotalElementsLength() ){
+	if( profileIndex>=golden_metrics_structure->GetTotalElementsLength() ){
 		log_io->ReportError2AllLogs( k2Tab + "-> Error: size is "
-			+ number2String(golden_magnitudes_structure->GetTotalElementsLength()) );
+			+ number2String(golden_metrics_structure->GetTotalElementsLength()) );
 		log_io->ReportError2AllLogs( k2Tab + "-> Accesing " + number2String(profileIndex)  );
 		return nullptr;
 	}
-	std::vector<Magnitude*>* golden_magnitudes =
-		golden_magnitudes_structure->GetMagnitudesVector( profileIndex );
+	std::vector<Metric*>* golden_metrics =
+		golden_metrics_structure->GetMetricsVector( profileIndex );
 
-	std::vector<Magnitude*>* parameterMagnitudes = new std::vector<Magnitude*>();
+	std::vector<Metric*>* parameterMetrics = new std::vector<Metric*>();
 	// reserve memory
-	parameterMagnitudes->reserve( golden_magnitudes->size() );
-	for( auto const &m : *golden_magnitudes){
-		// Create an empty copy of each magnitude
-		parameterMagnitudes->push_back( new Magnitude(*m, false) );
+	parameterMetrics->reserve( golden_metrics->size() );
+	for( auto const &m : *golden_metrics){
+		// Create an empty copy of each metric
+		if( m->is_transient_magnitude() ){
+			auto pMag = static_cast<Magnitude*>( m );
+			parameterMetrics->push_back( new Magnitude(*pMag, false) );
+		}else{
+			auto pOceanEvalMag = static_cast<OceanEvalMetric*>( m );
+			parameterMetrics->push_back( new OceanEvalMetric(* pOceanEvalMag) );
+		}
 	}
-	return parameterMagnitudes;
+	return parameterMetrics;
 }
 
 int SpectreSimulation::CreateGnuplotTransientImages( const std::string& localSimulationId,
@@ -798,37 +806,40 @@ int SpectreSimulation::CreateGnuplotTransientImages( const std::string& localSim
 	gnuplotScriptFile <<  "set style line 2 lc rgb '#5e9c36' pt 6 ps 1 lt 1 lw 2 # --- green\n";
 	// plots
 	int indexCount = 2;
-	std::vector<Magnitude*>* golden_magnitudes =
-		golden_magnitudes_structure->GetMagnitudesVector( index );
-	std::string goldenFilePath  = golden_magnitudes_structure->GetFilePath( index );
-	for(std::vector<Magnitude*>::iterator it_mg = ++(golden_magnitudes->begin());
-		it_mg != golden_magnitudes->end(); it_mg++){
-		if( (*it_mg)->get_plottable()  && (*it_mg)->get_found_in_results() ){
-			std::string mgName = (*it_mg)->get_title_name();
-			//std::string mgName = FilenameWithoutIllegalChars( (*it_mg)->get_file_name() );
-			std::string outputImagePath = top_folder + kFolderSeparator
-				+ kResultsFolder + kFolderSeparator + kResultsImagesFolder + kFolderSeparator
-				+ kTransientResultsFolder + kFolderSeparator + fullSimId + "_m_" + (*it_mg)->get_file_name() + kGnuplotTransientSVGSufix;
-			// Svg
-			gnuplotScriptFile <<  "set term svg  size "<< kSvgImageWidth << ","
-				<< kSvgImageHeight << " fname " << kSvgFont << "\n";
-			gnuplotScriptFile <<  "set output \"" << outputImagePath  << "\"\n";
+	std::vector<Metric*>* golden_metrics =
+		golden_metrics_structure->GetMetricsVector( index );
+	std::string goldenFilePath  = golden_metrics_structure->GetFilePath( index );
+	for(std::vector<Metric*>::iterator it_mg = ++(golden_metrics->begin());
+		it_mg != golden_metrics->end(); ++it_mg){
+		if( (*it_mg)->is_transient_magnitude() ){
+			auto pMag = static_cast<Magnitude*>(*it_mg);
+			if( pMag->get_plottable()  && pMag->get_found_in_results() ){
+				std::string mgName = (*it_mg)->get_title_name();
+				//std::string mgName = FilenameWithoutIllegalChars( (*it_mg)->get_file_name() );
+				std::string outputImagePath = top_folder + kFolderSeparator
+					+ kResultsFolder + kFolderSeparator + kResultsImagesFolder + kFolderSeparator
+					+ kTransientResultsFolder + kFolderSeparator + fullSimId + "_m_" + (*it_mg)->get_file_name() + kGnuplotTransientSVGSufix;
+				// Svg
+				gnuplotScriptFile <<  "set term svg  size "<< kSvgImageWidth << ","
+					<< kSvgImageHeight << " fname " << kSvgFont << "\n";
+				gnuplotScriptFile <<  "set output \"" << outputImagePath  << "\"\n";
 
-			// magnitudes
-			gnuplotScriptFile <<  "set xlabel \"time\"\n";
-			gnuplotScriptFile <<  "set ylabel \"" << mgName <<  "\"\n";
-			gnuplotScriptFile <<  "set title \"" << mgName << " \"\n";
-			gnuplotScriptFile <<  "set key bottom right\n";
-			// Plot
-			gnuplotScriptFile <<  "plot '" << transientSimulationResults.get_processed_file_path() << "' u 1:"
-				+ number2String(indexCount) << " w lp ls 1 title 'altered', \\\n";
-			gnuplotScriptFile <<  " '" + goldenFilePath + "' u 1:"
-				+ number2String(indexCount) << " w lp ls 2 title 'golden'\n";
-			gnuplotScriptFile << "unset output\n";
-			// Add images path
-			transientSimulationResults.AddTransientImage( outputImagePath, mgName );
-		}else if( (*it_mg)->get_plottable() ){
-			log_io->ReportError2AllLogs( (*it_mg)->get_name() + " not found in results." );
+				// metrics
+				gnuplotScriptFile <<  "set xlabel \"time\"\n";
+				gnuplotScriptFile <<  "set ylabel \"" << mgName <<  "\"\n";
+				gnuplotScriptFile <<  "set title \"" << mgName << " \"\n";
+				gnuplotScriptFile <<  "set key bottom right\n";
+				// Plot
+				gnuplotScriptFile <<  "plot '" << transientSimulationResults.get_processed_file_path() << "' u 1:"
+					+ number2String(indexCount) << " w lp ls 1 title 'altered', \\\n";
+				gnuplotScriptFile <<  " '" + goldenFilePath + "' u 1:"
+					+ number2String(indexCount) << " w lp ls 2 title 'golden'\n";
+				gnuplotScriptFile << "unset output\n";
+				// Add images path
+				transientSimulationResults.AddTransientImage( outputImagePath, mgName );
+			}else if( pMag->get_plottable() ){
+				log_io->ReportError2AllLogs( (*it_mg)->get_name() + " not found in results." );
+			}
 		}
 		++indexCount;
 	}

@@ -40,18 +40,18 @@ public:
 		this->max_parallel_profile_instances = max_parallel_profile_instances; }
 
 	/**
-	 * @brief Sets magnitudes_2be_found
-	 * @parammagnitudes_2be_found
+	 * @brief Sets metrics_2be_found
+	 * @parammetrics_2be_found
 	 */
-	void set_magnitudes_2be_found( std::vector<Magnitude*>* magnitudes_2be_found ){
-		this->magnitudes_2be_found = magnitudes_2be_found; }
+	void set_metrics_2be_found( std::vector<Metric*>* metrics_2be_found ){
+		this->metrics_2be_found = metrics_2be_found; }
 
 	/**
-	 * @brief Retrieve Processed Magnitudes
-	 * @details Retrieve Processed Magnitudes
-	 * @return processed NDMagnitudesStructure
+	 * @brief Retrieve Processed Metrics
+	 * @details Retrieve Processed Metrics
+	 * @return processed NDMetricsStructure
 	 */
-	NDMagnitudesStructure* GetGoldenMagnitudes();
+	NDMetricsStructure* GetGoldenMetrics();
 
 	/**
 	 * @brief Retrieve children_correctly_simulated
@@ -83,10 +83,10 @@ private:
 	///  all the children processed
 	bool children_correctly_processed;
 
-	/// Golden Simulation saves the magnitudes here
-	std::vector<Magnitude*>* processed_magnitudes;
-	/// Magnitudes to be found
-	std::vector<Magnitude*>* magnitudes_2be_found;
+	/// Golden Simulation saves the metrics here
+	std::vector<Metric*>* processed_metrics;
+	/// Metrics to be found
+	std::vector<Metric*>* metrics_2be_found;
 
 	/**
 	 * @brief Creates a new critical_parameter_value_simulation instance

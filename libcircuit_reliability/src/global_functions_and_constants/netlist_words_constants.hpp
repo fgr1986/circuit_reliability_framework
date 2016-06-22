@@ -5,7 +5,7 @@
 // Parameters, equals, and comment word1 in globa_constants
 static const std::string kContinuesNextLineChar = "\\";
 //we first trim the statement, so it is not needed
-//static const std::string kContinuesNextLineChar2 = "\\ "; 
+//static const std::string kContinuesNextLineChar2 = "\\ ";
 static const std::string kContinuationPreviousLineChar = "+";
 static const std::string kNextLevelInInstanceChar = ".";
 static const std::string kParenthesisStartWord = "(";

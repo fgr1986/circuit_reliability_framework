@@ -36,11 +36,11 @@ GoldenNDParametersSweepSimulation::~GoldenNDParametersSweepSimulation(){
 	#ifdef DESTRUCTORS_VERBOSE
 		std::cout <<  "GoldenNDParametersSweepSimulation destructor. direction:" << this << "\n";
 	#endif
-	if( golden_magnitudes_structure ){
+	if( golden_metrics_structure ){
 		#ifdef DESTRUCTORS_VERBOSE
-			std::cout << "GoldenNDParametersSweepSimulation deleting golden_magnitudes_structure\n" ;
+			std::cout << "GoldenNDParametersSweepSimulation deleting golden_metrics_structure\n" ;
 		#endif
-		delete golden_magnitudes_structure;
+		delete golden_metrics_structure;
 	}
 	// not required
 	// delete golden_simulations_vector;
@@ -55,14 +55,14 @@ void GoldenNDParametersSweepSimulation::RunSimulation(){
 	// Environment
 	ConfigureEnvironmentVariables();
 	ShowEnvironmentVariables();
-	// magnitudes_structure
+	// metrics_structure
 	// in 1d-> vector of vectors? ok
-	std::vector<std::vector<Magnitude*>*>* gms = new std::vector<std::vector<Magnitude*>*>();
+	std::vector<std::vector<Metric*>*>* gms = new std::vector<std::vector<Metric*>*>();
 	std::vector<std::string>* fs = new std::vector<std::string>();
 
-	golden_magnitudes_structure = new NDMagnitudesStructure();
-	golden_magnitudes_structure->set_magnitudes_structure(gms);
-	golden_magnitudes_structure->set_files_structure(fs);
+	golden_metrics_structure = new NDMetricsStructure();
+	golden_metrics_structure->set_metrics_structure(gms);
+	golden_metrics_structure->set_files_structure(fs);
 	// main threads group
 	boost::thread_group mainTG;
 	// params to be sweeped
@@ -117,11 +117,11 @@ void GoldenNDParametersSweepSimulation::RunSimulation(){
 	log_io->ReportPlain2Log( "GoldenNDParametersSweepSimulation: mainTG.join_all()" );
 	//
 	for( auto const &pSS : *(golden_simulations_vector.get_spectre_simulations()) ){
-		// obtain magnitudes and file references
+		// obtain metrics and file references
 		auto pGS = dynamic_cast<GoldenSimulation*>(pSS);
-		auto pPM = pGS->get_processed_magnitudes();
+		auto pPM = pGS->get_processed_metrics();
 		if( pPM==nullptr ){
-			log_io->ReportError2AllLogs( "Null processed_magnitudes for golden_sim " + pGS->get_simulation_id() );
+			log_io->ReportError2AllLogs( "Null processed_metrics for golden_sim " + pGS->get_simulation_id() );
 			children_correctly_simulated = false;
 			children_correctly_processed = false;
 			return;
@@ -173,7 +173,7 @@ GoldenSimulation* GoldenNDParametersSweepSimulation::CreateProfile(
 	pGS->set_n_d_profile_index(ndIndex);
 	pGS->set_log_io( log_io );
 	pGS->set_altered_scenario_index( altered_scenario_index );
-	// pGS->set_golden_magnitudes_structure( golden_magnitudes_structure );
+	// pGS->set_golden_metrics_structure( golden_metrics_structure );
 	// Spectre command and args
 	pGS->set_spectre_command( spectre_command );
 	pGS->set_pre_spectre_command( pre_spectre_command );
@@ -181,7 +181,7 @@ GoldenSimulation* GoldenNDParametersSweepSimulation::CreateProfile(
 	pGS->set_spectre_command_log_arg( spectre_command_log_arg );
 	pGS->set_spectre_command_folder_arg( spectre_command_folder_arg );
 	// Spectre environment variables
-	pGS->set_magnitudes_2be_found( magnitudes_2be_found );
+	pGS->set_metrics_2be_found( metrics_2be_found );
 	pGS->set_ahdl_simdb_env( ahdl_simdb_env );
 	pGS->set_ahdl_shipdb_env( ahdl_shipdb_env );
 	pGS->set_top_folder( top_folder );
@@ -192,10 +192,10 @@ GoldenSimulation* GoldenNDParametersSweepSimulation::CreateProfile(
 	pGS->set_plot_transients( plot_transients );
 	pGS->set_main_analysis( main_analysis );
 	pGS->set_main_transient_analysis( main_transient_analysis );
-	pGS->set_process_magnitudes( true );
+	pGS->set_process_metrics( true );
 	// golden always true
-	pGS->set_export_processed_magnitudes( true );
-	pGS->set_export_magnitude_errors( export_magnitude_errors );
+	pGS->set_export_processed_metrics( true );
+	pGS->set_export_metric_errors( export_metric_errors );
 	// copy of simulation_parameters
 	pGS->CopySimulationParameters( *simulation_parameters );
 	// update parameter values
@@ -224,7 +224,7 @@ bool GoldenNDParametersSweepSimulation::TestSetUp(){
 	return true;
 }
 
-NDMagnitudesStructure* GoldenNDParametersSweepSimulation::GetGoldenMagnitudes(){
-	NDMagnitudesStructure* gms = new NDMagnitudesStructure(*golden_magnitudes_structure);
+NDMetricsStructure* GoldenNDParametersSweepSimulation::GetGoldenMetrics(){
+	NDMetricsStructure* gms = new NDMetricsStructure(*golden_metrics_structure);
 	return gms;
 }

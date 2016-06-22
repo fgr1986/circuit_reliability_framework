@@ -20,7 +20,7 @@
 #include "../../global_functions_and_constants/files_folders_io_constants.hpp"
 
 StandardSimulation::StandardSimulation() {
-	this->export_processed_magnitudes = true;
+	this->export_processed_metrics = true;
 	this->montecarlo_transient_sufix = kNotDefinedString;
 	this->correctly_simulated = false;
 	this->n_d_profile_index = kNotDefinedInt;
@@ -54,22 +54,22 @@ void StandardSimulation::RunSimulation( ){
 		return;
 	}
 	basic_simulation_results.set_spectre_result( RunSpectre( simulation_id ) );
-	if( correctly_simulated && process_magnitudes ){
+	if( correctly_simulated && process_metrics ){
 		log_io->ReportPlain2Log( k2Tab + "#" + simulation_id + " scenario: processing results.");
-		// Set up magnitudes
-		std::vector<Magnitude*>* analyzedMagnitudes = CreateMagnitudesVectorFromGoldenMagnitudes( n_d_profile_index );
-		// process magnitudes
-		if( !ProcessSpectreResults( folder, simulation_id, basic_simulation_results, false, *analyzedMagnitudes, false ) ){
+		// Set up metrics
+		std::vector<Metric*>* analyzedMetrics = CreateMetricsVectorFromGoldenMetrics( n_d_profile_index );
+		// process metrics
+		if( !ProcessSpectreResults( folder, simulation_id, basic_simulation_results, false, *analyzedMetrics, false ) ){
 			log_io->ReportError2AllLogs( "Error while processing the critical value simulation spectre_results. Scenario #"
 				+ simulation_id );
 			return;
 		}
-		// Interpolating and analyzing magnitudes
+		// Interpolating and analyzing metrics
 		#ifdef SPECTRE_SIMULATIONS_VERBOSE
 		log_io->ReportPlain2Log( kTab + "#" + simulation_id + " -> Interpolating spectre_results");
 		#endif
-		if( !InterpolateAndAnalyzeMagnitudes( basic_simulation_results, *analyzedMagnitudes, n_d_profile_index, simulation_id ) ){
-			log_io->ReportError2AllLogs( "Error while interpolating the critical value magnitudes. Scenario #"
+		if( !InterpolateAndAnalyzeMetrics( basic_simulation_results, *analyzedMetrics, n_d_profile_index, simulation_id ) ){
+			log_io->ReportError2AllLogs( "Error while interpolating the critical value metrics. Scenario #"
 				+ simulation_id );
 			return;
 		}
@@ -85,9 +85,9 @@ void StandardSimulation::RunSimulation( ){
 				// return false; // program can continue
 			}
 		}
-		// delete analyzed magnitudes
-		deleteContentsOfVectorOfPointers( *analyzedMagnitudes);
-		delete analyzedMagnitudes;
+		// delete analyzed metrics
+		deleteContentsOfVectorOfPointers( *analyzedMetrics);
+		delete analyzedMetrics;
 	}
 }
 
@@ -95,8 +95,8 @@ bool StandardSimulation::TestSetUp(){
 	if(folder.compare("")==0){
 		log_io->ReportError2AllLogs( "nullptr folder ");
 		return false;
-	}else if( golden_magnitudes_structure== nullptr){
-		log_io->ReportError2AllLogs( "nullptr golden_magnitudes_structure");
+	}else if( golden_metrics_structure== nullptr){
+		log_io->ReportError2AllLogs( "nullptr golden_metrics_structure");
 		return false;
 	}
 	return true;

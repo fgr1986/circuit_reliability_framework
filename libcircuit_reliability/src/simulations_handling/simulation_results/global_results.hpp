@@ -83,20 +83,20 @@ private:
 
 	bool ProcessCriticalParameterValueSimulationMode();
 	bool PlotCriticalParameterValueSimulationMode(
-		const std::vector<Magnitude*>& analyzedMagnitudes, const unsigned int &critParamOffset,
-		const unsigned int& firstMagOffset, const unsigned int& dataPerMagnitudePerLine,
+		const std::vector<Metric*>& analyzedMetrics, const unsigned int &critParamOffset,
+		const unsigned int& firstMagOffset, const unsigned int& dataPerMetricPerLine,
 		const SimulationParameter& criticalParameter, const std::string& gnuplotDataFile );
 
 	bool ProcessCriticalParameterNDParametersSweepSimulationMode();
 	bool PlotCriticalParameterNDParametersSweepSimulationMode(
-			const std::vector<Magnitude*>& analyzedMagnitudes, const unsigned int &critParamOffset,
-			const unsigned int& firstMagOffset, const unsigned int& dataPerMagnitudePerLine,
+			const std::vector<Metric*>& analyzedMetrics, const unsigned int &critParamOffset,
+			const unsigned int& firstMagOffset, const unsigned int& dataPerMetricPerLine,
 			const SimulationParameter& criticalParameter, const std::string& gnuplotDataFile );
 
 	bool ProcessMontecarloCriticalParameterNDParametersSweepMode();
 	bool PlotMontecarloCriticalParameterNDParametersSweepMode(
-			const std::vector<Magnitude*>& analyzedMagnitudes, const unsigned int &critParamOffset,
-			const unsigned int& firstMagOffset, const unsigned int& dataPerMagnitudePerLine,
+			const std::vector<Metric*>& analyzedMetrics, const unsigned int &critParamOffset,
+			const unsigned int& firstMagOffset, const unsigned int& dataPerMetricPerLine,
 			const SimulationParameter& criticalParameter, const std::string& gnuplotDataFile );
 
 };

@@ -19,7 +19,7 @@
 // radiation io simulator includes
 #include "../../io_handling/log_io.hpp"
 // netlist modeling
-#include "../../netlist_modeling/n_d_magnitudes_structure.hpp"
+#include "../../metric_modeling/n_d_metrics_structure.hpp"
 #include "../../netlist_modeling/simulation_parameter.hpp"
 #include "../../netlist_modeling/statements/analysis_statement.hpp"
 
@@ -64,7 +64,7 @@ public:
 
 	int get_altered_scenario_index() const { return altered_scenario_index; }
 
-	NDMagnitudesStructure* get_golden_magnitudes_structure() const {return golden_magnitudes_structure;}
+	NDMetricsStructure* get_golden_metrics_structure() const {return golden_metrics_structure;}
 
 	std::string get_folder() const{ return folder; }
 	std::string get_ahdl_simdb_env() const{ return ahdl_simdb_env; }
@@ -84,15 +84,15 @@ public:
 	void set_ahdl_shipdb_env(std::string ahdl_shipdb_env) { this->ahdl_shipdb_env = ahdl_shipdb_env; }
 	void set_ahdl_simdb_env(std::string ahdl_simdb_env) { this->ahdl_simdb_env = ahdl_simdb_env; }
 
-	// Magnitudes
-	void set_golden_magnitudes_structure( NDMagnitudesStructure* golden_magnitudes_structure ){
-		this->golden_magnitudes_structure = golden_magnitudes_structure; }
-	void set_process_magnitudes( const bool process_magnitudes ){
-		this->process_magnitudes = process_magnitudes; }
-	void set_export_magnitude_errors( const bool export_magnitude_errors){
-		this->export_magnitude_errors = export_magnitude_errors; }
-	void set_export_processed_magnitudes( const bool export_processed_magnitudes ){
-		this->export_processed_magnitudes = export_processed_magnitudes; }
+	// Metrics
+	void set_golden_metrics_structure( NDMetricsStructure* golden_metrics_structure ){
+		this->golden_metrics_structure = golden_metrics_structure; }
+	void set_process_metrics( const bool process_metrics ){
+		this->process_metrics = process_metrics; }
+	void set_export_metric_errors( const bool export_metric_errors){
+		this->export_metric_errors = export_metric_errors; }
+	void set_export_processed_metrics( const bool export_processed_metrics ){
+		this->export_processed_metrics = export_processed_metrics; }
 
 	void set_main_analysis( AnalysisStatement* main_analysis){ this->main_analysis = main_analysis;}
 
@@ -104,7 +104,7 @@ public:
 
 	bool get_correctly_processed() const{return correctly_processed;}
 	bool get_correctly_simulated() const{return correctly_simulated;}
-	bool get_export_magnitude_errors() const{return export_magnitude_errors;}
+	bool get_export_metric_errors() const{return export_metric_errors;}
 
 
 	bool get_plot_scatters(){ return plot_scatters; }
@@ -152,7 +152,7 @@ public:
 	std::string get_simulation_id() const{ return simulation_id; }
 
 
- bool get_export_processed_magnitudes() const{ return export_processed_magnitudes; }
+ bool get_export_processed_metrics() const{ return export_processed_metrics; }
 
 	/**
 	 * @brief Set n_dimensional
@@ -286,15 +286,15 @@ protected:
 	/// environment ahdl shipdb property
 	std::string ahdl_shipdb_env;
 
-	/// Magnitudes
-	/// Process Magnitudes
-	bool process_magnitudes;
-	/// export magnitudes error
-	bool export_magnitude_errors;
-	/// Export processed magnitudes
-	bool export_processed_magnitudes;
-	/// Golden magnitudes
-	NDMagnitudesStructure* golden_magnitudes_structure;
+	/// Metrics
+	/// Process Metrics
+	bool process_metrics;
+	/// export metrics error
+	bool export_metric_errors;
+	/// Export processed metrics
+	bool export_processed_metrics;
+	/// Golden metrics
+	NDMetricsStructure* golden_metrics_structure;
 
 	/// process feedback
 	bool correctly_processed;
@@ -344,7 +344,7 @@ protected:
 	 *
 	 * @return [description]
 	 */
-	std::vector<Magnitude*>* CreateMagnitudesVectorFromGoldenMagnitudes(const unsigned int& index );
+	std::vector<Metric*>* CreateMetricsVectorFromGoldenMetrics(const unsigned int& index );
 
 	/**
 	 * @brief Interpolates and analyzes the simulation results
@@ -352,23 +352,23 @@ protected:
 	 * @param TransientSimulationResults
 	 * @return true if the method correctly ends.
 	 */
-	bool InterpolateAndAnalyzeMagnitudes(
+	bool InterpolateAndAnalyzeMetrics(
 		TransientSimulationResults& transientSimulationResults,
-		std::vector<Magnitude*>& simulatedMagnitudes, const unsigned int index, const std::string partialId );
+		std::vector<Metric*>& simulatedMetrics, const unsigned int index, const std::string partialId );
 
 	/**
-	 * @brief Interpolates and analyzes the selected magnitude
+	 * @brief Interpolates and analyzes the selected metric
 	 *
 	  * @param TransientSimulationResults
 	  * @param  radiationError
-	  * @param goldenMagnitude
-	  * @param simulatedMagnitude
+	  * @param goldenMetric
+	  * @param simulatedMetric
 	  * @param goldenTime
 	  * @param simulatedTime
 	 * @return true if the method correctly ends.
 	  */
 	bool InterpolateAndAnalyzeMagnitude( TransientSimulationResults& transientSimulationResults,
-		bool& radiationError, Magnitude& goldenMagnitude, Magnitude& simulatedMagnitude,
+		bool& reliabilityError, Magnitude& goldenMagnitude, Magnitude& simulatedMagnitude,
 		Magnitude& goldenTime, Magnitude& simulatedTime, const std::string& partialId );
 
 	/**
@@ -397,7 +397,7 @@ protected:
 	 */
 	bool ProcessSpectreResults( const std::string& currentFolder, const std::string& localSimulationId,
 		TransientSimulationResults& transientSimulationResults, const bool& processMainTransient,
-		std::vector<Magnitude*>& myParameterMagnitudes, const bool& isGolden  );
+		std::vector<Metric*>& myParameterMetrics, const bool& isGolden  );
 
 	/**
 	 * @brief Plot the transient results
@@ -413,7 +413,7 @@ protected:
 
 	/**
 		* @brief deletes, if desired, the transient raw results together with the pr
-		* processed magnitudes results.
+		* processed metrics results.
 		*
 		* @param TransientSimulationResults
 		* @param isGolden if the simulation refers the golden scenario
@@ -431,7 +431,7 @@ protected:
 	bool ManageIndividualSpectreFiles( TransientSimulationResults& transientSimulationResults );
 
 	/**
-		* @brief deletes, if desired, the processed magnitudes results.
+		* @brief deletes, if desired, the processed metrics results.
 		*
 		* @param TransientSimulationResults
 		*
@@ -475,39 +475,39 @@ protected:
 	 * @brief Checks if an error has occurred
 	 * @details [long description]
 	 *
-	 * @param magnitude
-	 * @param currentMagnitudeValue
+	 * @param metric
+	 * @param currentMetricValue
 	 * @param currentGoldenValue
-	 * @param currentMagnitudeError
+	 * @param currentMetricError
 	 * @param absErrorMargin
 	 * @return if an error has occurred
 	 */
-	bool CheckError( const Magnitude& magnitude, const double& currentSimulatedValue,
-		const double& currentGoldenValue, const double& currentMagnitudeError, const double& absErrorMargin  );
+	bool CheckError( const Magnitude& metric, const double& currentSimulatedValue,
+		const double& currentGoldenValue, const double& currentMetricError, const double& absErrorMargin  );
 
 	bool Get2AnalyzableTimeWindow(
 		std::vector<double>::iterator& itGoldenTime, std::vector<double>::iterator& itGoldenTimeEnd,
 		std::vector<double>::iterator& itSimulatedTime, std::vector<double>::iterator& itSimulatedTimeEnd,
-		std::vector<double>::iterator& itGoldenMagnitude, std::vector<double>::iterator& itSimulatedMagnitude,
+		std::vector<double>::iterator& itGoldenMetric, std::vector<double>::iterator& itSimulatedMetric,
 		double analyzableTimeWindowT0 );
 
 	bool CheckEndOfWindow(
-		const bool magnitudeAnalizableInTWindow, const double& analyzableTimeWindowTF,
+		const bool metricAnalizableInTWindow, const double& analyzableTimeWindowTF,
 		std::vector<double>::iterator& itGoldenTime, std::vector<double>::iterator& itSimulatedTime );
 
 	void ReportSimulationsLengthError( Magnitude& goldenTime,
 		Magnitude& simulatedTime, const std::string& partialId );
 
-	void VerboseStartMagnitudeAnalysis(
+	void VerboseStartMetricAnalysis(
 		std::vector<double>::iterator& itGoldenTime, std::vector<double>::iterator& itSimulatedTime,
-		std::vector<double>::iterator& itGoldenMagnitude, std::vector<double>::iterator& itSimulatedMagnitude,
-		const Magnitude& simulatedMagnitude );
+		std::vector<double>::iterator& itGoldenMetric, std::vector<double>::iterator& itSimulatedMetric,
+		const Metric& simulatedMetric );
 
 	void VerboseReliabilityError( const std::string& errorType,
 		TransientSimulationResults& transientSimulationResults, const std::string& partialId,
-		const std::string& magName, const double& currentTime, const double& currentMagnitudeError,
+		const std::string& magName, const double& currentTime, const double& currentMetricError,
 		const double& currentSimulatedValue, const double& currentGoldenValue, const double& backSimulatedValue, const double& backGoldenValue,
-		std::vector<double>::iterator& itSimulatedMagnitude, std::vector<double>::iterator& itGoldenMagnitude );
+		std::vector<double>::iterator& itSimulatedMetric, std::vector<double>::iterator& itGoldenMetric );
 };
 
 #endif /* SPECTRE_SIMULATION_H */

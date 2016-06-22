@@ -116,8 +116,8 @@ bool MontecarloCriticalParameterNDParametersSweepSimulation::TestSetUp(){
 	}else if(folder.compare("")==0){
 		log_io->ReportError2AllLogs( "nullptr folder  in montecarlo_critical_parameter_nd_parameters_sweep_simulation");
 		return false;
-	}else if( golden_magnitudes_structure== nullptr){
-		log_io->ReportError2AllLogs( "nullptr golden_magnitudes_structure in montecarlo_critical_parameter_nd_parameters_sweep_simulation");
+	}else if( golden_metrics_structure== nullptr){
+		log_io->ReportError2AllLogs( "nullptr golden_metrics_structure in montecarlo_critical_parameter_nd_parameters_sweep_simulation");
 		return false;
 	}
 	return true;
@@ -173,7 +173,7 @@ MontecarloCriticalParameterValueSimulation* MontecarloCriticalParameterNDParamet
 	// pMCPVS->set_sweep_index( sweepIndex );
 	pMCPVS->set_log_io( log_io );
 	pMCPVS->set_altered_scenario_index( altered_scenario_index );
-	pMCPVS->set_golden_magnitudes_structure( golden_magnitudes_structure );
+	pMCPVS->set_golden_metrics_structure( golden_metrics_structure );
 	// Spectre command and args
 	pMCPVS->set_spectre_command( spectre_command );
 	pMCPVS->set_pre_spectre_command( pre_spectre_command );
@@ -196,9 +196,9 @@ MontecarloCriticalParameterValueSimulation* MontecarloCriticalParameterNDParamet
 	pMCPVS->set_main_analysis( main_analysis );
 	pMCPVS->set_main_transient_analysis( main_transient_analysis );
 	// fgarcia: false?, so we analyze later s_xxx_001.tran, s_xxx_002..tran... instead s_xxx.tran
-	pMCPVS->set_process_magnitudes( true );
-	pMCPVS->set_export_processed_magnitudes( export_processed_magnitudes );
-	pMCPVS->set_export_magnitude_errors( export_magnitude_errors );
+	pMCPVS->set_process_metrics( true );
+	pMCPVS->set_export_processed_metrics( export_processed_metrics );
+	pMCPVS->set_export_metric_errors( export_metric_errors );
 	// copy of simulation_parameters
 	pMCPVS->CopySimulationParameters( *simulation_parameters );
 	/// Update golden parameter
@@ -222,7 +222,7 @@ bool MontecarloCriticalParameterNDParametersSweepSimulation::GenerateAndPlotResu
 	const std::vector< SimulationParameter* > & parameters2sweep  ){
 	// a) General Results
 	// 1 file: parameter critical value at each profile
-	// N files, one per magnitude/metric, including meanMaxError, maxError, etc
+	// N files, one per metric/metric, including meanMaxError, maxError, etc
 	std::string mapsFolder =  top_folder + kFolderSeparator
 		 + kResultsFolder + kFolderSeparator + kResultsDataFolder + kFolderSeparator + kMontecarloCriticalParameterNDParametersSweepResultsFolder + kFolderSeparator
 		 + "scenario_" + simulation_id;
@@ -239,15 +239,15 @@ bool MontecarloCriticalParameterNDParametersSweepSimulation::GenerateAndPlotResu
 		 return false;
 	}
 	// aux mags
-	auto auxMagnitudes = golden_magnitudes_structure->GetMagnitudesVector( 0 );
-	unsigned int totalAnalizableMagnitudes = 0;
-	for( auto const &m : *auxMagnitudes ){
+	auto auxMetrics = golden_metrics_structure->GetMetricsVector( 0 );
+	unsigned int totalAnalizableMetrics = 0;
+	for( auto const &m : *auxMetrics ){
 		if( m->get_analyzable() ){
-			++totalAnalizableMagnitudes;
+			++totalAnalizableMetrics;
 		}
 	}
 	bool partialResults = true;
-	partialResults = partialResults && GenerateAndPlotGeneralResults( *auxMagnitudes,
+	partialResults = partialResults && GenerateAndPlotGeneralResults( *auxMetrics,
 		parameters2sweep, mapsFolder, gnuplotScriptFolder, imagesFolder );
 	if( !partialResults ){
 		log_io->ReportError2AllLogs( "Unexpected error in GenerateAndPlotGeneralResults" );
@@ -259,9 +259,9 @@ bool MontecarloCriticalParameterNDParametersSweepSimulation::GenerateAndPlotResu
 	// p1 vs p2 3d plots
 	// std::vector<std::tuple<int,int>>
 	std::set<std::pair<unsigned int,unsigned int>> exportedParamTuples;
-	// init magnitude_column_indexes
-	if( !InitMagnitudeColumnIndexes(*auxMagnitudes) ){
-		log_io->ReportError2AllLogs( "Unexpected error in InitMagnitudeColumnIndexes" );
+	// init metric_column_indexes
+	if( !InitMetricColumnIndexes(*auxMetrics) ){
+		log_io->ReportError2AllLogs( "Unexpected error in InitMetricColumnIndexes" );
 		return false;
 	}
 	// reserve memory
@@ -292,7 +292,7 @@ bool MontecarloCriticalParameterNDParametersSweepSimulation::GenerateAndPlotResu
 					return false;
 				}
 				partialResults = partialResults && GenerateAndPlotParameterPairResults(
-					*auxMagnitudes, totalAnalizableMagnitudes,
+					*auxMetrics, totalAnalizableMetrics,
 					p1Index, p2Index, parameters2sweep, planesMapsFolder, planesGnuplotScriptFolder, planesImagesFolder );
 				// add parameters to set
 				exportedParamTuples.insert(auxPair1);
@@ -304,23 +304,23 @@ bool MontecarloCriticalParameterNDParametersSweepSimulation::GenerateAndPlotResu
 	return partialResults;
 }
 
-bool MontecarloCriticalParameterNDParametersSweepSimulation::InitMagnitudeColumnIndexes(
-		const std::vector<Magnitude*>& auxMagnitudes ){
+bool MontecarloCriticalParameterNDParametersSweepSimulation::InitMetricColumnIndexes(
+		const std::vector<Metric*>& auxMetrics ){
 	// 0   1      2          3                4                    5
 	// p1  p2     p_critical value MAG_i_name MAG_i_maxErrorMetric MAG_i_minErrorMetric
 	// 6                         7                         8   9   10
 	// MAG_i_meanMaxErrorMetric MAG_i_medianMaxErrorMetric q12 q34 MAG_i_maxErrorGlobal
-	magnitude_column_indexes = {2}; // parameter critical value
+	metric_column_indexes = {2}; // parameter critical value
 	unsigned int auxMagCount = 3; // MAG_i_name
-	for( auto const &m: auxMagnitudes ){
+	for( auto const &m: auxMetrics ){
 		if(m->get_analyzable()){
-			magnitude_column_indexes.push_back( auxMagCount+1 ); // MAG_i_maxErrorMetric
-			magnitude_column_indexes.push_back( auxMagCount+2 ); // MAG_i_minErrorMetric
-			magnitude_column_indexes.push_back( auxMagCount+3 ); // MAG_i_meanMaxErrorMetric
-			magnitude_column_indexes.push_back( auxMagCount+4 ); // MAG_i_medianMaxErrorMetric
-			magnitude_column_indexes.push_back( auxMagCount+5 ); // q12
-			magnitude_column_indexes.push_back( auxMagCount+6 ); // q34
-			magnitude_column_indexes.push_back( auxMagCount+7 ); // MAG_i_maxErrorGlobal
+			metric_column_indexes.push_back( auxMagCount+1 ); // MAG_i_maxErrorMetric
+			metric_column_indexes.push_back( auxMagCount+2 ); // MAG_i_minErrorMetric
+			metric_column_indexes.push_back( auxMagCount+3 ); // MAG_i_meanMaxErrorMetric
+			metric_column_indexes.push_back( auxMagCount+4 ); // MAG_i_medianMaxErrorMetric
+			metric_column_indexes.push_back( auxMagCount+5 ); // q12
+			metric_column_indexes.push_back( auxMagCount+6 ); // q34
+			metric_column_indexes.push_back( auxMagCount+7 ); // MAG_i_maxErrorGlobal
 			auxMagCount += 8; // next MAG_i_name
 		}
 	}
@@ -328,7 +328,7 @@ bool MontecarloCriticalParameterNDParametersSweepSimulation::InitMagnitudeColumn
 }
 
 bool MontecarloCriticalParameterNDParametersSweepSimulation::GenerateAndPlotParameterPairResults(
-		const std::vector<Magnitude*>& auxMagnitudes, const unsigned int& totalAnalizableMagnitudes,
+		const std::vector<Metric*>& auxMetrics, const unsigned int& totalAnalizableMetrics,
 		const unsigned int& p1Index, const unsigned int& p2Index,
 		const std::vector<SimulationParameter*>& parameters2sweep,
 		const std::string& mapsFolder, const std::string& gnuplotScriptFolder, const std::string& imagesFolder ){
@@ -347,7 +347,7 @@ bool MontecarloCriticalParameterNDParametersSweepSimulation::GenerateAndPlotPara
 		// debug
 		// PrintIndexes( * plane );
 		partialResults = partialResults && GenerateAndPlotItemizedPlane(
-			auxMagnitudes, p1Index, p2Index, itemizedCount++,
+			auxMetrics, p1Index, p2Index, itemizedCount++,
 			parameters2sweep, mapsFolder, gnuplotScriptFolder, imagesFolder, *planeIndexes, *planeStructure);
 	}
 	// add plane
@@ -359,20 +359,20 @@ bool MontecarloCriticalParameterNDParametersSweepSimulation::GenerateAndPlotPara
 		+ planeStructure->get_plane_id() + "_general" + kDataSufix;
 	// process only mean
 	partialResults = partialResults && rp.MeanProcessResultsFiles(
-		planeStructure->get_itemized_data_paths(), generalParameterResultsFile, std::move(magnitude_column_indexes));
+		planeStructure->get_itemized_data_paths(), generalParameterResultsFile, std::move(metric_column_indexes));
 	if( !partialResults ){
 		log_io->ReportError2AllLogs( "[ERROR ResultsProcessor] Error processing " + generalParameterResultsFile );
 		return partialResults;
 	}
 	planeStructure->set_general_data_path(generalParameterResultsFile);
-	// plot parameter critical value and magnitude errors
+	// plot parameter critical value and metric errors
 	SimulationParameter* p1 = parameters2sweep.at(p1Index);
 	SimulationParameter* p2 = parameters2sweep.at(p2Index);
 	log_io->ReportPlainStandard("Processed GnuplotPlane" );
 	int gnuplotResult = GnuplotPlane( *planeStructure, false, *p1, *p2,
 		planeStructure->get_plane_id() + "_general_", generalParameterResultsFile,
 		gnuplotScriptFolder, imagesFolder );
-	gnuplotResult += GnuplotPlaneMagnitudeResults( auxMagnitudes, *planeStructure,
+	gnuplotResult += GnuplotPlaneMetricResults( auxMetrics, *planeStructure,
 		false, *p1, *p2, 0, "_general_", generalParameterResultsFile,
 		gnuplotScriptFolder, imagesFolder );
 	if( gnuplotResult > 0 ){
@@ -384,7 +384,7 @@ bool MontecarloCriticalParameterNDParametersSweepSimulation::GenerateAndPlotPara
 }
 
 bool MontecarloCriticalParameterNDParametersSweepSimulation::GenerateAndPlotItemizedPlane(
-	const std::vector<Magnitude*>& auxMagnitudes,
+	const std::vector<Metric*>& auxMetrics,
 	const unsigned int& p1Index, const unsigned int& p2Index, const unsigned int& itemizedCount,
 	const std::vector<SimulationParameter*>& parameters2sweep,
 	const std::string& mapsFolder, const std::string& gnuplotScriptFolder, const std::string& imagesFolder,
@@ -419,9 +419,9 @@ bool MontecarloCriticalParameterNDParametersSweepSimulation::GenerateAndPlotItem
 				}
 				gnuplotMapFile << p1->GetSweepValue(p1SweepCount) << " " << p2->GetSweepValue(p2SweepCount++)
 					<< " " << mcSSim->get_montecarlo_simulation_results()->get_mean_critical_parameter_value();
-				// magnitudes
+				// metrics
 				for( auto& m : *(mcSSim->get_montecarlo_simulation_results()->get_metric_montecarlo_results()) ){
-					gnuplotMapFile << " " << m->metric_magnitude_name << " " << m->max_error_metric << " " << m->min_error_metric
+					gnuplotMapFile << " " << m->metric_name << " " << m->max_error_metric << " " << m->min_error_metric
 						<< " " << m->mean_max_error_metric << " " << m->median_max_error_metric << " " << m->q12_max_error_metric
 						<< " " << m->q34_max_error_metric << " " << m->max_error_global;
 				}
@@ -445,7 +445,7 @@ bool MontecarloCriticalParameterNDParametersSweepSimulation::GenerateAndPlotItem
 		int gnuplotResult = GnuplotPlane( plane, true, *p1, *p2,
 			"partialPlaneId_" + partialPlaneId, gnuplotMapFilePath,
 			gnuplotScriptFolder, imagesFolder );
-		gnuplotResult += GnuplotPlaneMagnitudeResults( auxMagnitudes, plane, true,
+		gnuplotResult += GnuplotPlaneMetricResults( auxMetrics, plane, true,
 			*p1, *p2, itemizedCount, "partialPlaneId_" + partialPlaneId,
 			gnuplotMapFilePath, gnuplotScriptFolder, imagesFolder );
 		if( gnuplotResult > 0 ){
@@ -456,7 +456,7 @@ bool MontecarloCriticalParameterNDParametersSweepSimulation::GenerateAndPlotItem
 }
 
 bool MontecarloCriticalParameterNDParametersSweepSimulation::GenerateAndPlotGeneralResults(
-		const std::vector<Magnitude*>& auxMagnitudes,
+		const std::vector<Metric*>& auxMetrics,
 		const std::vector< SimulationParameter*>& parameters2sweep,
 		const std::string& mapsFolder, const std::string& gnuplotScriptFolder, const std::string& imagesFolder ){
 	bool partialResults = true;
@@ -484,9 +484,9 @@ bool MontecarloCriticalParameterNDParametersSweepSimulation::GenerateAndPlotGene
 			gnuplotMapFile << profileCount << " " << auxIndexes << " " << critParamValue;
 			// update maxCritParamValue
 			maxCritParamValue = critParamValue>maxCritParamValue ? critParamValue : maxCritParamValue;
-			// magnitudes
+			// metrics
 			for( auto const &m : *(mcSSim->get_montecarlo_simulation_results()->get_metric_montecarlo_results()) ){
-				gnuplotMapFile << " " << m->metric_magnitude_name << " " << m->max_error_metric << " " << m->min_error_metric
+				gnuplotMapFile << " " << m->metric_name << " " << m->max_error_metric << " " << m->min_error_metric
 					<< " " << m->mean_max_error_metric << " " << m->median_max_error_metric << " " << m->q12_max_error_metric
 					<< " " << m->q34_max_error_metric << " " << m->max_error_global;
 			}
@@ -510,7 +510,7 @@ bool MontecarloCriticalParameterNDParametersSweepSimulation::GenerateAndPlotGene
 	if( partialResults ){
 		// create gnuplot scatter map graphs
 		int gnuplotResult = GnuplotGeneralResults( gnuplotSpectreErrorMapFilePath, gnuplotScriptFolder, imagesFolder );
-		gnuplotResult += GnuplotGeneralMetricMagnitudeResults( auxMagnitudes,
+		gnuplotResult += GnuplotGeneralMetricMetricResults( auxMetrics,
 			maxCritParamValue, mapsFolder, gnuplotScriptFolder, imagesFolder );
 		if( gnuplotResult > 0 ){
 			log_io->ReportError2AllLogs( "Sim " + simulation_id + ". Unexpected gnuplot result: " + number2String(gnuplotResult) );
@@ -587,14 +587,14 @@ int MontecarloCriticalParameterNDParametersSweepSimulation::GnuplotGeneralResult
 	return std::system( execCommand.c_str() );
 }
 
-int MontecarloCriticalParameterNDParametersSweepSimulation::GnuplotGeneralMetricMagnitudeResults(
-	const std::vector<Magnitude*>& analyzedMagnitudes, double& maxCritParamValue,
+int MontecarloCriticalParameterNDParametersSweepSimulation::GnuplotGeneralMetricMetricResults(
+	const std::vector<Metric*>& analyzedMetrics, double& maxCritParamValue,
 	const std::string& mapsFolder, const std::string& gnuplotScriptFolder, const std::string& imagesFolder ){
 
 	int partialResult = 0;
 	unsigned int magCount = 0;
 	std::string gnuplotDataFile = main_nd_simulation_results.get_general_data_path();
-	for( auto const &m : analyzedMagnitudes ){
+	for( auto const &m : analyzedMetrics ){
 		if( m->get_analyzable() ){
 			// Files
 			std::string gnuplotScriptFilePath = gnuplotScriptFolder + kFolderSeparator
@@ -617,7 +617,7 @@ int MontecarloCriticalParameterNDParametersSweepSimulation::GnuplotGeneralMetric
 			gnuplotScriptFile << "set format y2 \"%g\"\n";
 			gnuplotScriptFile << "set xlabel \"Profile\"\n";
 			gnuplotScriptFile << "set y2label \"" << golden_critical_parameter->get_title_name() << "\"\n";
-			gnuplotScriptFile << "set ylabel \"Error in magnitude "  << m->get_title_name() << "\"\n";
+			gnuplotScriptFile << "set ylabel \"Error in metric "  << m->get_title_name() << "\"\n";
 			// # remove border on top and right and set color to gray
 			gnuplotScriptFile << "set style line 11 lc rgb '#808080' lt 1\n";
 			gnuplotScriptFile << "set border 3 back ls 11\n";
@@ -649,7 +649,7 @@ int MontecarloCriticalParameterNDParametersSweepSimulation::GnuplotGeneralMetric
 			// Plot
 			// # 1              2            3      4             5                6              7             8   9   10  11
 			// # profCount profile crit_val MAG_i_name MAG_i_maxError MAG_i_minError MAG_i_mean MAG_i_median q12 q34 MAG_i_maxErrorGlobal
-			int magDataIndex = 4 + data_per_magnitude_per_line*magCount; // title
+			int magDataIndex = 4 + data_per_metric_per_line*magCount; // title
 			gnuplotScriptFile <<  "plot '" << gnuplotDataFile << "' using 1:3 axis x1y2 with filledcurve x1 ls 3 title '"
 				<< golden_critical_parameter->get_title_name() << "', \\\n";
 			// max min
@@ -673,7 +673,7 @@ int MontecarloCriticalParameterNDParametersSweepSimulation::GnuplotGeneralMetric
 			std::string execCommand = kGnuplotCommand + gnuplotScriptFilePath + kGnuplotEndCommand;
 			partialResult += std::system( execCommand.c_str() );
 			// Image paths
-			main_nd_simulation_results.AddGeneralMagnitudeImagePath( outputImagePath , title );
+			main_nd_simulation_results.AddGeneralMetricImagePath( outputImagePath , title );
 
 			// Image paths
 			// criticalParameterValueSimulationsVector.set_group_processed_image_path(  outputImagePath + kSvgSufix  );
@@ -749,8 +749,8 @@ int MontecarloCriticalParameterNDParametersSweepSimulation::GnuplotPlane(
 	return std::system( execCommand.c_str() );
 }
 
-int MontecarloCriticalParameterNDParametersSweepSimulation::GnuplotPlaneMagnitudeResults(
-	const std::vector<Magnitude*>& analyzedMagnitudes,
+int MontecarloCriticalParameterNDParametersSweepSimulation::GnuplotPlaneMetricResults(
+	const std::vector<Metric*>& analyzedMetrics,
 	PlaneResultsStructure& plane, const bool isPartialPlane,
 	const SimulationParameter& p1, const SimulationParameter& p2,
 	const unsigned int& partialPlaneCount,
@@ -758,7 +758,7 @@ int MontecarloCriticalParameterNDParametersSweepSimulation::GnuplotPlaneMagnitud
 	const std::string& gnuplotScriptFolder, const std::string& imagesFolder ){
 	unsigned int magCount = 0;
 	int partialResults = 0;
-	for( auto const &m : analyzedMagnitudes ){
+	for( auto const &m : analyzedMetrics ){
 		if( m->get_analyzable() ){
 			// Files
 			std::string gnuplotScriptFilePath = gnuplotScriptFolder + kFolderSeparator
@@ -808,7 +808,7 @@ int MontecarloCriticalParameterNDParametersSweepSimulation::GnuplotPlaneMagnitud
 			}else{
 				gnuplotScriptFile << "set pm3d corners2color max\n";
 			}
-			int magDataIndex = 4 + data_per_magnitude_per_line*magCount; // title
+			int magDataIndex = 4 + data_per_metric_per_line*magCount; // title
 			gnuplotScriptFile << "splot '" << gnuplotDataFile << "' u 1:2:" << (magDataIndex+4)
 				<< " title 'mean_max_err_" << m->get_title_name() << "' w pm3d\n";
 			gnuplotScriptFile << "unset output\n";
@@ -821,9 +821,9 @@ int MontecarloCriticalParameterNDParametersSweepSimulation::GnuplotPlaneMagnitud
 			partialResults += std::system( execCommand.c_str() );
 			// Image paths
 			if( isPartialPlane ){
-				plane.AddItemizedMagnitudeImagePath( partialPlaneCount, outputImagePath, title );
+				plane.AddItemizedMetricImagePath( partialPlaneCount, outputImagePath, title );
 			}else{
-				plane.AddGeneralMagnitudeImagePath( outputImagePath, title );
+				plane.AddGeneralMetricImagePath( outputImagePath, title );
 			}
 			magCount++;
 		}

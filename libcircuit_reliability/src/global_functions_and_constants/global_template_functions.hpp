@@ -82,6 +82,27 @@ void deepCopyVectorOfPointers(const std::vector<any_data_type*> source,
 
 /**
 * Template
+*
+* [References version]
+* Delete the contents of the destination std::vector
+* Performs a deep copy of the elements
+* from the source to the destination
+* @param source <std::vector<any_data_type*>> source vector
+* @param destination <std::vector<any_data_type*>&> destination vector
+*/
+template<class any_data_type>
+void deepCopyVectorOfInheritancePointers(const std::vector<any_data_type*> source,
+		std::vector<any_data_type*>& destination) {
+	if( destination.size()>0 ){
+		deleteContentsOfVectorOfPointers( destination );
+	}
+	for ( auto& pElem : source ){
+		destination.push_back( pElem->GetCopy() );
+	}
+}
+
+/**
+* Template
 * [References version]
 * Delete the contents of the destination std::vector
 * @param myVector <std::vector<any_data_type*>&> vector whose elements

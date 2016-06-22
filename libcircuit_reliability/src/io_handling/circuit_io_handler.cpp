@@ -17,6 +17,8 @@
 #include <boost/algorithm/string.hpp>
 // radiation simulator includes
 #include "circuit_io_handler.hpp"
+#include "../metric_modeling/ocean_eval_metric.hpp"
+#include "../netlist_modeling/statements/simple_statement.hpp"
 // constants includes
 #include "../global_functions_and_constants/global_template_functions.hpp"
 #include "../global_functions_and_constants/global_constants.hpp"
@@ -42,14 +44,24 @@ void CircuitIOHandler::AddSimulationSpecialStatements( CircuitStatement& circuit
 		log_io->ReportError2AllLogs( "Error in circuit_io_handler: simulation_mode->get_analysis_statement is nullptr");
 		return;
 	}
+	// add analisis statement
 	circuit.AddSimulationSpecialStatement( new AnalysisStatement( *simulation_mode->get_analysis_statement() ));
 	for( auto const& cs : *simulation_mode->get_control_statements() ){
 			circuit.AddSimulationSpecialStatement( new ControlStatement( *cs ));
 	}
+	// add non_transient metrics
+	// (oceanEval metrics)
+	for( auto const& m : metrics ){
+		if( !m->is_transient_magnitude() ){
+			auto pOceanEvalMag = dynamic_cast<OceanEvalMetric*>( m );
+			circuit.AddSimulationSpecialStatement( new SimpleStatement(
+				"export " + pOceanEvalMag->get_name() + "=oceanEval(\"" + pOceanEvalMag->get_ocean_eval_expression() + "\")"));
+		}
+	}
 	log_io->ReportPlain2Log( "Analysis statement added.");
-	// save spectre magnitudes
-	for( auto const& m : magnitudes ){
-		if( m->get_name().compare("time")!=0 ){
+	// save spectre metrics
+	for( auto const& m : metrics ){
+		if( m->is_transient_magnitude() && m->get_name().compare("time")!=0 ){
 			ControlStatement* saveStatement = new ControlStatement();
 			saveStatement->set_log_io( log_io );
 			saveStatement->set_id( kInjectedSaveMonitorId );
@@ -62,7 +74,7 @@ void CircuitIOHandler::AddSimulationSpecialStatements( CircuitStatement& circuit
 			circuit.AddSimulationSpecialStatement( saveStatement );
 		}
 	}
-	log_io->ReportPlain2Log( "Magnitudes save statements added.");
+	log_io->ReportPlain2Log( "Metrics save statements added.");
 }
 
 bool CircuitIOHandler::ReadMainNetlist( int stateNumber, std::string netlistFile,
@@ -357,6 +369,6 @@ bool CircuitIOHandler::ExportAlteredNetlist( CircuitStatement& circuit, int avoi
 	return success;
 }
 
-void CircuitIOHandler::AddMagnitude( Magnitude* magnitude ){
-	this->magnitudes.push_back( magnitude );
+void CircuitIOHandler::AddMetric( Metric* metric ){
+	this->metrics.push_back( metric );
 }

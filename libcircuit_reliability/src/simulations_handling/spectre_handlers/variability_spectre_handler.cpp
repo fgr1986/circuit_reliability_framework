@@ -28,19 +28,19 @@ VariabilitySpectreHandler::VariabilitySpectreHandler() {
 	this->spectre_command_log_arg = kNotDefinedString;
 	this->spectre_command_folder_arg = kNotDefinedString;
 	this->golden_scenario_folder_path = kNotDefinedString;
-	// export_processed_magnitudes
-	this->export_processed_magnitudes = false;
+	// export_processed_metrics
+	this->export_processed_metrics = false;
 	// plot
 	this->plot_scatters = false;
 	this->plot_transients = false;
 	this->plot_last_transients = false;
 	this->export_matlab_script = false;
 	// files
-	this->export_magnitude_errors = false;
+	this->export_metric_errors = false;
 	this->delete_spectre_folders = false;
 	this->delete_spectre_transients = true;
 	this->delete_processed_transients = true;
-	this->golden_magnitudes_structure = nullptr;
+	this->golden_metrics_structure = nullptr;
 	// montecarlo iterations
 	this->montecarlo_iterations = 1;
 	// parallel
@@ -51,17 +51,17 @@ VariabilitySpectreHandler::VariabilitySpectreHandler() {
 VariabilitySpectreHandler::~VariabilitySpectreHandler() {
 	#ifdef DESTRUCTORS_VERBOSE
 		log_io->ReportPlainStandard( "VariabilitySpectreHandler destructor. direction:" + number2String(this));
-		log_io->ReportPlainStandard( "magnitudes_2be_found" );
+		log_io->ReportPlainStandard( "metrics_2be_found" );
 	#endif
 	deleteContentsOfVectorOfPointers( simulation_parameters );
-	deleteContentsOfVectorOfPointers( magnitudes_2be_found );
-	// ReorderMagnitudes clears unsorted_magnitudes_2be_found
-	// deleteContentsOfVectorOfPointers( unsorted_magnitudes_2be_found );
-	if( golden_magnitudes_structure ){
+	deleteContentsOfVectorOfPointers( metrics_2be_found );
+	// ReorderMetrics clears unsorted_metrics_2be_found
+	// deleteContentsOfVectorOfPointers( unsorted_metrics_2be_found );
+	if( golden_metrics_structure ){
 		#ifdef DESTRUCTORS_VERBOSE
-			log_io->ReportPlainStandard( "golden_magnitudes_structure");
+			log_io->ReportPlainStandard( "golden_metrics_structure");
 		#endif
-		delete golden_magnitudes_structure;
+		delete golden_metrics_structure;
 	}
 	#ifdef DESTRUCTORS_VERBOSE
 		log_io->ReportPlainStandard( "simulations");
@@ -148,7 +148,7 @@ bool VariabilitySpectreHandler::RunSimulations(){
 	// max_parallel_montecarlo_instances controlled by spectre
 	sss->set_max_parallel_profile_instances( max_parallel_profile_instances );
 	sss->set_log_io( log_io );
-	sss->set_golden_magnitudes_structure( golden_magnitudes_structure );
+	sss->set_golden_metrics_structure( golden_metrics_structure );
 	// Spectre command and args
 	sss->set_spectre_command( spectre_command );
 	sss->set_pre_spectre_command( pre_spectre_command );
@@ -164,21 +164,21 @@ bool VariabilitySpectreHandler::RunSimulations(){
 	// result files
 	sss->set_delete_spectre_folders( delete_spectre_folders );
 	sss->set_delete_spectre_transients( delete_spectre_transients );
-	// export_processed_magnitudes true, because of scatter plots,
+	// export_processed_metrics true, because of scatter plots,
 	// and instead of delete_processed_transients || plot_transients || plot_last_transients
-	sss->set_export_processed_magnitudes( export_processed_magnitudes ||
+	sss->set_export_processed_metrics( export_processed_metrics ||
 		plot_scatters || plot_transients || plot_last_transients );
-	sss->set_delete_processed_transients( sss->get_export_processed_magnitudes() && delete_processed_transients );
+	sss->set_delete_processed_transients( sss->get_export_processed_metrics() && delete_processed_transients );
 	sss->set_plot_scatters( plot_scatters );
 	sss->set_plot_transients( plot_transients );
-	sss->set_export_magnitude_errors( export_magnitude_errors );
+	sss->set_export_metric_errors( export_metric_errors );
 	// plotting variables
 	sss->set_interpolate_plots_ratio( interpolate_plots_ratio );
 	// analysis
 	sss->set_main_analysis( simulation_mode->get_analysis_statement() );
 	sss->set_main_transient_analysis( simulation_mode->get_main_transient_analysis() );
-	sss->set_process_magnitudes( true );
-	sss->set_export_magnitude_errors( export_magnitude_errors );
+	sss->set_process_metrics( true );
+	sss->set_export_metric_errors( export_metric_errors );
 	// add simulation to list
 	simulations.push_back(sss);
 	// Run the threads
@@ -211,12 +211,12 @@ bool VariabilitySpectreHandler::SimulateStandardAHDLNetlist( ){
 	log_io->ReportPurpleStandard( "var_AHDL_s simulation_parameters: " + number2String(var_AHDL_s->get_simulation_parameters()->size()));
 	// not needed
 	// var_AHDL_s->set_plot_transients( false );
-	// Not required cause magnitudes are not processed
-	// golden_ss->set_golden_magnitudes( &magnitudes_2be_found );
+	// Not required cause metrics are not processed
+	// golden_ss->set_golden_metrics( &metrics_2be_found );
 	var_AHDL_s->set_top_folder( top_folder );
 	var_AHDL_s->set_folder( variations_AHDL_folder_path );
-	var_AHDL_s->set_process_magnitudes( false );
-	var_AHDL_s->set_export_magnitude_errors( false );
+	var_AHDL_s->set_process_metrics( false );
+	var_AHDL_s->set_export_metric_errors( false );
 	// Spectre command and args
 	var_AHDL_s->set_spectre_command( spectre_command );
 	var_AHDL_s->set_pre_spectre_command( pre_spectre_command );
@@ -235,23 +235,26 @@ bool VariabilitySpectreHandler::SimulateStandardAHDLNetlist( ){
 	if(var_AHDL_s->get_simulation_results()->get_spectre_result() > 0){
 		log_io->ReportError2AllLogs( "WARNING: while simulation the ahdl scenario." );
 	}
-
-	// Reorder magnitudes
-	bool partialResult = ReorderMagnitudes( var_AHDL_s->GetSpectreResultsFilePath() );
+	// Reorder metrics
+	bool partialResult = ReorderMetrics( var_AHDL_s->GetSpectreResultsFilePath() );
 	delete var_AHDL_s;
 	return partialResult;
 }
 
-bool VariabilitySpectreHandler::ReorderMagnitudes( const std::string& spectreResultTrans ){
+bool VariabilitySpectreHandler::ReorderMetrics( const std::string& spectreResultTrans ){
 	RAWFormatProcessor rfp;
-	bool partialResult = rfp.PrepProcessTransientMagnitudes( &unsorted_magnitudes_2be_found, &magnitudes_2be_found, spectreResultTrans );
+	bool partialResult = rfp.PrepProcessTransientMetrics( &unsorted_metrics_2be_found, &metrics_2be_found, spectreResultTrans );
 	// debug
-	log_io->ReportCyanStandard( "Sorted Magnitudes to be found" );
-	for( auto const& m : magnitudes_2be_found){
-		log_io->ReportCyanStandard( m->get_name() );
+	log_io->ReportCyanStandard( "Sorted Metrics to be found" );
+	for( auto const& m : metrics_2be_found){
+		if( m->is_transient_magnitude() ){
+			log_io->ReportPlainStandard( m->get_name() + " is a transient metric" );
+		}else{
+			log_io->ReportPlainStandard( m->get_name() + " is an oceanEval metric" );
+		}
 	}
 	// free memory
-	deleteContentsOfVectorOfPointers( unsorted_magnitudes_2be_found );
+	deleteContentsOfVectorOfPointers( unsorted_metrics_2be_found );
 	return partialResult;
 }
 
@@ -271,8 +274,8 @@ bool VariabilitySpectreHandler::SimulateGoldenAHDLNetlist( ){
 	ahdl_golden_ss->set_top_folder( top_folder );
 	ahdl_golden_ss->set_folder( golden_ahdl_scenario_folder_path );
 	// result files
-	ahdl_golden_ss->set_process_magnitudes( false );
-	ahdl_golden_ss->set_export_magnitude_errors( false );
+	ahdl_golden_ss->set_process_metrics( false );
+	ahdl_golden_ss->set_export_metric_errors( false );
 	ahdl_golden_ss->set_delete_spectre_folders( delete_spectre_folders );
 	ahdl_golden_ss->set_delete_spectre_transients( false );
 	ahdl_golden_ss->set_delete_processed_transients( false );
@@ -290,7 +293,6 @@ bool VariabilitySpectreHandler::SimulateGoldenAHDLNetlist( ){
 	boost::thread ahdl_golden_t(boost::bind(&SpectreSimulation::HandleSpectreSimulation, ahdl_golden_ss));
 	ahdl_golden_t.join();
 	log_io->ReportGreenStandard( "AHDL Golden netlist simulated and processed.");
-
 	if( ahdl_golden_ss->get_simulation_results()->get_spectre_result() > 0 ){
 		log_io->ReportError2AllLogs( "Error while simulating or processing the ahdl_golden_ss scenario. Aborted." );
 		delete ahdl_golden_ss;
@@ -307,12 +309,12 @@ bool VariabilitySpectreHandler::SimulateGoldenNetlist( ){
 		log_io->ReportError2AllLogs( "Error in AHDL Golden");
 		return false;
 	}
-	// preorder magnitudes
+	// preorder metrics
 
 	// Golden netlist
 	GoldenNDParametersSweepSimulation* golden_ss
 		= new GoldenNDParametersSweepSimulation();
-	golden_ss->set_magnitudes_2be_found( &magnitudes_2be_found );
+	golden_ss->set_metrics_2be_found( &metrics_2be_found );
 	golden_ss->set_max_parallel_profile_instances( max_parallel_profile_instances );
 	// Golden netlist
 	golden_ss->set_n_d_profile_index( 0 );
@@ -328,8 +330,8 @@ bool VariabilitySpectreHandler::SimulateGoldenNetlist( ){
 	golden_ss->set_top_folder( top_folder );
 	golden_ss->set_folder( golden_scenario_folder_path );
 	// Files
-	golden_ss->set_process_magnitudes( true );
-	golden_ss->set_export_magnitude_errors( false );
+	golden_ss->set_process_metrics( true );
+	golden_ss->set_export_metric_errors( false );
 	golden_ss->set_delete_spectre_folders( delete_spectre_folders );
 	golden_ss->set_delete_spectre_transients( delete_spectre_transients );
 	golden_ss->set_delete_processed_transients( true );
@@ -348,7 +350,7 @@ bool VariabilitySpectreHandler::SimulateGoldenNetlist( ){
 	golden_t.join();
 	log_io->ReportGreenStandard( "Golden netlist simulated and processed.");
 
-	// We copy the golden magnitudes, because golden_ss object is going to be destroyed
+	// We copy the golden metrics, because golden_ss object is going to be destroyed
 	// analysis/radiation parameters are pointers, and they are not destroyed in the
 	// golden_ss var_AHDL_s destruction
 	// Does not need to be copied because is not a GoldenSimulation member
@@ -359,15 +361,15 @@ bool VariabilitySpectreHandler::SimulateGoldenNetlist( ){
 		delete golden_ss;
 		return false;
 	}
-	log_io->ReportGreenStandard( "copying the golden magnitudes.");
-	golden_magnitudes_structure = golden_ss->GetGoldenMagnitudes();
-	log_io->ReportGreenStandard( "golden magnitudes copied. Deleting golden_ss");
+	log_io->ReportGreenStandard( "copying the golden metrics.");
+	golden_metrics_structure = golden_ss->GetGoldenMetrics();
+	log_io->ReportGreenStandard( "golden metrics copied. Deleting golden_ss");
 	//delete all simulations
 	delete golden_ss;
 	log_io->ReportGreenStandard( "golden_ss deleted");
 	return true;
 }
 
-void VariabilitySpectreHandler::AddMagnitude( Magnitude* magnitude ){
-	this->unsorted_magnitudes_2be_found.push_back( magnitude );
+void VariabilitySpectreHandler::AddMetric( Metric* metric ){
+	this->unsorted_metrics_2be_found.push_back( metric );
 }

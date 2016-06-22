@@ -11,44 +11,45 @@
  *
  */
 
-#ifndef N_D_MAGNITUDES_STRUCTURE_H
-#define N_D_MAGNITUDES_STRUCTURE_H
+#ifndef N_D_METRICS_STRUCTURE_H
+#define N_D_METRICS_STRUCTURE_H
 
 // c++ std libraries
 // #include <string>
 // #include <vector>
 // Radiation simulator
+#include "metric.hpp"
 #include "magnitude.hpp"
 
-class NDMagnitudesStructure {
+class NDMetricsStructure {
 public:
 	/// default constructor
-	NDMagnitudesStructure();
+	NDMetricsStructure();
 	/// copy constructor
-	NDMagnitudesStructure(const NDMagnitudesStructure& orig);
+	NDMetricsStructure(const NDMetricsStructure& orig);
 
-	virtual ~NDMagnitudesStructure();
+	virtual ~NDMetricsStructure();
 
 	/**
-	 * @brief gets the lists of magnitudes_vector
-	 * @return magnitudes_vector
+	 * @brief gets the lists of metrics_vector
+	 * @return metrics_vector
 	 */
-	std::vector<Magnitude*>* GetMagnitudesVector( const unsigned int nd_index );
+	std::vector<Metric*>* GetMetricsVector( const unsigned int nd_index );
 
 	/**
-	 * @brief gets the lists of magnitudes with metric
+	 * @brief gets the lists of metrics with metric
 	 * vector to be removed but NOT its contents
-	 * @return magnitudes_vector
+	 * @return metrics_vector
 	 */
-	std::vector<Magnitude*>* GetBasicMetricMagnitudesVector() const;
+	std::vector<Metric*>* GetBasicMetricMetricsVector() const;
 
 
 	/**
-	 * @brief gets the lists of plotable magnitudes
+	 * @brief gets the lists of plotable metrics
 	 * vector to be removed but NOT its contents
-	 * @return magnitudes_vector
+	 * @return metrics_vector
 	 */
-	std::vector<Magnitude*>* GetBasicPlottableMagnitudesVector() const;
+	std::vector<Magnitude*>* GetBasicPlottableMetricsVector() const;
 
 	/**
 	 * @brief gets the path to the golden result file
@@ -66,12 +67,12 @@ public:
 	}
 
 	/**
-	 * @brief sets magnitudes_structure
+	 * @brief sets metrics_structure
 	 *
-	 * @param magnitudes_structure
+	 * @param metrics_structure
 	 */
-	void set_magnitudes_structure( std::vector<std::vector<Magnitude*>*>* magnitudes_structure ){
-		this->magnitudes_structure = magnitudes_structure;
+	void set_metrics_structure( std::vector<std::vector<Metric*>*>* metrics_structure ){
+		this->metrics_structure = metrics_structure;
 	}
 
 	/**
@@ -90,21 +91,21 @@ public:
 	std::string get_group_name() const{return group_name;}
 
 	/**
-	 * @brief Adds a new Magnitudes
+	 * @brief Adds a new Metrics
 	 *
-	 * @param Magnitudes
+	 * @param Metrics
 	 */
-	void AddMagnitude( Magnitude* magnitude, const unsigned int nd_index );
+	void AddMetric( Metric* metric, const unsigned int nd_index );
 
 	/**
 	 * @brief Inits structure
 	 *
 	 * @param parameterCount
 	 * @param sweepCount
-	 * @param simpleMagnitudesVector
+	 * @param simpleMetricsVector
 	 */
 	void SimpleInitialization(  const unsigned int totalIndexes,
-		std::vector<Magnitude*>& simpleMagnitudesVector, std::string goldenFilePath  );
+		std::vector<Metric*>& simpleMetricsVector, std::string goldenFilePath  );
 
 	/**
 	 * @brief returns elements size
@@ -115,18 +116,18 @@ public:
 private:
 	/// Group group_name
 	std::string group_name;
-	/// Magnitudes
-	/// [nd_index][MagnitudeCount]
-	std::vector<std::vector<Magnitude*>*>* magnitudes_structure;
-	/// files_structure where the magnitudes are stored
+	/// Metrics
+	/// [nd_index][MetricCount]
+	std::vector<std::vector<Metric*>*>* metrics_structure;
+	/// files_structure where the metrics are stored
 	/// [nd_index]
 	std::vector<std::string>* files_structure;
 	// to increase performance
-	mutable std::vector<Magnitude*>* metrics_magnitudes_vector;
-	mutable std::vector<Magnitude*>* plottable_magnitudes_vector;
-	mutable bool valid_useful_magnitude_vectors{false};
+	mutable std::vector<Metric*>* metrics_metrics_vector;
+	mutable std::vector<Magnitude*>* plottable_metrics_vector;
+	mutable bool valid_useful_metric_vectors{false};
 
-	bool CreateUsefulMagnitudeVectors() const;
+	bool CreateUsefulMetricVectors() const;
 };
 
-#endif /* N_D_MAGNITUDES_STRUCTURE_H */
+#endif /* N_D_METRICS_STRUCTURE_H */

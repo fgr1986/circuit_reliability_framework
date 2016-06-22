@@ -17,10 +17,11 @@
 #define MAGNITUDE_H
 
 /// c++ std required libraries
-#include <string>
 #include <vector>
 
-class Magnitude {
+#include "metric.hpp"
+
+class Magnitude : public Metric {
 public:
 	/// Default Constructor
 	Magnitude( const std::string& name );
@@ -28,21 +29,14 @@ public:
 	Magnitude(const Magnitude& orig);
 	/// Copy Constructor (copy values selection)
 	Magnitude(const Magnitude& orig, bool copyValues);
+
+	Magnitude* GetCopy();
 	virtual ~Magnitude();
 
-	void set_name(std::string name);
-	std::string get_name() const {return name;}
-	std::string get_title_name() const;
-	std::string get_file_name() const;
-	std::string get_enclosed_name() const;
-	bool get_found_in_results() const {return found_in_results;}
-	void set_found_in_results(bool found_in_results) { this->found_in_results = found_in_results; }
 	std::vector<double>* get_values() { return &values; }
 	unsigned int get_values_size() const { return values.size(); }
 
 	// Analysis attributes
-	bool get_analyzable() const {return analyzable;}
-	void set_analyzable(bool analyzable) { this->analyzable = analyzable; }
 	void set_analyze_error_in_time(bool analyze_error_in_time) {
 		this->analyze_error_in_time = analyze_error_in_time; }
 	bool get_analyze_error_in_time() const {return analyze_error_in_time;}
@@ -87,26 +81,17 @@ public:
 	bool get_plottable_in_golden() const{ return plottable_in_golden; }
 	void set_plottable_in_golden( bool plottable_in_golden ){this->plottable_in_golden = plottable_in_golden;}
 
-	bool is_transient_magnitude() const{ return transient_magnitude; }
 
 	void AddValue( double value );
-	double GetValue( int position );
 
-protected:
-	std::string name;
-	mutable std::string title_name;
-	mutable std::string file_name;
-	mutable std::string enclosed_name;
-	mutable bool valid_formatted_names{false};
+	virtual double get_value_at( const int index ) override;
+
+private:
 	std::vector<double> values;
-	// new in v3.0.1, is this magnitude a transient like magnitude?
-	bool transient_magnitude;
-	bool found_in_results;
 	/// plottable
 	bool plottable;
 	bool plottable_in_golden;
 	/// Analysis attributes
-	bool analyzable;
 	bool analyze_error_in_time;
 	/// time_window in which is analyzable
 	bool analyze_error_in_time_window;
@@ -128,7 +113,6 @@ protected:
 	/// do not take into account lower voltages
 	bool ommit_lower_threshold;
 
-	Magnitude(){ this->transient_magnitude=false; };
 };
 
 #endif /* MAGNITUDE_H */
