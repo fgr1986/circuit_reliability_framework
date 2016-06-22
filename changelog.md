@@ -17,6 +17,12 @@
 
 ## Version 3.0.y
 
+* Changelog of version 3.0.1
+	* Major improvements in RAWFormatProcessor class
+	* **Metric** has two derived classes, **Magnitude** and **OceanEvalMetric**
+	* More efficient number2String
+	* Allows *OceanEval* expressions using **OceanEvalMetric**
+
 * Changelog of version 3.0.0
 	* Clean build for *smacd_2016*, including all *v2.9.y* improvements and bug fixes.
 	* **CreateFolder** Method is a global template function

@@ -16,6 +16,7 @@
 // Radiation simulator
 #include "../simulation_results/transient_simulation_results.hpp"
 #include "../simulation_results/nd_simulation_results.hpp"
+#include "../../metric_modeling/ocean_eval_metric.hpp"
 // radiation io simulator includes
 #include "../../io_handling/log_io.hpp"
 // netlist modeling
@@ -371,6 +372,8 @@ protected:
 		bool& reliabilityError, Magnitude& goldenMagnitude, Magnitude& simulatedMagnitude,
 		Magnitude& goldenTime, Magnitude& simulatedTime, const std::string& partialId );
 
+	bool AnalyzeOceanEvalMetric(TransientSimulationResults& transientSimulationResults,
+			bool& reliabilityError, OceanEvalMetric& goldenMetric, OceanEvalMetric& simulatedMetric, const std::string & partialId );
 	/**
 	 * @brief Interpolates a value
 	 *
@@ -397,7 +400,7 @@ protected:
 	 */
 	bool ProcessSpectreResults( const std::string& currentFolder, const std::string& localSimulationId,
 		TransientSimulationResults& transientSimulationResults, const bool& processMainTransient,
-		std::vector<Metric*>& myParameterMetrics, const bool& isGolden  );
+		std::vector<Metric*>& myParameterMetrics, const bool& isGolden, const bool& isMontecarloNested );
 
 	/**
 	 * @brief Plot the transient results
@@ -452,6 +455,8 @@ protected:
 	virtual bool TestSetUp() = 0;
 
 	std::string GetSpectreLogFilePath( const std::string& currentFolder );
+
+	std::string GetSpectreMontecarloEvalFilePath( const std::string& currentFolder );
 
 	virtual std::string GetSpectreResultsFilePath(const std::string& currentFolder,
 		const bool& processMainTransient);

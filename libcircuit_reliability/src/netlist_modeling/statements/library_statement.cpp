@@ -13,7 +13,7 @@
 #include <boost/algorithm/string/regex.hpp>
 
 #include "library_statement.hpp"
- 
+
 #include "../../global_functions_and_constants/global_template_functions.hpp"
 #include "../../global_functions_and_constants/global_constants.hpp"
 #include "../../global_functions_and_constants/statements_constants.hpp"
@@ -45,7 +45,7 @@ LibraryStatement::LibraryStatement() {
 	// Dependency
 	this->consider_instances_dependency = false;
 	this->scanned_for_instances_dependency = true;
-	
+
 }
 
 LibraryStatement::LibraryStatement(Statement* belonging_circuit,
@@ -77,7 +77,7 @@ LibraryStatement::LibraryStatement(Statement* belonging_circuit,
 	// Dependency
 	this->consider_instances_dependency = false;
 	this->scanned_for_instances_dependency = true;
-	
+
 	// logger
 	this->log_io = log_io;
 }
@@ -110,7 +110,7 @@ LibraryStatement::LibraryStatement(const LibraryStatement& orig) {
 	// Dependency
 	this->consider_instances_dependency = false;
 	this->scanned_for_instances_dependency = true;
-	
+
 	// logger
 	this->log_io = orig.log_io;
 	deepCopyOfChildren( orig.children );
@@ -123,8 +123,8 @@ LibraryStatement* LibraryStatement::GetCopy() {
 LibraryStatement::~LibraryStatement() {
 }
 
-std::string LibraryStatement::ExportCircuitStatement(std::string indentation){
-	
+std::string LibraryStatement::ExportCircuitStatement( const std::string&  indentation ){
+
 	// library LibraryName
 	//    section sectionName
 	// ...
@@ -139,11 +139,11 @@ std::string LibraryStatement::ExportCircuitStatement(std::string indentation){
 	}
 	cs += kEmptyLine + indentation + kEndLibraryWord + kDelimiter + master_name;
 	cs += kEmptyLine + indentation + kCommentWord1 + "end of " + kLibraryWord + kDelimiter + master_name;
-	
+
 	return cs;
 }
 
-bool LibraryStatement::ParseLibraryStatement( Statement& global_scope_parent, 
+bool LibraryStatement::ParseLibraryStatement( Statement& global_scope_parent,
 		std::ifstream* file, std::vector<std::string>& lineTockens,
 		std::string & statementCode, std::string& currentReadLine,
 		int& statementCount, bool& endOfFile, bool& parsingSpectreCode,
@@ -163,31 +163,31 @@ bool LibraryStatement::ParseLibraryStatement( Statement& global_scope_parent,
 	currentReadLine = "";
 	while(!correctly_parsed && getline(*file, currentReadLine)) {
 		// ProcessLine
-		if( ProcessLine(statementCode, currentReadLine, *this, statementCount, parsingSpectreCode) ){					
+		if( ProcessLine(statementCode, currentReadLine, *this, statementCount, parsingSpectreCode) ){
 			continue;
 		}else{
 			if(statementCode.compare(kEmptyWord) != 0){
-				// test end of library	
-				boost::split(lineTockens, statementCode, boost::is_any_of(kDelimiter), boost::token_compress_on);	
-				if(lineTockens.front().compare(kLibraryWord) == 0){			
+				// test end of library
+				boost::split(lineTockens, statementCode, boost::is_any_of(kDelimiter), boost::token_compress_on);
+				if(lineTockens.front().compare(kLibraryWord) == 0){
 					correctly_parsed = true;
 				}else{
 					childrensCompleted = childrensCompleted
 						&& ParseStatement(file, statementCode, *this, global_scope_parent,
 							currentReadLine, statementCount, endOfFile, parsingSpectreCode, permissiveParsingMode);
 				}
-			}			
-			// reset line Buffers	
-			statementCode = currentReadLine;		
+			}
+			// reset line Buffers
+			statementCode = currentReadLine;
 		}
 	} //ends while
 	if(!correctly_parsed){ //end of file
 		if(statementCode.compare(kEmptyWord) != 0){
-			// test end of library	
-			boost::split(lineTockens, statementCode, boost::is_any_of(kDelimiter), boost::token_compress_on);	
-			if(lineTockens.front().compare(kLibraryWord) == 0){	
+			// test end of library
+			boost::split(lineTockens, statementCode, boost::is_any_of(kDelimiter), boost::token_compress_on);
+			if(lineTockens.front().compare(kLibraryWord) == 0){
 				#ifdef PARSING_VERBOSE
-					log_io->ReportPlain2Log( "EO Library: OK" );			
+					log_io->ReportPlain2Log( "EO Library: OK" );
 				#endif
 				correctly_parsed = true;
 			} else {
@@ -209,7 +209,7 @@ bool LibraryStatement::ParseLibraryStatement( Statement& global_scope_parent,
 		}
 		endOfFile = true;
 	}
-	correctly_parsed = correctly_parsed && childrensCompleted; 
+	correctly_parsed = correctly_parsed && childrensCompleted;
 	if(correctly_parsed){
 		#ifdef PARSING_VERBOSE
 			log_io->ReportPlain2Log( "library: '" + name + "', '" + master_name + "' parsed" );

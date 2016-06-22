@@ -10,7 +10,7 @@
 
 #include <istream>
 #include <fstream>
- 
+
 #include "statement.hpp"
 #include "instance_statement.hpp"
 
@@ -21,26 +21,26 @@ public:
 	SubcircuitStatement( const SubcircuitStatement& orig );
 	virtual ~SubcircuitStatement();
 
-	virtual SubcircuitStatement* GetCopy();
-	virtual std::string ExportCircuitStatement(std::string indentation);
-	
+	virtual SubcircuitStatement* GetCopy() override;
+	virtual std::string ExportCircuitStatement( const std::string& indentation ) override;
+
 	std::vector<InstanceStatement*>* get_progeny() {return &progeny; }
 
 	bool ParseSubcircuitStatement( Statement& global_scope_parent, std::ifstream* file,
 		std::vector<std::string>& lineTockens, std::string & statementCode,
 		std::string& currentReadLine, int& statementCount, bool& endOfFile,
 		bool& parsingSpectreCode, const bool permissiveParsingMode );
-	bool ParseInlineSubcircuitStatement(Statement& global_scope_parent, 
+	bool ParseInlineSubcircuitStatement(Statement& global_scope_parent,
 		std::ifstream* file, std::vector<std::string>& lineTockens, std::string& statementCode,
 		std::string& currentReadLine, int& statementCount, bool& endOfFile,
 		bool& parsingSpectreCode, const bool permissiveParsingMode );
 	void AddProgeny( InstanceStatement* instance_of_subcircuit );
-	
+
 	//Update Scope
 	void UpdateOwnScope();
 private:
 	bool is_inline;
-	// InstanceStatements whose 
+	// InstanceStatements whose
 	// global_dependency_parent is (this) subcircuit
 	std::vector<InstanceStatement*> progeny;
 

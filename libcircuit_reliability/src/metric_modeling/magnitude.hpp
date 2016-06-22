@@ -30,7 +30,7 @@ public:
 	/// Copy Constructor (copy values selection)
 	Magnitude(const Magnitude& orig, bool copyValues);
 
-	Magnitude* GetCopy();
+	Magnitude* GetCopy() override;
 	virtual ~Magnitude();
 
 	std::vector<double>* get_values() { return &values; }

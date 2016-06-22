@@ -7,9 +7,9 @@
 
 
 #include <boost/algorithm/string.hpp>
- 
+
 #include "transistor_statement.hpp"
- 
+
 #include "../../global_functions_and_constants/global_template_functions.hpp"
 #include "../../global_functions_and_constants/global_constants.hpp"
 #include "../../global_functions_and_constants/statements_constants.hpp"
@@ -33,7 +33,7 @@ TransistorStatement::TransistorStatement() {
 	this->altered = false;
 	this->unalterable = true;
 	this->can_be_injected = false;
-	this->can_be_substituted = false;	
+	this->can_be_substituted = false;
 	this->substitute_master_name = kNotDefinedString;
 	this->statement_type_description = kTransistorStatementDesc;
 	// scope
@@ -45,7 +45,7 @@ TransistorStatement::TransistorStatement() {
 	this->scanned_for_instances_dependency = true;
 	this->consider_instances_dependency = true;
 }
-TransistorStatement::TransistorStatement(Statement* belonging_circuit, 
+TransistorStatement::TransistorStatement(Statement* belonging_circuit,
 		LogIO* log_io, Scope* belonging_scope) {
 	this->id = kNotDefinedInt;
 	this->statement_type = kTransistorStatement;
@@ -125,7 +125,7 @@ TransistorStatement* TransistorStatement::GetCopy() {
 TransistorStatement::~TransistorStatement() {
 }
 
-std::string TransistorStatement::ExportCircuitStatement(std::string indentation){
+std::string TransistorStatement::ExportCircuitStatement( const std::string&  indentation ){
 	//name [(]node1 ... nodeN[)] master [[param1=value1] ...[paramN=valueN]]
 	std::string cs = indentation + name + kDelimiter ;
 	if(nodes.size() > 0){
@@ -155,7 +155,7 @@ std::string TransistorStatement::ExportCircuitStatement(std::string indentation)
 	return cs;
 }
 
-bool TransistorStatement::ParseTransistorStatement(Statement& global_scope_parent, 
+bool TransistorStatement::ParseTransistorStatement(Statement& global_scope_parent,
 		std::vector<std::string>& lineTockens, std::string & statementCode, int& statementCount){
 	#ifdef PARSING_VERBOSE
 		log_io->ReportPlain2Log( "parsing transistor: '" + statementCode + "'" );
@@ -164,7 +164,7 @@ bool TransistorStatement::ParseTransistorStatement(Statement& global_scope_paren
 	set_id(statementCount++);
 	this->global_scope_parent = &global_scope_parent;
 	// parse name
-	set_name(lineTockens.front());	
+	set_name(lineTockens.front());
 	// parse parameters
 	if(boost::contains(statementCode, kEqualsWord)){
 		ParseParameters( statementCode, false );
@@ -175,7 +175,7 @@ bool TransistorStatement::ParseTransistorStatement(Statement& global_scope_paren
 	set_has_brackets(true);
 	//parse masterName
 	boost::split(lineTockens, statementCode, boost::is_any_of(kDelimiter),
-		boost::token_compress_on); 
+		boost::token_compress_on);
 	set_master_name(lineTockens.back());
 	// Test unalterable statement
 	set_unalterable( TestUnalterableStatement(master_name) );

@@ -22,13 +22,13 @@ public:
 	ConditionalStatement(const ConditionalStatement& orig);
 	// void CopyStatement(const Statement& orig) ;
 	int get_conditional_statement_type() const {return conditional_statement_type; }
-	void set_conditional_statement_type(int conditional_statement_type) { this->conditional_statement_type = conditional_statement_type; } 
+	void set_conditional_statement_type(int conditional_statement_type) { this->conditional_statement_type = conditional_statement_type; }
 	std::string get_condition() const {return condition; }
-	void set_condition(std::string condition) { this->condition = condition; } 
+	void set_condition(std::string condition) { this->condition = condition; }
 	virtual ~ConditionalStatement();
-	virtual std::string ExportCircuitStatement( std::string indentation );
+	virtual std::string ExportCircuitStatement( const std::string& indentation ) override;
 
-	virtual ConditionalStatement* GetCopy() ;
+	virtual ConditionalStatement* GetCopy() override;
 	bool ParseConditionalStatement(
 		Statement& global_scope_parent, std::ifstream* file, std::vector<std::string>& lineTockens,
 		std::string & statementCode, Statement& parent, std::string& currentReadLine,

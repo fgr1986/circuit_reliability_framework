@@ -37,13 +37,13 @@ RadiationSourceSubcircuitStatement::RadiationSourceSubcircuitStatement() {
 	this->substitute_master_name = kNotDefinedString;
 	this->statement_type_description = kAlterationSourceSubcircuitStatementDesc;
 	this->radiation_source_substitute_statement = false;
- 	// scope 
+ 	// scope
 	this->has_own_scope = true;
 	this->own_scope = new Scope( kSubcircuitStatementDesc + "Scope", kSubcircuitStatementDesc, true);
 	this->belonging_scope = own_scope;
 	// Dependency
 	this->consider_instances_dependency = false;
-	this->scanned_for_instances_dependency = true;	
+	this->scanned_for_instances_dependency = true;
 }
 
 RadiationSourceSubcircuitStatement::RadiationSourceSubcircuitStatement(Statement* belonging_circuit,
@@ -78,7 +78,7 @@ RadiationSourceSubcircuitStatement::RadiationSourceSubcircuitStatement(Statement
 	// Dependency
 	this->consider_instances_dependency = false;
 	this->scanned_for_instances_dependency = true;
-	
+
 	// logger
 	this->log_io = log_io;
 }
@@ -117,7 +117,7 @@ RadiationSourceSubcircuitStatement::RadiationSourceSubcircuitStatement(
 	// Dependency
 	this->consider_instances_dependency = false;
 	this->scanned_for_instances_dependency = true;
-	
+
 	// logger
 	this->log_io = orig.log_io;
 	deepCopyVectorOfPointers(orig.nodes, nodes);
@@ -133,7 +133,7 @@ RadiationSourceSubcircuitStatement* RadiationSourceSubcircuitStatement::GetCopy(
 RadiationSourceSubcircuitStatement::~RadiationSourceSubcircuitStatement() {
 }
 
-std::string RadiationSourceSubcircuitStatement::ExportCircuitStatement(std::string indentation){
+std::string RadiationSourceSubcircuitStatement::ExportCircuitStatement( const std::string&  indentation ){
 	//subckt SubcircuitName [(] node1 ... nodeN [)]
 	//	[ parameters name1=value1 ... [nameN=valueN]]
 	//	.
@@ -161,7 +161,7 @@ std::string RadiationSourceSubcircuitStatement::ExportCircuitStatement(std::stri
 	//export parameters
 	// if( !export_parameters ){
 	// 	cs += kEmptyLine + indentation + kCommentWord1 + " Parameters in external parameters file";
-	// }else{		
+	// }else{
 	if( parameters.size() > 0 ){
 		cs += kEmptyLine +  indentation + kDelimiter + kParametersWord + kDelimiter;
 		for(std::vector<Parameter*>::iterator it_parameter = parameters.begin();
@@ -175,7 +175,7 @@ std::string RadiationSourceSubcircuitStatement::ExportCircuitStatement(std::stri
 	 it_children !=  children.end(); it_children++){
 		cs += kEmptyLine + (*it_children)->ExportCircuitStatement(indentation + kTab);
 	}
-	
+
 	cs += kEmptyLine + indentation + kEndSubcircuitWord + kDelimiter + name;
 	cs += kEmptyLine + indentation + kCommentWord1
 		+ " end of " + name + " subcircuit";

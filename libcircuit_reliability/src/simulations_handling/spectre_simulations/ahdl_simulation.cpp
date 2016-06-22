@@ -90,3 +90,7 @@ std::string AHDLSimulation::GetSpectreResultsFilePath(){
 	return folder + kFolderSeparator + kSpectreResultsFolder
 		+ kFolderSeparator + main_transient_analysis->get_name() + kTransientSufix;
 }
+
+std::string AHDLSimulation::GetSpectreLogFilePath(){
+	return folder + kFolderSeparator + kSpectreStandardLogsFile;
+}

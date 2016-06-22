@@ -9,9 +9,10 @@
 #include <boost/regex.hpp>
 #include <boost/algorithm/string/regex.hpp>
 #include <boost/algorithm/string.hpp>
- 
+
 #include "analysis_statement.hpp"
- 
+#include "simple_statement.hpp"
+
 #include "../../global_functions_and_constants/global_template_functions.hpp"
 #include "../../global_functions_and_constants/global_constants.hpp"
 #include "../../global_functions_and_constants/regex_constants.hpp"
@@ -51,7 +52,7 @@ AnalysisStatement::AnalysisStatement() {
 	this->scanned_for_instances_dependency = true;
 }
 
-AnalysisStatement::AnalysisStatement(Statement* belonging_circuit, 
+AnalysisStatement::AnalysisStatement(Statement* belonging_circuit,
 		LogIO* log_io, Scope* belonging_scope) {
 	log_io->ReportPlain2Log("AnalysisStatement constructor");
 	this->id = kNotDefinedInt;
@@ -85,7 +86,7 @@ AnalysisStatement::AnalysisStatement(Statement* belonging_circuit,
 	this->has_own_scope = false;
 	// Dependency
 	this->consider_instances_dependency = false;
-	this->scanned_for_instances_dependency = true;	
+	this->scanned_for_instances_dependency = true;
 	//logger manager
 	this->log_io = log_io;
 }
@@ -113,7 +114,7 @@ AnalysisStatement::AnalysisStatement(const AnalysisStatement& orig) {
 	this->can_be_substituted = orig.can_be_substituted;
 	this->substitute_master_name = orig.substitute_master_name;
 	this->altered = orig.altered;
-	this->can_be_injected = orig.can_be_injected;	
+	this->can_be_injected = orig.can_be_injected;
 	this->advanced_analysis = orig.advanced_analysis;
 	this->belonging_circuit = orig.belonging_circuit;
 	this->statement_type_description = kAnalysisStatementDesc;
@@ -122,14 +123,14 @@ AnalysisStatement::AnalysisStatement(const AnalysisStatement& orig) {
 	this->has_own_scope = false;
 	// Dependency
 	this->consider_instances_dependency = false;
-	this->scanned_for_instances_dependency = true;	
+	this->scanned_for_instances_dependency = true;
 	//logger manager
 	this->log_io = orig.log_io;
 	deepCopyVectorOfPointers(orig.nodes, nodes);
 	if(advanced_analysis){
 		deepCopyOfChildren( orig.children );
 	}
-	deepCopyVectorOfPointers(orig.parameters, parameters);	
+	deepCopyVectorOfPointers(orig.parameters, parameters);
 }
 
 
@@ -140,7 +141,7 @@ AnalysisStatement* AnalysisStatement::GetCopy() {
 AnalysisStatement::~AnalysisStatement() {
 }
 
-std::string AnalysisStatement::ExportCircuitStatement(std::string indentation){
+std::string AnalysisStatement::ExportCircuitStatement( const std::string& indentation){
 	//Name [(]node1 ... nodeN[)] Analysis Type parameter=value
 	std::string prefix = "";
 	if ( mute_exportation ){
@@ -149,13 +150,13 @@ std::string AnalysisStatement::ExportCircuitStatement(std::string indentation){
 	std::string cs = kEmptyLine + indentation + kCommentWord1
 		+ " Start of " + name + " (" + master_name + ") analysis";
 	cs += kEmptyLine + indentation + prefix + name + kDelimiter ;
-	if(nodes.size() > 0){		
+	if(nodes.size() > 0){
 		if(has_brackets){
 			cs += "( ";
 		}
 		//export nodes
-		for(std::vector<Node*>::iterator it_node = nodes.begin() ; it_node !=  nodes.end(); it_node++){
-			cs +=  (*it_node)->get_name() + kDelimiter;
+		for( auto const& n: nodes){
+			cs +=  n->get_name() + kDelimiter;
 		}
 		if(has_brackets){
 			cs += ") ";
@@ -164,17 +165,24 @@ std::string AnalysisStatement::ExportCircuitStatement(std::string indentation){
 	cs += master_name;
 	//export parameters
 	if( parameters.size() > 0 ){
-		for(std::vector<Parameter*>::iterator it_parameter = parameters.begin();
-			it_parameter !=  parameters.end(); it_parameter++){
-			cs +=  kDelimiter + (*it_parameter)->ExportParameter();
+		for( auto const& p: parameters){
+			cs +=  kDelimiter + p->ExportParameter();
 		}
 	}
 	if(advanced_analysis && children.size()>0 ){
-		cs += kDelimiter + kBracketsStartWord;			
+		cs += kDelimiter + kBracketsStartWord;
 		//export children
-		for(std::vector<Statement*>::iterator it_children = children.begin();
-		 it_children !=  children.end(); it_children++){
-			cs += kEmptyLine + prefix + (*it_children)->ExportCircuitStatement( indentation + kTab );
+		for( auto const& s: children){
+			if( s->get_statement_type()!=kSimpleStatement ){
+				cs += kEmptyLine + prefix + s->ExportCircuitStatement( indentation + kTab );
+			}else{
+				auto pSS = static_cast<SimpleStatement*>(s);
+				if( pSS->get_allows_mute() ){
+					cs += kEmptyLine + prefix + pSS->ExportCircuitStatement( indentation + kTab );
+				}else{ // no mute
+					cs += kEmptyLine + pSS->ExportCircuitStatement( indentation + kTab );
+				}
+			}
 		}
 		cs += kEmptyLine + indentation + prefix + kBracketsEndWord;
 	}
@@ -193,8 +201,8 @@ bool AnalysisStatement::ParseAnalysisStatement(
 
 	//Name [(]node1 ... nodeN[)] Analysis Type [parameter=value ...] {asdfasdfa}
 	//Name [(]node1 ... nodeN[)] Analysis Type [parameter=value ...] {
-	//Name [(]node1 ... nodeN[)] Analysis Type [parameter=value ...] 
-	//Name [(]node1 ... nodeN[)] Analysis Type [parameter=value ...] 
+	//Name [(]node1 ... nodeN[)] Analysis Type [parameter=value ...]
+	//Name [(]node1 ... nodeN[)] Analysis Type [parameter=value ...]
 	// {
 	#ifdef PARSING_VERBOSE
 		log_io->ReportPlain2Log( "parsing analysis: '" + statementCode + "'" );
@@ -207,9 +215,9 @@ bool AnalysisStatement::ParseAnalysisStatement(
 	this->global_scope_parent = &global_scope_parent;
 	// parse name
 	set_id(statementCount++);
-	set_name(lineTockens.front());	
-	// complex sentence addecuation 
-	if(boost::contains( statementCode, kBracketsStartWord )){	
+	set_name(lineTockens.front());
+	// complex sentence addecuation
+	if(boost::contains( statementCode, kBracketsStartWord )){
 		//name sweep p1=v1... { bla bla bla }
 		boost::regex ip_regex(kBracketedStatementRegEx);
 		boost::match_results<std::string::const_iterator> results;
@@ -219,20 +227,20 @@ bool AnalysisStatement::ParseAnalysisStatement(
 			#ifdef PARSING_VERBOSE
 				log_io->ReportPlain2Log( kTab + "Parsing enclosed ({ child }):'" + newStatement  + "'" );
 			#endif
-			boost::replace_first( newStatement, kBracketsStartWord, kEmptyWord );			
-			boost::replace_last( newStatement, kBracketsEndWord, kEmptyWord );	
-			boost::algorithm::trim( newStatement ); //trim		
+			boost::replace_first( newStatement, kBracketsStartWord, kEmptyWord );
+			boost::replace_last( newStatement, kBracketsEndWord, kEmptyWord );
+			boost::algorithm::trim( newStatement ); //trim
 			childrenCorrectlyParsed = ParseStatement( file, newStatement,
 				*this, global_scope_parent, currentReadLine, statementCount, endOfFile,
 				parsingSpectreCode, permissiveParsingMode);
 
 			//remove parameters subcode in statementcode
 			std::vector<std::string> statementTokens;
-			boost::algorithm::split_regex( 
+			boost::algorithm::split_regex(
 				statementTokens, statementCode, boost::regex( kBracketedStatementRegEx ) ) ;
 			statementCode = statementTokens.front();
-			inlineChildren = true;			
-		}else {		 //name sweep p1=v1... { 
+			inlineChildren = true;
+		}else {		 //name sweep p1=v1... {
 			boost::replace_last( statementCode, kBracketsStartWord, kEmptyWord );
 		}
 		firstBracketRemoved = true;
@@ -251,7 +259,7 @@ bool AnalysisStatement::ParseAnalysisStatement(
 	set_has_brackets(true);
 	//parse masterName
 	boost::split(lineTockens, statementCode,
-		boost::is_any_of(kDelimiter), boost::token_compress_on); 
+		boost::is_any_of(kDelimiter), boost::token_compress_on);
 	set_master_name(lineTockens.back());
 	set_advanced_analysis( TestIsAnalysisStatementAdvanced(master_name) );
 	this->has_children = this->advanced_analysis;
@@ -269,17 +277,17 @@ bool AnalysisStatement::ParseAnalysisStatement(
 		boost::algorithm::trim( statementCode );
 		boost::replace_all( statementCode, kTab, kEmptyWord);
 		if(!firstBracketRemoved && boost::starts_with(statementCode, kBracketsStartWord)){
-			boost::replace_last( statementCode, kBracketsStartWord, kEmptyWord );	
-			firstBracketRemoved = true;			
+			boost::replace_last( statementCode, kBracketsStartWord, kEmptyWord );
+			firstBracketRemoved = true;
 		}
 		while(!correctly_parsed && getline(*file, currentReadLine)) {
 			// ProcessLine
-			if( ProcessLine(statementCode, currentReadLine, *this, statementCount, parsingSpectreCode) ){					
+			if( ProcessLine(statementCode, currentReadLine, *this, statementCount, parsingSpectreCode) ){
 				continue;
 			}else{
 				if(statementCode.compare(kEmptyWord) != 0){
-					// test end of subcircuit	
-					if(boost::starts_with(statementCode, kBracketsEndWord)){	
+					// test end of subcircuit
+					if(boost::starts_with(statementCode, kBracketsEndWord)){
 						correctly_parsed = true;
 					}else{
 						childrenCorrectlyParsed = childrenCorrectlyParsed
@@ -287,15 +295,15 @@ bool AnalysisStatement::ParseAnalysisStatement(
 								currentReadLine, statementCount, endOfFile,
 								parsingSpectreCode, permissiveParsingMode);
 					}
-				}			
-				// reset line Buffers	
-				statementCode = currentReadLine;		
+				}
+				// reset line Buffers
+				statementCode = currentReadLine;
 			}
 		} //ends while
 		if(!correctly_parsed){ //end of file
 			if(statementCode.compare(kEmptyWord) != 0){
-				// test end of subcircuit	
-				if(boost::starts_with(statementCode, kBracketsEndWord)){	
+				// test end of subcircuit
+				if(boost::starts_with(statementCode, kBracketsEndWord)){
 					correctly_parsed = true;
 				}else{
 					childrenCorrectlyParsed = childrenCorrectlyParsed
@@ -303,7 +311,7 @@ bool AnalysisStatement::ParseAnalysisStatement(
 							currentReadLine, statementCount, endOfFile,
 							parsingSpectreCode, permissiveParsingMode);
 				}
-			}		
+			}
 			endOfFile = true;
 		}
 	}
@@ -326,12 +334,12 @@ void AnalysisStatement::MuteAllNonEssentialAnalysis(){
 	}
 	if( children.size()>0 ){
 		for (std::vector<Statement*>::iterator it_c = children.begin(); it_c != children.end(); it_c++){
-			(*it_c)->MuteAllNonEssentialAnalysis();	
+			(*it_c)->MuteAllNonEssentialAnalysis();
 		}
 	}
 }
 
-/// Overriden in analysis statement
+/// Overridees statement
 void AnalysisStatement::MuteNonMainTransientAnalysis(){
 	if( !main_transient ){
 		this->mute_exportation = true;

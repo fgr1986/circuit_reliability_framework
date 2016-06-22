@@ -143,7 +143,7 @@ void IncludeStatement::SetDefaultIncludeStatementType(){
 	this->include_statement_type = kIncludeStatementType;
 }
 
-std::string IncludeStatement::ExportCircuitStatement(std::string indentation){
+std::string IncludeStatement::ExportCircuitStatement( const std::string& indentation ){
 
 	//include "file" section=Name
 	std::string cs;

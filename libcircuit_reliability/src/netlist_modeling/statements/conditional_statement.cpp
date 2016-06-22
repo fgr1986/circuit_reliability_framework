@@ -11,7 +11,7 @@
 #include <boost/algorithm/string/regex.hpp>
 
 #include "conditional_statement.hpp"
- 
+
 #include "../../global_functions_and_constants/global_template_functions.hpp"
 #include "../../global_functions_and_constants/global_constants.hpp"
 #include "../../global_functions_and_constants/statements_constants.hpp"
@@ -47,7 +47,7 @@ ConditionalStatement::ConditionalStatement() {
 	// Dependency
 	this->consider_instances_dependency = false;
 	this->scanned_for_instances_dependency = true;
-	
+
 }
 
 ConditionalStatement::ConditionalStatement(Statement* belonging_circuit,
@@ -83,7 +83,7 @@ ConditionalStatement::ConditionalStatement(Statement* belonging_circuit,
 	// Dependency
 	this->consider_instances_dependency = false;
 	this->scanned_for_instances_dependency = true;
-	
+
 	//logger manager
 	this->log_io = log_io;
 }
@@ -120,7 +120,7 @@ ConditionalStatement::ConditionalStatement(const ConditionalStatement& orig) {
 	// Dependency
 	this->consider_instances_dependency = false;
 	this->scanned_for_instances_dependency = true;
-	
+
 	//logger manager
 	this->log_io = orig.log_io;
 	deepCopyOfChildren( orig.children );
@@ -133,7 +133,7 @@ ConditionalStatement* ConditionalStatement::GetCopy() {
 ConditionalStatement::~ConditionalStatement() {
 }
 
-std::string ConditionalStatement::ExportCircuitStatement( std::string indentation ){
+std::string ConditionalStatement::ExportCircuitStatement( const std::string& indentation ){
 	//if (statement) {
 	//	raw_content
 	//}
@@ -142,12 +142,12 @@ std::string ConditionalStatement::ExportCircuitStatement( std::string indentatio
 	switch (conditional_statement_type){
 		case kIfStatementType:
 			cs += kIfStatementWord1
-			+ kDelimiter + kParenthesisStartWord 
+			+ kDelimiter + kParenthesisStartWord
 			+ kDelimiter + condition + kDelimiter + kParenthesisEndWord;
 		break;
 		case kElseIfStatementType:
 			cs += kElseIfStatementWord1
-			+ kDelimiter + kParenthesisStartWord 
+			+ kDelimiter + kParenthesisStartWord
 			+ kDelimiter + condition + kDelimiter + kParenthesisEndWord;
 		break;
 		case kElseStatementType:
@@ -155,7 +155,7 @@ std::string ConditionalStatement::ExportCircuitStatement( std::string indentatio
 		break;
 	}
 	cs += kBracketsStartWord + kEmptyLine;
-	
+
 	//export children
 	if(children.size() > 0){
 		for(std::vector<Statement*>::iterator it_children = children.begin();
@@ -184,7 +184,7 @@ bool ConditionalStatement::ParseConditionalStatement(
 	std::string condition = "";
 	this->global_scope_parent = &global_scope_parent;
 	set_conditional_statement_type(conditionalStatementType);
-	// process 
+	// process
 	switch(conditionalStatementType){
 		case kIfStatementType:
 			description = kIfStatementWord1;
@@ -218,51 +218,51 @@ bool ConditionalStatement::ParseConditionalStatement(
 		containsBrackets = true;
 		boost::replace_first(statementCode, kBracketsStartWord, kEmptyWord);
 		firstBracketRemoved = true;
-	}	
+	}
 	// Add scope dependencies.
-	// This way, the children can be scanned in order to 
+	// This way, the children can be scanned in order to
 	// Find the global parent
 	while(!correctly_parsed && getline(*file, currentReadLine)) {
 		// ProcessLine
-		if( ProcessLine(statementCode, currentReadLine, *this, statementCount, parsingSpectreCode) ){					
+		if( ProcessLine(statementCode, currentReadLine, *this, statementCount, parsingSpectreCode) ){
 			continue;
 		}else if(containsBrackets){
 			if(statementCode.compare(kEmptyWord) != 0){
-				if(boost::starts_with(statementCode, kBracketsEndWord)){	
+				if(boost::starts_with(statementCode, kBracketsEndWord)){
 					correctly_parsed = true;
 					set_id(statementCount++);
 					parent.AddStatement(this);
 					this->set_parent( &parent );
-					boost::replace_first(statementCode, kBracketsEndWord, kEmptyWord);	
+					boost::replace_first(statementCode, kBracketsEndWord, kEmptyWord);
 					ConditionalStatement* son = new ConditionalStatement( belonging_circuit, log_io, belonging_scope );
-					if(boost::starts_with(statementCode, kElseIfStatementWord1)){	
+					if(boost::starts_with(statementCode, kElseIfStatementWord1)){
 						son->ParseConditionalStatement( global_scope_parent, file, lineTockens,
 							statementCode, parent, currentReadLine, kElseIfStatementType,
 							statementCount, endOfFile,parsingSpectreCode, permissiveParsingMode);
-					}else if(boost::starts_with(statementCode, kElseStatementWord1)){	
+					}else if(boost::starts_with(statementCode, kElseStatementWord1)){
 						son->ParseConditionalStatement( global_scope_parent, file, lineTockens,
 							statementCode, parent, currentReadLine, kElseStatementType, statementCount,
 							endOfFile, parsingSpectreCode, permissiveParsingMode );
 					}
-				}else if(boost::starts_with(statementCode, kElseIfStatementWord1)){	
+				}else if(boost::starts_with(statementCode, kElseIfStatementWord1)){
 					ConditionalStatement* son = new ConditionalStatement( belonging_circuit, log_io, belonging_scope );
 					son->ParseConditionalStatement( global_scope_parent, file, lineTockens,
 						statementCode, parent, currentReadLine, kElseIfStatementType, statementCount,
 						endOfFile, parsingSpectreCode, permissiveParsingMode);
-				}else if(boost::starts_with(statementCode, kElseStatementWord1)){	
+				}else if(boost::starts_with(statementCode, kElseStatementWord1)){
 					ConditionalStatement* son = new ConditionalStatement( belonging_circuit, log_io, belonging_scope );
 					son->ParseConditionalStatement( global_scope_parent, file, lineTockens,
 						statementCode, parent, currentReadLine, kElseStatementType, statementCount,
 						endOfFile, parsingSpectreCode, permissiveParsingMode);
-				}else{									
-					childrensCompleted = childrensCompleted 
+				}else{
+					childrensCompleted = childrensCompleted
 						&& ParseStatement(file, statementCode, *this, global_scope_parent,
 						currentReadLine, statementCount, endOfFile, parsingSpectreCode, permissiveParsingMode);
 				}
-			}			
-			// reset line Buffers	
-			statementCode = currentReadLine;		
-		} else{//ends else-if			
+			}
+			// reset line Buffers
+			statementCode = currentReadLine;
+		} else{//ends else-if
 			if(statementCode.compare(kEmptyWord) != 0){
 				childrensCompleted = childrensCompleted
 					&& ParseStatement(file, statementCode, *this,
@@ -272,53 +272,53 @@ bool ConditionalStatement::ParseConditionalStatement(
 				set_id(statementCount++);
 				parent.AddStatement(this);
 				this->set_parent( &parent );
-			}			
-			// reset line Buffers	
-			statementCode = currentReadLine;					
+			}
+			// reset line Buffers
+			statementCode = currentReadLine;
 		}
 	} //ends while
 	// if we have reached the end of file
 	if(!correctly_parsed){
 		if(containsBrackets){
 			if(statementCode.compare(kEmptyWord) != 0){
-				// test end of user function	
-				if(boost::starts_with(statementCode, kBracketsEndWord)){	
+				// test end of user function
+				if(boost::starts_with(statementCode, kBracketsEndWord)){
 					ConditionalStatement* son = new ConditionalStatement( belonging_circuit, log_io, belonging_scope );
 					correctly_parsed = true;
 					set_id(statementCount++);
 					parent.AddStatement(this);
 					this->set_parent( &parent );
-					boost::replace_first(statementCode, kBracketsEndWord, kEmptyWord);	
-					if(boost::starts_with(statementCode, kElseIfStatementWord1)){	
+					boost::replace_first(statementCode, kBracketsEndWord, kEmptyWord);
+					if(boost::starts_with(statementCode, kElseIfStatementWord1)){
 						son->ParseConditionalStatement( global_scope_parent, file, lineTockens,
 							statementCode, parent, currentReadLine, kElseIfStatementType, statementCount,
 							endOfFile, parsingSpectreCode, permissiveParsingMode);
-					}else if(boost::starts_with(statementCode, kElseStatementWord1)){	
+					}else if(boost::starts_with(statementCode, kElseStatementWord1)){
 						son->ParseConditionalStatement( global_scope_parent, file, lineTockens,
 							statementCode, parent, currentReadLine, kElseStatementType, statementCount,
 							endOfFile, parsingSpectreCode, permissiveParsingMode);
 					}
-				}else if(boost::starts_with(statementCode, kElseIfStatementWord1)){	
+				}else if(boost::starts_with(statementCode, kElseIfStatementWord1)){
 					ConditionalStatement* son = new ConditionalStatement( belonging_circuit, log_io, belonging_scope );
 					son->ParseConditionalStatement( global_scope_parent, file, lineTockens,
 						statementCode, parent, currentReadLine, kElseIfStatementType, statementCount,
 						endOfFile, parsingSpectreCode, permissiveParsingMode);
-				}else if(boost::starts_with(statementCode, kElseStatementWord1)){	
+				}else if(boost::starts_with(statementCode, kElseStatementWord1)){
 					ConditionalStatement* son = new ConditionalStatement( belonging_circuit, log_io, belonging_scope );
 					son->ParseConditionalStatement( global_scope_parent, file, lineTockens,
 						statementCode, parent, currentReadLine, kElseStatementType, statementCount,
 						endOfFile, parsingSpectreCode, permissiveParsingMode);
-				}else{									
-					childrensCompleted = childrensCompleted 
+				}else{
+					childrensCompleted = childrensCompleted
 						&& ParseStatement(file, statementCode, *this,
 							global_scope_parent, currentReadLine, statementCount, endOfFile,
 							parsingSpectreCode, permissiveParsingMode);
 				}
-			}			
-			// reset line Buffers	
-			statementCode = currentReadLine;		
+			}
+			// reset line Buffers
+			statementCode = currentReadLine;
 		} else{//ends else-if
-			
+
 			if(statementCode.compare(kEmptyWord) != 0){
 				childrensCompleted = childrensCompleted
 					&& ParseStatement(file, statementCode, *this,
@@ -328,13 +328,13 @@ bool ConditionalStatement::ParseConditionalStatement(
 				set_id(statementCount++);
 				parent.AddStatement(this);
 				this->set_parent( &parent );
-			}			
-			// reset line Buffers	
-			statementCode = currentReadLine;					
+			}
+			// reset line Buffers
+			statementCode = currentReadLine;
 		}
 		endOfFile = true;
-		statementCode = kEmptyWord;	
-	} 
+		statementCode = kEmptyWord;
+	}
 	if(correctly_parsed){
 		#ifdef PARSING_VERBOSE_MIN
 			log_io->ReportPlain2Log( "conditional statement." );
@@ -343,7 +343,7 @@ bool ConditionalStatement::ParseConditionalStatement(
 					log_io->ReportPlain2Log( " IF conditional statement." );
 				break;
 				case kElseIfStatementType:
-					log_io->ReportPlain2Log( " ELSE IF conditional statement." );	
+					log_io->ReportPlain2Log( " ELSE IF conditional statement." );
 				break;
 				case kElseStatementType:
 					log_io->ReportPlain2Log( " ELSE conditional statement." );

@@ -326,19 +326,26 @@ bool RadiationSpectreHandler::SimulateStandardAHDLNetlist( ){
 		log_io->ReportError2AllLogs( "WARNING: while simulation the ahdl scenario." );
 	}
 	// Reorder metrics
-	bool partialResult = ReorderMetrics( radiation_AHDL_s->GetSpectreResultsFilePath() );
+	bool partialResult = ReorderMetrics( radiation_AHDL_s->GetSpectreResultsFilePath(),
+		radiation_AHDL_s->GetSpectreLogFilePath() );
 	delete radiation_AHDL_s;
 	log_io->ReportPurpleStandard( "radiation_AHDL_s deleted");
 	return partialResult;
 }
 
-bool RadiationSpectreHandler::ReorderMetrics( const std::string& spectreResultTrans ){
+bool RadiationSpectreHandler::ReorderMetrics( const std::string& spectreResultTrans,
+		const std::string& spectreLog ){
 	RAWFormatProcessor rfp;
-	bool partialResult = rfp.PrepProcessTransientMetrics( &unsorted_metrics_2be_found, &metrics_2be_found, spectreResultTrans );
+	bool partialResult = rfp.PrepProcessTransientMetrics( &unsorted_metrics_2be_found,
+		&metrics_2be_found, spectreResultTrans, spectreLog );
 	// debug
 	log_io->ReportCyanStandard( "Sorted Metrics to be found" );
 	for( auto const& m : metrics_2be_found){
-		log_io->ReportCyanStandard( m->get_name() );
+		if( m->is_transient_magnitude() ){
+			log_io->ReportPlainStandard( m->get_name() + " is a transient metric" );
+		}else{
+			log_io->ReportPlainStandard( m->get_name() + " is an oceanEval metric" );
+		}
 	}
 	// free memory
 	deleteContentsOfVectorOfPointers( unsorted_metrics_2be_found );

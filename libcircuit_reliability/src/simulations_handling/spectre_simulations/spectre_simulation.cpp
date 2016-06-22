@@ -11,7 +11,6 @@
 
 // Reliability simulator
 #include "spectre_simulation.hpp"
-#include "../../metric_modeling/ocean_eval_metric.hpp"
 #include "../../metric_modeling/metric_errors.hpp"
 #include "../../io_handling/raw_format_processor.hpp"
 // constants
@@ -192,7 +191,17 @@ bool SpectreSimulation::InterpolateAndAnalyzeMetrics(
 				return false;
 			}
 		}else if( (*it_mg)->get_analyzable() ){
-			// fgarcia
+			#ifdef SPECTRE_SIMULATIONS_VERBOSE
+				log_io->ReportPlain2Log( kTab + (*it_mg)->get_name() + " metric of scenario #" + simulation_id + " partial_id=" + partialId + " will be analyzed.");
+			#endif
+			auto pOceanEvalMetricGolden = static_cast<OceanEvalMetric*>(*it_mg);
+			auto pOceanEvalMetricSim = static_cast<OceanEvalMetric*>(*it_m);
+			if( !AnalyzeOceanEvalMetric( transientSimulationResults, reliabilityError,
+					*pOceanEvalMetricGolden, *pOceanEvalMetricSim, partialId )) {
+				log_io->ReportError2AllLogs( "Error interpolating magnitude " + (*it_mg)->get_name() + " at the scenario #" + partialId);
+				transientSimulationResults.set_reliability_result( kScenarioSensitive );
+				return false;
+			}
 		}
 		// update simulated metric to match golden metric
 		++it_m;
@@ -207,6 +216,30 @@ bool SpectreSimulation::InterpolateAndAnalyzeMetrics(
 		#ifdef RESULTS_ANALYSIS_VERBOSE
 		log_io->ReportCyanStandard( "No reliability error at scenario #" + partialId + " simulation_result #" + transientSimulationResults.get_full_id() );
 		#endif
+	}
+	return true;
+}
+
+bool SpectreSimulation::AnalyzeOceanEvalMetric(TransientSimulationResults& transientSimulationResults,
+	bool& reliabilityError, OceanEvalMetric& goldenMetric, OceanEvalMetric& simulatedMetric, const std::string & partialId ){
+	#ifdef SPECTRE_SIMULATIONS_VERBOSE
+		log_io->ReportPlain2Log( "-> #" + partialId + " Scenario, #" + transientSimulationResults.get_full_id()
+					+ " variation, metric " + simulatedMetric.get_name() + " Analyzed.");
+	#endif
+	MetricErrors* metricErrors = new MetricErrors();
+	metricErrors->set_metric_name( simulatedMetric.get_name() );
+	// add it
+	transientSimulationResults.AddMetricErrors( metricErrors );
+	// report results
+	double error = abs(simulatedMetric.get_value() - goldenMetric.get_value());
+// log_io->ReportPlainStandard( "[debug]> #" + partialId + " simulated: " +
+// 	number2String(simulatedMetric.get_value()) + " golden: " + number2String(goldenMetric.get_value()) + " error: " + number2String(error) );
+	metricErrors->set_max_abs_error( error );
+	metricErrors->set_max_abs_error_global( error );
+	metricErrors->set_has_errors( error > goldenMetric.get_abs_error_margin() );
+	if( metricErrors->get_has_errors() ){
+		transientSimulationResults.set_has_metrics_errors( true );
+		reliabilityError = true;
 	}
 	return true;
 }
@@ -534,7 +567,6 @@ bool SpectreSimulation::InterpolateAndAnalyzeMagnitude( TransientSimulationResul
 			log_io->ReportError2AllLogs( "-> #" + partialId + " Interpolation error at metric " + simulatedMagnitude.get_name());
 			metricErrors->set_has_errors( true );
 			transientSimulationResults.set_has_metrics_errors( true );
-			transientSimulationResults.AddMetricErrors( metricErrors );
 			return false;
 		}
 		#ifdef SPECTRE_SIMULATIONS_VERBOSE
@@ -643,6 +675,12 @@ std::string SpectreSimulation::GetSpectreResultsFilePath(const std::string& curr
 		+ kFolderSeparator + analysisFinalName + kTransientSufix;
 }
 
+std::string SpectreSimulation::GetSpectreMontecarloEvalFilePath(const std::string& currentFolder ){
+	std::string analysisFinalName = main_analysis->get_name() ;
+	return currentFolder + kFolderSeparator + kSpectreResultsFolder
+		+ kFolderSeparator + analysisFinalName + kMCDATASufix;
+}
+
 std::string SpectreSimulation::GetProcessedResultsFilePath(const std::string& currentFolder,
 	const std::string& localSimulationId, const bool& processMainTransient){
 	std::string analysisFinalName = main_analysis->get_name();
@@ -656,10 +694,9 @@ std::string SpectreSimulation::GetProcessedResultsFilePath(const std::string& cu
 
 bool SpectreSimulation::ProcessSpectreResults( const std::string& currentFolder, const std::string& localSimulationId,
 	TransientSimulationResults& transientSimulationResults, const bool& processMainTransient,
-	std::vector<Metric*>& myParameterMetrics, const bool& isGolden ){
+	std::vector<Metric*>& myParameterMetrics, const bool& isGolden, const bool& isMontecarloNested ){
 	// obtain paths
 	std::string spectreResultsFilePath = GetSpectreResultsFilePath( currentFolder, processMainTransient);
-	std::string spectreLogFilePath = GetSpectreLogFilePath( currentFolder );
 	std::string processedResultsFilePath = GetProcessedResultsFilePath( currentFolder,
 		localSimulationId, processMainTransient);
 	transientSimulationResults.set_original_file_path( spectreResultsFilePath );
@@ -669,16 +706,20 @@ bool SpectreSimulation::ProcessSpectreResults( const std::string& currentFolder,
 	rfp->set_format( kGnuPlot );
 	rfp->set_metrics( &myParameterMetrics );
 	rfp->set_transient_file_path( spectreResultsFilePath );
-	rfp->set_log_file_path( spectreLogFilePath );
+	rfp->set_log_file_path( GetSpectreLogFilePath( currentFolder ) );
+	if( isMontecarloNested ){
+		rfp->set_montecarlo_eval_file_path( GetSpectreMontecarloEvalFilePath( currentFolder ) );
+	}
 	rfp->set_processed_file_path( processedResultsFilePath ) ;
 	rfp->set_export_processed_metrics( export_processed_metrics );
 	rfp->set_is_golden( isGolden );
+	rfp->set_is_montecarlo_nested_simulation( isMontecarloNested );
 	#ifdef SPECTRE_SIMULATIONS_VERBOSE
 		if(!is_nested_simulation){
 			log_io->ReportPlainStandard( k3Tab + "#" + localSimulationId + " scenario: processing spectre output data." + " path: '" + spectreResultsFilePath + "'");
 		}
 	#endif
-	correctly_processed = rfp->ProcessSpectreResults();
+	correctly_processed = rfp->ProcessSpectreOutputs();
 	if( !correctly_processed ){
 		log_io->ReportError2AllLogs("ProcessSpectreResults failed. " + localSimulationId);
 	}else{
@@ -774,7 +815,7 @@ std::vector<Metric*>* SpectreSimulation::CreateMetricsVectorFromGoldenMetrics(
 			parameterMetrics->push_back( new Magnitude(*pMag, false) );
 		}else{
 			auto pOceanEvalMag = static_cast<OceanEvalMetric*>( m );
-			parameterMetrics->push_back( new OceanEvalMetric(* pOceanEvalMag) );
+			parameterMetrics->push_back( new OceanEvalMetric(*pOceanEvalMag, false) );
 		}
 	}
 	return parameterMetrics;

@@ -12,16 +12,16 @@
 #include <vector>
 
 #include "statement.hpp"
- 
+
 class LibraryStatement : public Statement{
 public:
 	LibraryStatement();
 	LibraryStatement(Statement* belonging_circuit, LogIO* log_io, Scope* belonging_scope);
 	LibraryStatement(const LibraryStatement& orig);
 	virtual ~LibraryStatement();
-	
-	virtual LibraryStatement* GetCopy();
-	virtual std::string ExportCircuitStatement(std::string indentation);
+
+	virtual LibraryStatement* GetCopy() override;
+	virtual std::string ExportCircuitStatement( const std::string&  indentation ) override;
 
 	bool ParseLibraryStatement( Statement& global_scope_parent, std::ifstream* file,
 		std::vector<std::string>& lineTockens,

@@ -11,7 +11,7 @@
 #include <boost/algorithm/string/regex.hpp>
 
 #include "param_test_statement.hpp"
- 
+
 #include "../../global_functions_and_constants/global_template_functions.hpp"
 #include "../../global_functions_and_constants/global_constants.hpp"
 #include "../../global_functions_and_constants/statements_constants.hpp"
@@ -45,10 +45,10 @@ ParamTestStatement::ParamTestStatement() {
 	// Dependency
 	this->consider_instances_dependency = false;
 	this->scanned_for_instances_dependency = true;
-	
+
 }
 
-ParamTestStatement::ParamTestStatement(Statement* belonging_circuit, 
+ParamTestStatement::ParamTestStatement(Statement* belonging_circuit,
 		LogIO* log_io, Scope* belonging_scope) {
 	this->id = kNotDefinedInt;
 	this->statement_type = kParamTestStatement;
@@ -78,7 +78,7 @@ ParamTestStatement::ParamTestStatement(Statement* belonging_circuit,
 	// Dependency
 	this->consider_instances_dependency = false;
 	this->scanned_for_instances_dependency = true;
-	
+
 	// logger
 	this->log_io = log_io;
 }
@@ -110,7 +110,7 @@ ParamTestStatement::ParamTestStatement(const ParamTestStatement& orig) {
 	// Dependency
 	this->consider_instances_dependency = false;
 	this->scanned_for_instances_dependency = true;
-	
+
 	// logger
 	this->log_io = orig.log_io;
 }
@@ -123,7 +123,7 @@ ParamTestStatement* ParamTestStatement::GetCopy() {
 ParamTestStatement::~ParamTestStatement() {
 }
 
-std::string ParamTestStatement::ExportCircuitStatement(std::string indentation){
+std::string ParamTestStatement::ExportCircuitStatement( const std::string&  indentation ){
 	//checkFreqs paramtest errorif=((bw/2-fc)>=0)
 	// + message="center frequency must be greater than half the bandwidth"
 	std::string cs = indentation + name + kDelimiter ;
@@ -131,17 +131,17 @@ std::string ParamTestStatement::ExportCircuitStatement(std::string indentation){
 	return cs;
 }
 
-bool ParamTestStatement::ParseParamTestStatement(Statement& global_scope_parent, 
+bool ParamTestStatement::ParseParamTestStatement(Statement& global_scope_parent,
 	std::vector<std::string>& lineTockens,
 	std::string& statementCode, int& statementCount){
 	#ifdef PARSING_VERBOSE
-		log_io->ReportPlain2Log( "parsing paramtest: '" + statementCode + "'" );	
+		log_io->ReportPlain2Log( "parsing paramtest: '" + statementCode + "'" );
 	#endif
 	std::string nameNodesMasterNameLine = statementCode;
 	// parse name
 	set_id(statementCount++);
 	this->global_scope_parent = &global_scope_parent;
-	set_name(lineTockens.front());	
+	set_name(lineTockens.front());
 	// parse raw_content
 	boost::algorithm::split_regex( lineTockens, statementCode,
 		boost::regex( kParamTestAndDelimiterWord ) ) ;

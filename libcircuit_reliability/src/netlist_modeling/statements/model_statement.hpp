@@ -7,7 +7,7 @@
 
 #ifndef MODEL_STATEMENT_H
 #define MODEL_STATEMENT_H
- 
+
 #include <string>
 
 #include "statement.hpp"
@@ -19,8 +19,8 @@ public:
 	ModelStatement(const ModelStatement& orig);
 	virtual ~ModelStatement();
 
-	virtual ModelStatement* GetCopy();
-	virtual std::string ExportCircuitStatement(std::string indentation);
+	virtual ModelStatement* GetCopy() override;
+	virtual std::string ExportCircuitStatement( const std::string& indentation ) override;
 
 	bool ParseModelStatement( Statement& global_scope_parent, std::vector<std::string>& lineTockens,
 		std::string& statementCode, int& statementCount);

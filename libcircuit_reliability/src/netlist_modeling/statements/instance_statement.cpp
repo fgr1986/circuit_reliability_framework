@@ -7,9 +7,9 @@
 
 
 #include <boost/algorithm/string.hpp>
- 
+
 #include "instance_statement.hpp"
- 
+
 #include "../../global_functions_and_constants/global_template_functions.hpp"
 #include "../../global_functions_and_constants/global_constants.hpp"
 #include "../../global_functions_and_constants/statements_constants.hpp"
@@ -43,11 +43,11 @@ InstanceStatement::InstanceStatement() {
 	// Acts as a primitive?
 	this->is_a_primitive_instance = false;
 	// Pointer to master_instance (analog) model/subck/primitive
-	
+
 	this->scanned_for_instances_dependency = false;
 	this->consider_instances_dependency = true;
 }
-InstanceStatement::InstanceStatement(Statement* belonging_circuit, 
+InstanceStatement::InstanceStatement(Statement* belonging_circuit,
 		LogIO* log_io, Scope* belonging_scope) {
 	this->id = kNotDefinedInt;
 	this->statement_type = kInstanceStatement;
@@ -78,7 +78,7 @@ InstanceStatement::InstanceStatement(Statement* belonging_circuit,
 	// Acts as a primitive?
 	this->is_a_primitive_instance = false;
 	// Pointer to master_instance (analog) model/subck/primitive
-	
+
 	this->scanned_for_instances_dependency = false;
 	this->consider_instances_dependency = true;
 }
@@ -127,7 +127,7 @@ InstanceStatement* InstanceStatement::GetCopy() {
 InstanceStatement::~InstanceStatement() {
 }
 
-std::string InstanceStatement::ExportCircuitStatement(std::string indentation){
+std::string InstanceStatement::ExportCircuitStatement( const std::string& indentation ){
 	//name [(]node1 ... nodeN[)] master [[param1=value1] ...[paramN=valueN]]
 	std::string cs = indentation + name + kDelimiter ;
 	if(nodes.size() > 0){
@@ -157,7 +157,7 @@ std::string InstanceStatement::ExportCircuitStatement(std::string indentation){
 	return cs;
 }
 
-bool InstanceStatement::ParseInstanceStatement( Statement& global_scope_parent, 
+bool InstanceStatement::ParseInstanceStatement( Statement& global_scope_parent,
 	std::vector<std::string>& lineTockens, std::string & statementCode, int& statementCount){
 	#ifdef PARSING_VERBOSE
 		log_io->ReportPlain2Log( "parsing instance: '" + statementCode + "'" );
@@ -166,7 +166,7 @@ bool InstanceStatement::ParseInstanceStatement( Statement& global_scope_parent,
 	set_id(statementCount++);
 	this->global_scope_parent = &global_scope_parent;
 	// parse name
-	set_name(lineTockens.front());	
+	set_name(lineTockens.front());
 	// parse parameters
 	if(boost::contains(statementCode, kEqualsWord)){
 		ParseParameters( statementCode, false );
@@ -177,7 +177,7 @@ bool InstanceStatement::ParseInstanceStatement( Statement& global_scope_parent,
 	set_has_brackets(true);
 	//parse masterName
 	boost::split(lineTockens, statementCode, boost::is_any_of(kDelimiter),
-		boost::token_compress_on); 
+		boost::token_compress_on);
 	set_master_name(lineTockens.back());
 	// Test Unalterable
 	#ifdef PARSING_VERBOSE

@@ -59,7 +59,7 @@ void StandardSimulation::RunSimulation( ){
 		// Set up metrics
 		std::vector<Metric*>* analyzedMetrics = CreateMetricsVectorFromGoldenMetrics( n_d_profile_index );
 		// process metrics
-		if( !ProcessSpectreResults( folder, simulation_id, basic_simulation_results, false, *analyzedMetrics, false ) ){
+		if( !ProcessSpectreResults( folder, simulation_id, basic_simulation_results, false, *analyzedMetrics, false, is_montecarlo_nested_simulation ) ){
 			log_io->ReportError2AllLogs( "Error while processing the critical value simulation spectre_results. Scenario #"
 				+ simulation_id );
 			return;

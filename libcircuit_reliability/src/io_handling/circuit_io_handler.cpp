@@ -44,19 +44,31 @@ void CircuitIOHandler::AddSimulationSpecialStatements( CircuitStatement& circuit
 		log_io->ReportError2AllLogs( "Error in circuit_io_handler: simulation_mode->get_analysis_statement is nullptr");
 		return;
 	}
-	// add analisis statement
-	circuit.AddSimulationSpecialStatement( new AnalysisStatement( *simulation_mode->get_analysis_statement() ));
-	for( auto const& cs : *simulation_mode->get_control_statements() ){
-			circuit.AddSimulationSpecialStatement( new ControlStatement( *cs ));
-	}
+	// create analysis statement
+	auto mainAnalysis = simulation_mode->get_analysis_statement();
+	bool auxTranAnalysisIsMain = mainAnalysis==simulation_mode->get_main_transient_analysis();
+	auto mainAnalysisCopy = new AnalysisStatement( *mainAnalysis );
 	// add non_transient metrics
 	// (oceanEval metrics)
 	for( auto const& m : metrics ){
 		if( !m->is_transient_magnitude() ){
 			auto pOceanEvalMag = dynamic_cast<OceanEvalMetric*>( m );
-			circuit.AddSimulationSpecialStatement( new SimpleStatement(
-				"export " + pOceanEvalMag->get_name() + "=oceanEval(\"" + pOceanEvalMag->get_ocean_eval_expression() + "\")"));
+			// no mute
+			auto oceanEvalSimpleStatement =  new SimpleStatement( false,
+				"export " + pOceanEvalMag->get_name() + "=oceanEval(\"" + pOceanEvalMag->get_ocean_eval_expression() + "\")");
+			// for transient analyses ( it reads logs for oceanEvals )
+			if( auxTranAnalysisIsMain ){
+				circuit.AddSimulationSpecialStatement( oceanEvalSimpleStatement );
+			}else{ // for montecarlo analyses
+				mainAnalysisCopy->AddStatement( oceanEvalSimpleStatement );
+			}
 		}
+	}
+	// add analysis statement
+	circuit.AddSimulationSpecialStatement( mainAnalysisCopy );
+	// add control statems
+	for( auto const& cs : *simulation_mode->get_control_statements() ){
+			circuit.AddSimulationSpecialStatement( new ControlStatement( *cs ));
 	}
 	log_io->ReportPlain2Log( "Analysis statement added.");
 	// save spectre metrics

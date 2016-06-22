@@ -1,7 +1,7 @@
 /*
  * simple_statement.cpp
  *
- *  Created on: April 1, 2013
+ *  Created on: April 2, 2013
  *  Author: fernando
  */
 
@@ -12,6 +12,7 @@
 #include "../../global_functions_and_constants/statements_constants.hpp"
 
 SimpleStatement::SimpleStatement() {
+	this->allows_mute = true;
 	this->id = kNotDefinedInt;
 	this->statement_type = kSimpleStatement;
 	this->parallel_statements = kDefaultParallelStatements;
@@ -41,8 +42,10 @@ SimpleStatement::SimpleStatement() {
 	this->scanned_for_instances_dependency = true;
 
 }
+
 SimpleStatement::SimpleStatement(Statement* belonging_circuit,
 		LogIO* log_io, Scope* belonging_scope) {
+	this->allows_mute = true;
 	this->id = kNotDefinedInt;
 	this->statement_type = kSimpleStatement;
 	this->parallel_statements = kDefaultParallelStatements;
@@ -76,7 +79,8 @@ SimpleStatement::SimpleStatement(Statement* belonging_circuit,
 	this->log_io = log_io;
 }
 
-SimpleStatement::SimpleStatement(const std::string raw_content, LogIO* log_io) {
+SimpleStatement::SimpleStatement( const std::string raw_content, LogIO* log_io) {
+	this->allows_mute = true;
 	this->id = kNotDefinedInt;
 	this->statement_type = kSimpleStatement;
 	this->parallel_statements = kDefaultParallelStatements;
@@ -109,7 +113,42 @@ SimpleStatement::SimpleStatement(const std::string raw_content, LogIO* log_io) {
 	this->log_io = log_io;
 }
 
+SimpleStatement::SimpleStatement( const bool allows_mute, const std::string raw_content ) {
+	this->allows_mute = allows_mute;
+	this->id = kNotDefinedInt;
+	this->statement_type = kSimpleStatement;
+	this->parallel_statements = kDefaultParallelStatements;
+	this->correctly_parsed = false;
+	this->has_parallel_statements = false;
+	this->name = kNotDefinedString;
+	this->master_name = kSimpleStatementDesc;
+	this->description = kSimpleStatementDesc;
+	this->has_brackets = false;
+	this->has_nodes = false;
+	this->has_children = false;
+	this->has_parameters = false;
+	this->has_raw_content = true;
+	// Radiation Properties
+	this->unalterable = true;
+	this->altered = false;
+	this->can_be_injected = false;
+	this->can_be_substituted = false;
+	this->substitute_master_name = kNotDefinedString;
+	this->statement_type_description = kSimpleStatementDesc;
+	this->raw_content = raw_content;
+	// scope
+	this->belonging_scope = belonging_scope;
+	this->has_own_scope = false;
+	// Dependency
+	this->consider_instances_dependency = false;
+	this->scanned_for_instances_dependency = true;
+
+	// logger
+	this->log_io = nullptr;
+}
+
 SimpleStatement::SimpleStatement( const std::string raw_content ) {
+	this->allows_mute = true;
 	this->id = kNotDefinedInt;
 	this->statement_type = kSimpleStatement;
 	this->parallel_statements = kDefaultParallelStatements;
@@ -143,6 +182,7 @@ SimpleStatement::SimpleStatement( const std::string raw_content ) {
 }
 
 SimpleStatement::SimpleStatement(const SimpleStatement& orig) {
+	this->allows_mute = orig.allows_mute;
 	this->id = orig.id;
 	this->statement_type = orig.statement_type;
 	this->parallel_statements = orig.parallel_statements;
@@ -181,7 +221,7 @@ SimpleStatement* SimpleStatement::GetCopy() {
 SimpleStatement::~SimpleStatement() {
 }
 
-std::string SimpleStatement::ExportCircuitStatement(std::string indentation){
+std::string SimpleStatement::ExportCircuitStatement( const std::string& indentation ){
 	// statement
 	// std::string cs = indentation + raw_content;
 	return indentation + raw_content;

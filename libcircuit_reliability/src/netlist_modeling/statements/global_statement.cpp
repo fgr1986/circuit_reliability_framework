@@ -7,9 +7,9 @@
 
 
 #include <boost/algorithm/string.hpp>
- 
+
 #include "global_statement.hpp"
- 
+
 #include "../../global_functions_and_constants/global_template_functions.hpp"
 #include "../../global_functions_and_constants/global_constants.hpp"
 #include "../../global_functions_and_constants/statements_constants.hpp"
@@ -41,10 +41,10 @@ GlobalStatement::GlobalStatement() {
 	// Dependency
 	this->consider_instances_dependency = false;
 	this->scanned_for_instances_dependency = true;
-	
+
 }
 
-GlobalStatement::GlobalStatement(Statement* belonging_circuit, 
+GlobalStatement::GlobalStatement(Statement* belonging_circuit,
 		LogIO* log_io, Scope* belonging_scope) {
 	this->id = kNotDefinedInt;
 	this->statement_type = kGlobalStatement;
@@ -67,14 +67,14 @@ GlobalStatement::GlobalStatement(Statement* belonging_circuit,
 	this->can_be_substituted = false;
 	this->substitute_master_name = kNotDefinedString;
 	this->statement_type_description = kGlobalStatementDesc;
-	this->belonging_circuit = belonging_circuit;	
+	this->belonging_circuit = belonging_circuit;
 	//scope
 	this->has_own_scope = false;
 	this->belonging_scope = belonging_scope;
 	// Dependency
 	this->consider_instances_dependency = false;
 	this->scanned_for_instances_dependency = true;
-	
+
 	this->log_io = log_io;
 }
 
@@ -107,7 +107,7 @@ GlobalStatement::GlobalStatement(const GlobalStatement& orig) {
 	// Dependency
 	this->consider_instances_dependency = false;
 	this->scanned_for_instances_dependency = true;
-	
+
 
 	// logger
 	this->log_io = orig.log_io;
@@ -122,7 +122,7 @@ GlobalStatement* GlobalStatement::GetCopy() {
 GlobalStatement::~GlobalStatement() {
 }
 
-std::string GlobalStatement::ExportCircuitStatement(std::string indentation){
+std::string GlobalStatement::ExportCircuitStatement( const std::string& indentation ){
 	//name [(]node1 ... nodeN[)] master [[param1=value1] ...[paramN=valueN]]
 	std::string cs = indentation + name + kDelimiter ;
 
@@ -135,13 +135,13 @@ std::string GlobalStatement::ExportCircuitStatement(std::string indentation){
 	return cs;
 }
 
-bool GlobalStatement::ParseGlobalStatement(Statement& global_scope_parent, 
+bool GlobalStatement::ParseGlobalStatement(Statement& global_scope_parent,
 	std::vector<std::string>& lineTockens, std::string & statementCode, int& statementCount){
 
 	#ifdef PARSING_VERBOSE
 		log_io->ReportPlain2Log( "parsing global statement: '" + statementCode + "'" );
 	#endif
-	
+
 	//std::string nameNodesMasterNameLine = statementCode;
 	set_id(statementCount++);
 	this->global_scope_parent = &global_scope_parent;

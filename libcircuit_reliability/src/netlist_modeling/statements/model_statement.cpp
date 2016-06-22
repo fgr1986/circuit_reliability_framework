@@ -6,9 +6,9 @@
  */
 
 #include <boost/algorithm/string.hpp>
- 
+
 #include "model_statement.hpp"
- 
+
 #include "../../global_functions_and_constants/global_template_functions.hpp"
 #include "../../global_functions_and_constants/global_constants.hpp"
 #include "../../global_functions_and_constants/statements_constants.hpp"
@@ -39,13 +39,13 @@ ModelStatement::ModelStatement() {
 	// scope
 	this->has_own_scope = false;
 	// Pointer to master_instance (analog) model/subck/primitive
-	
+
 	this->scanned_for_instances_dependency = false;
 	this->consider_instances_dependency = true;
 	this->is_a_primitive_model = false;
 }
 
-ModelStatement::ModelStatement(Statement* belonging_circuit, 
+ModelStatement::ModelStatement(Statement* belonging_circuit,
 		LogIO* log_io, Scope* belonging_scope) {
 	this->id = kNotDefinedInt;
 	this->statement_type = kModelStatement;
@@ -75,7 +75,7 @@ ModelStatement::ModelStatement(Statement* belonging_circuit,
 	// logger
 	this->log_io = log_io;
 	// Pointer to master_instance (analog) model/subck/primitive
-	
+
 	this->scanned_for_instances_dependency = false;
 	this->consider_instances_dependency = true;
 	this->is_a_primitive_model = false;
@@ -124,7 +124,7 @@ ModelStatement::~ModelStatement() {
 }
 
 
-std::string ModelStatement::ExportCircuitStatement(std::string indentation){
+std::string ModelStatement::ExportCircuitStatement( const std::string& indentation ){
 	//model name master [param1=value1 ... [param2=value2 ]]
 	std::string cs = indentation + kModelWord + kDelimiter;
 	cs += name + kDelimiter ;
@@ -137,14 +137,14 @@ std::string ModelStatement::ExportCircuitStatement(std::string indentation){
 	return cs;
 }
 
-bool ModelStatement::ParseModelStatement( Statement& global_scope_parent, 
+bool ModelStatement::ParseModelStatement( Statement& global_scope_parent,
 	std::vector<std::string>& lineTockens,
 	std::string& statementCode, int& statementCount){
 	// model model_name model_type {
 	// 1:  type= params
 	// ...
 	// }
-	// model model_name model_type 
+	// model model_name model_type
 	// {
 	// 1:  type= params
 	// ...
@@ -157,7 +157,7 @@ bool ModelStatement::ParseModelStatement( Statement& global_scope_parent,
 	set_id(statementCount++);
 	this->global_scope_parent = &global_scope_parent;
 	// parse name
-	set_name(lineTockens.at(1));	
+	set_name(lineTockens.at(1));
 	set_master_name(lineTockens.at(2));
 	// Test unalterable statement
 	set_unalterable( TestUnalterableStatement(master_name) );

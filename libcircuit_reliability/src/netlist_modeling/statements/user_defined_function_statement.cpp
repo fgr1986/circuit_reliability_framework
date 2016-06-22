@@ -11,12 +11,12 @@
 #include <boost/algorithm/string/regex.hpp>
 
 #include "user_defined_function_statement.hpp"
- 
+
 #include "../../global_functions_and_constants/global_template_functions.hpp"
 #include "../../global_functions_and_constants/global_constants.hpp"
 #include "../../global_functions_and_constants/statements_constants.hpp"
 #include "../../global_functions_and_constants/netlist_words_constants.hpp"
- 
+
 UserDefinedFunctionStatement::UserDefinedFunctionStatement() {
 	this->id = kNotDefinedInt;
 	this->statement_type = kUserDefinedFunctionStatement;
@@ -44,7 +44,7 @@ UserDefinedFunctionStatement::UserDefinedFunctionStatement() {
 	// Dependency
 	this->consider_instances_dependency = false;
 	this->scanned_for_instances_dependency = true;
-	
+
 }
 
 
@@ -78,7 +78,7 @@ UserDefinedFunctionStatement::UserDefinedFunctionStatement(Statement* belonging_
 	// Dependency
 	this->consider_instances_dependency = false;
 	this->scanned_for_instances_dependency = true;
-	
+
 	// logger
 	this->log_io = log_io;
 }
@@ -95,7 +95,7 @@ UserDefinedFunctionStatement::UserDefinedFunctionStatement(const UserDefinedFunc
 	this->has_children = orig.has_children;
 	this->has_parameters = orig.has_parameters;
 	this->has_raw_content = orig.has_raw_content;
-	this->raw_content = orig.raw_content;	
+	this->raw_content = orig.raw_content;
 	this->unalterable = orig.unalterable;
 	this->can_be_substituted = orig.can_be_substituted;
 	this->substitute_master_name = orig.substitute_master_name;
@@ -111,7 +111,7 @@ UserDefinedFunctionStatement::UserDefinedFunctionStatement(const UserDefinedFunc
 	// Dependency
 	this->consider_instances_dependency = false;
 	this->scanned_for_instances_dependency = true;
-	
+
 	// logger
 	this->log_io = log_io;
 	deepCopyVectorOfPointers(orig.parameters, parameters);
@@ -125,7 +125,7 @@ UserDefinedFunctionStatement* UserDefinedFunctionStatement::GetCopy() {
 UserDefinedFunctionStatement::~UserDefinedFunctionStatement() {
 }
 
-std::string UserDefinedFunctionStatement::ExportCircuitStatement(std::string indentation){
+std::string UserDefinedFunctionStatement::ExportCircuitStatement( const std::string&  indentation ){
 	//real myfunc( real a, real b ) {
 	//	return a+b*2+sqrt(a*sin(b));
 	//}
@@ -138,7 +138,7 @@ std::string UserDefinedFunctionStatement::ExportCircuitStatement(std::string ind
 		//export parameters
 		for(std::vector<Parameter*>::iterator it_param = parameters.begin() ; it_param !=  (--parameters.end()); it_param++){
 			cs += kUserDefinedFunctionWord + kDelimiter + (*it_param)->get_value() + kArgumentDelimiter + kDelimiter;
-		}		
+		}
 	}
 	cs += kUserDefinedFunctionWord + kDelimiter + parameters.back()->get_value() + kDelimiter;
 	cs += kParenthesisEndWord + kBracketsStartWord;
@@ -147,7 +147,7 @@ std::string UserDefinedFunctionStatement::ExportCircuitStatement(std::string ind
 	return cs;
 }
 
-bool UserDefinedFunctionStatement::ParseUserDefinedFunctionStatement( 
+bool UserDefinedFunctionStatement::ParseUserDefinedFunctionStatement(
 		Statement& global_scope_parent, std::ifstream* file, std::vector<std::string>& lineTockens,
 		std::string & statementCode, std::string& currentReadLine,
 		int& statementCount, bool& endOfFile,
@@ -165,7 +165,7 @@ bool UserDefinedFunctionStatement::ParseUserDefinedFunctionStatement(
 	std::vector<std::string> udft;
 	boost::algorithm::split_regex( udft, statementCode,
 		boost::regex( kUserDefinedFunctionAndDelimiterWord ) ) ;
-	
+
 	boost::replace_last(udft.at(1), kParenthesisStartWord, kEmptyWord);
 	set_name(udft.at(1));
 	// process user defined function parameters
@@ -177,7 +177,7 @@ bool UserDefinedFunctionStatement::ParseUserDefinedFunctionStatement(
 			boost::trim(arg);
 			boost::replace_all(arg, kArgumentDelimiter, kEmptyWord);
 			AddParameter(new Parameter(kArgumentWord, arg));
-		}	
+		}
 		arg = udft.back();
 		boost::trim(arg);
 		std::vector<std::string> udfat;
@@ -198,26 +198,26 @@ bool UserDefinedFunctionStatement::ParseUserDefinedFunctionStatement(
 			boost::replace_first(currentReadLine, kBracketsStartWord, kEmptyWord);
 			firstBracketRemoved = true;
 		}
-		if( ProcessLine(statementCode, currentReadLine, *this, statementCount, parsingSpectreCode) ){					
+		if( ProcessLine(statementCode, currentReadLine, *this, statementCount, parsingSpectreCode) ){
 			continue;
 		}else{
 			if(statementCode.compare(kEmptyWord) != 0){
-				// test end of user function	
-				if(boost::starts_with(statementCode, kBracketsEndWord)){	
+				// test end of user function
+				if(boost::starts_with(statementCode, kBracketsEndWord)){
 					set_raw_content(raw_content);
 					correctly_parsed = true;
 				}else{
 					raw_content += statementCode;
 				}
-			}			
-			// reset line Buffers	
-			statementCode = currentReadLine;		
+			}
+			// reset line Buffers
+			statementCode = currentReadLine;
 		}
 	} //ends while
 	if(!correctly_parsed){// end of file
 		if(statementCode.compare(kEmptyWord) != 0){
-			// test end of user function	
-			if(boost::starts_with(statementCode, kBracketsEndWord)){	
+			// test end of user function
+			if(boost::starts_with(statementCode, kBracketsEndWord)){
 				set_raw_content(raw_content);
 				correctly_parsed = true;
 			}else{
@@ -225,8 +225,8 @@ bool UserDefinedFunctionStatement::ParseUserDefinedFunctionStatement(
 			}
 		}
 		endOfFile = true;
-		statementCode = kEmptyWord;		
-	} 
+		statementCode = kEmptyWord;
+	}
 	if(correctly_parsed){
 		#ifdef PARSING_VERBOSE_MIN
 			log_io->ReportPlain2Log( "user_defined_function_statement: '" + name + "', '" + master_name + "' parsed" );

@@ -153,9 +153,10 @@ std::string number2String( const any_number& number){
 	// 	value = 0;
 	// }
 	// return value;
-	std::stringstream ss;
-	ss << number;
-	return ss.str();
+	std::stringstream number_string_stream;
+	number_string_stream.clear();
+	number_string_stream << number;
+	return number_string_stream.str();
 }
 
 /**

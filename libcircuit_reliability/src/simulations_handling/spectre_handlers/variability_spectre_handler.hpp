@@ -230,7 +230,7 @@ private:
 	bool SimulateGoldenAHDLNetlist();
 	bool ExportProfilesList();
 
-	bool ReorderMetrics( const std::string& spectreResultTrans );
+	bool ReorderMetrics( const std::string& spectreResultTrans, const std::string& spectreLog );
 
 };
 

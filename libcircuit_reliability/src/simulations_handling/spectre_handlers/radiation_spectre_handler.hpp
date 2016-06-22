@@ -244,7 +244,7 @@ private:
 
 	bool ProcessScenarioStatistics();
 
-	bool ReorderMetrics( const std::string& spectreResultTrans );
+	bool ReorderMetrics( const std::string& spectreResultTrans, const std::string& spectreLog );
 };
 
 #endif /* RADIATION_SPECTRE_HANDLER_H */

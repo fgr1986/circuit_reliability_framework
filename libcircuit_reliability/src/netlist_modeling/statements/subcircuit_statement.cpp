@@ -9,7 +9,7 @@
 #include <boost/algorithm/string.hpp>
 
 #include "subcircuit_statement.hpp"
- 
+
 #include "../../global_functions_and_constants/global_template_functions.hpp"
 #include "../../global_functions_and_constants/global_constants.hpp"
 #include "../../global_functions_and_constants/statements_constants.hpp"
@@ -42,13 +42,13 @@ SubcircuitStatement::SubcircuitStatement() {
  	// scope
  	this->global_scope_parent = this;
 	this->has_own_scope = true;
-	this->own_scope = new Scope( 
+	this->own_scope = new Scope(
 		 "subcircuit_" + number2String(id) + "_scope", name , true );
 	this->belonging_scope = own_scope;
 	// Dependency
 	this->consider_instances_dependency = false;
 	this->scanned_for_instances_dependency = true;
-	
+
 }
 
 SubcircuitStatement::SubcircuitStatement( Statement* belonging_circuit, LogIO* log_io ) {
@@ -80,13 +80,13 @@ SubcircuitStatement::SubcircuitStatement( Statement* belonging_circuit, LogIO* l
 	// scope
 	this->global_scope_parent = this;
 	this->has_own_scope = true;
-	this->own_scope = new Scope( 
+	this->own_scope = new Scope(
 		 "subcircuit_" + number2String(id) + "_scope", name , true );
 	this->belonging_scope = own_scope;
 	// Dependency
 	this->consider_instances_dependency = false;
 	this->scanned_for_instances_dependency = true;
-	
+
 	// logger
 	this->log_io = log_io;
 }
@@ -117,19 +117,19 @@ SubcircuitStatement::SubcircuitStatement(const SubcircuitStatement& orig) {
 	// scope
 	this->global_scope_parent = this;
 	this->has_own_scope = true;
-	this->own_scope = new Scope( 
+	this->own_scope = new Scope(
 		 "subcircuit_" + number2String(orig.id) + "_scope", orig.name , true );
 	this->belonging_scope = own_scope;
 	// Dependency
 	this->consider_instances_dependency = false;
 	this->scanned_for_instances_dependency = true;
-	
+
 	// logger
 	this->log_io = orig.log_io;
 
 	deepCopyVectorOfPointers(orig.nodes, nodes);
 	deepCopyOfChildren( orig.children );
-	deepCopyVectorOfPointers(orig.parameters, parameters);	
+	deepCopyVectorOfPointers(orig.parameters, parameters);
 }
 
 SubcircuitStatement* SubcircuitStatement::GetCopy() {
@@ -143,7 +143,7 @@ void SubcircuitStatement::AddProgeny( InstanceStatement* instance_of_subcircuit 
 	progeny.push_back( instance_of_subcircuit );
 }
 
-std::string SubcircuitStatement::ExportCircuitStatement(std::string indentation){
+std::string SubcircuitStatement::ExportCircuitStatement( const std::string&  indentation ){
 	// [inline] subckt SubcircuitName [(] node1 ... nodeN [)]
 	//	[ parameters name1=value1 ... [nameN=valueN]]
 	//	.
@@ -159,7 +159,7 @@ std::string SubcircuitStatement::ExportCircuitStatement(std::string indentation)
 	if( is_inline ){
 		cs = kEmptyLine + indentation + kCommentWord1 + name + kDelimiter + kDelimiter
 			+ kInLineSubcircuitWord + kDelimiter + kSubcircuitWord;
-		cs += kEmptyLine + indentation + kInLineSubcircuitWord + kDelimiter + kSubcircuitWord + kDelimiter + name + kDelimiter ;	
+		cs += kEmptyLine + indentation + kInLineSubcircuitWord + kDelimiter + kSubcircuitWord + kDelimiter + name + kDelimiter ;
 	}else{
 		cs = kEmptyLine + indentation + kCommentWord1 + name + kDelimiter + kSubcircuitWord;
 		cs += kEmptyLine + indentation + kSubcircuitWord + kDelimiter + name + kDelimiter ;
@@ -188,7 +188,7 @@ std::string SubcircuitStatement::ExportCircuitStatement(std::string indentation)
 	 it_children !=  children.end(); it_children++){
 		cs += kEmptyLine + (*it_children)->ExportCircuitStatement(indentation + kTab);
 	}
-	
+
 	cs += kEmptyLine + indentation + kEndSubcircuitWord + kDelimiter + name;
 	cs += kEmptyLine + indentation + kCommentWord1
 		+ " end of " + name + " subcircuit";
@@ -209,7 +209,7 @@ bool SubcircuitStatement::ParseSubcircuitStatement(
 	#ifdef PARSING_VERBOSE
 		log_io->ReportPlain2Log( "parsing subcircuit: '" + statementCode + "'" );
 	#endif
-	is_inline = false;	
+	is_inline = false;
 	bool childrensCompleted = true;
 	correctly_parsed = false;
 	set_id(statementCount++);
@@ -218,7 +218,7 @@ bool SubcircuitStatement::ParseSubcircuitStatement(
 	boost::replace_all(statementCode, kParenthesisEndWord, kEmptyWord);
 	set_has_brackets(true);
 	//parse masterName
-	boost::split(lineTockens, statementCode, boost::is_any_of(kDelimiter), boost::token_compress_on); 
+	boost::split(lineTockens, statementCode, boost::is_any_of(kDelimiter), boost::token_compress_on);
 	set_name(lineTockens.at(1));
 	set_master_name( name );
 	// Test Unalterable
@@ -231,14 +231,14 @@ bool SubcircuitStatement::ParseSubcircuitStatement(
 		for(std::vector<std::string>::iterator it_node = (++(++lineTockens.begin()));
 			it_node != lineTockens.end(); it_node++){
 			AddNode( *it_node, true );
-		}		
+		}
 	}
 	//parse the parameters and childrens
 	statementCode = currentReadLine;
 	currentReadLine = "";
 	while(!correctly_parsed && getline(*file, currentReadLine)) {
 		// ProcessLine
-		if( ProcessLine(statementCode, currentReadLine, *this, statementCount, parsingSpectreCode) ){					
+		if( ProcessLine(statementCode, currentReadLine, *this, statementCount, parsingSpectreCode) ){
 			continue;
 		}else{
 			if(statementCode.compare(kEmptyWord) != 0){
@@ -248,9 +248,9 @@ bool SubcircuitStatement::ParseSubcircuitStatement(
 					correctly_parsed = true;
 				} else if(boost::starts_with(statementCode, kEndSubcircuitAndDelimiterWord)){
 					std::vector<std::string> ist;
-					boost::split(ist, statementCode, boost::is_any_of(kDelimiter), boost::token_compress_on);		
+					boost::split(ist, statementCode, boost::is_any_of(kDelimiter), boost::token_compress_on);
 					// check syntax
-					// ends subcircuitName	
+					// ends subcircuitName
 					if(ist.front().compare(kEndSubcircuitWord) == 0
 						&& ist.at(1).compare(get_name()) == 0) {
 						correctly_parsed = true;
@@ -261,7 +261,7 @@ bool SubcircuitStatement::ParseSubcircuitStatement(
 							);
 						return false;
 						// throw new std::exception();
-					}													
+					}
 				}else{
 					childrensCompleted = childrensCompleted
 						&& ParseStatement(file, statementCode, *this, *this,
@@ -269,21 +269,21 @@ bool SubcircuitStatement::ParseSubcircuitStatement(
 							parsingSpectreCode, permissiveParsingMode);
 				}
 			}
-			// reset line Buffers	
-			statementCode = currentReadLine;		
+			// reset line Buffers
+			statementCode = currentReadLine;
 		}
 	} //ends while
 	if(!correctly_parsed){ //end of file
 		if(statementCode.compare(kEmptyWord) != 0){
 				// test end of subcircuit
 				// ends
-			if(statementCode.compare(kEndSubcircuitWord) == 0){ 
+			if(statementCode.compare(kEndSubcircuitWord) == 0){
 				correctly_parsed = true;
 			} else if(boost::starts_with(statementCode, kEndSubcircuitAndDelimiterWord)){
 				std::vector<std::string> ist;
-				boost::split(ist, statementCode, boost::is_any_of(kDelimiter), boost::token_compress_on);		
+				boost::split(ist, statementCode, boost::is_any_of(kDelimiter), boost::token_compress_on);
 					// check syntax
-					// ends subcircuitName	
+					// ends subcircuitName
 				if(ist.front().compare(kEndSubcircuitWord) == 0
 					&& ist.at(1).compare(get_name()) == 0) {
 					correctly_parsed = true;
@@ -294,7 +294,7 @@ bool SubcircuitStatement::ParseSubcircuitStatement(
 					);
 					return false;
 					// throw new std::exception();
-				}													
+				}
 			} else {
 				childrensCompleted = childrensCompleted
 				&& ParseStatement(file, statementCode, *this, *this,
@@ -304,7 +304,7 @@ bool SubcircuitStatement::ParseSubcircuitStatement(
 		}
 		endOfFile = true;
 	}
-	correctly_parsed = correctly_parsed && childrensCompleted; 
+	correctly_parsed = correctly_parsed && childrensCompleted;
 	if(correctly_parsed){
 		#ifdef PARSING_VERBOSE_MIN
 			log_io->ReportPlain2Log( "subcircuit: '" + name + "', '" + master_name + "' parsed" );
@@ -313,7 +313,7 @@ bool SubcircuitStatement::ParseSubcircuitStatement(
 	return correctly_parsed;
 }
 
-bool SubcircuitStatement::ParseInlineSubcircuitStatement(Statement& global_scope_parent, 
+bool SubcircuitStatement::ParseInlineSubcircuitStatement(Statement& global_scope_parent,
 	std::ifstream* file, std::vector<std::string>& lineTockens, std::string& statementCode,
 	std::string& currentReadLine, int& statementCount, bool& endOfFile,
 	bool& parsingSpectreCode, const bool permissiveParsingMode ){
@@ -329,7 +329,7 @@ bool SubcircuitStatement::ParseInlineSubcircuitStatement(Statement& global_scope
 	boost::replace_all(statementCode, kParenthesisEndWord, kEmptyWord);
 	set_has_brackets(true);
 	//parse masterName
-	boost::split(lineTockens, statementCode, boost::is_any_of(kDelimiter), boost::token_compress_on); 
+	boost::split(lineTockens, statementCode, boost::is_any_of(kDelimiter), boost::token_compress_on);
 	set_name(lineTockens.at(2));
 	set_master_name( name );
 	// Test Unalterable
@@ -343,25 +343,25 @@ bool SubcircuitStatement::ParseInlineSubcircuitStatement(Statement& global_scope
 			it_node != lineTockens.end(); it_node++){
 			AddNode( *it_node, true );
 		}
-	}		
+	}
 	//parse the parameters and childrens
 	statementCode = currentReadLine;
 	currentReadLine = "";
 	while(!correctly_parsed && getline(*file, currentReadLine)) {
 		// ProcessLine
-		if( ProcessLine(statementCode, currentReadLine, *this, statementCount, parsingSpectreCode) ){					
+		if( ProcessLine(statementCode, currentReadLine, *this, statementCount, parsingSpectreCode) ){
 			continue;
 		}else{
 			if(statementCode.compare(kEmptyWord) != 0){
 				// test end of subcircuit
 				//ends
-				if(statementCode.compare(kEndSubcircuitWord) == 0){ 
+				if(statementCode.compare(kEndSubcircuitWord) == 0){
 					correctly_parsed = true;
 				} else if(boost::starts_with(statementCode, kEndSubcircuitAndDelimiterWord)){
 					std::vector<std::string> ist;
-					boost::split(ist, statementCode, boost::is_any_of(kDelimiter), boost::token_compress_on);	
-					// check syntax			
-					//ends inline subckname	
+					boost::split(ist, statementCode, boost::is_any_of(kDelimiter), boost::token_compress_on);
+					// check syntax
+					//ends inline subckname
 					if(ist.front().compare(kEndSubcircuitWord) == 0
 						&& ist.at(1).compare(get_name()) == 0) {
 						correctly_parsed = true;
@@ -379,20 +379,20 @@ bool SubcircuitStatement::ParseInlineSubcircuitStatement(Statement& global_scope
 							currentReadLine, statementCount, endOfFile,
 							parsingSpectreCode, permissiveParsingMode);
 				}
-			}			
-			// reset line Buffers	
-			statementCode = currentReadLine;		
+			}
+			// reset line Buffers
+			statementCode = currentReadLine;
 		}
 	} //ends while
 	if(!correctly_parsed){ //end of file
 		if(statementCode.compare(kEmptyWord) != 0){
-			// test end of subcircuit	
-			if(statementCode.compare(kEndSubcircuitWord) == 0){ 
+			// test end of subcircuit
+			if(statementCode.compare(kEndSubcircuitWord) == 0){
 				correctly_parsed = true;
-			} else if(boost::starts_with(statementCode, kEndSubcircuitAndDelimiterWord)){												
+			} else if(boost::starts_with(statementCode, kEndSubcircuitAndDelimiterWord)){
 				std::vector<std::string> ist;
-				boost::split(ist, statementCode, boost::is_any_of(kDelimiter), boost::token_compress_on);		
-				// check syntax				
+				boost::split(ist, statementCode, boost::is_any_of(kDelimiter), boost::token_compress_on);
+				// check syntax
 				if(ist.front().compare(kEndSubcircuitWord) == 0
 					&& ist.at(1).compare(get_name()) == 0) {
 					correctly_parsed = true;
@@ -410,7 +410,7 @@ bool SubcircuitStatement::ParseInlineSubcircuitStatement(Statement& global_scope
 						currentReadLine, statementCount, endOfFile,
 						parsingSpectreCode, permissiveParsingMode);
 			}
-		}		
+		}
 		endOfFile = true;
 	}
 	correctly_parsed = correctly_parsed && childrensCompleted;

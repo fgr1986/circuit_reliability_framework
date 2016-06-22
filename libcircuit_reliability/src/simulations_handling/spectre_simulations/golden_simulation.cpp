@@ -71,7 +71,7 @@ void GoldenSimulation::RunSimulation( ){
 		processed_metrics = CreateGoldenMetricsVector();
 		// log_io->ReportPlain2Log( k3Tab + "#" + simulation_id + " scenario: processing results.");
 		// process spectre results
-		if( !ProcessSpectreResults( folder, simulation_id, transient_simulation_results, true, *processed_metrics, true  ) ){
+		if( !ProcessSpectreResults( folder, simulation_id, transient_simulation_results, true, *processed_metrics, true, false ) ){
 			log_io->ReportError2AllLogs( "Error while processing GOLDEN spectre_results. Scenario #" + simulation_id );
 			return;
 		}

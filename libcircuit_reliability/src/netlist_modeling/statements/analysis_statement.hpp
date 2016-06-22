@@ -24,24 +24,24 @@ public:
 
 	/**
 	 * @brief Constructor
-	 * 
-	 * @param belonging_circuit 
-	 * @param log_io 
-	 * @param belonging_scope 
+	 *
+	 * @param belonging_circuit
+	 * @param log_io
+	 * @param belonging_scope
 	 */
 	AnalysisStatement( Statement* belonging_circuit,
 		LogIO* log_io, Scope* belonging_scope );
 
 	/**
 	 * @brief Copy constructor
-	 * 
-	 * @param orig 
+	 *
+	 * @param orig
 	 */
 	AnalysisStatement(const AnalysisStatement& orig);
 
 	/**
 	 * @brief Default destructor
-	 * 
+	 *
 	 */
 	virtual ~AnalysisStatement();
 
@@ -53,7 +53,7 @@ public:
 
 	/**
 	 * @brief sets if it is an advanced analysis
-	 * 
+	 *
 	 * @param advanced_analysis
 	 */
 	void set_advanced_analysis(bool advanced_analysis) { this->advanced_analysis = advanced_analysis; }
@@ -62,29 +62,29 @@ public:
 	 * @brief Gets a new analysis statement (deep) copy
 	 * @return new analysis
 	 */
-	virtual AnalysisStatement* GetCopy(); 
+	virtual AnalysisStatement* GetCopy() override;
 
 	/**
 	 * @brief gets the spectre netlist code of the analysis (and its children)
-	 * 
-	 * @param indentation 
+	 *
+	 * @param indentation
 	 * @return spectre netlist code of the analysis (and its children)
 	 */
-	virtual std::string ExportCircuitStatement(std::string indentation);
+	virtual std::string ExportCircuitStatement( const std::string& indentation) override;
 
 	/**
 	 * @brief Parse a spectre netlist statement, filling the analysis attributes
-	 * 
-	 * @param global_scope_parent 
-	 * @param file 
-	 * @param lineTockens 
-	 * @param statementCode 
-	 * @param currentReadLine 
-	 * @param statementCount 
-	 * @param endOfFile 
-	 * @param parsingSpectreCode 
-	 * @param permissiveParsingMode 
-	 * @return 
+	 *
+	 * @param global_scope_parent
+	 * @param file
+	 * @param lineTockens
+	 * @param statementCode
+	 * @param currentReadLine
+	 * @param statementCount
+	 * @param endOfFile
+	 * @param parsingSpectreCode
+	 * @param permissiveParsingMode
+	 * @return
 	 */
 	bool ParseAnalysisStatement( Statement& global_scope_parent, std::ifstream* file,
 		std::vector<std::string>& lineTockens, std::string & statementCode,
@@ -93,7 +93,7 @@ public:
 
 	/**
 	 * @brief set if it is the main transient analysis
-	 * 
+	 *
 	 * @param main_transient
 	 */
 	void set_main_transient( bool main_transient ){ this->main_transient = main_transient; }
@@ -106,7 +106,7 @@ public:
 
 	/**
 	 * @brief set if it is an essential analysis
-	 * 
+	 *
 	 * @param essential_analysis
 	 */
 	void set_essential_analysis( bool essential_analysis ){ this->essential_analysis = essential_analysis; }
@@ -122,8 +122,8 @@ public:
 	 * @brief Mutes the exportation of all analysis which are not the main transient
 	 * Is overriden in analysis_statement.hpp class
 	 */
-	virtual void MuteNonMainTransientAnalysis();
-	
+	virtual void MuteNonMainTransientAnalysis() override;
+
 private:
 	/// wheter is and advanced analysis (and therefore has children)
 	bool advanced_analysis;

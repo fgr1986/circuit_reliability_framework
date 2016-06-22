@@ -236,14 +236,17 @@ bool VariabilitySpectreHandler::SimulateStandardAHDLNetlist( ){
 		log_io->ReportError2AllLogs( "WARNING: while simulation the ahdl scenario." );
 	}
 	// Reorder metrics
-	bool partialResult = ReorderMetrics( var_AHDL_s->GetSpectreResultsFilePath() );
+	bool partialResult = ReorderMetrics( var_AHDL_s->GetSpectreResultsFilePath(),
+		var_AHDL_s->GetSpectreLogFilePath() );
 	delete var_AHDL_s;
 	return partialResult;
 }
 
-bool VariabilitySpectreHandler::ReorderMetrics( const std::string& spectreResultTrans ){
+bool VariabilitySpectreHandler::ReorderMetrics( const std::string& spectreResultTrans,
+		const std::string& spectreLog ){
 	RAWFormatProcessor rfp;
-	bool partialResult = rfp.PrepProcessTransientMetrics( &unsorted_metrics_2be_found, &metrics_2be_found, spectreResultTrans );
+	bool partialResult = rfp.PrepProcessTransientMetrics( &unsorted_metrics_2be_found,
+		&metrics_2be_found, spectreResultTrans, spectreLog );
 	// debug
 	log_io->ReportCyanStandard( "Sorted Metrics to be found" );
 	for( auto const& m : metrics_2be_found){

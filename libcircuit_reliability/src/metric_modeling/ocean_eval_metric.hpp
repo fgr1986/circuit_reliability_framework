@@ -24,8 +24,9 @@ public:
 	OceanEvalMetric( const std::string& name );
 	/// Copy Constructor
 	OceanEvalMetric( const OceanEvalMetric& orig );
+	OceanEvalMetric( const OceanEvalMetric& orig, const bool copyValues );
 
-	OceanEvalMetric* GetCopy();
+	OceanEvalMetric* GetCopy() override;
 	virtual ~OceanEvalMetric();
 
 	virtual double get_value_at( const int index ) override;

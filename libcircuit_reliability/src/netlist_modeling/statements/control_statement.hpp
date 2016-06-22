@@ -28,8 +28,8 @@ public:
 	bool get_special_syntax_control_statement() const {return special_syntax_control_statement; }
 	void set_special_syntax_control_statement(bool special_syntax_control_statement) { this->special_syntax_control_statement = special_syntax_control_statement; }
 
-	virtual ControlStatement* GetCopy(); 
-	virtual std::string ExportCircuitStatement(std::string indentation);
+	virtual ControlStatement* GetCopy() override;
+	virtual std::string ExportCircuitStatement( const std::string& indentation) override;
 
 	bool ParseControlStatement( Statement& global_scope_parent, std::ifstream* file,
 		std::vector<std::string>& lineTockens, std::string & statementCode,

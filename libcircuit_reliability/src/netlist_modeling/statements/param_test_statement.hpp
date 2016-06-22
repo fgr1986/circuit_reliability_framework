@@ -17,8 +17,8 @@ public:
 	ParamTestStatement(const ParamTestStatement& orig);
 	virtual ~ParamTestStatement();
 
-	virtual ParamTestStatement* GetCopy();
-	virtual std::string ExportCircuitStatement(std::string indentation);
+	virtual ParamTestStatement* GetCopy() override;
+	virtual std::string ExportCircuitStatement( const std::string& indentation) override;
 
 	bool ParseParamTestStatement( Statement& global_scope_parent, std::vector<std::string>& lineTockens,
 		std::string & readLine, int& statementCount);

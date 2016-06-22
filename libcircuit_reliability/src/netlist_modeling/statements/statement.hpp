@@ -22,7 +22,7 @@ public:
 	virtual ~Statement();
 
 	// Export Statement 2 scs
-	virtual std::string ExportCircuitStatement(std::string indentation);
+	virtual std::string ExportCircuitStatement( const std::string& indentation );
 	// Get a deep copy of the statement
 	virtual Statement* GetCopy() = 0;
 

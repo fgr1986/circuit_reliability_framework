@@ -9,17 +9,17 @@
 #define PRIMITIVE_STATEMENT_H
 
 #include "statement.hpp"
- 
+
 class InstanceStatement : public Statement{
 public:
 	InstanceStatement();
 	InstanceStatement(Statement* belonging_circuit, LogIO* log_io, Scope* belonging_scope);
 	InstanceStatement(const InstanceStatement& orig);
 	virtual ~InstanceStatement();
-	virtual std::string ExportCircuitStatement(std::string indentation);
+	virtual std::string ExportCircuitStatement( const std::string& indentation ) override;
 
-	virtual InstanceStatement* GetCopy();
-	bool ParseInstanceStatement( Statement& global_scope_parent, 
+	virtual InstanceStatement* GetCopy() override;
+	bool ParseInstanceStatement( Statement& global_scope_parent,
 		std::vector<std::string>& lineTockens,
 		std::string & readLine, int& statementCount);
 

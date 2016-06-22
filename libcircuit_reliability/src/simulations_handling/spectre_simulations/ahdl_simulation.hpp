@@ -48,6 +48,8 @@ public:
 
 	std::string GetSpectreResultsFilePath();
 
+	std::string GetSpectreLogFilePath();
+
 private:
 	/// Simulation Results
 	TransientSimulationResults basic_simulation_results;

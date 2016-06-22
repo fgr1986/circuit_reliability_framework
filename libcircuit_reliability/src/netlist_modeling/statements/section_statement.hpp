@@ -10,23 +10,23 @@
 
 #include <string>
 #include "statement.hpp"
- 
+
 class SectionStatement : public Statement{
 public:
 	SectionStatement();
 	SectionStatement(Statement* belonging_circuit, LogIO* log_io, Scope* belonging_scope);
 	SectionStatement(const SectionStatement& orig);
 	virtual ~SectionStatement();
-	
-	virtual SectionStatement* GetCopy();
-	virtual std::string ExportCircuitStatement(std::string indentation);
+
+	virtual SectionStatement* GetCopy() override;
+	virtual std::string ExportCircuitStatement( const std::string&  indentation ) override;
 
 	bool ParseSectionStatement( Statement& global_scope_parent, std::ifstream* file,
 		std::vector<std::string>& lineTockens, std::string & statementCode,
 		std::string& currentReadLine, int& statementCount, bool& endOfFile,
 		bool& parsingSpectreCode, const bool permissiveParsingMode);
 private:
-	
+
 };
 
 #endif /* SECTION_STATEMENT_H */

@@ -129,7 +129,7 @@ AnalogModelStatement* AnalogModelStatement::GetCopy() {
 AnalogModelStatement::~AnalogModelStatement() {
 }
 
-std::string AnalogModelStatement::ExportCircuitStatement(std::string indentation){
+std::string AnalogModelStatement::ExportCircuitStatement( const std::string& indentation){
 	//name [(]node1 ... nodeN[)] analogmodel modelname=mastername [[param1=value1] ...[paramN=valueN]]
 	std::string cs = indentation + name + kDelimiter ;
 	if(has_brackets){

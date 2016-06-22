@@ -17,6 +17,7 @@ static const std::string kLogFile = "rs_log.log";
 static const std::string kLogFileResults = "rs_results.log";
 static const std::string kSpectreLogFile = "spectre_log.log";
 static const std::string kTransientSufix = ".tran";
+static const std::string kMCDATASufix = ".mcdata";
 static const std::string kProcessedPrefix = "processed_";
 
 static const std::string kDataSufix = ".data";

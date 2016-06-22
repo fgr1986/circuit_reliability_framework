@@ -9,7 +9,7 @@
 #include <boost/regex.hpp>
 #include <boost/algorithm/string/regex.hpp>
 #include <boost/algorithm/string.hpp>
- 
+
 #include "control_statement.hpp"
 
 #include "../../global_functions_and_constants/global_template_functions.hpp"
@@ -49,10 +49,10 @@ ControlStatement::ControlStatement() {
 	// Dependency
 	this->consider_instances_dependency = false;
 	this->scanned_for_instances_dependency = true;
-	
+
 }
 
-ControlStatement::ControlStatement(Statement* belonging_circuit, 
+ControlStatement::ControlStatement(Statement* belonging_circuit,
 		LogIO* log_io, Scope* belonging_scope, bool special_syntax_control_statement) {
 	this->id = kNotDefinedInt;
 	this->statement_type = kControlStatement;
@@ -86,7 +86,7 @@ ControlStatement::ControlStatement(Statement* belonging_circuit,
 	// Dependency
 	this->consider_instances_dependency = false;
 	this->scanned_for_instances_dependency = true;
-	
+
 	// logger
 	this->log_io = log_io;
 }
@@ -125,14 +125,14 @@ ControlStatement::ControlStatement(const ControlStatement& orig) {
 	// Dependency
 	this->consider_instances_dependency = false;
 	this->scanned_for_instances_dependency = true;
-	
+
 	// logger
 	this->log_io = log_io;
 	deepCopyVectorOfPointers(orig.nodes, nodes);
 	if(advanced_control_statement){
 		deepCopyOfChildren( orig.children );
 	}
-	deepCopyVectorOfPointers(orig.parameters, parameters);	
+	deepCopyVectorOfPointers(orig.parameters, parameters);
 }
 
 ControlStatement* ControlStatement::GetCopy() {
@@ -142,7 +142,7 @@ ControlStatement* ControlStatement::GetCopy() {
 ControlStatement::~ControlStatement() {
 }
 
-std::string ControlStatement::ExportCircuitStatement(std::string indentation){
+std::string ControlStatement::ExportCircuitStatement( const std::string& indentation ){
 	// save statement
 	if( master_name.compare("save")==0 ){
 		return indentation + master_name + kDelimiter + raw_content;
@@ -170,14 +170,14 @@ std::string ControlStatement::ExportCircuitStatement(std::string indentation){
 		}
 		cs += master_name;
 	}
-	if(parameters.size() > 0){			
+	if(parameters.size() > 0){
 		//export parameters
 		for(std::vector<Parameter*>::iterator it_parameter = parameters.begin();
 			it_parameter !=  parameters.end(); it_parameter++){
 			cs +=  kDelimiter + (*it_parameter)->ExportParameter();
 		}
 	}
-	
+
 	if( advanced_control_statement ){
 		//export children
 		if( children.size()>0 || param_set_case ){
@@ -192,12 +192,12 @@ std::string ControlStatement::ExportCircuitStatement(std::string indentation){
 			cs += kEmptyLine + indentation + kBracketsEndWord;
 		}
 	}
-	
+
 	#ifdef PARSING_VERBOSE
 	cs += kEmptyLine + indentation + kCommentWord1
 		+ " end of ( name: '" + name + "'' , master_name: '" + master_name + "' ) control_statement";
 	#endif
-	
+
 	return cs;
 }
 
@@ -209,8 +209,8 @@ bool ControlStatement::ParseControlStatement( Statement& global_scope_parent, st
 
 	//Name [(]node1 ... nodeN[)] control_statement_Type [parameter=value ...] {asdfasdfa} //1
 	//Name [(]node1 ... nodeN[)] control_statement_Type [parameter=value ...] {
-	//Name [(]node1 ... nodeN[)] control_statement_Type [parameter=value ...] 
-	//Name [(]node1 ... nodeN[)] control_statement_Type [parameter=value ...] 
+	//Name [(]node1 ... nodeN[)] control_statement_Type [parameter=value ...]
+	//Name [(]node1 ... nodeN[)] control_statement_Type [parameter=value ...]
 	// {
 
 	// Special
@@ -234,8 +234,8 @@ bool ControlStatement::ParseControlStatement( Statement& global_scope_parent, st
 		// parse name
 		set_name(lineTockens.front());
 	}
-	// complex sentence addecuation (//1) 
-	if(boost::contains( statementCode, kBracketsStartWord )){	
+	// complex sentence addecuation (//1)
+	if(boost::contains( statementCode, kBracketsStartWord )){
 		//name sweep p1=v1... { bla bla bla }
 		boost::regex ip_regex(kBracketedStatementRegEx);
 		boost::match_results<std::string::const_iterator> results;
@@ -245,7 +245,7 @@ bool ControlStatement::ParseControlStatement( Statement& global_scope_parent, st
 			#ifdef PARSING_VERBOSE
 				log_io->ReportPlain2Log( kTab + "Parsing enclosed ({ child }):'" + newStatement + "'" );
 			#endif
-			boost::replace_first( newStatement, kBracketsStartWord, kEmptyWord );			
+			boost::replace_first( newStatement, kBracketsStartWord, kEmptyWord );
 			boost::replace_last( newStatement, kBracketsEndWord, kEmptyWord );
 			boost::algorithm::trim( newStatement ); //trim
 			childrenCorrectlyParsed = ParseStatement( file, newStatement,
@@ -254,13 +254,13 @@ bool ControlStatement::ParseControlStatement( Statement& global_scope_parent, st
 
 			//remove parameters subcode in statementcode
 			std::vector<std::string> statementTokens;
-			boost::algorithm::split_regex( 
+			boost::algorithm::split_regex(
 				statementTokens, statementCode, boost::regex( kBracketedStatementRegEx ) ) ;
 			statementCode = statementTokens.front();
 			inlineChildren = true;
-			
-		}else {		 //name sweep p1=v1... { 
-			boost::replace_last( statementCode, kBracketsStartWord, kEmptyWord );	
+
+		}else {		 //name sweep p1=v1... {
+			boost::replace_last( statementCode, kBracketsStartWord, kEmptyWord );
 		}
 		firstBracketRemoved = true;
 	}
@@ -285,9 +285,9 @@ bool ControlStatement::ParseControlStatement( Statement& global_scope_parent, st
 
 		//parse without params
 		boost::split(lineTockens, statementCode,
-			boost::is_any_of(kDelimiter), boost::token_compress_on); 
+			boost::is_any_of(kDelimiter), boost::token_compress_on);
 		//parse masterName
-		set_master_name(lineTockens.back());	
+		set_master_name(lineTockens.back());
 		parsingParamset = master_name.compare( "paramset" )==0;
 		if( parsingParamset ){
 			#ifdef PARSING_VERBOSE_MIN
@@ -303,7 +303,7 @@ bool ControlStatement::ParseControlStatement( Statement& global_scope_parent, st
 				it_node != (--lineTockens.end()); it_node++){
 				AddNode( *it_node );
 			}
-		}	
+		}
 	}
 	//parse the childrens
 	if(advanced_control_statement && !inlineChildren){
@@ -312,17 +312,17 @@ bool ControlStatement::ParseControlStatement( Statement& global_scope_parent, st
 		boost::algorithm::trim( statementCode );
 		boost::replace_all( statementCode, kTab, kEmptyWord);
 		if(!firstBracketRemoved && boost::starts_with(statementCode, kBracketsStartWord)){
-			boost::replace_last( statementCode, kBracketsStartWord, kEmptyWord );	
-			firstBracketRemoved = true;			
+			boost::replace_last( statementCode, kBracketsStartWord, kEmptyWord );
+			firstBracketRemoved = true;
 		}
 		while(!correctly_parsed && getline(*file, currentReadLine)) {
 			// ProcessLine
-			if( ProcessLine(statementCode, currentReadLine, *this, statementCount, parsingSpectreCode) ){					
+			if( ProcessLine(statementCode, currentReadLine, *this, statementCount, parsingSpectreCode) ){
 				continue;
 			}else{
 				if(statementCode.compare(kEmptyWord) != 0){
-					// test end of control statement	
-					if(boost::starts_with(statementCode, kBracketsEndWord)){	
+					// test end of control statement
+					if(boost::starts_with(statementCode, kBracketsEndWord)){
 						correctly_parsed = true;
 					}else if( parsingParamset ){
 						paramSetRaw += kEmptyLine + statementCode;
@@ -331,15 +331,15 @@ bool ControlStatement::ParseControlStatement( Statement& global_scope_parent, st
 							&& ParseStatement(file, statementCode, *this, global_scope_parent,
 								currentReadLine, statementCount, endOfFile, parsingSpectreCode, permissiveParsingMode);
 					}
-				}			
-				// reset line Buffers	
-				statementCode = currentReadLine;		
+				}
+				// reset line Buffers
+				statementCode = currentReadLine;
 			}
 		} //ends while
 		if(!correctly_parsed){ //end of file
 			if(statementCode.compare(kEmptyWord) != 0){
-				// test end of control statement	
-				if(boost::starts_with(statementCode, kBracketsEndWord)){	
+				// test end of control statement
+				if(boost::starts_with(statementCode, kBracketsEndWord)){
 					correctly_parsed = true;
 				}else if( parsingParamset ){
 					paramSetRaw += kEmptyLine + statementCode;
@@ -348,7 +348,7 @@ bool ControlStatement::ParseControlStatement( Statement& global_scope_parent, st
 						&& ParseStatement(file, statementCode, *this, global_scope_parent,
 							currentReadLine, statementCount, endOfFile, parsingSpectreCode, permissiveParsingMode);
 				}
-			}		
+			}
 			endOfFile = true;
 		}
 	}

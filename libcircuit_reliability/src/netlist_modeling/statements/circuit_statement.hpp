@@ -37,8 +37,8 @@ public:
 	CircuitStatement(const CircuitStatement& orig);
 	virtual ~CircuitStatement();
 	void basicCopy( CircuitStatement* orig );
-	virtual CircuitStatement* GetCopy();
-	virtual std::string ExportCircuitStatement( const std::string& indentation );
+	virtual CircuitStatement* GetCopy() override;
+	virtual std::string ExportCircuitStatement( const std::string& indentation ) override;
 
 	// Experiment Environment connection methods
 	// Radiation properties

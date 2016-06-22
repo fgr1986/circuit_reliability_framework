@@ -6,9 +6,9 @@
  */
 
 #include <boost/algorithm/string.hpp>
- 
+
 #include "section_statement.hpp"
- 
+
 #include "../../global_functions_and_constants/global_template_functions.hpp"
 #include "../../global_functions_and_constants/global_constants.hpp"
 #include "../../global_functions_and_constants/statements_constants.hpp"
@@ -41,9 +41,9 @@ SectionStatement::SectionStatement() {
 	// Dependency
 	this->consider_instances_dependency = false;
 	this->scanned_for_instances_dependency = true;
-	
+
 }
-SectionStatement::SectionStatement(Statement* belonging_circuit, 
+SectionStatement::SectionStatement(Statement* belonging_circuit,
 		LogIO* log_io, Scope* belonging_scope) {
 	this->id = kNotDefinedInt;
 	this->statement_type = kSectionStatement;
@@ -72,7 +72,7 @@ SectionStatement::SectionStatement(Statement* belonging_circuit,
 	// Dependency
 	this->consider_instances_dependency = false;
 	this->scanned_for_instances_dependency = true;
-	
+
 	// logger
 	this->log_io = log_io;
 }
@@ -105,7 +105,7 @@ SectionStatement::SectionStatement(const SectionStatement& orig) {
 	// Dependency
 	this->consider_instances_dependency = false;
 	this->scanned_for_instances_dependency = true;
-	
+
 	// logger
 	this->log_io = log_io;
 	deepCopyOfChildren( orig.children );
@@ -118,8 +118,8 @@ SectionStatement* SectionStatement::GetCopy() {
 SectionStatement::~SectionStatement() {
 }
 
-std::string SectionStatement::ExportCircuitStatement(std::string indentation){
-	
+std::string SectionStatement::ExportCircuitStatement( const std::string&  indentation ){
+
 	// section SectionName
 	//    statements
 	//     ...
@@ -161,31 +161,31 @@ bool SectionStatement::ParseSectionStatement( Statement& global_scope_parent, st
 	currentReadLine = "";
 	while(!correctly_parsed && getline(*file, currentReadLine)) {
 		// ProcessLine
-		if( ProcessLine(statementCode, currentReadLine, *this, statementCount, parsingSpectreCode) ){					
+		if( ProcessLine(statementCode, currentReadLine, *this, statementCount, parsingSpectreCode) ){
 			continue;
 		}else{
 			if(statementCode.compare(kEmptyWord) != 0){
-				// test end of section	
-				boost::split(lineTockens, statementCode, boost::is_any_of(kDelimiter), boost::token_compress_on);	
-				if(lineTockens.front().compare( kEndSectionWord) == 0){			
+				// test end of section
+				boost::split(lineTockens, statementCode, boost::is_any_of(kDelimiter), boost::token_compress_on);
+				if(lineTockens.front().compare( kEndSectionWord) == 0){
 					correctly_parsed = true;
 				}else{
 					childrensCompleted = childrensCompleted
 						&& ParseStatement(file, statementCode, *this, global_scope_parent,
 							currentReadLine, statementCount, endOfFile, parsingSpectreCode, permissiveParsingMode);
 				}
-			}			
-			// reset line Buffers	
-			statementCode = currentReadLine;		
+			}
+			// reset line Buffers
+			statementCode = currentReadLine;
 		}
 	} //ends while
 	if(!correctly_parsed){ //end of file
 		if(statementCode.compare(kEmptyWord) != 0){
-			// test end of section	
-			boost::split(lineTockens, statementCode, boost::is_any_of(kDelimiter), boost::token_compress_on);	
+			// test end of section
+			boost::split(lineTockens, statementCode, boost::is_any_of(kDelimiter), boost::token_compress_on);
 			if(lineTockens.front().compare(kEndSectionWord) == 0){
 				#ifdef PARSING_VERBOSE
-					log_io->ReportPlain2Log( "EO Section: OK" );			
+					log_io->ReportPlain2Log( "EO Section: OK" );
 				#endif
 				correctly_parsed = true;
 			} else {
@@ -208,7 +208,7 @@ bool SectionStatement::ParseSectionStatement( Statement& global_scope_parent, st
 		endOfFile = true;
 	}
 
-	correctly_parsed = correctly_parsed && childrensCompleted; 
+	correctly_parsed = correctly_parsed && childrensCompleted;
 	if(correctly_parsed){
 		#ifdef PARSING_VERBOSE_MIN
 			log_io->ReportPlain2Log( "section_statement: '" + name + "', '" + master_name + "' parsed" );

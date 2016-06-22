@@ -229,7 +229,7 @@ bool Statement::GetChildById(int search_id, Statement*& child){
 	return false;
 }
 
-std::string Statement::ExportCircuitStatement(std::string indentation){
+std::string Statement::ExportCircuitStatement( const std::string& indentation ){
 	return indentation + " export circuit as base. circuit: " + name;
 }
 

@@ -10,7 +10,7 @@
 
 #include <istream>
 #include <fstream>
- 
+
 #include "subcircuit_statement.hpp"
 #include "../simulation_parameter.hpp"
 
@@ -21,15 +21,15 @@ public:
 	RadiationSourceSubcircuitStatement( const RadiationSourceSubcircuitStatement& orig );
 	virtual ~RadiationSourceSubcircuitStatement();
 
-	virtual RadiationSourceSubcircuitStatement* GetCopy();
-	virtual std::string ExportCircuitStatement(std::string indentation);
+	virtual RadiationSourceSubcircuitStatement* GetCopy() override;
+	virtual std::string ExportCircuitStatement( const std::string& indentation ) override;
 
 	// void set_export_parameters( bool export_parameters ){ this->export_parameters = export_parameters; }
 	// std::vector<Node*>* get_children_instance_nodes() {return &children_instance_nodes;}
 	bool get_radiation_source_substitute_statement() { return radiation_source_substitute_statement; }
 	void set_radiation_source_substitute_statement( bool radiation_source_substitute_statement ) {
 		this->radiation_source_substitute_statement = radiation_source_substitute_statement; }
-	
+
 private:
 	bool radiation_source_substitute_statement;
 
