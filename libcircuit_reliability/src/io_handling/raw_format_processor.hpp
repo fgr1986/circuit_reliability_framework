@@ -40,8 +40,6 @@ public:
 	void set_processed_file_path( const std::string& processed_file_path ) {
 		this->processed_file_path = processed_file_path;}
 	void set_montecarlo_eval_file_path( const std::string& montecarlo_eval_file_path ) {
-
-std::cout << montecarlo_eval_file_path << "\n";
 		this->montecarlo_eval_file_path = montecarlo_eval_file_path;}
 	void set_metrics( std::vector<Metric*>* metrics ) {
 		this->metrics = metrics;}

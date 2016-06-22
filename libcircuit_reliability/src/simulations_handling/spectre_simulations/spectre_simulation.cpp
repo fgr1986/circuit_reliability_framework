@@ -232,8 +232,8 @@ bool SpectreSimulation::AnalyzeOceanEvalMetric(TransientSimulationResults& trans
 	transientSimulationResults.AddMetricErrors( metricErrors );
 	// report results
 	double error = abs(simulatedMetric.get_value() - goldenMetric.get_value());
-// log_io->ReportPlainStandard( "[debug]> #" + partialId + " simulated: " +
-// 	number2String(simulatedMetric.get_value()) + " golden: " + number2String(goldenMetric.get_value()) + " error: " + number2String(error) );
+log_io->ReportPlainStandard( "[debug]> #" + partialId + " simulated: " +
+	number2String(simulatedMetric.get_value()) + " golden: " + number2String(goldenMetric.get_value()) + " error: " + number2String(error) );
 	metricErrors->set_max_abs_error( error );
 	metricErrors->set_max_abs_error_global( error );
 	metricErrors->set_has_errors( error > goldenMetric.get_abs_error_margin() );

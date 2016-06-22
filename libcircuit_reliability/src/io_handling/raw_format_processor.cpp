@@ -337,6 +337,18 @@ bool RAWFormatProcessor::PrepProcessTransientMetrics( std::vector<Metric*>* unso
 	}
 	// close
 	file.close();
+	// has oceanEvalMetric?
+	bool hasOceanEvalMetrics = false;
+	for( auto const& m: *unsortedMags){
+		if( !m->is_transient_magnitude() ){
+			hasOceanEvalMetrics = true;
+			break;
+		}
+	}
+	if(!hasOceanEvalMetrics){
+		log_io->ReportPlain2Log( k2Tab + "No oceanEvalMetics" );
+		return correctly_processed;
+	}
 	// ocean eval like metrics
 	std::ifstream file2( spectreLog );
 	bool valueReady = false;
