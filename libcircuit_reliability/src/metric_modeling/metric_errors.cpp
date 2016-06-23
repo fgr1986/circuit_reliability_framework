@@ -27,6 +27,6 @@ MetricErrors::~MetricErrors(){
 	error_timing.clear();
 }
 
-void MetricErrors::AddErrorTiming( std::string start, std::string stop ){
+void MetricErrors::AddErrorTiming( const std::string& start, const std::string& stop ){
 	error_timing.insert(std::make_pair(start, stop));
 }

@@ -410,6 +410,7 @@ bool RAWFormatProcessor::ExportMetrics2File(){
 	// Export output
 	std::ofstream outputFile;
 	outputFile.open(processed_file_path.c_str());
+	outputFile.setf(std::ios::scientific);
 	if (!outputFile){
 		log_io->ReportError2AllLogs( kTab + "error writing " + processed_file_path);
 		correctly_processed = false;

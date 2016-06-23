@@ -302,17 +302,17 @@ bool XMLIOManager::ReadExperimentXML( const std::string &xmlExperiment, int& sta
 			kTab + "Experiment will save individually processed transients." :
 			kTab + "Experiment will not individually save processed transients." );
 
-		radiationSpectreHandler.set_export_magnitude_errors( ptExperiment.get<bool>("root.export_magnitude_errors") );
-		if(radiationSpectreHandler.get_export_magnitude_errors()){
-			log_io->ReportPlainStandard( kTab + "Experiment will export magnitude errors.");
+		radiationSpectreHandler.set_export_metric_errors( ptExperiment.get<bool>("root.export_metric_errors") );
+		if(radiationSpectreHandler.get_export_metric_errors()){
+			log_io->ReportPlainStandard( kTab + "Experiment will export metric errors.");
 		}else{
-			log_io->ReportPlainStandard( kTab + "Experiment will NOT export magnitude errors.");
+			log_io->ReportPlainStandard( kTab + "Experiment will NOT export metric errors.");
 		}
-		radiationSpectreHandler.set_export_processed_magnitudes( ptExperiment.get<bool>("root.export_processed_magnitudes") );
-		if(radiationSpectreHandler.get_export_processed_magnitudes()){
-			log_io->ReportPlainStandard( kTab + "Experiment will export_processed_magnitudes.");
+		radiationSpectreHandler.set_export_processed_metrics( ptExperiment.get<bool>("root.export_processed_metrics") );
+		if(radiationSpectreHandler.get_export_processed_metrics()){
+			log_io->ReportPlainStandard( kTab + "Experiment will export_processed_metrics.");
 		}else{
-			log_io->ReportPlainStandard( kTab + "Experiment will not export_processed_magnitudes.");
+			log_io->ReportPlainStandard( kTab + "Experiment will not export_processed_metrics.");
 		}
 		radiationSpectreHandler.set_plot_scatters( ptExperiment.get<bool>("root.plot_scatters") );
 		if(radiationSpectreHandler.get_plot_scatters()){
@@ -377,21 +377,21 @@ bool XMLIOManager::ReadExperimentXML( const std::string &xmlExperiment, int& sta
 			log_io->ReportError2AllLogs( "No simulation analysis has been found in experiment conf file.");
 			return false;
 		}
-		// Processed magnitudes
-		log_io->ReportPlainStandard( kTab + "Processed Magnitudes");
-		boost::property_tree::ptree pMagnitudes = ptExperiment.get_child("root.processed_magnitudes");
-		int magnitudeCount = pMagnitudes.count("magnitude");
-		if( magnitudeCount > 0 ) {
-			BOOST_FOREACH( boost::property_tree::ptree::value_type const &v, pMagnitudes ) {
-				if ( boost::iequals( v.first, "magnitude" ) ){
-					if( !ProcessMagnitude( v, statementCounter, radiationSpectreHandler, circuitIOHandler )) {
-						log_io->ReportError2AllLogs( "Error parsing magnitude in experiment conf file.");
+		// Processed metrics
+		log_io->ReportPlainStandard( kTab + "Processed metrics");
+		boost::property_tree::ptree pMetrics = ptExperiment.get_child("root.processed_metrics");
+		int metricCount = pMetrics.count("metric");
+		if( metricCount > 0 ) {
+			BOOST_FOREACH( boost::property_tree::ptree::value_type const &v, pMetrics ) {
+				if ( boost::iequals( v.first, "metric" ) ){
+					if( !ProcessMetric( v, statementCounter, radiationSpectreHandler, circuitIOHandler )) {
+						log_io->ReportError2AllLogs( "Error parsing metric in experiment conf file.");
 						return false;
 					}
 				}
 			}
 		}else{
-			log_io->ReportError2AllLogs( kTab + "No magnitudes to be processed, please, re-write experiment xml file." );
+			log_io->ReportError2AllLogs( kTab + "No metrics to be processed, please, re-write experiment xml file." );
 			return false;
 		}
 		// [Optional]
@@ -519,8 +519,8 @@ bool XMLIOManager::ReadExperimentXML( const std::string &xmlExperiment, int& sta
 		}
 
 		log_io->ReportPlainStandard( kTab + "Resume: " );
-		log_io->ReportPlainStandard( k2Tab + number2String( magnitudeCount )
-			+ " magnitudes read." );
+		log_io->ReportPlainStandard( k2Tab + number2String( metricCount )
+			+ " metrics read." );
 		log_io->ReportPlainStandard( k2Tab + number2String( unalterableStatementsCount )
 			+ " unalterable statements read." );
 		log_io->ReportPlainStandard( k2Tab + number2String( expUnalterableNodesCount )
@@ -764,73 +764,74 @@ bool XMLIOManager::ProcessSimulationModeChildControlStatement(
 	return true;
 }
 
-bool XMLIOManager::ProcessMagnitude(boost::property_tree::ptree::value_type const &v,
+bool XMLIOManager::ProcessMetric(boost::property_tree::ptree::value_type const &v,
 	int& statementCounter, RadiationSpectreHandler& radiationSpectreHandler, CircuitIOHandler& circuitIOHandler){
-	Magnitude* mag;
+	Metric* newMetric;
 	// new in v3.0.1
-	if( v.second.get<bool>("magnitude_transient_magnitude") ){
-	 mag = new Magnitude( v.second.get<std::string>("magnitude_name") );
+	if( v.second.get<bool>("metric_transient_magnitude") ){
+	 newMetric = new Magnitude( v.second.get<std::string>("metric_name") );
 	}else{
-		mag = new OceanEvalMagnitude( v.second.get<std::string>("magnitude_name") );
+		newMetric = new OceanEvalMetric( v.second.get<std::string>("metric_name") );
 	}
 	// plottable
-	mag->set_plottable( v.second.get<bool>("magnitude_plottable") );
-	if( mag->get_plottable() ){
-		if( v.second.count("magnitude_plottable_in_golden") > 0){
-			mag->set_plottable_in_golden( v.second.get<bool>("magnitude_plottable_in_golden") );
-		}else{
-			mag->set_plottable_in_golden( false );
+	if( newMetric->is_transient_magnitude() ){
+		auto pMag = static_cast<Magnitude*>(newMetric);
+		pMag->set_plottable( v.second.get<bool>("magnitude_plottable") );
+		if( pMag->get_plottable() ){
+			if( v.second.count("magnitude_plottable_in_golden") > 0){
+				pMag->set_plottable_in_golden( v.second.get<bool>("magnitude_plottable_in_golden") );
+			}else{
+				pMag->set_plottable_in_golden( false );
+			}
 		}
 	}
 	// analyzable
-	mag->set_analyzable( v.second.get<bool>("magnitude_analyzable") );
-	if(mag->get_analyzable()){
- 		mag->set_analyze_error_in_time( v.second.get<bool>("magnitude_analyze_error_in_time") );
+	newMetric->set_analyzable( v.second.get<bool>("metric_analyzable") );
+	if(newMetric->get_analyzable()){
 		// standard voltage/current verilog-a signal
-		if( mag->is_transient_magnitude() ){
-			mag->set_analyze_error_in_time( v.second.get<bool>("magnitude_analyze_error_in_time") );
-			mag->set_ommit_upper_threshold( v.second.get<bool>("magnitude_ommit_upper_threshold"));
-			mag->set_ommit_lower_threshold( v.second.get<bool>("magnitude_ommit_lower_threshold"));
-			mag->set_abs_error_margin_ones( v.second.get<double>("magnitude_abs_error_margin_ones") );
-			mag->set_abs_error_margin_zeros( v.second.get<double>("magnitude_abs_error_margin_zeros") );
-			mag->set_abs_error_margin_default( v.second.get<double>("magnitude_abs_error_margin_default") );
-			if( mag->get_abs_error_margin_ones() <= 0 || mag->get_abs_error_margin_zeros() <= 0
-				|| mag->get_abs_error_margin_default() <= 0 ){
-				log_io->ReportError2AllLogs("magnitude abs error margins of magnitude '"
-					+ mag->get_name() + "' less or equal than '0'");
+		if( newMetric->is_transient_magnitude() ){
+			auto pMag = static_cast<Magnitude*>(newMetric);
+			pMag->set_analyze_error_in_time( v.second.get<bool>("magnitude_analyze_error_in_time") );
+			pMag->set_ommit_upper_threshold( v.second.get<bool>("magnitude_ommit_upper_threshold"));
+			pMag->set_ommit_lower_threshold( v.second.get<bool>("magnitude_ommit_lower_threshold"));
+			pMag->set_abs_error_margin_ones( v.second.get<double>("magnitude_abs_error_margin_ones") );
+			pMag->set_abs_error_margin_zeros( v.second.get<double>("magnitude_abs_error_margin_zeros") );
+			pMag->set_abs_error_margin_default( v.second.get<double>("magnitude_abs_error_margin_default") );
+			if( pMag->get_abs_error_margin_ones() <= 0 || pMag->get_abs_error_margin_zeros() <= 0
+				|| pMag->get_abs_error_margin_default() <= 0 ){
+				log_io->ReportError2AllLogs("pMag abs error margins of magnitude '" + newMetric->get_name() + "' less or equal than '0'");
 				return false;
 			}
-			mag->set_error_threshold_ones( v.second.get<double>("magnitude_error_threshold_ones") );
-			mag->set_error_threshold_zeros( v.second.get<double>("magnitude_error_threshold_zeros") );
-			if( mag->get_error_threshold_ones() <= 0 || mag->get_error_threshold_zeros() <= 0 ){
-				log_io->ReportError2AllLogs("magnitude abs error margins of magnitude '"
-					+ mag->get_name() + "' less or equal than '0'");
+			pMag->set_error_threshold_ones( v.second.get<double>("magnitude_error_threshold_ones") );
+			pMag->set_error_threshold_zeros( v.second.get<double>("magnitude_error_threshold_zeros") );
+			if( pMag->get_error_threshold_ones() <= 0 || pMag->get_error_threshold_zeros() <= 0 ){
+				log_io->ReportError2AllLogs("magnitude abs error margins of magnitude '" + pMag->get_name() + "' less or equal than '0'");
 				return false;
+			}
+			if( pMag->get_analyze_error_in_time() ){
+				pMag->set_error_time_span_zeros( v.second.get<double>("magnitude_error_time_span_zeros") );
+				pMag->set_error_time_span_ones( v.second.get<double>("magnitude_error_time_span_ones") );
+				pMag->set_error_time_span_default( v.second.get<double>("magnitude_error_time_span_default") );
+				if( pMag->get_error_time_span_ones() <= 0 || pMag->get_error_time_span_zeros() <= 0
+					|| pMag->get_error_time_span_default() <= 0 ){
+					log_io->ReportError2AllLogs("magnitude_error_time_span of magnitude '" +pMag->get_name() + "' less or equal than '0'");
+					return false;
+				}
+				// new functionallity analyze in time
+				pMag->set_analyze_error_in_time_window( v.second.get<bool>("magnitude_analyze_error_in_time_window") );
+				if( pMag->get_analyze_error_in_time_window() ){
+					pMag->set_analyzable_time_window_t0( v.second.get<double>("magnitude_analyzable_time_window_t0") );
+					pMag->set_analyzable_time_window_tf( v.second.get<double>("magnitude_analyzable_time_window_tf") );
+				}
 			}
 		}else{ //oceanEval expresion
-			auto pOceanEvalMag = dynamic_cast<OceanEvalMagnitude*>(mag);
-			pOceanEvalMag->set_abs_error_margin( v.second.get<bool>("magnitude_abs_error_margin") );
+			auto pOceanEvalMag = static_cast<OceanEvalMetric*>(newMetric);
+			pOceanEvalMag->set_abs_error_margin( v.second.get<double>("metric_abs_error_margin") );
+			pOceanEvalMag->set_ocean_eval_expression( v.second.get<std::string>("metric_ocean_eval_expression") );
 		}
 	}
-	if( mag->is_transient_magnitude() && mag->get_analyze_error_in_time() ){
-		mag->set_error_time_span_zeros( v.second.get<double>("magnitude_error_time_span_zeros") );
-		mag->set_error_time_span_ones( v.second.get<double>("magnitude_error_time_span_ones") );
-		mag->set_error_time_span_default( v.second.get<double>("magnitude_error_time_span_default") );
-		if( mag->get_error_time_span_ones() <= 0 || mag->get_error_time_span_zeros() <= 0
-			|| mag->get_error_time_span_default() <= 0 ){
-			log_io->ReportError2AllLogs("magnitude_error_time_span of magnitude '"
-				+mag->get_name() + "' less or equal than '0'");
-			return false;
-		}
-		// new functionallity analyze in time
-		mag->set_analyze_error_in_time_window( v.second.get<bool>("magnitude_analyze_error_in_time_window") );
-		if( mag->get_analyze_error_in_time_window() ){
-			mag->set_analyzable_time_window_t0( v.second.get<double>("magnitude_analyzable_time_window_t0") );
-			mag->set_analyzable_time_window_tf( v.second.get<double>("magnitude_analyzable_time_window_tf") );
-		}
-	}
-	radiationSpectreHandler.AddMagnitude( mag );
-	circuitIOHandler.AddMagnitude( mag );
+	radiationSpectreHandler.AddMetric( newMetric );
+	circuitIOHandler.AddMetric( newMetric );
 	return true;
 }
 

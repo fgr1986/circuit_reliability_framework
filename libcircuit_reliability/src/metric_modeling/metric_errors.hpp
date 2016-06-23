@@ -16,6 +16,7 @@
 
 // c++ std libraries
 #include <string>
+// #include <iostream>
 #include <map>
 
 class MetricErrors {
@@ -30,28 +31,29 @@ public:
 	 * @param start
 	 * @param stop
 	 */
-	void AddErrorTiming( std::string start, std::string stop );
+	void AddErrorTiming( const std::string& start, const std::string& stop );
 
 	/**
 	 * @brief set metric_name
 	 *
 	 * @param metric_name
 	 */
-	void set_metric_name( std::string metric_name ){ this->metric_name = metric_name; }
+	void set_metric_name( const std::string& metric_name ){ this->metric_name = metric_name; }
 
 	/**
 	 * @brief set max_abs_error
 	 *
 	 * @param max_abs_error
 	 */
-	void set_max_abs_error( double max_abs_error ){ this->max_abs_error = max_abs_error; }
+	void set_max_abs_error( const double max_abs_error ){
+		this->max_abs_error = max_abs_error; }
 
 	/**
 	 * @brief set max_abs_error_global
 	 *
 	 * @param max_abs_error_global
 	 */
-	void set_max_abs_error_global( double max_abs_error_global ){
+	void set_max_abs_error_global( const double max_abs_error_global ){
 		this->max_abs_error_global = max_abs_error_global; }
 
 	/**
@@ -59,7 +61,7 @@ public:
 	 *
 	 * @param has_errors
 	 */
-	void set_has_errors( bool has_errors ){ this->has_errors = has_errors; }
+	void set_has_errors( const bool has_errors ){ this->has_errors = has_errors; }
 
 	/**
 	 * @brief gets metric_name

@@ -332,6 +332,7 @@ bool CriticalParameterNDParameterSweepSimulation::GenerateAndPlotGeneralResults(
 	double maxCritCharge = 0;
 	try {
 		gnuplotMapFile.open( gnuplotMapFilePath.c_str() );
+		gnuplotMapFile.setf(std::ios::scientific);
 		gnuplotSpectreErrorMapFile.open( gnuplotSpectreErrorMapFilePath.c_str() );
 		gnuplotMapFile << "#profCount #Profile" << " #"  << golden_critical_parameter->get_name()
 			<< " #MAG_i_name #MAG_i_maxErrorGlobal #MAG_i_maxErrorMetric\n";
@@ -339,10 +340,13 @@ bool CriticalParameterNDParameterSweepSimulation::GenerateAndPlotGeneralResults(
 		unsigned int profileCount = 0;
 		for( auto const &simulation : *(critical_parameter_value_simulations_vector.get_spectre_simulations()) ){
 			CriticalParameterValueSimulation* convSim = dynamic_cast<CriticalParameterValueSimulation*>(simulation);
-			std::string auxIndexes = "P";
+			std::string auxIndexes = getIndexCode( auxiliarIndexes );
 			std::string auxSpectreError = convSim->get_correctly_simulated() ? "0" : "1";
-			for ( auto const &i : auxiliarIndexes ){ auxIndexes += number2String(i); }
-			gnuplotMapFile << profileCount << " " << auxIndexes << " " << convSim->get_critical_parameter_value();
+			#ifdef GCC_OLD
+			gnuplotMapFile << number2String(profileCount) << " " << auxIndexes << " " << convSim->get_critical_parameter_value();
+			#else
+			gnuplotMapFile << std::defaultfloat << profileCount << " " << auxIndexes << " " << convSim->get_critical_parameter_value();
+			#endif
 			maxCritCharge = convSim->get_critical_parameter_value()>maxCritCharge ? convSim->get_critical_parameter_value() : maxCritCharge;
 			// mag errors
 			auto magErrors = convSim->get_last_valid_transient_simulation_results()->get_metrics_errors();
@@ -446,6 +450,7 @@ bool CriticalParameterNDParameterSweepSimulation::GenerateAndPlotItemizedPlane(
 	std::ofstream gnuplotMapFile;
 	try {
 		gnuplotMapFile.open( gnuplotMapFilePath.c_str() );
+		gnuplotMapFile.setf(std::ios::scientific);
 		gnuplotMapFile << "#" << p1->get_name() << " " << p2->get_name()
 			<< " "  << golden_critical_parameter->get_name()
 			<< " #MAG_i_name #MAG_i_maxErrorGlobal #MAG_i_maxErrorMetric\n";

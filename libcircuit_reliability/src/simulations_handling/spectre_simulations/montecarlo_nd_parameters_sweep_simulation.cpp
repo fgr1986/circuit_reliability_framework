@@ -381,6 +381,7 @@ bool MontecarloNDParametersSweepSimulation::GenerateAndPlotItemizedPlane(
 	std::ofstream gnuplotMapFile;
 	try {
 		gnuplotMapFile.open( gnuplotMapFilePath.c_str() );
+		gnuplotMapFile.setf(std::ios::scientific);
 		gnuplotMapFile << "#" << p1->get_name() << " " << p2->get_name() << " Upset Ratio"
 			<<"MAG_i_name MAG_i_maxErrorMetric MAG_i_minErrorMetric "
 			<< "MAG_i_meanMaxErrorMetric MAG_i_medianMaxErrorMetric q12 q34 MAG_i_maxErrorGlobal\n";
@@ -448,18 +449,24 @@ bool MontecarloNDParametersSweepSimulation::GenerateAndPlotGeneralResults(
 	double maxUpsetRatio = 0;
 	try {
 		gnuplotMapFile.open( gnuplotMapFilePath.c_str() );
+		gnuplotMapFile.setf(std::ios::scientific);
 		gnuplotSpectreErrorMapFile.open( gnuplotSpectreErrorMapFilePath.c_str() );
 		gnuplotMapFile << "#profileCount #Profile #upsets MAG_i_name MAG_i_maxErrorMetric MAG_i_minErrorMetric "
 			<< "MAG_i_meanMaxErrorMetric MAG_i_medianMaxErrorMetric q12 q34 MAG_i_maxErrorGlobal\n";
 		gnuplotSpectreErrorMapFile << "#profileCount #Profile SpectreError \n";
+		// fgarcia
+		gnuplotMapFile << std::scientific;
 		unsigned int profileCount = 0;
 		for( auto const &simulation : *(montecarlo_standard_simulations_vector.get_spectre_simulations()) ){
 			MontecarloSimulation* mcSSim = dynamic_cast<MontecarloSimulation*>(simulation);
-			std::string auxIndexes = "P";
+			std::string auxIndexes = getIndexCode( auxiliarIndexes );
 			std::string auxSpectreError = mcSSim->get_correctly_simulated() ? "0" : "1";
-			for ( auto const &i : auxiliarIndexes ){ auxIndexes += number2String(i); }
 			double upsetsRatio = (double) 100*(mcSSim->get_montecarlo_simulation_results()->get_upsets_count())/((double)montecarlo_iterations);
-			gnuplotMapFile << profileCount << " " << auxIndexes << " " << upsetsRatio;
+			#ifdef GCC_OLD
+			gnuplotMapFile << number2String(profileCount) << " " << auxIndexes << " " << upsetsRatio;
+			#else
+			gnuplotMapFile << std::defaultfloat << profileCount << " " << auxIndexes << " " << upsetsRatio;
+			#endif
 			// update maxUpsetRatio
 			maxUpsetRatio = upsetsRatio>maxUpsetRatio ? upsetsRatio : maxUpsetRatio;
 			// metrics

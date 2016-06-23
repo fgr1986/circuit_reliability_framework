@@ -142,6 +142,33 @@ void deletePlaneProfileIndexesStructure(std::vector<std::vector<any_number>*>& m
 * @return number.to_string
 */
 template<class any_number>
+std::string getIndexCode( const std::vector<any_number>& auxiliarIndexes){
+	// Boost
+	// double value = kNotDefinedInt;
+	// try {
+	// 	value = boost::lexical_cast<double>(sNumber);
+	// }
+	// catch (boost::bad_lexical_cast const&) {
+	// 	log_io->ReportError2AllLogs( "error parsing the number " + sNumber );
+	// 	value = 0;
+	// }
+	// return value;
+	// std::precision
+	std::stringstream number_string_stream;
+	number_string_stream << "P";
+	for ( auto const &i : auxiliarIndexes ){
+		number_string_stream << i;
+	}
+	return number_string_stream.str();
+}
+
+/**
+* Template
+* Converts any kind of number ussing stringstream
+* @param number <any_number> number to be converted
+* @return number.to_string
+*/
+template<class any_number>
 std::string number2String( const any_number& number){
 	// Boost
 	// double value = kNotDefinedInt;
@@ -153,8 +180,9 @@ std::string number2String( const any_number& number){
 	// 	value = 0;
 	// }
 	// return value;
+	// std::precision
 	std::stringstream number_string_stream;
-	number_string_stream.clear();
+	// number_string_stream.clear();
 	number_string_stream << number;
 	return number_string_stream.str();
 }

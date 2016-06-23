@@ -231,10 +231,10 @@ bool SpectreSimulation::AnalyzeOceanEvalMetric(TransientSimulationResults& trans
 	// add it
 	transientSimulationResults.AddMetricErrors( metricErrors );
 	// report results
-	double error = abs(simulatedMetric.get_value() - goldenMetric.get_value());
-log_io->ReportPlainStandard( "[debug]> #" + partialId + " simulated: " +
-	number2String(simulatedMetric.get_value()) + " golden: " + number2String(goldenMetric.get_value()) + " error: " + number2String(error) );
+	double error = std::abs( goldenMetric.get_value() - simulatedMetric.get_value());
 	metricErrors->set_max_abs_error( error );
+// log_io->ReportPlainStandard( "[debug]> #" + partialId + " simulated: "+ number2String(simulatedMetric.get_value()) + " golden: " + number2String(goldenMetric.get_value()) );
+// std::cout << "[debug] errorC: "<< std::scientific << metricErrors->get_max_abs_error() << "\n";
 	metricErrors->set_max_abs_error_global( error );
 	metricErrors->set_has_errors( error > goldenMetric.get_abs_error_margin() );
 	if( metricErrors->get_has_errors() ){
@@ -369,7 +369,7 @@ bool SpectreSimulation::InterpolateAndAnalyzeMagnitude( TransientSimulationResul
 	if( goldenTime.get_values()->front() != simulatedTime.get_values()->front()
 		|| goldenTime.get_values()->back() != simulatedTime.get_values()->back() ){
 		log_io->ReportPlain2Log("Simulation initial-final times, in scenario # " + partialId + " do not coincide with golden scenario timing.");
-		if( abs(simulatedTime.get_values()->back() - goldenTime.get_values()->back()) > goldenTime.get_values()->back()*kSpectreMaxAllowedSimDiffCoeff ){
+		if( std::abs(simulatedTime.get_values()->back() - goldenTime.get_values()->back()) > goldenTime.get_values()->back()*kSpectreMaxAllowedSimDiffCoeff ){
 			ReportSimulationsLengthError( goldenTime, simulatedTime, partialId );
 			return false;
 		}

@@ -3,6 +3,8 @@
 
 #include <string>
 
+// #define GCC_OLD ; // versions 4.x
+
 // Logger configuration:
 // Parsing logs
 // #define PARSING_VERBOSE ;
@@ -30,9 +32,9 @@
 static const double kSpectreMaxAllowedSimDiffCoeff = 1e-12;
 
 static const std::string kSpectreHandlerLibTitle = "Spectre Handler Library";
-static const std::string kSpectreHandlerLibVersion = "v3.0.1";
+static const std::string kSpectreHandlerLibVersion = "v3.1.0";
 static const std::string kAuthor = "Fernando García, fgarcia@die.upm.es";
-static const std::string kSpectreHandlerLibVersionDate = "22/06/2016";
+static const std::string kSpectreHandlerLibVersionDate = "23/06/2016";
 
 // Remove windows special chars
 static const std::string kWindowsEOL = "\r";

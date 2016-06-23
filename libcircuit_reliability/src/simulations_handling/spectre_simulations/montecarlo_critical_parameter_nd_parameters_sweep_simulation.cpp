@@ -402,6 +402,7 @@ bool MontecarloCriticalParameterNDParametersSweepSimulation::GenerateAndPlotItem
 	std::ofstream gnuplotMapFile;
 	try {
 		gnuplotMapFile.open( gnuplotMapFilePath.c_str() );
+		gnuplotMapFile.setf(std::ios::scientific);
 		gnuplotMapFile << "#" << p1->get_name() << " " << p2->get_name() << " mean_"
 			<< golden_critical_parameter->get_name()
 			<<" MAG_i_name MAG_i_maxErrorMetric MAG_i_minErrorMetric "
@@ -470,6 +471,7 @@ bool MontecarloCriticalParameterNDParametersSweepSimulation::GenerateAndPlotGene
 	double maxCritParamValue = 0;
 	try {
 		gnuplotMapFile.open( gnuplotMapFilePath.c_str() );
+		gnuplotMapFile.setf(std::ios::scientific);
 		gnuplotSpectreErrorMapFile.open( gnuplotSpectreErrorMapFilePath.c_str() );
 		gnuplotMapFile << "#profileCount #Profile #mean_critical_parameter_value MAG_i_name MAG_i_maxErrorMetric MAG_i_minErrorMetric "
 			<< "MAG_i_meanMaxErrorMetric MAG_i_medianMaxErrorMetric q12 q34 MAG_i_maxErrorGlobal\n";
@@ -477,11 +479,14 @@ bool MontecarloCriticalParameterNDParametersSweepSimulation::GenerateAndPlotGene
 		unsigned int profileCount = 0;
 		for( auto const &simulation : *(montecarlo_critical_parameter_value_simulations_vector.get_spectre_simulations()) ){
 			MontecarloCriticalParameterValueSimulation* mcSSim = dynamic_cast<MontecarloCriticalParameterValueSimulation*>(simulation);
-			std::string auxIndexes = "P";
+			std::string auxIndexes = getIndexCode( auxiliarIndexes );
 			std::string auxSpectreError = mcSSim->get_correctly_simulated() ? "0" : "1";
-			for ( auto const &i : auxiliarIndexes ){ auxIndexes += number2String(i); }
 			double critParamValue = mcSSim->get_montecarlo_simulation_results()->get_mean_critical_parameter_value();
-			gnuplotMapFile << profileCount << " " << auxIndexes << " " << critParamValue;
+			#ifdef GCC_OLD
+			gnuplotMapFile << number2String(profileCount) << " " << auxIndexes << " " << critParamValue;
+			#else
+			gnuplotMapFile << std::defaultfloat << profileCount << " " << auxIndexes << " " << critParamValue;
+			#endif
 			// update maxCritParamValue
 			maxCritParamValue = critParamValue>maxCritParamValue ? critParamValue : maxCritParamValue;
 			// metrics

@@ -7,21 +7,23 @@
 * **Instance. Nodes instead absolute nodes**
 * Weighted Nodes
 
-# Changelog of version 3.0.0
-* Clean build for *smacd_2016*, including all *v2.9.y* improvements and bug fixes.
-* **CreateFolder** Method is a global template function
-* **NDMagnitudesStructure** now includes constant pointers to useful vectors (plottable and metric magnitudes)
-* Minor *profile scatter* plotting bug has been corrected.
+# Changelog of version 3.1.0
+* Major improvements in RAWFormatProcessor class
+* **Metric** has two derived classes, **Magnitude** and **OceanEvalMetric**
+* More efficient number2String
+* Allows *OceanEval* expressions using **OceanEvalMetric**
+* Explicit *std::scientific* export where needed
 
 # Version 3.x.y
 
 ## Version 3.0.y
 
-* Changelog of version 3.0.1
+* Changelog of version 3.1.0
 	* Major improvements in RAWFormatProcessor class
 	* **Metric** has two derived classes, **Magnitude** and **OceanEvalMetric**
 	* More efficient number2String
 	* Allows *OceanEval* expressions using **OceanEvalMetric**
+	* Explicit *std::scientific* export where needed
 
 * Changelog of version 3.0.0
 	* Clean build for *smacd_2016*, including all *v2.9.y* improvements and bug fixes.
