@@ -1,6 +1,6 @@
 # README
 ***Circuit Reliability Frameowrk***
-version 3.0.0 14/06/2016
+version 3.1.0 23/06/2016
 https://github.com/fgr1986/circuit_reliability_framework
 
 [Fernando García Redondo](http://www.fernandeando.com)
@@ -87,9 +87,9 @@ In order to make use of the library, while running a program, the library binary
 
 ******
 # Requirements
-##Ubuntu 14.04 64bits
-* Tested with g++ (gcc v4.9)
-* GnuPlot (version > 4.6, tested with version 4.6.4)
+##Ubuntu 16.04 or 14.04 64bits
+* Tested with g++ (gcc<4.9 must set **GCC_OLD** definition)
+* GnuPlot (version > 4.6)
 * pdflatex
 * texlive-latex-extra, texlive-formats-extra, texlive-lang-english, texlive-publishers and texlive-generic-extra packages
 * Boost libraries (v1.54)
@@ -110,31 +110,6 @@ sudo apt-get install texlive-latex-extra texlive-formats-extra texlive-lang-engl
 
 ```
 
-##Ubuntu 13.10 64bits
-* Tested with g++ (gcc v4.8)
-* GnuPlot (version > 4.6, tested with version 4.6.3)
-* pdflatex
-* texlive-latex-extra, texlive-formats-extra, texlive-lang-english, texlive-publishers and texlive-generic-extra packages
-* Boost libraries (v1.53)
-	* lboost_thread
-	* lboost_property_tree
-	* lboost_regex
-	* lboost_lambda
-	* lboost_string
-	* lboost_filesystem
-	* lboost_system
-
-```
-sudo apt-get update
-sudo apt-get install build-essential
-sudo apt-get install gnuplot
-sudo apt-get install libboost-all-dev
-sudo apt-get install texlive-latex-recommended texlive-fonts-recommended texlive-latex-extra texlive-formats-extra \
-	texlive-lang-english texlive-publishers texlive-generic-extra texlive-bibtex-extra \
-	texlive-pictures  texlive-latex-base  texlive-latex-extra
-
-
-```
 ******
 #XML conf files sintax Specified in conf_files folder Readme.md.
 Required xml configuration files:
