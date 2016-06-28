@@ -25,6 +25,8 @@
 MontecarloSimulation::MontecarloSimulation() {
 	this->export_processed_metrics = true;
 	this->max_parallel_montecarlo_instances = 5;
+	// injection mode related
+	this->has_additional_injection = false;
 }
 
 MontecarloSimulation::~MontecarloSimulation(){
@@ -129,6 +131,7 @@ StandardSimulation* MontecarloSimulation::CreateMonteCarloIteration( unsigned in
 	}
 	// Simulation
 	StandardSimulation* pSS = new StandardSimulation();
+	pSS->set_has_additional_injection( has_additional_injection );
 	pSS->set_n_dimensional( true );
 	pSS->set_n_d_profile_index( n_d_profile_index );
 	pSS->set_is_nested_simulation( true );

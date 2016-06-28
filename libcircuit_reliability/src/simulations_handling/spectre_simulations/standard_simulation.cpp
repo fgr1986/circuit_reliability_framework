@@ -24,6 +24,8 @@ StandardSimulation::StandardSimulation() {
 	this->montecarlo_transient_sufix = kNotDefinedString;
 	this->correctly_simulated = false;
 	this->n_d_profile_index = kNotDefinedInt;
+	// injection mode related
+	this->has_additional_injection = false;
 }
 
 StandardSimulation::~StandardSimulation(){

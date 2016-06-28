@@ -44,10 +44,11 @@ public:
 	void set_metrics( std::vector<Metric*>* metrics ) {
 		this->metrics = metrics;}
 	void set_is_golden( bool is_golden ){ this->is_golden = is_golden; }
-void set_is_montecarlo_nested_simulation( bool is_montecarlo_nested_simulation ){ this->is_montecarlo_nested_simulation = is_montecarlo_nested_simulation; }
+	void set_is_montecarlo_nested_simulation( bool is_montecarlo_nested_simulation ){ this->is_montecarlo_nested_simulation = is_montecarlo_nested_simulation; }
 	//Log manager
 	void set_log_io( LogIO* log_io ){ this->log_io = log_io; }
 	bool get_correctly_processed() const{ return correctly_processed ; }
+	void set_additional_save( const bool additional_save ){ this->additional_save = additional_save; }
 
 private:
 	LogIO* log_io;
@@ -61,6 +62,7 @@ private:
 	bool export_processed_metrics;
 	bool is_golden;
 	bool is_montecarlo_nested_simulation;
+	bool additional_save;
 
 	void RecreateMetricsVector();
 	bool ExportMetrics2File();

@@ -29,6 +29,8 @@
 MontecarloNDParametersSweepSimulation::MontecarloNDParametersSweepSimulation() {
 	this->max_parallel_profile_instances = 5;
 	this->plot_last_transients = false;
+	// injection mode related
+	this->has_additional_injection = false;
 }
 
 MontecarloNDParametersSweepSimulation::~MontecarloNDParametersSweepSimulation(){
@@ -157,6 +159,7 @@ MontecarloSimulation* MontecarloNDParametersSweepSimulation::CreateMontecarloSim
 	std::string s_threadNumber = number2String(threadNumber);
 	// Simulation
 	MontecarloSimulation* pMSS = new MontecarloSimulation();
+	pMSS->set_has_additional_injection( has_additional_injection );
 	pMSS->set_n_dimensional(true);
 	pMSS->set_n_d_profile_index(threadNumber);
 	pMSS->set_is_nested_simulation( true );
@@ -304,7 +307,7 @@ bool MontecarloNDParametersSweepSimulation::GenerateAndPlotParameterPairResults(
 	bool partialResults = true;
 	auto planes = GetPlanesForParams( p1Index, p2Index, parameters2sweep);
 	unsigned int itemizedCount = 0;
-	PlaneResultsStructure* planeStructure = new PlaneResultsStructure();
+	PlaneResultsStructure* planeStructure = ProcessOceanEvalsPlaneResultsStructure();
 	// resize and reserve memory
 	planeStructure->ResizeItemizedPlanesMemory( planes->size() );
 	planeStructure->set_plane_id( number2String(p1Index) + "_" + number2String(p2Index) );

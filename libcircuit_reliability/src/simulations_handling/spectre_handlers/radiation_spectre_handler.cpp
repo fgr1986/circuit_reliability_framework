@@ -216,6 +216,7 @@ bool RadiationSpectreHandler::RunSimulations(){
 			break;
 		}
 		sss->set_n_d_profile_index( 0 );
+		sss->set_has_additional_injection( simulation_mode->get_alteration_mode()->get_injection_mode() );
 		sss->set_simulation_id("parent_scenario_" + number2String( as->get_altered_scenario_id() ));
 		sss->set_is_nested_simulation(false);
 		sss->set_altered_scenario_index( radiationScenarioCounter );
@@ -232,10 +233,11 @@ bool RadiationSpectreHandler::RunSimulations(){
 			if( !sss->UpdateGoldenCriticalParameter( *critical_parameter ) ){
 				log_io->ReportError2AllLogs( critical_parameter->get_name()
 					+ " not found in simulation and could not be updated." );
-			}else{
-				log_io->ReportPurpleStandard( critical_parameter->get_name()
-					+ " found and updated." );
 			}
+			// else{
+			// 	log_io->ReportPurpleStandard( critical_parameter->get_name()
+			// 		+ " found and updated." );
+			// }
 		}
 		sss->set_log_io( log_io );
 		sss->set_golden_metrics_structure( golden_metrics_structure );

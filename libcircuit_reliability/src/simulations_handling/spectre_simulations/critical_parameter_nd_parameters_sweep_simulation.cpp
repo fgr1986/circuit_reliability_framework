@@ -33,6 +33,8 @@ CriticalParameterNDParameterSweepSimulation::CriticalParameterNDParameterSweepSi
 	this->affected_by_min_value= false;
 	this->max_parallel_profile_instances = 15;
 	this->plot_last_transients = false;
+	// injection mode related
+	this->has_additional_injection = false;
 }
 
 CriticalParameterNDParameterSweepSimulation::~CriticalParameterNDParameterSweepSimulation(){
@@ -147,6 +149,7 @@ CriticalParameterValueSimulation* CriticalParameterNDParameterSweepSimulation::C
 	std::string s_ndProfileIndex = number2String(ndProfileIndex);
 	// Simulation
 	CriticalParameterValueSimulation* pCPVS = new CriticalParameterValueSimulation();
+	pCPVS->set_has_additional_injection( has_additional_injection );
 	pCPVS->set_n_dimensional(true);
 	pCPVS->set_n_d_profile_index(ndProfileIndex);
 	pCPVS->set_is_nested_simulation( true );

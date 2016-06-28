@@ -27,6 +27,8 @@ CriticalParameterValueSimulation::CriticalParameterValueSimulation() {
 	this->affected_by_min_value= false;
 	this->is_montecarlo_nested_simulation = false;
 	this->montecarlo_transient_sufix = kNotDefinedString;
+	// injection mode related
+	this->has_additional_injection = false;
 }
 
 CriticalParameterValueSimulation::~CriticalParameterValueSimulation(){

@@ -25,6 +25,8 @@
 MontecarloCriticalParameterValueSimulation::MontecarloCriticalParameterValueSimulation() {
 	this->export_processed_metrics = true;
 	this->max_parallel_montecarlo_instances = 5;
+	// injection mode related
+	this->has_additional_injection = false;
 }
 
 MontecarloCriticalParameterValueSimulation::~MontecarloCriticalParameterValueSimulation(){
@@ -135,6 +137,7 @@ CriticalParameterValueSimulation* MontecarloCriticalParameterValueSimulation::Cr
 	}
 	// Simulation
 	CriticalParameterValueSimulation* pCPVS = new CriticalParameterValueSimulation();
+	pCPVS->set_has_additional_injection( has_additional_injection );
 	pCPVS->set_n_dimensional(true);
 	pCPVS->set_n_d_profile_index( n_d_profile_index );
 	pCPVS->set_is_nested_simulation( true );

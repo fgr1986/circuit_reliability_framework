@@ -220,6 +220,9 @@ public:
 
 	NDSimulationResults* get_main_nd_simulation_results(){ return & main_nd_simulation_results; }
 
+	void set_has_additional_injection( const bool has_additional_injection){
+		this->has_additional_injection = has_additional_injection; }
+
 protected:
 
 	/// LogIO
@@ -238,6 +241,8 @@ protected:
 	bool n_dimensional;
 	/// n_d_profile_index profile_index
 	int n_d_profile_index;
+	/// if alteration_mode is injection_mode
+	bool has_additional_injection;
 
 	/// Simulation parameters
 	/// thought it is a pointer to a vector,
@@ -503,10 +508,10 @@ protected:
 	void ReportSimulationsLengthError( Magnitude& goldenTime,
 		Magnitude& simulatedTime, const std::string& partialId );
 
-	void VerboseStartMetricAnalysis(
+	void VerboseStartMagnitudeAnalysis(
 		std::vector<double>::iterator& itGoldenTime, std::vector<double>::iterator& itSimulatedTime,
 		std::vector<double>::iterator& itGoldenMetric, std::vector<double>::iterator& itSimulatedMetric,
-		const Metric& simulatedMetric );
+		const Magnitude& simulatedMetric );
 
 	void VerboseReliabilityError( const std::string& errorType,
 		TransientSimulationResults& transientSimulationResults, const std::string& partialId,

@@ -135,6 +135,7 @@ bool VariabilitySpectreHandler::RunSimulations(){
 	log_io->ReportInfo2AllLogs("[performance] Reliability Simulations started: " + GetCurrentDateTime("%d-%m-%Y.%X"));
 	MontecarloNDParametersSweepSimulation* sss = new MontecarloNDParametersSweepSimulation();
 	sss->set_n_d_profile_index( 0 );
+	sss->set_has_additional_injection( simulation_mode->get_alteration_mode()->get_injection_mode() );
 	sss->set_simulation_id("parent_scenario_" + number2String(radiationScenarioCounter));
 	sss->set_is_nested_simulation(false);
 	sss->set_altered_scenario_index( radiationScenarioCounter );

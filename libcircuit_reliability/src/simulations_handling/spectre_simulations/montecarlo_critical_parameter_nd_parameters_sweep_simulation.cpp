@@ -29,6 +29,8 @@
 MontecarloCriticalParameterNDParametersSweepSimulation::MontecarloCriticalParameterNDParametersSweepSimulation() {
 	this->max_parallel_profile_instances = 10;
 	this->plot_last_transients = false;
+	// injection mode related
+	this->has_additional_injection = false;
 }
 
 MontecarloCriticalParameterNDParametersSweepSimulation::~MontecarloCriticalParameterNDParametersSweepSimulation(){
@@ -163,6 +165,7 @@ MontecarloCriticalParameterValueSimulation* MontecarloCriticalParameterNDParamet
 	std::string s_ndProfileIndex = number2String(ndProfileIndex);
 	// Simulation
 	MontecarloCriticalParameterValueSimulation* pMCPVS = new MontecarloCriticalParameterValueSimulation();
+	pMCPVS->set_has_additional_injection( has_additional_injection );
 	pMCPVS->set_n_dimensional(true);
 	pMCPVS->set_n_d_profile_index(ndProfileIndex);
 	pMCPVS->set_is_nested_simulation( true );

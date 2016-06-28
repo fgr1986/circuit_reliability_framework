@@ -26,6 +26,8 @@
 GoldenSimulation::GoldenSimulation() {
 	this->export_processed_metrics = true;
 	this->singular_results_path = kNotDefinedString;
+	// injection mode related
+	this->has_additional_injection = false;
 }
 
 GoldenSimulation::~GoldenSimulation(){

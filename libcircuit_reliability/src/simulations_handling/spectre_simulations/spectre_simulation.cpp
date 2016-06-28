@@ -36,6 +36,8 @@ SpectreSimulation::SpectreSimulation() {
 	this->correctly_processed = false;
 	this->is_nested_simulation = false;
 	this->simulation_id = kNotDefinedString;
+	// injection mode related
+	this->has_additional_injection = false;
 	// n_dimensional
 	this->n_dimensional = false;
 	this->n_d_profile_index = kNotDefinedInt;
@@ -310,10 +312,10 @@ void SpectreSimulation::ReportSimulationsLengthError( Magnitude& goldenTime,
 		+ partialId + " do not coincide with golden scenario timing.");
 }
 
-void SpectreSimulation::VerboseStartMetricAnalysis(
+void SpectreSimulation::VerboseStartMagnitudeAnalysis(
 	std::vector<double>::iterator& itGoldenTime, std::vector<double>::iterator& itSimulatedTime,
 	std::vector<double>::iterator& itGoldenMetric, std::vector<double>::iterator& itSimulatedMetric,
-	const Metric& simulatedMetric ){
+	const Magnitude& simulatedMetric ){
 	#ifdef RESULTS_ANALYSIS_VERBOSE
 		log_io->ReportPlain2Log("****************************" );
 		log_io->ReportPlain2Log("****************************" );
@@ -455,7 +457,7 @@ bool SpectreSimulation::InterpolateAndAnalyzeMagnitude( TransientSimulationResul
 		backSimulatedValue = currentSimulatedValue;
 		backGoldenValue = currentGoldenValue;
 		// report if needed
-		VerboseStartMetricAnalysis( itGoldenTime, itSimulatedTime,
+		VerboseStartMagnitudeAnalysis( itGoldenTime, itSimulatedTime,
 			itGoldenMetric, itSimulatedMetric, simulatedMagnitude );
 
 		// main while loop
@@ -703,6 +705,8 @@ bool SpectreSimulation::ProcessSpectreResults( const std::string& currentFolder,
 	transientSimulationResults.set_processed_file_path( processedResultsFilePath );
 	// Raw Format Processor
 	RAWFormatProcessor* rfp = new RAWFormatProcessor();
+	//
+	rfp->set_additional_save( has_additional_injection );
 	rfp->set_format( kGnuPlot );
 	rfp->set_metrics( &myParameterMetrics );
 	rfp->set_transient_file_path( spectreResultsFilePath );

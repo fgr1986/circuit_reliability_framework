@@ -30,6 +30,8 @@
 GoldenNDParametersSweepSimulation::GoldenNDParametersSweepSimulation() {
 	this->max_parallel_profile_instances = 2;
 	this->children_correctly_simulated = false;
+	// injection mode related
+	this->has_additional_injection = false;
 }
 
 GoldenNDParametersSweepSimulation::~GoldenNDParametersSweepSimulation(){
@@ -167,6 +169,7 @@ GoldenSimulation* GoldenNDParametersSweepSimulation::CreateProfile(
 	// GoldenSimulation* pGS = CreateGoldenSimulation( currentFolder, parameterCountIndexes,
 	// 	parameters2sweep, ndIndex );
 	GoldenSimulation* pGS = new GoldenSimulation();
+	pGS->set_has_additional_injection( false );
 	pGS->set_is_nested_simulation( true );
 	pGS->set_simulation_id(  "golden_param_profile_" + s_ndIndex );
 	pGS->set_n_dimensional(true);

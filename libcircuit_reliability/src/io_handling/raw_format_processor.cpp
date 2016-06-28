@@ -33,6 +33,7 @@ RAWFormatProcessor::RAWFormatProcessor() {
 	this->export_processed_metrics = false;
 	this->is_golden = false;
 	this->is_montecarlo_nested_simulation = false;
+	this->additional_save = false;
 }
 
 RAWFormatProcessor::RAWFormatProcessor( std::vector<Metric*>* metrics,
@@ -254,6 +255,10 @@ bool RAWFormatProcessor::ProcessPSFASCII(){
 				(static_cast<Magnitude*>(*(it_m)++))->AddValue( atof( lineTockensSpaces.at(1).c_str() ) );
 				if(it_m == it_end){
 					it_m = it_begin;
+					if( additional_save ){
+						// read the //save injector
+						getline(file, currentReadLine);
+					}
 				}
 			}
 		} // file is open and good
@@ -407,6 +412,7 @@ bool RAWFormatProcessor::ExportMetrics2File(){
 		correctly_processed = false;
 		return false;
 	}
+	// std::cout << "[debug]Exporting " << processed_file_path << "\n";
 	// Export output
 	std::ofstream outputFile;
 	outputFile.open(processed_file_path.c_str());
