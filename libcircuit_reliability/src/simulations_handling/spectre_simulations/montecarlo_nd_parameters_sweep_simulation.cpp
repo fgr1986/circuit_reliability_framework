@@ -307,7 +307,7 @@ bool MontecarloNDParametersSweepSimulation::GenerateAndPlotParameterPairResults(
 	bool partialResults = true;
 	auto planes = GetPlanesForParams( p1Index, p2Index, parameters2sweep);
 	unsigned int itemizedCount = 0;
-	PlaneResultsStructure* planeStructure = ProcessOceanEvalsPlaneResultsStructure();
+	PlaneResultsStructure* planeStructure = new PlaneResultsStructure();
 	// resize and reserve memory
 	planeStructure->ResizeItemizedPlanesMemory( planes->size() );
 	planeStructure->set_plane_id( number2String(p1Index) + "_" + number2String(p2Index) );
