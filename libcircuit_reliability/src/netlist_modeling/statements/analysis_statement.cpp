@@ -192,7 +192,6 @@ std::string AnalysisStatement::ExportCircuitStatement( const std::string& indent
 	return cs;
 }
 
-
 bool AnalysisStatement::ParseAnalysisStatement(
 		Statement& global_scope_parent, std::ifstream* file,
 		std::vector<std::string>& lineTockens, std::string & statementCode,

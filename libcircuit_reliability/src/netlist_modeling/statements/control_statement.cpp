@@ -33,6 +33,7 @@ ControlStatement::ControlStatement() {
 	this->has_parameters = true;
 	this->has_raw_content = false;
 	this->raw_content = kNotDefinedString;
+	this->mute_exportation = false;
 	// Special control statements
 	this->param_set_case = false;
 	// Radiation Properties
@@ -68,6 +69,7 @@ ControlStatement::ControlStatement(Statement* belonging_circuit,
 	this->has_parameters = true;
 	this->has_raw_content = false;
 	this->raw_content = kNotDefinedString;
+	this->mute_exportation = false;
 	// Special control statements
 	this->param_set_case = false;
 	// Radiation Properties
@@ -105,6 +107,7 @@ ControlStatement::ControlStatement(const ControlStatement& orig) {
 	this->has_parameters = orig.has_parameters;
 	this->has_raw_content = orig.has_raw_content;
 	this->raw_content = orig.raw_content;
+	this->mute_exportation = orig.mute_exportation;
 	// Radiation Properties
 	this->unalterable = orig.unalterable;
 	this->altered = orig.altered;
@@ -143,12 +146,15 @@ ControlStatement::~ControlStatement() {
 }
 
 std::string ControlStatement::ExportCircuitStatement( const std::string& indentation ){
+	std::string cs = indentation;
+	if( mute_exportation ){
+		cs = kCommentWord1 + indentation;
+	}
 	// save statement
 	if( master_name.compare("save")==0 ){
-		return indentation + master_name + kDelimiter + raw_content;
+		return cs + master_name + kDelimiter + raw_content;
 	}
 	//Name [(]node1 ... nodeN[)] control_statement_Type parameter=value
-	std::string cs;
 	if(special_syntax_control_statement){
 		cs = indentation + master_name;
 		if( !advanced_control_statement ){
@@ -234,13 +240,19 @@ bool ControlStatement::ParseControlStatement( Statement& global_scope_parent, st
 		// parse name
 		set_name(lineTockens.front());
 	}
+	// all save statements must be muted
+	if( boost::starts_with(statementCode, "save") ){
+		#ifdef PARSING_VERBOSE
+			log_io->ReportPlain2Log( kTab + "Save statement is muted" );
+		#endif
+		this->mute_exportation = true;
+	}
 	// complex sentence addecuation (//1)
 	if(boost::contains( statementCode, kBracketsStartWord )){
 		//name sweep p1=v1... { bla bla bla }
 		boost::regex ip_regex(kBracketedStatementRegEx);
 		boost::match_results<std::string::const_iterator> results;
-		if (boost::regex_search(statementCode, results, ip_regex))
-		{
+		if (boost::regex_search(statementCode, results, ip_regex)) {
 			std::string newStatement = results[0];
 			#ifdef PARSING_VERBOSE
 				log_io->ReportPlain2Log( kTab + "Parsing enclosed ({ child }):'" + newStatement + "'" );

@@ -3,11 +3,11 @@
 
 #include <string>
 
-#define GCC_OLD ; // versions 4.x
+// #define GCC_OLD ; // versions 4.x
 
 // Logger configuration:
 // Parsing logs
-// #define PARSING_VERBOSE ;
+#define PARSING_VERBOSE ;
 #define PARSING_VERBOSE_MIN ;
 // Regex 2 log
 // #define VERBOSE_REGEX ;
@@ -22,9 +22,9 @@
 // PSFASCII processing log
 // #define PSFASCII_VERBOSE ;
 // Spectre handler log
-#define SPECTRE_SIMULATIONS_VERBOSE ;
+// #define SPECTRE_SIMULATIONS_VERBOSE ;
 // Result analysis verbose
-#define RESULTS_ANALYSIS_VERBOSE ; // for each transient etc
+// #define RESULTS_ANALYSIS_VERBOSE ; // for each transient etc
 // #define RESULTS_POST_PROCESSING_VERBOSE ; // for montecarlo etc
 // Result destructors verbose
 // #define DESTRUCTORS_VERBOSE ;

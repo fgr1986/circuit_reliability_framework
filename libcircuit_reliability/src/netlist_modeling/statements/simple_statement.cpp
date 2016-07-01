@@ -5,6 +5,8 @@
  *  Author: fernando
  */
 
+#include <boost/algorithm/string.hpp>
+
 #include "simple_statement.hpp"
 /// constants
 #include "../../global_functions_and_constants/global_template_functions.hpp"
@@ -233,6 +235,12 @@ bool SimpleStatement::ParseSimpleStatement( Statement& global_scope_parent,
 		log_io->ReportPlain2Log( "parsing simple statement: '" + statementCode + "'" );
 	#endif
 	raw_content = statementCode;
+	// mute if a previous save statement (not added by the simulator)
+	// is parsed
+	if( boost::starts_with(statementCode, "save") ){
+		this->allows_mute = true;
+		this->mute_exportation = true;
+	}
 	set_id(statementCount++);
 	this->global_scope_parent = &global_scope_parent;
 	correctly_parsed = true;

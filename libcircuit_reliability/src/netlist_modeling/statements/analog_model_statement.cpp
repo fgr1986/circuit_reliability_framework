@@ -33,6 +33,7 @@ AnalogModelStatement::AnalogModelStatement() {
 	this->has_parameters = true;
 	this->has_raw_content = false;
 	this->raw_content = kNotDefinedString;
+	this->mute_exportation = false;
 	// Radiation Properties
 	this->unalterable = true;
 	this->can_be_injected = false;
@@ -65,6 +66,7 @@ AnalogModelStatement::AnalogModelStatement(Statement* belonging_circuit,
 	this->has_parameters = true;
 	this->has_raw_content = false;
 	this->raw_content = kNotDefinedString;
+	this->mute_exportation = false;
 	// Radiation Properties
 	this->unalterable = true;
 	this->can_be_injected = false;
@@ -100,6 +102,7 @@ AnalogModelStatement::AnalogModelStatement(const AnalogModelStatement& orig) {
 	this->has_parameters = orig.has_parameters;
 	this->has_raw_content = orig.has_raw_content;
 	this->raw_content = orig.raw_content;
+	this->mute_exportation = orig.mute_exportation;
 	this->unalterable = orig.unalterable;
 	this->can_be_substituted = orig.can_be_substituted;
 	this->substitute_master_name = orig.substitute_master_name;
@@ -131,7 +134,10 @@ AnalogModelStatement::~AnalogModelStatement() {
 
 std::string AnalogModelStatement::ExportCircuitStatement( const std::string& indentation){
 	//name [(]node1 ... nodeN[)] analogmodel modelname=mastername [[param1=value1] ...[paramN=valueN]]
-	std::string cs = indentation + name + kDelimiter ;
+	std::string cs = indentation + name + kDelimiter;
+	if( mute_exportation ){
+		cs = "//" + indentation + name + kDelimiter;
+	}
 	if(has_brackets){
 		cs += "( ";
 	}

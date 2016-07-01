@@ -31,6 +31,7 @@ CircuitStatement::CircuitStatement( ) {
 	this->has_parameters = true;
 	this->has_raw_content = false;
 	this->raw_content = kNotDefinedString;
+	this->mute_exportation = false;
 	// Radiation Properties
 	this->unalterable = false;
 	this->altered = false;
@@ -68,6 +69,7 @@ CircuitStatement::CircuitStatement( const bool considerate_dependencies ) {
 	this->has_parameters = true;
 	this->has_raw_content = false;
 	this->raw_content = kNotDefinedString;
+	this->mute_exportation = false;
 	// Radiation Properties
 	this->unalterable = false;
 	this->altered = false;
@@ -107,6 +109,7 @@ CircuitStatement::CircuitStatement(const CircuitStatement& orig) {
 	this->has_parameters = orig.has_parameters;
 	this->has_raw_content = orig.has_raw_content;
 	this->raw_content = orig.raw_content;
+	this->mute_exportation = orig.mute_exportation;
 	this->unalterable = orig.unalterable;
 	this->can_be_substituted = orig.can_be_substituted;
 	this->substitute_master_name = orig.substitute_master_name;
