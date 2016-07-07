@@ -1,5 +1,5 @@
 # To Do
-* **Global results: [CriticalParameterNDParametersSweep] critical parameter value for each Scenario (mean between profiles) ?**
+* **Global results: [CriticalParameterNDParametersSweep] maps ?**
 * Revise parameter design space exploration ( 10^ is not e^!!)
 * **To do: Latex/Html export**
 * **TO DO** simulation_parameter_golden_fixed in radiation scenarios

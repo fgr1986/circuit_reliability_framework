@@ -25,7 +25,7 @@
 // #define SPECTRE_SIMULATIONS_VERBOSE ;
 // Result analysis verbose
 // #define RESULTS_ANALYSIS_VERBOSE ; // for each transient etc
-// #define RESULTS_POST_PROCESSING_VERBOSE ; // for montecarlo etc
+#define RESULTS_POST_PROCESSING_VERBOSE ; // for montecarlo etc
 // Result destructors verbose
 // #define DESTRUCTORS_VERBOSE ;
 

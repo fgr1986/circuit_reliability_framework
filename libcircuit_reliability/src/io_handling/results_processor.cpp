@@ -35,38 +35,37 @@ bool ResultsProcessor::PreProcessResultsFiles( std::string&& path,
 	unsigned int& totalRows, unsigned int& totalColumns ){
 	totalRows = 0;
 	totalColumns = 0;
+	bool correctlyProcessed = true;
+	std::ifstream file( path );
 	try {
-		std::ifstream file( path );
-		if ( file.is_open() ) {
-			if ( file.good() ) {
-				// header
-				bool firstDataLine = false;
-				std::string currentReadLine;
-				while( !firstDataLine && getline(file, currentReadLine) ) {
-					if( !currentReadLine.empty() && !boost::starts_with(currentReadLine, "#") ){
-						std::vector<std::string> lineTockensSpaces;
-						boost::split(lineTockensSpaces, currentReadLine,
-							boost::is_any_of(kDelimiter), boost::token_compress_on);
-						totalColumns = lineTockensSpaces.size();
-						firstDataLine = true;
-						totalRows++;
-					}
-				}
-				// File parsing, wait till magnitude values appear
-				while( getline(file, currentReadLine) ) {
-					if( !currentReadLine.empty() && !boost::starts_with(currentReadLine, "#") ){
-						totalRows++;
-					}
+		if ( file.is_open() && file.good() ) {
+			// header
+			bool firstDataLine = false;
+			std::string currentReadLine;
+			while( !firstDataLine && getline(file, currentReadLine) ) {
+				if( !currentReadLine.empty() && !boost::starts_with(currentReadLine, "#") ){
+					std::vector<std::string> lineTockensSpaces;
+					boost::split(lineTockensSpaces, currentReadLine,
+						boost::is_any_of(kDelimiter), boost::token_compress_on);
+					totalColumns = lineTockensSpaces.size();
+					firstDataLine = true;
+					totalRows++;
 				}
 			}
-		}
-		file.close();
+			// File parsing, wait till magnitude values appear
+			while( getline(file, currentReadLine) ) {
+				if( !currentReadLine.empty() && !boost::starts_with(currentReadLine, "#") ){
+					totalRows++;
+				}
+			}
+		} // is open and good
 	}catch (std::exception const& ex) {
 		std::string ex_what = ex.what();
 		log_io->ReportError2AllLogs( "Exception while parsing the file: ex-> " + ex_what );
-		return false;
+		correctlyProcessed = false;
 	}
-	return true;
+	file.close();
+	return correctlyProcessed;
 }
 
 bool ResultsProcessor::MeanProcessResultsFiles( const std::map<std::string, std::string>* paths,
@@ -74,7 +73,6 @@ bool ResultsProcessor::MeanProcessResultsFiles( const std::map<std::string, std:
 	#ifdef RESULTS_POST_PROCESSING_VERBOSE
 		 log_io->ReportBlueStandard( "Processing:" + outputPath );
 	#endif
-
 	unsigned int totalColumns = 0;
 	unsigned int matrixColumns = columnIndexes.size();
 	unsigned int totalRows = 0;
@@ -107,37 +105,35 @@ bool ResultsProcessor::MeanProcessResultsFiles( const std::map<std::string, std:
 	gnuplotMapFile.open( outputPath.c_str() );
 	std::ifstream exampleFile( firstPath );
 	try {
-		if ( exampleFile.is_open() ) {
-			if ( exampleFile.good() ) {
-				std::string currentReadLine;
-				for( unsigned int row = 0; row<totalRows; ++row ){
-					// ommit empty and comments
-					while( getline(exampleFile, currentReadLine) ) {
-						if( currentReadLine.empty() || boost::starts_with(currentReadLine, "#") ){
-							gnuplotMapFile << currentReadLine << "\n";
-						}else{
-							break; // break while
-						}
+		if ( exampleFile.is_open() && exampleFile.good() ) {
+			std::string currentReadLine;
+			for( unsigned int row = 0; row<totalRows; ++row ){
+				// ommit empty and comments
+				while( getline(exampleFile, currentReadLine) ) {
+					if( currentReadLine.empty() || boost::starts_with(currentReadLine, "#") ){
+						gnuplotMapFile << currentReadLine << "\n";
+					}else{
+						break; // break while
 					}
-					std::vector<std::string> lineTockensSpaces;
-					boost::split(lineTockensSpaces, currentReadLine, boost::is_any_of(kDelimiter), boost::token_compress_on);
-					unsigned int columnCounter = 0;
-					unsigned int matrixColumnCounter = 0;
-					for( auto const &s : lineTockensSpaces ){
-						if( vectorContains( columnIndexes, columnCounter++) ){
-							gnuplotMapFile << matrix[row][matrixColumnCounter++]/totalFiles << " ";
-						}else{
-							gnuplotMapFile << s << " ";
-						}
-					}
-					gnuplotMapFile << "\n";
 				}
+				std::vector<std::string> lineTockensSpaces;
+				boost::split(lineTockensSpaces, currentReadLine, boost::is_any_of(kDelimiter), boost::token_compress_on);
+				unsigned int columnCounter = 0;
+				unsigned int matrixColumnCounter = 0;
+				for( auto const &s : lineTockensSpaces ){
+					if( vectorContains( columnIndexes, columnCounter++) ){
+						gnuplotMapFile << matrix[row][matrixColumnCounter++]/totalFiles << " ";
+					}else{
+						gnuplotMapFile << s << " ";
+					}
+				}
+				gnuplotMapFile << "\n";
 			}
-		}
+		} // is open and good
 	}catch (std::exception const& ex) {
 		std::string ex_what = ex.what();
 		log_io->ReportError2AllLogs( "[PROCESSING ERROR] Exception while parsing the file: ex-> " + ex_what );
-		return false;
+		result = false;
 	}
 	// close files
 	gnuplotMapFile.close();
@@ -186,8 +182,7 @@ bool ResultsProcessor::StatisticProcessResultsFiles( const std::map<std::string,
 	gnuplotMapFile << "# not that each computed column will have mean, max and min values\n";
 	std::ifstream exampleFile( firstPath );
 	try {
-		if ( exampleFile.is_open() ) {
-			if ( exampleFile.good() ) {
+		if ( exampleFile.is_open() && exampleFile.good() ) {
 				std::string currentReadLine;
 				for( unsigned int row = 0; row<totalRows; ++row ){
 					// ommit empty and comments
@@ -214,12 +209,11 @@ bool ResultsProcessor::StatisticProcessResultsFiles( const std::map<std::string,
 					}
 					gnuplotMapFile << "\n";
 				}
-			}
-		}
+		} // is open and good
 	}catch (std::exception const& ex) {
 		std::string ex_what = ex.what();
 		log_io->ReportError2AllLogs( "[PROCESSING ERROR] Exception while parsing the file: ex-> " + ex_what );
-		return false;
+		result = false;
 	}
 	// close files
 	gnuplotMapFile.close();
@@ -237,28 +231,26 @@ bool ResultsProcessor::MeanProcessResultFile( const std::string&& path,
 	bool correctlyExported = true;
 	std::ifstream file( path );
 	try {
-		if ( file.is_open() ) {
-			if ( file.good() ) {
-				// header
-				std::string currentReadLine;
-				while( getline(file, currentReadLine) ) {
-					if( !currentReadLine.empty() && !boost::starts_with(currentReadLine, "#") ){
-						std::vector<std::string> lineTockensSpaces;
-						boost::split(lineTockensSpaces, currentReadLine,
-							boost::is_any_of(kDelimiter), boost::token_compress_on);
-						unsigned int currentColumn = 0;
-						unsigned int matrixColumnCounter = 0;
-						for( auto const &st : lineTockensSpaces ){
-							if( vectorContains( columnIndexes, currentColumn++ ) ){
-								matrix[currentRow][matrixColumnCounter++] += atof( st.c_str() );
-							}
-							// else do nothing
-						} // ends token for
-						++currentRow;
-					} // not a comment or empty
-				} // ends while getline
-			} // ends good
-		} // ends is_open
+		if ( file.is_open() && file.good() ) {
+			// header
+			std::string currentReadLine;
+			while( getline(file, currentReadLine) ) {
+				if( !currentReadLine.empty() && !boost::starts_with(currentReadLine, "#") ){
+					std::vector<std::string> lineTockensSpaces;
+					boost::split(lineTockensSpaces, currentReadLine,
+						boost::is_any_of(kDelimiter), boost::token_compress_on);
+					unsigned int currentColumn = 0;
+					unsigned int matrixColumnCounter = 0;
+					for( auto const &st : lineTockensSpaces ){
+						if( vectorContains( columnIndexes, currentColumn++ ) ){
+							matrix[currentRow][matrixColumnCounter++] += atof( st.c_str() );
+						}
+						// else do nothing
+					} // ends token for
+					++currentRow;
+				} // not a comment or empty
+			} // ends while getline
+		} // ends is_open and good
 	}catch (std::exception const& ex) {
 		std::string ex_what = ex.what();
 		log_io->ReportError2AllLogs( "[PROCESSING ERROR] Exception while parsing the file: ex-> " + ex_what );
@@ -277,36 +269,34 @@ bool ResultsProcessor::StatisticProcessResultFile( const std::string&& path,
 	bool correctlyExported = true;
 	std::ifstream file( path );
 	try {
-		if ( file.is_open() ) {
-			if ( file.good() ) {
-				// header
-				std::string currentReadLine;
-				while( getline(file, currentReadLine) ) {
-					if( !currentReadLine.empty() && !boost::starts_with(currentReadLine, "#") ){
-						std::vector<std::string> lineTockensSpaces;
-						boost::split(lineTockensSpaces, currentReadLine,
-							boost::is_any_of(kDelimiter), boost::token_compress_on);
-						unsigned int currentColumn = 0;
-						unsigned int matrixColumnCounter = 0;
-						for( auto const &st : lineTockensSpaces ){
-							if( vectorContains( columnIndexes, currentColumn++ ) ){
-								// mean max min
-								double value = atof( st.c_str() );
-								matrix[currentRow][matrixColumnCounter] += value;
-								if ( matrix[currentRow][matrixColumnCounter+1] < value ){
-									matrix[currentRow][matrixColumnCounter+1] = value;
-								}
-								if ( matrix[currentRow][matrixColumnCounter+2] > value ){
-									matrix[currentRow][matrixColumnCounter+2] = value;
-								}
-								matrixColumnCounter +=3 ;
-							} // column to be processed
-						} // ends tocken for
-						++currentRow;
-					} // not a comment or empty
-				} // ends while getline
-			} // ends good
-		} // ends is_open
+		if ( file.is_open() && file.good() ) {
+			// header
+			std::string currentReadLine;
+			while( getline(file, currentReadLine) ) {
+				if( !currentReadLine.empty() && !boost::starts_with(currentReadLine, "#") ){
+					std::vector<std::string> lineTockensSpaces;
+					boost::split(lineTockensSpaces, currentReadLine,
+						boost::is_any_of(kDelimiter), boost::token_compress_on);
+					unsigned int currentColumn = 0;
+					unsigned int matrixColumnCounter = 0;
+					for( auto const &st : lineTockensSpaces ){
+						if( vectorContains( columnIndexes, currentColumn++ ) ){
+							// mean max min
+							double value = atof( st.c_str() );
+							matrix[currentRow][matrixColumnCounter] += value;
+							if ( matrix[currentRow][matrixColumnCounter+1] < value ){
+								matrix[currentRow][matrixColumnCounter+1] = value;
+							}
+							if ( matrix[currentRow][matrixColumnCounter+2] > value ){
+								matrix[currentRow][matrixColumnCounter+2] = value;
+							}
+							matrixColumnCounter +=3 ;
+						} // column to be processed
+					} // ends tocken for
+					++currentRow;
+				} // not a comment or empty
+			} // ends while getline
+		} // ends is_open and good
 	}catch (std::exception const& ex) {
 		std::string ex_what = ex.what();
 		log_io->ReportError2AllLogs( "[PROCESSING ERROR] Exception while parsing the file: ex-> " + ex_what );
@@ -327,7 +317,6 @@ bool ResultsProcessor::ExportScenariosList(
 			log_io->ReportError2AllLogs( kTab + "error writing " + kScenariosSummaryFile);
 			return false;
 		}
-
 		outputFile << "# folder_path altered_element_path\n";
 		for( auto const &s : scenariosList ){
 			outputFile << s->get_altered_scenario_folder_path() << " "

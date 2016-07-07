@@ -33,6 +33,7 @@ bool GlobalResults::ProcessScenarioStatistics(){
 	data_folder = top_folder + "/" + kResultsFolder + "/" + kResultsDataFolder + "/" + kSummaryResultsFolder;
 	bool partialResult = true;
 	// Process results
+	std::cout << "[ðebug] mode: " << simulation_mode->get_id() << "\n";
 	switch( simulation_mode->get_id() ){
 		case kStandardMode: {
 				partialResult = ProcessStandardSimulationMode();
@@ -100,7 +101,7 @@ bool GlobalResults::ProcessCriticalParameterValueSimulationMode(){
 	std::vector<Metric*>* auxMetrics = nullptr;
 	unsigned int firstMagOffset = 9;
 	unsigned int critParamOffset = 8;
-	unsigned int dataPerMetricPerLine = 3;
+	unsigned int dataColumnsPerMetric = 3;
 	try{
 		outputFile.open( outputFilePath );
 		if (!outputFile){
@@ -151,7 +152,7 @@ bool GlobalResults::ProcessCriticalParameterValueSimulationMode(){
 	if( correctlyExported ){
 		correctlyExported = correctlyExported & PlotCriticalParameterValueSimulationMode(
 			*auxMetrics, critParamOffset, firstMagOffset,
-			dataPerMetricPerLine, *criticalParameter, outputFilePath);
+			dataColumnsPerMetric, *criticalParameter, outputFilePath);
 	}
 	// fgarcia, is it already finished?
 	return correctlyExported;
@@ -159,7 +160,7 @@ bool GlobalResults::ProcessCriticalParameterValueSimulationMode(){
 
 bool GlobalResults::PlotCriticalParameterValueSimulationMode(
 		const std::vector<Metric*>& analyzedMetrics, const unsigned int &critParamOffset,
-		const unsigned int& firstMagOffset, const unsigned int& dataPerMetricPerLine,
+		const unsigned int& firstMagOffset, const unsigned int& dataColumnsPerMetric,
 		const SimulationParameter& criticalParameter, const std::string& gnuplotDataFile ){
 	int partialResult = 0;
 	bool correctlyExported = true;
@@ -262,7 +263,7 @@ bool GlobalResults::PlotCriticalParameterValueSimulationMode(
 				gnuplotScriptFile <<  "set style fill transparent solid 0.5\n";
 				// // Background
 				gnuplotScriptFile << kWholeBackground << "\n";
-				int magDataIndex = firstMagOffset + dataPerMetricPerLine*magCount; // title
+				int magDataIndex = firstMagOffset + dataColumnsPerMetric*magCount; // title
 				gnuplotScriptFile <<  "plot '" << gnuplotDataFile << "' using 1:"<< critParamOffset
 					<<" axis x1y2 with filledcurve x1 ls 3 title '\% "
 					<< criticalParameter.get_title_name() << "', \\\n";
@@ -326,7 +327,7 @@ bool GlobalResults::ProcessCriticalParameterNDParametersSweepSimulationMode(){
 		// #profCount #Profile #Qcoll #MAG_i_name #MAG_i_maxErrorGlobal #MAG_i_maxErrorMetric
 		unsigned int firstMagOffset = 6;
 		unsigned int critParamOffset = 3;
-		unsigned int dataPerMetricPerLine = 3;
+		unsigned int dataColumnsPerMetric = 7; // name + MAG_i_maxErrorGlobal*3 + MAG_i_maxErrorMetric*3
 		// aux variables
 		criticalParameter = (* simulations->begin())->get_golden_critical_parameter();
 		// aux mags
@@ -338,7 +339,7 @@ bool GlobalResults::ProcessCriticalParameterNDParametersSweepSimulationMode(){
 		// create gnuplot scatter map graphs
 		partialResult = partialResult & PlotCriticalParameterNDParametersSweepSimulationMode(
 			*auxMetrics, critParamOffset, firstMagOffset,
-			dataPerMetricPerLine, *criticalParameter, outputFilePath);
+			dataColumnsPerMetric, *criticalParameter, outputFilePath);
 	}
 	// fgarcia
 	// critical parameter value for each Scenario (mean between profiles)
@@ -348,7 +349,7 @@ bool GlobalResults::ProcessCriticalParameterNDParametersSweepSimulationMode(){
 
 bool GlobalResults::PlotCriticalParameterNDParametersSweepSimulationMode(
 		const std::vector<Metric*>& analyzedMetrics, const unsigned int &critParamOffset,
-		const unsigned int& firstMagOffset, const unsigned int& dataPerMetricPerLine,
+		const unsigned int& firstMagOffset, const unsigned int& dataColumnsPerMetric,
 		const SimulationParameter& criticalParameter, const std::string& gnuplotDataFile ){
 	int partialResult = 0;
 	bool correctlyExported = true;
@@ -457,7 +458,8 @@ bool GlobalResults::PlotCriticalParameterNDParametersSweepSimulationMode(
 				gnuplotScriptFile <<  "set style fill transparent solid 0.5\n";
 				// // Background
 				gnuplotScriptFile << kWholeBackground << "\n";
-				int magDataIndex = firstMagOffset + dataPerMetricPerLine*magCount; // title
+				int magDataIndex = firstMagOffset + dataColumnsPerMetric*magCount; // title
+				generalGSF <<  "# studied mag starts in column" << magDataIndex;
 				// crit param
 				gnuplotScriptFile <<  "plot '" << gnuplotDataFile << "' using 1:"<< critParamOffset
 					<<" axis x1y2 with filledcurve x1 ls 1 title '\% "
@@ -529,7 +531,7 @@ bool GlobalResults::ProcessMontecarloCriticalParameterNDParametersSweepMode(){
 		// #profCount #Profile #Qcoll #MAG_i_name #MAG_i_maxErrorGlobal #MAG_i_maxErrorMetric
 		unsigned int firstMagOffset = 6;
 		unsigned int critParamOffset = 3;
-		unsigned int dataPerMetricPerLine = 3;
+		unsigned int dataColumnsPerMetric = 7; // name + MAG_i_maxErrorGlobal*3 + MAG_i_maxErrorMetric*3
 		// aux variables
 		criticalParameter = (* simulations->begin())->get_golden_critical_parameter();
 		// aux mags
@@ -541,7 +543,7 @@ bool GlobalResults::ProcessMontecarloCriticalParameterNDParametersSweepMode(){
 		// create gnuplot scatter map graphs
 		partialResult = partialResult & PlotMontecarloCriticalParameterNDParametersSweepMode(
 			*auxMetrics, critParamOffset, firstMagOffset,
-			dataPerMetricPerLine, *criticalParameter, outputFilePath);
+			dataColumnsPerMetric, *criticalParameter, outputFilePath);
 	}
 	// fgarcia
 	// critical parameter value for each Scenario (mean between profiles)
@@ -552,7 +554,7 @@ bool GlobalResults::ProcessMontecarloCriticalParameterNDParametersSweepMode(){
 
 bool GlobalResults::PlotMontecarloCriticalParameterNDParametersSweepMode(
 		const std::vector<Metric*>& analyzedMetrics, const unsigned int &critParamOffset,
-		const unsigned int& firstMagOffset, const unsigned int& dataPerMetricPerLine,
+		const unsigned int& firstMagOffset, const unsigned int& dataColumnsPerMetric,
 		const SimulationParameter& criticalParameter, const std::string& gnuplotDataFile ){
 	int partialResult = 0;
 	bool correctlyExported = true;
@@ -658,7 +660,7 @@ bool GlobalResults::PlotMontecarloCriticalParameterNDParametersSweepMode(
 				gnuplotScriptFile <<  "set style fill transparent solid 0.5\n";
 				// // Background
 				gnuplotScriptFile << kWholeBackground << "\n";
-				int magDataIndex = firstMagOffset + dataPerMetricPerLine*magCount; // title
+				int magDataIndex = firstMagOffset + dataColumnsPerMetric*magCount; // title
 				// crit param
 				gnuplotScriptFile <<  "plot '" << gnuplotDataFile << "' using 1:"<< critParamOffset
 					<<" axis x1y2 with filledcurve x1 ls 1 title '\% "
