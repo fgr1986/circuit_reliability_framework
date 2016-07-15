@@ -9,6 +9,7 @@
 
 # Changelog of version 3.1.0
 * Major improvements in RAWFormatProcessor class
+* Fixed **ProcessLine** trim
 * **Metric** has two derived classes, **Magnitude** and **OceanEvalMetric**
 * More efficient number2String
 * Allows *OceanEval* expressions using **OceanEvalMetric**
@@ -20,6 +21,7 @@
 
 * Changelog of version 3.1.0
 	* Major improvements in RAWFormatProcessor class
+	* Fixed **ProcessLine** trim
 	* **Metric** has two derived classes, **Magnitude** and **OceanEvalMetric**
 	* More efficient number2String
 	* Allows *OceanEval* expressions using **OceanEvalMetric**

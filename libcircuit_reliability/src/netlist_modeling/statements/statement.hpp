@@ -119,13 +119,13 @@ public:
 	void RemoveStatement( Statement* instance );
 	void AddDescendant( Statement* descendant );
 	void AddStatementAtBeginning( Statement* instance);
-	void AddNode( std::string node_name );
-	void AddNode( std::string node_name, bool pin_in_subcircuit );
+	void AddNode( const std::string & node_name );
+	void AddNode( const std::string & node_name, bool pin_in_subcircuit );
 	void AddLocalNode( Node* node );
 	void AddParameter( Parameter* parameter );
-	bool GetChildById( int search_id, Statement*& child );
-	Parameter* GetParameter( int position );
-	Parameter* GetParameter( std::string name );
+	bool GetChildById( const int search_id, Statement*& child );
+	Parameter* GetParameter( const int position );
+	Parameter* GetParameter( const std::string & name );
 
 	/**
 	 * @brief gets a parameter present in the statement.
@@ -137,9 +137,9 @@ public:
 	 *
 	 * @return true if the parameter has been found
 	 */
-	bool GetParameterHierarchical( std::string name, Parameter*& parameter );
-	Node* GetNode( int position );
-	Node* GetNode( std::string name );
+	bool GetParameterHierarchical( const std::string & name, Parameter*& parameter );
+	Node* GetNode( const int position );
+	Node* GetNode( const std::string & name );
 
 	// Radiation properties
 	virtual bool TestUnalterableStatement(const std::string master_name);
@@ -265,6 +265,7 @@ protected:
 	/////////////////////
 	// Parsing Methods //
 	/////////////////////
+	// void Test( std::string& test );
 	void RemoveExcessiveEmptyLines( std::string& s);
 	bool ProcessLine( std::string& statementLine,
 		std::string& currentReadLine, Statement& parent,
@@ -283,7 +284,7 @@ protected:
 	 *
 	 * @return true if correctly parsed
 	 */
-	bool ParseParameters( std::string& parameterLine, bool allowUnvaluedParameters );
+	bool ParseParameters( std::string& parameterLine, const bool allowUnvaluedParameters );
 	// Parse Statement
 	bool ParseStatement( std::ifstream* file, std::string& statementLine,
 		Statement& parent, Statement& global_scope_parent,

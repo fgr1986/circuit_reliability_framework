@@ -238,7 +238,7 @@ bool SubcircuitStatement::ParseSubcircuitStatement(
 	currentReadLine = "";
 	while(!correctly_parsed && getline(*file, currentReadLine)) {
 		// ProcessLine
-		if( ProcessLine(statementCode, currentReadLine, *this, statementCount, parsingSpectreCode) ){
+		if( ProcessLine( statementCode, currentReadLine, *this, statementCount, parsingSpectreCode ) ){
 			continue;
 		}else{
 			if(statementCode.compare(kEmptyWord) != 0){

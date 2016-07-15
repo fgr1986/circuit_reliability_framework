@@ -84,7 +84,7 @@ void Statement::AddStatementAtBeginning( Statement* statement ){
 	children.insert(children.begin(), statement);
 }
 
-void Statement::AddNode( std::string node_name ){
+void Statement::AddNode( const std::string & node_name ){
 	#ifdef PARSING_VERBOSE
 		log_io->ReportPlain2Log( "AddNode: '" + node_name + "'" );
 	#endif
@@ -106,7 +106,7 @@ void Statement::AddNode( std::string node_name ){
 	nodes.push_back( node );
 }
 
-void Statement::AddNode( std::string node_name, bool pin_in_subcircuit ){
+void Statement::AddNode( const std::string & node_name, bool pin_in_subcircuit ){
 	#ifdef PARSING_VERBOSE
 		log_io->ReportPlain2Log( "AddNode, pin_in_subcircuit: '" + node_name + "'" );
 	#endif
@@ -137,7 +137,7 @@ void Statement::AddParameter(Parameter* parameter){
 	parameters.push_back(parameter);
 }
 
-Parameter* Statement::GetParameter(int position){
+Parameter* Statement::GetParameter(const int position){
 	if(has_parameters) {
 		return parameters.at(position);
 	}else{
@@ -145,7 +145,7 @@ Parameter* Statement::GetParameter(int position){
 	}
 }
 
-Parameter* Statement::GetParameter(std::string name){
+Parameter* Statement::GetParameter(const std::string & name){
 	if(has_parameters) {
 		for( auto const & p : parameters ){
 			if( p->get_name().compare(name) == 0 ){
@@ -156,7 +156,7 @@ Parameter* Statement::GetParameter(std::string name){
 	return nullptr;
 }
 
-bool Statement::GetParameterHierarchical( std::string paramName, Parameter*& parameter ){
+bool Statement::GetParameterHierarchical( const std::string & paramName, Parameter*& parameter ){
 	if( has_parameters ) {
 		for( auto const & p : parameters ){
 			if( p->get_name().compare(paramName) == 0 ){
@@ -193,7 +193,7 @@ void Statement::MuteNonMainTransientAnalysis(){
 	}
 }
 
-Node* Statement::GetNode(int position){
+Node* Statement::GetNode(const int position){
 	if(has_nodes) {
 		return nodes.at(position);
 	}else{
@@ -201,7 +201,7 @@ Node* Statement::GetNode(int position){
 	}
 }
 
-Node* Statement::GetNode(std::string name){
+Node* Statement::GetNode(const std::string & name){
 	if(has_nodes) {
 		for( auto const & n : nodes ){
 			if(n->get_name().compare(name) == 0){
@@ -213,7 +213,7 @@ Node* Statement::GetNode(std::string name){
 
 }
 
-bool Statement::GetChildById(int search_id, Statement*& child){
+bool Statement::GetChildById(const int search_id, Statement*& child){
 	if( this->id == search_id){
 		child = this;
 		return true;
@@ -234,7 +234,7 @@ std::string Statement::ExportCircuitStatement( const std::string& indentation ){
 }
 
 
-bool Statement::ParseParameters(std::string& statementCode, bool allowUnvaluedParameters){
+bool Statement::ParseParameters(std::string& statementCode, const bool allowUnvaluedParameters){
 	bool completedStatement = false;
 	#ifdef PARSING_VERBOSE
 		log_io->ReportPlain2Log( "parsing parameters: statementCode= '" + statementCode + "'" );
@@ -245,7 +245,7 @@ bool Statement::ParseParameters(std::string& statementCode, bool allowUnvaluedPa
 	// remove 'parameters' word from the begining
 	boost::replace_first( statementCode, "parameters", kEmptyWord);
 	// remove excessive empty lines
-	RemoveExcessiveEmptyLines(statementCode);
+	RemoveExcessiveEmptyLines( statementCode );
 	// apply regex expression
 	std::string usedRegex = kParameterRegExNotUnvalued;
 	if( allowUnvaluedParameters ){
@@ -460,20 +460,22 @@ bool Statement::ParseStatement( std::ifstream* file, std::string& statementCode,
 	return completedStatement;
 }
 
+// void Statement::Test( std::string& test ){
+// 	log_io->ReportPurpleStandard("[debug] test1: '" + test + "'" );
+// 	boost::trim( test );
+// 	log_io->ReportPurpleStandard("[debug] test2: '" + test + "'" );
+// }
+
 // Process comments, empty lines,
 // Binds splitted lines
 // Returns true if the parser needs
 // to read the following line
-bool Statement::ProcessLine(std::string& statementCode,
-	std::string& currentReadLine, Statement& parent, int& statementCount,
-	bool& parsingSpectreCode ){
+bool Statement::ProcessLine( std::string& statementCode, std::string& currentReadLine,
+		Statement& parent, int& statementCount, bool& parsingSpectreCode ){
 	bool continueReading = false;
- 	//skip empty lines
-
-	// remove spaces at the beginning of a sentence
-	// also double , triple... spaces
-	boost::algorithm::trim(statementCode);
-	boost::replace_all( statementCode, kTab, kEmptyWord);
+	// remove spaces and tabs at the beginning of a sentence
+	boost::trim( currentReadLine );
+	boost::trim_if( currentReadLine, boost::is_any_of("\t") ); // removes only tabs
 
 	// Remove invalid chars at the end of file
 	// Windows EOL
@@ -484,50 +486,39 @@ bool Statement::ProcessLine(std::string& statementCode,
 		currentReadLine = "";
 	}
 	// Check currentReadLine length
- 	if(!currentReadLine.length()) {
+ 	if( !currentReadLine.length() ){
 		continueReading = true;
-	}
-	// process comments
-	else if ( boost::starts_with(currentReadLine, kCommentWord1)
-		|| boost::starts_with(currentReadLine, kCommentWord2) ){
-		/*std::string aux = 	currentReadLine;
-		boost::replace_first( aux, kCommentWord1, kEmptyWord);
-		boost::replace_first( aux, kCommentWord2, kEmptyWord);
-		CommentStatement* comment = new CommentStatement();
-		comment->set_id(statementCount++);
-		parent.AddStatement(new CommentStatement(aux));*/
+	} else if ( boost::starts_with(currentReadLine, kCommentWord1) || boost::starts_with(currentReadLine, kCommentWord2) ){
+		// process comments
+		/* std::string aux = 	currentReadLine; boost::replace_first( aux, kCommentWord1, kEmptyWord); boost::replace_first( aux, kCommentWord2, kEmptyWord); CommentStatement* comment = new CommentStatement(); comment->set_id(statementCount++); parent.AddStatement(new CommentStatement(aux)); */
 		continueReading = true;
-	}
-	// remove inline comments
-	else if(boost::contains(currentReadLine, kCommentWord1)){
+	} else if( boost::contains(currentReadLine, kCommentWord1) ){ // remove inline comments
 		std::vector<std::string> lineTockensComments;
 		boost::split(lineTockensComments, currentReadLine, boost::is_any_of(kCommentWord1), boost::token_compress_on);
 		currentReadLine = lineTockensComments.front();
 	}
 	// add different lines of a single sentence; "\".
-	if(boost::ends_with(statementCode, kContinuesNextLineChar) ){
+	if( boost::ends_with(statementCode, kContinuesNextLineChar) ){
 		if (currentReadLine.length() && !(boost::starts_with(currentReadLine, kCommentWord1)
 		|| boost::starts_with(currentReadLine, kCommentWord2)) ){
 			boost::replace_last( statementCode, kContinuesNextLineChar, kEmptyWord);
 			statementCode += kDelimiter + currentReadLine;
 		}
 		continueReading = true;
-	}
-
-	else if(boost::starts_with(currentReadLine, kContinuationPreviousLineChar)){
+	}	else if(boost::starts_with(currentReadLine, kContinuationPreviousLineChar)){
 		boost::replace_first( currentReadLine, kContinuationPreviousLineChar, kEmptyWord);
 		statementCode += kDelimiter + currentReadLine;
 		continueReading = true;
 	}
 	// double , triple... empty lines
-	RemoveExcessiveEmptyLines(statementCode);
+	RemoveExcessiveEmptyLines( statementCode );
 	// "= "
 	boost::replace_all( statementCode, kEqualsDelimiterWord, kEqualsWord);
 	// " ="
 	boost::replace_all( statementCode, kDelimiterEqualsWord, kEqualsWord);
 	// Empty lines
 	if(statementCode.compare(kEmptyLine) == 0 ){
-		statementCode = "";
+		statementCode.clear();
 	}
 
 	return continueReading;

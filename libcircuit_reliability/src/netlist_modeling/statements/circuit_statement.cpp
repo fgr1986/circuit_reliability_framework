@@ -293,47 +293,40 @@ bool CircuitStatement::ParseNetlist( const std::string& netlist, int& statementC
 	std::string statementCode;
 	bool endOfFile = false;
 	bool completedStatement = true;
+	std::ifstream file(netlist.c_str());
 	try {
 		experiment_environment->TestEnvironment();
 		// Parsing spectre language if the file is
 		parsingSpectreCode =  boost::ends_with( netlist, kDot + kSCS) ;
-		std::ifstream file(netlist.c_str());
 		#ifdef PARSING_VERBOSE
 			log_io->ReportPlain2Log( k2Tab + "Netlist " + netlist + " opened" );
 		#endif
-		if (file.is_open()) {
-			if (file.good()) {
-				// Buffers initialization
-				statementCode = "";
-				// File parsing
-				while(!endOfFile && getline(file, currentReadLine)) {
-					// ProcessLine
-					if( ProcessLine(statementCode, currentReadLine, *this, statementCount, parsingSpectreCode) ){
-						continue;
-					}else{
-						// parse childs
-						if(statementCode.compare(kEmptyWord) != 0 &&
-							statementCode.compare(kEmptyLine) !=0 ){
-							completedStatement = completedStatement
-							&& ParseStatement(&file, statementCode, *this, *this, currentReadLine,
+		if (file.is_open() && file.good()) {
+			// Buffers initialization
+			statementCode = "";
+			// File parsing
+			while(!endOfFile && getline(file, currentReadLine)) {
+				// ProcessLine
+				if( ProcessLine( statementCode, currentReadLine, *this, statementCount, parsingSpectreCode ) ){
+					continue;
+				}else{
+					// parse childs
+					if(statementCode.compare(kEmptyWord) != 0 && statementCode.compare(kEmptyLine) !=0 ){
+						completedStatement = completedStatement && ParseStatement(&file, statementCode, *this, *this, currentReadLine,
 							statementCount, endOfFile, parsingSpectreCode, permissiveParsingMode );
-						}
-						// reset line Buffers
-						statementCode = currentReadLine;
 					}
-				} //ends while
-				// proccess final statement if not previously parsed
-				if(!endOfFile && statementCode.compare(kEmptyWord) != 0 &&
-					statementCode.compare(kEmptyLine) !=0 ){
-					completedStatement = completedStatement
-						&& ParseStatement(&file, statementCode, *this, *this, currentReadLine,
-							statementCount, endOfFile, parsingSpectreCode, permissiveParsingMode );
+					// reset line Buffers
+					statementCode = currentReadLine;
 				}
-				// reset line Buffers
-				statementCode = currentReadLine;
+			} //ends while
+			// proccess final statement if not previously parsed
+			if(!endOfFile && statementCode.compare(kEmptyWord) != 0 && statementCode.compare(kEmptyLine) !=0 ){
+				completedStatement = completedStatement && ParseStatement(&file, statementCode, *this, *this, currentReadLine,
+						statementCount, endOfFile, parsingSpectreCode, permissiveParsingMode );
 			}
-		}
-		file.close();
+			// reset line Buffers
+			statementCode = currentReadLine;
+		} // file is good and correct
 		correctly_parsed = true;
 	} catch (std::exception const&  ex) {
 		correctly_parsed = false;
@@ -341,6 +334,7 @@ bool CircuitStatement::ParseNetlist( const std::string& netlist, int& statementC
 		//log_io->ReportError2AllLogs( "Exception while parsing the netlist: ex-> " + ex.what() );
 		log_io->ReportError2AllLogs( "Exception while parsing the netlist: ex-> " + ex_what );
 	}
+	file.close();
 	log_io->ReportPlain2Log(  kLongDelimiter );
 	if(completedStatement && correctly_parsed){
 		log_io->ReportPlain2Log(  "The netlist was correctly parsed. " + number2String(statementCount) + " statements added." );
@@ -350,7 +344,6 @@ bool CircuitStatement::ParseNetlist( const std::string& netlist, int& statementC
 	log_io->ReportPlain2Log(  kLongDelimiter );
 	return completedStatement;
 }
-
 
 void CircuitStatement::AddIncludeStatementAndRegister( IncludeStatement* statement ){
 	statement->set_parent( this );
