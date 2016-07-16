@@ -20,7 +20,6 @@
 #include "global_functions_and_constants/global_template_functions.hpp"
 #include "global_functions_and_constants/files_folders_io_constants.hpp"
 // Netlist modeling includes
-#include "netlist_modeling/magnitude.hpp"
 #include "netlist_modeling/statements/instance_statement.hpp"
 #include "netlist_modeling/statements/simple_statement.hpp"
 

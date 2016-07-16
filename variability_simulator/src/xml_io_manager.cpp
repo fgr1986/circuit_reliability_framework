@@ -27,9 +27,10 @@
 #include "global_functions_and_constants/files_folders_io_constants.hpp"
 #include "global_functions_and_constants/global_template_functions.hpp"
 #include "global_functions_and_constants/statements_constants.hpp"
-// Netlist modeling includes
+// Metric modeling includes
 #include "metric_modeling/ocean_eval_metric.hpp"
 #include "metric_modeling/magnitude.hpp"
+// Netlist modeling includes
 #include "netlist_modeling/parameter.hpp"
 #include "netlist_modeling/simulation_parameter.hpp"
 #include "netlist_modeling/statements/analysis_statement.hpp"
@@ -121,7 +122,7 @@ bool XMLIOManager::ReadCadenceXML( const std::string &xmlCadence, int& statement
 		boost::property_tree::ptree pPrimitives = ptCadence.get_child("root.primitives");
 		int primitivesCount = pPrimitives.count("primitive");
 		if( primitivesCount>0 ){
-			BOOST_FOREACH( boost::property_tree::ptree::value_type const &v, pPrimitives ) {
+			for( auto const & v : pPrimitives ){
 				if ( boost::iequals( v.first, "primitive" ) ){
 					experimentEnvironment.AddPrimitiveName(v.second.get<std::string>("primitive_name"));
 				}
@@ -135,7 +136,7 @@ bool XMLIOManager::ReadCadenceXML( const std::string &xmlCadence, int& statement
 		boost::property_tree::ptree pAnalysis = ptCadence.get_child("root.analyses");
 		int analysisCount = pAnalysis.count("statement");
 		if( analysisCount>0 ){
-			BOOST_FOREACH( boost::property_tree::ptree::value_type const &v, pAnalysis ) {
+			for( auto const & v : pAnalysis ){
 				if ( boost::iequals( v.first, "statement" ) ){
 					ProcessEnvironmentAnalysisStatement( v, experimentEnvironment, statementCounter );
 				}
@@ -149,7 +150,7 @@ bool XMLIOManager::ReadCadenceXML( const std::string &xmlCadence, int& statement
 		boost::property_tree::ptree pControl = ptCadence.get_child("root.control_statements");
 		int controlStatementsCount = pControl.count("statement");
 		if( controlStatementsCount > 0 ){
-			BOOST_FOREACH( boost::property_tree::ptree::value_type const &v, pControl ) {
+			for( auto const & v : pControl ){
 				if ( boost::iequals( v.first, "statement" ) ){
 					ProcessEnvironmentControlStatement( v, experimentEnvironment, statementCounter );
 				}
@@ -163,7 +164,7 @@ bool XMLIOManager::ReadCadenceXML( const std::string &xmlCadence, int& statement
 		boost::property_tree::ptree pKeyWords = ptCadence.get_child("root.keywords");
 		int keyWordsCount = pKeyWords.count("keyword");
 		if( keyWordsCount>0){
-			BOOST_FOREACH( boost::property_tree::ptree::value_type const &v, pKeyWords ) {
+			for( auto const & v : pKeyWords ){
 				if ( boost::iequals( v.first, "keyword" ) ){
 					experimentEnvironment.AddReservedWord(v.second.get<std::string>("keyword_name"));
 				}
@@ -211,10 +212,10 @@ bool XMLIOManager::ReadTechnologyXML( const std::string &xmlTechnology, int& sta
 		// Excluded folders
 		// [Optional]
 		log_io->ReportPlainStandard( k2Tab + "Excluded folders [Optional].");
-		boost::property_tree::ptree exFilders = ptTechnology.get_child("root.excluded_folders");
-		int excludedFoldersCount = exFilders.count("excluded_folder");
+		boost::property_tree::ptree exFolders = ptTechnology.get_child("root.excluded_folders");
+		int excludedFoldersCount = exFolders.count("excluded_folder");
 		if( excludedFoldersCount > 0 ) {
-			BOOST_FOREACH( boost::property_tree::ptree::value_type const &v, exFilders ) {
+			for( auto const & v : exFolders ){
 				if ( boost::iequals( v.first, "excluded_folder" ) ){
 					experimentEnvironment.AddExcludedCanonicalFolder(v.second.get<std::string>("excluded_folder_path"));
 					log_io->ReportPlainStandard( k2Tab + "Excluded folder: " + v.second.get<std::string>("excluded_folder_path"));
@@ -227,7 +228,7 @@ bool XMLIOManager::ReadTechnologyXML( const std::string &xmlTechnology, int& sta
 		boost::property_tree::ptree pTransistors = ptTechnology.get_child("root.transistors");
 		int transistorCount = pTransistors.count("statement");
 		if( transistorCount ){
-			BOOST_FOREACH( boost::property_tree::ptree::value_type const &v, pTransistors ) {
+			for( auto const & v : pTransistors ){
 				if ( boost::iequals( v.first, "statement" ) ){
 					TransistorStatement* p = new TransistorStatement();
 					p->set_id(statementCounter);
@@ -248,7 +249,7 @@ bool XMLIOManager::ReadTechnologyXML( const std::string &xmlTechnology, int& sta
 		boost::property_tree::ptree techUNodes = ptTechnology.get_child("root.tech_unalterable_nodes");
 		int techUNodesCount = techUNodes.count("node");
 		if( techUNodesCount > 0 ) {
-			BOOST_FOREACH( boost::property_tree::ptree::value_type const &v, techUNodes ) {
+			for( auto const & v : techUNodes ){
 				if ( boost::iequals( v.first, "node" ) ){
 					experimentEnvironment.AddUnalterableNode(v.second.get<std::string>("name"));
 					log_io->ReportPlain2Log( k3Tab + "-> Found Technology Unalterable node: '"
@@ -355,7 +356,8 @@ bool XMLIOManager::ReadExperimentXML( const std::string &xmlExperiment, int& sta
 		boost::property_tree::ptree pMetrics = ptExperiment.get_child("root.processed_metrics");
 		int metricCount = pMetrics.count("metric");
 		if( metricCount > 0 ) {
-			BOOST_FOREACH( boost::property_tree::ptree::value_type const &v, pMetrics ) {
+			log_io->ReportPlainStandard( kTab + "Metrics to be processed: " + number2String(metricCount));
+			for( auto const & v : pMetrics ){
 				if ( boost::iequals( v.first, "metric" ) ){
 					if( !ProcessMetric( v, statementCounter, variabilitySpectreHandler, circuitIOHandler )) {
 						log_io->ReportError2AllLogs( "Error parsing metric in experiment conf file.");
@@ -373,7 +375,7 @@ bool XMLIOManager::ReadExperimentXML( const std::string &xmlExperiment, int& sta
 		int simulationParameterNumber =  ptSimulationParameters.count("simulation_parameter");
 		log_io->ReportGreenStandard( kTab + "Total simParameters: " + number2String(simulationParameterNumber));
 		if( simulationParameterNumber > 0 ){
-			BOOST_FOREACH( boost::property_tree::ptree::value_type const &v, ptSimulationParameters ) {
+			for( auto const & v : ptSimulationParameters ){
 				if ( boost::iequals( v.first, "simulation_parameter" ) ){
 					if( !ProcessSimulationParameter( v, variabilitySpectreHandler ) ){
 						log_io->ReportError2AllLogs( "Error Parsing simulation parameter.");
@@ -399,8 +401,7 @@ bool XMLIOManager::ProcessSimulationMode( boost::property_tree::ptree pAvailable
 	if( pAvailableAnalysis.count( simulationModeName ) ){
 		boost::property_tree::ptree pAnalysisContainer = pAvailableAnalysis.get_child( simulationModeName );
 		log_io->ReportPlainStandard( kTab + "Processing " + simulationModeName);
-
-		BOOST_FOREACH( boost::property_tree::ptree::value_type const &analysis, pAnalysisContainer.get_child("analysis_statement") ) {
+		for( auto const & analysis : pAnalysisContainer.get_child("analysis_statement") ){
 			if ( boost::iequals( analysis.first, "statement" )) {
 				if( !ProcessSimulationModeAnalysisStatement( analysis, simulationMode, statementCounter) ){
 					log_io->ReportError2AllLogs( "Error parsing " + simulationModeName + " analysis in experiment conf file.");
@@ -411,7 +412,7 @@ bool XMLIOManager::ProcessSimulationMode( boost::property_tree::ptree pAvailable
 		}
 		// [Optional] Control statements
 		if( pAnalysisContainer.count("control_statements") ){
-			BOOST_FOREACH( boost::property_tree::ptree::value_type const &stdCS, pAnalysisContainer.get_child("control_statements") ) {
+			for( auto const & stdCS : pAnalysisContainer.get_child("control_statements") ){
 				if ( boost::iequals( stdCS.first, "statement" )) {
 					if( !ProcessSimulationModeControlStatement( stdCS, simulationMode, statementCounter)) {
 						log_io->ReportError2AllLogs( "Error parsing "+ simulationModeName +" control statement in experiment conf file.");
@@ -445,7 +446,7 @@ bool XMLIOManager::ProcessSimulationModeAnalysisStatement(
 	// the parameters are needed(such as stop time)
 	int parametersCount =pParameters.count("parameter");
 	if( parametersCount > 0 ) {
-		BOOST_FOREACH( boost::property_tree::ptree::value_type const &vParam, pParameters ) {
+		for( auto const & vParam : pParameters ){
 			if ( boost::iequals( vParam.first, "parameter" ) ){
 				Parameter* parameter = new Parameter(
 					vParam.second.get<std::string>("name"), vParam.second.get<std::string>("value") );
@@ -458,7 +459,7 @@ bool XMLIOManager::ProcessSimulationModeAnalysisStatement(
 	if( analysisStatement->get_advanced_analysis()
 		&& v.second.count("children")>0 ){
 		boost::property_tree::ptree pChildren = v.second.get_child("children");
-		BOOST_FOREACH( boost::property_tree::ptree::value_type const &vChild, pChildren ) {
+		for( auto const & vChild : pChildren ){
 			if ( boost::iequals( vChild.first, "statement" ) ){
 				if( !ProcessSimulationModeChildAnalysisStatement(
 					vChild, *analysisStatement, simulationMode, statementCounter ) ){
@@ -495,7 +496,7 @@ bool XMLIOManager::ProcessSimulationModeChildAnalysisStatement(
 	// the parameters are needed(such as stop time)
 	int parametersCount =pParameters.count("parameter");
 	if( parametersCount > 0 ) {
-		BOOST_FOREACH( boost::property_tree::ptree::value_type const &vParam, pParameters ) {
+		for( auto const & vParam : pParameters ){
 			if ( boost::iequals( vParam.first, "parameter" ) ){
 				Parameter* parameter = new Parameter(
 					vParam.second.get<std::string>("name"), vParam.second.get<std::string>("value") );
@@ -508,7 +509,7 @@ bool XMLIOManager::ProcessSimulationModeChildAnalysisStatement(
 	if( analysisStatement->get_advanced_analysis()
 		&& v.second.count("children")>0 ){
 		boost::property_tree::ptree pChildren = v.second.get_child("children");
-		BOOST_FOREACH( boost::property_tree::ptree::value_type const &vChild, pChildren ) {
+		for( auto const & vChild : pChildren ){
 			if ( boost::iequals( vChild.first, "statement" ) ){
 				if( !ProcessSimulationModeChildAnalysisStatement(
 					vChild, *analysisStatement, simulationMode, statementCounter ) ){
@@ -542,7 +543,7 @@ bool XMLIOManager::ProcessSimulationModeControlStatement(
 	// the parameters are needed(such as stop time)
 	if( v.second.count("parameters") > 0 ) {
 		boost::property_tree::ptree pParameters = v.second.get_child("parameters");
-		BOOST_FOREACH( boost::property_tree::ptree::value_type const &vParam, pParameters ) {
+		for( auto const & vParam : pParameters ){
 			if ( boost::iequals( vParam.first, "parameter" ) ){
 				Parameter* parameter = new Parameter(
 					vParam.second.get<std::string>("name"), vParam.second.get<std::string>("value") );
@@ -556,7 +557,7 @@ bool XMLIOManager::ProcessSimulationModeControlStatement(
 	if( controlStatement->get_advanced_control_statement()
 		&& v.second.count("children")>0 ){
 		boost::property_tree::ptree pChildren = v.second.get_child("children");
-		BOOST_FOREACH( boost::property_tree::ptree::value_type const &vChild, pChildren ) {
+		for( auto const & vChild : pChildren ){
 			if ( boost::iequals( vChild.first, "statement" ) ){
 				if( !ProcessSimulationModeChildControlStatement(
 					vChild, *controlStatement, statementCounter ) ){
@@ -588,7 +589,7 @@ bool XMLIOManager::ProcessSimulationModeChildControlStatement(
 	// the parameters are needed(such as stop time)
 	if( v.second.count("parameters") > 0 ) {
 		boost::property_tree::ptree pParameters = v.second.get_child("parameters");
-		BOOST_FOREACH( boost::property_tree::ptree::value_type const &vParam, pParameters ) {
+		for( auto const & vParam : pParameters ){
 			if ( boost::iequals( vParam.first, "parameter" ) ){
 				Parameter* parameter = new Parameter(
 					vParam.second.get<std::string>("name"), vParam.second.get<std::string>("value") );
@@ -602,7 +603,7 @@ bool XMLIOManager::ProcessSimulationModeChildControlStatement(
 	if( controlStatement->get_advanced_control_statement()
 		&& v.second.count("children")>0 ){
 		boost::property_tree::ptree pChildren = v.second.get_child("children");
-		BOOST_FOREACH( boost::property_tree::ptree::value_type const &vChild, pChildren ) {
+		for( auto const & vChild : pChildren ){
 			if ( boost::iequals( vChild.first, "statement" ) ){
 				if( !ProcessSimulationModeChildControlStatement(
 					vChild, *controlStatement, statementCounter ) ){
@@ -621,11 +622,13 @@ bool XMLIOManager::ProcessSimulationModeChildControlStatement(
 bool XMLIOManager::ProcessMetric(boost::property_tree::ptree::value_type const &v,
 	int& statementCounter, VariabilitySpectreHandler& variabilitySpectreHandler, CircuitIOHandler& circuitIOHandler){
 	Metric* newMetric;
+	std::string metricName = v.second.get<std::string>("metric_name");
+	log_io->ReportPlainStandard( k2Tab + "Processing metric: " + metricName );
 	// new in v3.0.1
 	if( v.second.get<bool>("metric_transient_magnitude") ){
-	 newMetric = new Magnitude( v.second.get<std::string>("metric_name") );
+	 newMetric = new Magnitude( metricName );
 	}else{
-		newMetric = new OceanEvalMetric( v.second.get<std::string>("metric_name") );
+		newMetric = new OceanEvalMetric( metricName );
 	}
 	// plottable
 	if( newMetric->is_transient_magnitude() ){
@@ -692,7 +695,7 @@ bool XMLIOManager::ProcessMetric(boost::property_tree::ptree::value_type const &
 bool XMLIOManager::ProcessRadiationSource(boost::property_tree::ptree::value_type const &v,
 	int& statementCounter, AlterationMode& radiationMode){
 	// v.first="radiation_source"
-	BOOST_FOREACH( boost::property_tree::ptree::value_type const &st, v.second ) {
+	for( auto const & st : v.second ){
 		if ( boost::iequals( st.first, "statement" ) ){
 			RadiationSourceSubcircuitStatement* rsss = new RadiationSourceSubcircuitStatement();
 			rsss->set_id(statementCounter);
@@ -700,7 +703,7 @@ bool XMLIOManager::ProcessRadiationSource(boost::property_tree::ptree::value_typ
 			rsss->set_name(st.second.get<std::string>("name"));
 			rsss->set_master_name(st.second.get<std::string>("master_name"));
 			if( st.second.count("parameters") > 0){
-				BOOST_FOREACH( boost::property_tree::ptree::value_type const &param, st.second.get_child("parameters") ) {
+				for( auto const & param : st.second.get_child("parameters") ){
 					if ( boost::iequals( param.first, "parameter" )) {
 						rsss->AddParameter( new Parameter(
 							param.second.get<std::string>("name"), param.second.get<std::string>("value")));
@@ -710,14 +713,14 @@ bool XMLIOManager::ProcessRadiationSource(boost::property_tree::ptree::value_typ
 				}
 			}
 			if( st.second.count("nodes") > 0){
-				BOOST_FOREACH( boost::property_tree::ptree::value_type const &node, st.second.get_child("nodes") ) {
+				for( auto const & node : st.second.get_child("nodes") ){
 					if ( boost::iequals( node.first, "node" )) {
 						rsss->AddLocalNode( new Node( node.second.get<std::string>("name"), false ));
 					}
 				}
 			}
 			if( st.second.count("children") > 0){
-				BOOST_FOREACH( boost::property_tree::ptree::value_type const &child, st.second.get_child("children") ) {
+				for( auto const & child : st.second.get_child("children") ){
 					if ( boost::iequals( child.first, "statement" )) {
 						if( !ProcessSubcircuitChild( child, statementCounter, *rsss ) ){
 							log_io->ReportError2AllLogs("Error processing radiation source child.");
@@ -747,26 +750,33 @@ bool XMLIOManager::ProcessSubcircuitChild(boost::property_tree::ptree::value_typ
 	int statementType = v.second.get<int>("statement_type");
 	bool error = false;
 	switch( statementType ){
-		case kSimpleStatement:
+		case kSimpleStatement:{
 			st = new SimpleStatement();
+		}
 		break;
-		case kInstanceStatement:
+		case kInstanceStatement:{
 			st = new InstanceStatement();
+		}
 		break;
-		case kTransistorStatement:
+		case kTransistorStatement:{
 			st = new TransistorStatement();
+		}
 		break;
-		case kModelStatement:
+		case kModelStatement:{
 			st = new ModelStatement();
+		}
 		break;
-		case kAnalogModelStatement:
+		case kAnalogModelStatement:{
 			st = new AnalogModelStatement();
+		}
 		break;
-		case kSubcircuitStatement:
+		case kSubcircuitStatement:{
 			st = new SubcircuitStatement();
+		}
 		break;
-		default:
+		default:{
 			error= true;
+		}
 		break;
 	}
 	if( error ){
@@ -777,7 +787,7 @@ bool XMLIOManager::ProcessSubcircuitChild(boost::property_tree::ptree::value_typ
 	st->set_name(v.second.get<std::string>("name"));
 	st->set_master_name(v.second.get<std::string>("master_name"));
 	if( v.second.count("parameters") > 0){
-		BOOST_FOREACH( boost::property_tree::ptree::value_type const &param, v.second.get_child("parameters") ) {
+		for( auto const & param : v.second.get_child("parameters") ){
 			if ( boost::iequals( param.first, "parameter" )) {
 				st->AddParameter( new Parameter(
 					param.second.get<std::string>("name"), param.second.get<std::string>("value")));
@@ -787,14 +797,14 @@ bool XMLIOManager::ProcessSubcircuitChild(boost::property_tree::ptree::value_typ
 		}
 	}
 	if( v.second.count("nodes") > 0){
-		BOOST_FOREACH( boost::property_tree::ptree::value_type const &node, v.second.get_child("nodes") ) {
+		for( auto const & node : v.second.get_child("nodes") ){
 			if ( boost::iequals( node.first, "node" )) {
 				st->AddLocalNode( new Node( node.second.get<std::string>("name"), false ));
 			}
 		}
 	}
 	if( statementType == kSubcircuitStatement && v.second.count("children") > 0){
-		BOOST_FOREACH( boost::property_tree::ptree::value_type const &child, v.second.get_child("children") ) {
+		for( auto const & child : v.second.get_child("children") ){
 			if ( boost::iequals( child.first, "statement" )) {
 				if( !ProcessSubcircuitChild( child, statementCounter, *dynamic_cast<SubcircuitStatement*>(st) ) ){
 					log_io->ReportError2AllLogs("Error processing subcircuit child.");

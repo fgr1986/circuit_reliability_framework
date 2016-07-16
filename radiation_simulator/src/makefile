@@ -15,10 +15,6 @@ VERSION=$(RADIATION_SIMULATOR_VERSION)
 # Compiler def  #
 #################
 CC=g++
-# no debug
-# CPPFLAGS+= -std=c++11 -Wall -O3 -fPIC
-# debug
-CPPFLAGS+= -g -std=c++11 -Wall -O3 -fPIC
 
 ################
 # target files #
@@ -90,7 +86,8 @@ DIST+=$(DIST_MAKE)
 # CPPFLAGS+= -g -std=c++11 -Wall -O3
 
 # CPPFLAGS= -std=c++11 -Wall -O3 -I$(INCLIB)
-CPPFLAGS= -g -std=c++11 -Wall -O3 -I$(INCLIB)
+# CPPFLAGS= -g -std=c++11 -Wall -O3 -I$(INCLIB)
+CPPFLAGS= -std=c++14 -Wall -O3  -I$(INCLIB)
 
 #################
 # Library flags #

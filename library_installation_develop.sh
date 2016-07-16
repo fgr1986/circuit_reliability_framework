@@ -3,7 +3,7 @@
 ############
 # Version  #
 ############
-LIBRARY_VERSION=3.1.0
+LIBRARY_VERSION=3.1.1
 echo "Version $LIBRARY_VERSION"
 
 # SOURCES_FOLDER=/simulation_data/circuit_reliability_framework/installers_last_version/lib_tmp/src/

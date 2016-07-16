@@ -5,9 +5,9 @@ echo "Updating library"
 echo "########################"
 cd /simulation_data/circuit_reliability_framework/installers_last_version/lib_tmp/;
 pwd
-rm -rf src bin libcircuit_reliability.so_release_3.1.0.tar.gz;
-cp ../libcircuit_reliability.so_release_3.1.0.tar.gz .;
-tar xvf libcircuit_reliability.so_release_3.1.0.tar.gz;
+rm -rf src bin libcircuit_reliability.so_release_3.1.1.tar.gz;
+cp ../libcircuit_reliability.so_release_3.1.1.tar.gz .;
+tar xvf libcircuit_reliability.so_release_3.1.1.tar.gz;
 echo "Compiling lib files"
 cd src/; make clean; make;
 echo "Instaling lib files"
@@ -20,21 +20,21 @@ echo "Updating radiation simulator"
 echo "########################"
 cd /simulation_data/circuit_reliability_framework/installers_last_version/radiation_tmp/;
 pwd
-rm -rf src bin radiation_simulator_release_3.1.0.tar.gz;
-cp ../radiation_simulator_release_3.1.0.tar.gz .;
-tar xvf radiation_simulator_release_3.1.0.tar.gz;
+rm -rf src bin radiation_simulator_release_3.1.1.tar.gz;
+cp ../radiation_simulator_release_3.1.1.tar.gz .;
+tar xvf radiation_simulator_release_3.1.1.tar.gz;
 echo "Compiling radiation simulator"
 cd src/; make clean; make;
-cp ../bin/radiation_simulator_3.1.0 /simulation_data/circuit_reliability_framework/radiation_simulator/bin/;
+cp ../bin/radiation_simulator_3.1.1 /simulation_data/circuit_reliability_framework/radiation_simulator/bin/;
 
 echo "########################"
 echo "Updating variability simulator"
 echo "########################"
 cd /simulation_data/circuit_reliability_framework/installers_last_version/variability_tmp/;
 pwd
-rm -rf src bin variability_simulator_release_3.1.0.tar.gz;
-cp ../variability_simulator_release_3.1.0.tar.gz .;
-tar xvf variability_simulator_release_3.1.0.tar.gz;
+rm -rf src bin variability_simulator_release_3.1.1.tar.gz;
+cp ../variability_simulator_release_3.1.1.tar.gz .;
+tar xvf variability_simulator_release_3.1.1.tar.gz;
 echo "Compiling variability simulator"
 cd src/; make clean; make;
-cp ../bin/variability_simulator_3.1.0 /simulation_data/circuit_reliability_framework/variability_simulator/bin/;
+cp ../bin/variability_simulator_3.1.1 /simulation_data/circuit_reliability_framework/variability_simulator/bin/;

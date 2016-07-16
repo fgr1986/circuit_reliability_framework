@@ -7,21 +7,20 @@
 * **Instance. Nodes instead absolute nodes**
 * Weighted Nodes
 
-# Changelog of version 3.1.0
-* Major improvements in RAWFormatProcessor class
+# Changelog of version 3.1.1
 * Fixed **ProcessLine** trim
-* **Metric** has two derived classes, **Magnitude** and **OceanEvalMetric**
-* More efficient number2String
-* Allows *OceanEval* expressions using **OceanEvalMetric**
-* Explicit *std::scientific* export where needed
+* **Metric** handling improvements
 
 # Version 3.x.y
 
 ## Version 3.0.y
 
+* Changelog of version 3.1.1
+	* Fixed **ProcessLine** trim
+	* **Metric** handling improvements
+
 * Changelog of version 3.1.0
 	* Major improvements in RAWFormatProcessor class
-	* Fixed **ProcessLine** trim
 	* **Metric** has two derived classes, **Magnitude** and **OceanEvalMetric**
 	* More efficient number2String
 	* Allows *OceanEval* expressions using **OceanEvalMetric**

@@ -245,6 +245,7 @@ bool VariabilitySpectreHandler::SimulateStandardAHDLNetlist( ){
 
 bool VariabilitySpectreHandler::ReorderMetrics( const std::string& spectreResultTrans,
 		const std::string& spectreLog ){
+
 	RAWFormatProcessor rfp;
 	bool partialResult = rfp.PrepProcessTransientMetrics( &unsorted_metrics_2be_found,
 		&metrics_2be_found, spectreResultTrans, spectreLog );
@@ -255,6 +256,15 @@ bool VariabilitySpectreHandler::ReorderMetrics( const std::string& spectreResult
 			log_io->ReportPlainStandard( m->get_name() + " is a transient metric" );
 		}else{
 			log_io->ReportPlainStandard( m->get_name() + " is an oceanEval metric" );
+		}
+	}
+	if( !partialResult ){
+		for( auto const& m : unsorted_metrics_2be_found){
+			if( m->is_transient_magnitude() ){
+				log_io->ReportRedStandard( "[debug] original unsorted metrics: " + m->get_name() + " is a transient metric" );
+			}else{
+				log_io->ReportRedStandard( "[debug] original unsorted metrics: " + m->get_name() + " is an oceanEval metric" );
+			}
 		}
 	}
 	// free memory

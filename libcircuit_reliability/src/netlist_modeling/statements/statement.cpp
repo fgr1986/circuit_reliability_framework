@@ -476,7 +476,6 @@ bool Statement::ProcessLine( std::string& statementCode, std::string& currentRea
 	// remove spaces and tabs at the beginning of a sentence
 	boost::trim( currentReadLine );
 	boost::trim_if( currentReadLine, boost::is_any_of("\t") ); // removes only tabs
-
 	// Remove invalid chars at the end of file
 	// Windows EOL
 	if( currentReadLine.compare( kWindowsEOL )==0 ){
