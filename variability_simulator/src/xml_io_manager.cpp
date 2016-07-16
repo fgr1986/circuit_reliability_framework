@@ -286,7 +286,8 @@ bool XMLIOManager::ReadExperimentXML( const std::string &xmlExperiment, int& sta
 		log_io->ReportPlainStandard( kTab + "Experiment title: " + experimentTitle );
 		log_io->ReportPlainStandard( kTab + "Experiment file writen for radiation_simulator version: "
 			+ ptExperiment.get<std::string>("root.radiation_simulator_target_version") );
-		// Additional labels: **delete_spectre_folders delete_spectre_transients delete_processed_transients**
+		// save injecion source
+		variabilitySpectreHandler.set_save_injection_sources( ptExperiment.get<bool>("root.save_injection_sources") );
 		// delete_spectre_folders
 		variabilitySpectreHandler.set_delete_spectre_folders( ptExperiment.get<bool>("root.delete_spectre_folders") );
 		log_io->ReportPlainStandard( variabilitySpectreHandler.get_delete_spectre_folders() ?

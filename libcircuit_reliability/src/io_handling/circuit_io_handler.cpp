@@ -72,13 +72,14 @@ void CircuitIOHandler::AddSimulationSpecialStatements( CircuitStatement& circuit
 	}
 	log_io->ReportPlain2Log( "Analysis statement added.");
 	// save spectre metrics
+	int mCount = kInjectedSaveMonitorId-1;
 	for( auto const& m : metrics ){
 		if( m->is_transient_magnitude() && m->get_name().compare("time")!=0 ){
 			ControlStatement* saveStatement = new ControlStatement();
 			saveStatement->set_log_io( log_io );
-			saveStatement->set_id( kInjectedSaveMonitorId );
+			saveStatement->set_id( mCount-- );
 			saveStatement->set_name( m->get_name() );
-			saveStatement->set_master_name( kSaveInjectionMasterName );
+			saveStatement->set_master_name( kSaveMasterName );
 			saveStatement->set_advanced_control_statement( false );
 			saveStatement->set_special_syntax_control_statement( true );
 			// We add the node to the injected source but not to the scope
@@ -309,8 +310,7 @@ bool CircuitIOHandler::ExportSimpleAlteredScenario( CircuitStatement& radiationC
 	#endif
 	// Export non-altered netlists
 	success = success && ExportAlteredNetlist( mainCircuit,
-		alteredCircuit.get_id(), true, folder);
-
+		alteredCircuit.get_circuit_id(), true, folder);
 	#ifdef NETLIST_EXPORT_VERBOSE
 		log_io->ReportPlain2Log( k2Tab + "Altered Scenario Exported." );
 	#endif
@@ -321,34 +321,32 @@ bool CircuitIOHandler::ExportAlteredScenario(
 	CircuitStatement& radiationCircuit, CircuitStatement& alteredCircuit,
 	CircuitStatement& alteredStatementsCircuit, CircuitStatement& mainCircuit, std::string folder ){
 	bool success = true;
-	std::string oScsFile;
+	std::string radiationCircuitScsFile = folder + kFolderSeparator + kAlterationSourceNetlistFile;
 	#ifdef NETLIST_EXPORT_VERBOSE
 		log_io->ReportPlain2Log( k2Tab + "Exporting altered scenario." );
 	#endif
 	// Export radiation netlist.
-	oScsFile = folder + kFolderSeparator + kAlterationSourceNetlistFile;
-	success = success && radiationCircuit.ExportCircuit2SCS( oScsFile);
+	success = success && radiationCircuit.ExportCircuit2SCS( radiationCircuitScsFile);
 	#ifdef NETLIST_EXPORT_VERBOSE
 		log_io->ReportPlain2Log( k2Tab + "Radiation Circuit Exported." );
 	#endif
-	// Export altered netlist.
-	// oScsFile = folder + kFolderSeparator + kRadiatedNetlistFile;
-	oScsFile = folder + kFolderSeparator + alteredCircuit.get_name() + kCircutFileSufix;
-	success = success && alteredCircuit.ExportCircuit2SCS( oScsFile);
-	#ifdef NETLIST_EXPORT_VERBOSE
-		log_io->ReportPlain2Log( k2Tab + "Radiated Circuit Exported." );
-	#endif
 	// Export altered statements netlist.
-	oScsFile = folder + kFolderSeparator + kAlteredStatementsNetlistFile;
-	success = success && alteredStatementsCircuit.ExportCircuit2SCS( oScsFile);
+	std::string alteredStatementsNetlistScsFile = folder + kFolderSeparator + kAlteredStatementsNetlistFile;
+	success = success && alteredStatementsCircuit.ExportCircuit2SCS( alteredStatementsNetlistScsFile );
 	#ifdef NETLIST_EXPORT_VERBOSE
 		log_io->ReportPlain2Log( k2Tab + "Altered Circuit Exported." );
 	#endif
 	// Export non-altered netlists
 	success = success && ExportAlteredNetlist( mainCircuit,
-		alteredCircuit.get_id(), true, folder);
+		alteredCircuit.get_circuit_id(), true, folder);
 	#ifdef NETLIST_EXPORT_VERBOSE
 		log_io->ReportPlain2Log( k2Tab + "Altered Scenario Exported." );
+	#endif
+	// Export altered netlist.
+	std::string alteredCircuitScsFile = folder + kFolderSeparator + alteredCircuit.get_name() + kCircutFileSufix;
+	success = success && alteredCircuit.ExportCircuit2SCS( alteredCircuitScsFile);
+	#ifdef NETLIST_EXPORT_VERBOSE
+		log_io->ReportPlain2Log( k2Tab + "Radiated Circuit Exported." );
 	#endif
 	return success;
 }

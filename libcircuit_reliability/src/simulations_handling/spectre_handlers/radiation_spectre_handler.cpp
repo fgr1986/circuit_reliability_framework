@@ -34,6 +34,7 @@ RadiationSpectreHandler::RadiationSpectreHandler() {
 	this->spectre_command_log_arg = kNotDefinedString;
 	this->spectre_command_folder_arg = kNotDefinedString;
 	this->golden_scenario_folder_path = kNotDefinedString;
+	this->save_injection_sources = false;
 	// export_processed_metrics
 	this->export_processed_metrics = false;
 	// plot
@@ -210,13 +211,13 @@ bool RadiationSpectreHandler::RunSimulations(){
 				}
 			break;
 			default: {
-				log_io->ReportRedStandard("default mode:" + number2String(simulation_mode->get_id()) );
+				log_io->ReportRedStandard(" default mode:" + number2String(simulation_mode->get_id()) );
 				return false;
 			}
 			break;
 		}
 		sss->set_n_d_profile_index( 0 );
-		sss->set_has_additional_injection( simulation_mode->get_alteration_mode()->get_injection_mode() );
+		sss->set_has_additional_injection( save_injection_sources && simulation_mode->get_alteration_mode()->get_injection_mode() );
 		sss->set_simulation_id("parent_scenario_" + number2String( as->get_altered_scenario_id() ));
 		sss->set_is_nested_simulation(false);
 		sss->set_altered_scenario_index( radiationScenarioCounter );
@@ -429,6 +430,7 @@ bool RadiationSpectreHandler::SimulateGoldenNetlist( ){
 	// Golden netlist
 	golden_ss->set_n_d_profile_index( 0 );
 	golden_ss->set_is_nested_simulation(false);
+	golden_ss->set_has_additional_injection( false );
 	golden_ss->set_simulation_id("golden_scenario");
 	// simulation parameters
 	golden_ss->CopySimulationParameters( simulation_parameters );

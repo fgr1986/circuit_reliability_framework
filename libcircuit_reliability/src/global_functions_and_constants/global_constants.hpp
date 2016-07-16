@@ -7,7 +7,7 @@
 
 // Logger configuration:
 // Parsing logs
-#define PARSING_VERBOSE ;
+// #define PARSING_VERBOSE ;
 #define PARSING_VERBOSE_MIN ;
 // Regex 2 log
 // #define VERBOSE_REGEX ;
@@ -139,7 +139,7 @@ static const std::string kResistor = "resistor";
 static const std::string kRauxParam = "r";
 static const std::string kRauxValue = "1";
 static const std::string kSaveInjectionSufix = "_monitor";
-static const std::string kSaveInjectionMasterName = "save";
+static const std::string kSaveMasterName = "save";
 
 // integer ids
 static const int kMainCircuitId = 0;

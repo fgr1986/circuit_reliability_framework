@@ -53,7 +53,7 @@ void LogIO::CloseStreams(){
 	// delete &analysis_stream;
 }
 
-void LogIO::ReportStage( std::string text, bool red ){
+void LogIO::ReportStage( const std::string& text, bool red ){
 	if(red){
 		ReportRedStandard( kLongDelimiter );
 		ReportRedStandard( kTab + text );
@@ -65,9 +65,9 @@ void LogIO::ReportStage( std::string text, bool red ){
 	}
 }
 
-void LogIO::ReportNodeInjection( bool childOfSubcircuit, std::string alteredNodeName,
-		std::string statement_name, std::string alteredStatementScopeName, std::string parent_name,
-		std::string parent_id, std::string modificationCounter ){
+void LogIO::ReportNodeInjection( const bool childOfSubcircuit, const std::string& alteredNodeName,
+		const std::string& statement_name, const std::string& alteredStatementScopeName, const std::string& parent_name,
+		const std::string& parent_id, const std::string& modificationCounter ){
 	if( childOfSubcircuit ){
 		ReportCyanStandard( k2Tab + kShortDelimiter + kShortDelimiter);
 		ReportCyanStandard( k2Tab + " Injection of child of subcircuit.");
@@ -88,9 +88,9 @@ void LogIO::ReportNodeInjection( bool childOfSubcircuit, std::string alteredNode
 	}
 }
 
-void LogIO::ReportSubstitution( bool childOfSubcircuit, std::string new_master_name,
-		std::string statement_name, std::string alteredStatementScopeName, std::string parent_name,
-		std::string parent_id, std::string modificationCounter ){
+void LogIO::ReportSubstitution( const bool childOfSubcircuit, const std::string& new_master_name,
+		const std::string& statement_name, const std::string& alteredStatementScopeName, const std::string& parent_name,
+		const std::string& parent_id, const std::string& modificationCounter ){
 	if( childOfSubcircuit ){
 		ReportCyanStandard( k2Tab + kShortDelimiter + kShortDelimiter);
 		ReportCyanStandard( k2Tab + " Replacement of child of subcircuit.");
@@ -110,8 +110,8 @@ void LogIO::ReportSubstitution( bool childOfSubcircuit, std::string new_master_n
 	}
 }
 
-void LogIO::ReportStatementNotRadiated( std::string statement_name, std::string parent_id,
-		std::string parent_name, std::string alteredStatementScopeName ){
+void LogIO::ReportStatementNotRadiated( const std::string& statement_name, const std::string& parent_id,
+		const std::string& parent_name, const std::string& alteredStatementScopeName ){
 	ReportPlain2Log( k3Tab + kShortDelimiter );
 	ReportPlain2Log( k3Tab + "|| Statement '" + statement_name+ "'" );
 	ReportPlain2Log( k3Tab + "|| parent_id: " + parent_id );
@@ -121,9 +121,9 @@ void LogIO::ReportStatementNotRadiated( std::string statement_name, std::string 
 	ReportPlain2Log( k3Tab + kShortDelimiter );
 }
 
-void LogIO::ReportConfigurationOptions( std::string xml_cadence,
-		std::string xml_tech, std::string xml_file_experiment,
-		std::string folder, std::string threads_number ){
+void LogIO::ReportConfigurationOptions( const std::string& xml_cadence,
+		const std::string& xml_tech, const std::string& xml_file_experiment,
+		const std::string& folder, const std::string& threads_number ){
 	ReportPlainStandard( kTab + kShortDelimiter );
 	ReportPlainStandard( kTab + "|| ExperimentEnvironment Configuration: ||" );
 	ReportPlainStandard( kTab + kShortDelimiter );
@@ -149,10 +149,10 @@ std::string LogIO::GetCurrentDateTime() {
 	return buf;
 }
 
-bool LogIO::ExportReadmeStandardInjection( std::string path2Alteration,
-	std::string alteredStatementMasterName,
-	std::string alteredStatementName, std::string alteredStatementScopeName,
-	std::string alteredNodeName, std::string folder ){
+bool LogIO::ExportReadmeStandardInjection( const std::string& path2Alteration,
+const std::string& alteredStatementMasterName,
+const std::string& alteredStatementName, const std::string& alteredStatementScopeName,
+const std::string& alteredNodeName, const std::string& folder  ){
 	ReportPlain2Log( k2Tab + "Exporting readme..." );
 	bool success = true;
 	std::string oReadmeFile;
@@ -162,7 +162,7 @@ bool LogIO::ExportReadmeStandardInjection( std::string path2Alteration,
 
 	outputFile << kLongDelimiter << kEmptyLine
 		 << kTab << kSpectreHandlerLibTitle << " " << kSpectreHandlerLibVersion << kEmptyLine << kLongDelimiter << kEmptyLine
-		 << kEmptyLine << "Exported at: " << GetCurrentDateTime() << kEmptyLine
+		 << kEmptyLine << "ExportReadmeStandardInjection. Exported at: " << GetCurrentDateTime() << kEmptyLine
 		 << kEmptyLine << "Altered Statement. Name: '"
 		 << alteredStatementName << "', Master Name: '" << alteredStatementMasterName << "'"
 		 << kEmptyLine << "At node '" << alteredNodeName << "'."
@@ -173,9 +173,9 @@ bool LogIO::ExportReadmeStandardInjection( std::string path2Alteration,
 	return success;
 }
 
-bool LogIO::ExportReadmeStandardSubstitution(  std::string path2Alteration,
-	std::string alteredStatementMasterName,
-	std::string alteredStatementName, std::string newStatementMasterName, std::string folder ){
+bool LogIO::ExportReadmeStandardSubstitution( const std::string& path2Alteration,
+	const std::string& alteredStatementMasterName,
+	const std::string& alteredStatementName, const std::string& newStatementMasterName, const std::string& folder ){
 	ReportPlain2Log( k2Tab + "Exporting readme..." );
 	bool success = true;
 	std::string oReadmeFile;
@@ -185,7 +185,7 @@ bool LogIO::ExportReadmeStandardSubstitution(  std::string path2Alteration,
 
 	outputFile << kLongDelimiter << kEmptyLine
 		 << kTab << kSpectreHandlerLibTitle << " " << kSpectreHandlerLibVersion << kEmptyLine << kLongDelimiter << kEmptyLine
-		 << kEmptyLine << "Exported at: " << GetCurrentDateTime() << kEmptyLine
+		 << kEmptyLine << "ExportReadmeStandardSubstitution. Exported at: " << GetCurrentDateTime() << kEmptyLine
 		 << kEmptyLine << "Altered Statement. Name: '"
 		 << alteredStatementName << "', Master Name: '" << alteredStatementMasterName << "'"
 		 << kEmptyLine << "New master_name: '" << newStatementMasterName << "'." << kEmptyLine
@@ -197,12 +197,12 @@ bool LogIO::ExportReadmeStandardSubstitution(  std::string path2Alteration,
 
 
 void LogIO::ReportInstanceOfSubcircuitReplacement(
-		bool injectionMethod, std::string deepLevel, std::string alteredParamName,
-		std::string statement_name,
-		std::string modificationCounter, std::string oldSubcircuit,
-		std::string newSubcircuit, std::string circuitName, std::string folder,
-		std::string alteredStatementName, std::string alteredStatementMasterName,
-		std::string alteredScopeName ){
+		bool injectionMethod, const std::string& deepLevel, const std::string& alteredParamName,
+		const std::string& statement_name,
+		const std::string& modificationCounter, const std::string& oldSubcircuit,
+		const std::string& newSubcircuit, const std::string& circuitName, const std::string& folder,
+		const std::string& alteredStatementName, const std::string& alteredStatementMasterName,
+		const std::string& alteredScopeName ){
 
 	ReportBlueStandard( k3Tab + kShortDelimiter + kShortDelimiter );
 	ReportBlueStandard( k3Tab + "Alteration #" + modificationCounter  );
@@ -230,13 +230,13 @@ void LogIO::ReportInstanceOfSubcircuitReplacement(
 	}
 }
 
-bool LogIO::ExportReadmeInstanceOfSubcircuitReplacement(  std::string path2Alteration,
-		bool injectionMethod, std::string deepLevel, std::string alteredParamName,
-		std::string statement_name,
-		std::string modificationCounter, std::string oldSubcircuit,
-		std::string newSubcircuit, std::string circuitName, std::string folder,
-		std::string alteredStatementName, std::string alteredStatementMasterName,
-		std::string alteredScopeName ){
+bool LogIO::ExportReadmeInstanceOfSubcircuitReplacement( const std::string& path2Alteration,
+		const bool injectionMethod, const std::string& deepLevel, const std::string& alteredParamName,
+		const std::string& statement_name,
+		const std::string& modificationCounter, const std::string& oldSubcircuit,
+		const std::string& newSubcircuit, const std::string& circuitName, std::string folder,
+		const std::string& alteredStatementName, const std::string& alteredStatementMasterName,
+		const std::string& alteredScopeName ){
 	bool success = true;
 	std::string oReadmeFile;
 	oReadmeFile = folder + kFolderSeparator + kReadMeFile;
@@ -245,7 +245,7 @@ bool LogIO::ExportReadmeInstanceOfSubcircuitReplacement(  std::string path2Alter
 
 	outputFile << kLongDelimiter << kEmptyLine
 		<< kTab << kSpectreHandlerLibTitle << " " << kSpectreHandlerLibVersion
-		<< kEmptyLine << kTab << "Exported at: " << GetCurrentDateTime() << kEmptyLine
+		<< kEmptyLine << kTab << "ExportReadmeInstanceOfSubcircuitReplacement. Exported at: " << GetCurrentDateTime() << kEmptyLine
 		<< kEmptyLine << kLongDelimiter << kEmptyLine
 		<< kEmptyLine << "Alteration #" << modificationCounter << kEmptyLine
 		<< kEmptyLine << kLongDelimiter << kEmptyLine
@@ -278,20 +278,20 @@ bool LogIO::ExportReadmeInstanceOfSubcircuitReplacement(  std::string path2Alter
 	return success;
 }
 
-void LogIO::ReportPlain2Log( std::string text ){
+void LogIO::ReportPlain2Log( const std::string& text ){
 	#ifdef VERBOSE
 		std::clog << kTab << text << std::endl;
 	#endif
 }
 
-void LogIO::ReportPlainStandard( std::string text ){
+void LogIO::ReportPlainStandard( const std::string& text ){
 	std::cout << kTab << text << std::endl;
 	#ifdef VERBOSE
 		std::clog << kTab << text << std::endl;
 	#endif
 }
 
-void LogIO::ReportPlain2AllLogs( std::string text ){
+void LogIO::ReportPlain2AllLogs( const std::string& text ){
 	std::cout << kTab << text << std::endl;
 	#ifdef VERBOSE
 		std::clog << kTab << text << std::endl;
@@ -299,56 +299,56 @@ void LogIO::ReportPlain2AllLogs( std::string text ){
 	std::cerr << kTab << text << std::endl;
 }
 
-void LogIO::ReportYellowStandard( std::string text ){
+void LogIO::ReportYellowStandard( const std::string& text ){
 	std::cout << kTab << kYellow << text << kEndColor << std::endl;
 	#ifdef VERBOSE
 		std::clog << kTab << text << std::endl;
 	#endif
 }
 
-void LogIO::ReportGreenStandard( std::string text ){
+void LogIO::ReportGreenStandard( const std::string& text ){
 	std::cout << kTab << kGreen << text << kEndColor << std::endl;
 	#ifdef VERBOSE
 		std::clog << kTab << text << std::endl;
 	#endif
 }
 
-void LogIO::ReportGrayStandard( std::string text ){
+void LogIO::ReportGrayStandard( const std::string& text ){
 	std::cout << kTab << kGray << text << kEndColor << std::endl;
 	#ifdef VERBOSE
 		std::clog << kTab << text << std::endl;
 	#endif
 }
 
-void LogIO::ReportRedStandard( std::string text ){
+void LogIO::ReportRedStandard( const std::string& text ){
 	std::cout << kTab << kRed << text << kEndColor << std::endl;
 	#ifdef VERBOSE
 		std::clog << kTab << text << std::endl;
 	#endif
 }
 
-void LogIO::ReportBlueStandard( std::string text ){
+void LogIO::ReportBlueStandard( const std::string& text ){
 	std::cout << kTab << kBlue << text << kEndColor << std::endl;
 	#ifdef VERBOSE
 		std::clog << kTab << text << std::endl;
 	#endif
 }
 
-void LogIO::ReportPurpleStandard( std::string text ){
+void LogIO::ReportPurpleStandard( const std::string& text ){
 	std::cout << kTab << kPurple << text << kEndColor << std::endl;
 	#ifdef VERBOSE
 		std::clog << kTab << text << std::endl;
 	#endif
 }
 
-void LogIO::ReportCyanStandard( std::string text ){
+void LogIO::ReportCyanStandard( const std::string& text ){
 	std::cout << kTab << kCyan << text << kEndColor << std::endl;
 	#ifdef VERBOSE
 		std::clog << kTab << text << std::endl;
 	#endif
 }
 
-void LogIO::ReportInfo2AllLogs( std::string text ){
+void LogIO::ReportInfo2AllLogs( const std::string& text ){
 	std::cout << kTab << kGreen << text << kEndColor << std::endl;
 	#ifdef VERBOSE
 		std::clog << kTab << text << std::endl;
@@ -356,7 +356,7 @@ void LogIO::ReportInfo2AllLogs( std::string text ){
 	std::cerr << kTab << text << std::endl;
 }
 
-void LogIO::ReportUserInformationNeeded( std::string text ){
+void LogIO::ReportUserInformationNeeded( const std::string& text ){
 	std::cout << kTab << kYellow << text << kEndColor << std::endl;
 	#ifdef VERBOSE
 		std::clog << kTab << text << std::endl;
@@ -364,7 +364,7 @@ void LogIO::ReportUserInformationNeeded( std::string text ){
 	std::cerr << kTab << text << std::endl;
 }
 
-void LogIO::ReportError2AllLogs( std::string text ){
+void LogIO::ReportError2AllLogs( const std::string& text ){
 	std::cout << kTab << kRed << "[ERROR REPORTED] " << text << kEndColor << std::endl;
 	#ifdef VERBOSE
 		std::clog << kTab << "[ERROR REPORTED] " << text << std::endl;

@@ -374,7 +374,9 @@ bool CircuitRadiator::InjectNodeOfSubcircuitChild( Node& node,
 	InstanceStatement* injectorSource = GetNewInjectorInstance( node, kAlterationInjectorName );
 	alteredSubcircuitParent->set_name( alteredSubcircuitParent->get_name() + kRadiatedSufix );
 	alteredSubcircuitParent->AddStatement( injectorSource );
-
+	if( radiation_spectre_handler->get_save_injection_sources() && simulation_mode->get_alteration_mode()->get_injection_mode() ){
+		alteredSubcircuitParent->AddStatement( GetNewSaveInjectionStatement( "" ) );
+	}
 	#ifdef RADIATION_VERBOSE
 		log_io->ReportPlain2Log( "Adding " + alteredSubcircuitParent->get_name()
 				+ " while injecting " + childOfSubcircuitStatement.get_name()  + " Node: " + node.get_name() );
@@ -412,8 +414,10 @@ bool CircuitRadiator::InjectSimpleNode( Node& node, InstanceStatement& statement
 		return false;
 	}
 	// Copy of the circuit to be altered
-	CircuitStatement* localAlteredCircuit = new CircuitStatement(
-		*(CircuitStatement*) statement.get_belonging_circuit() ) ;
+	CircuitStatement* localAlteredCircuit = new CircuitStatement( *(CircuitStatement*) statement.get_belonging_circuit() ) ;
+	if( localAlteredCircuit==nullptr ){
+		log_io->ReportError2AllLogs( "null localAlteredCircuit in InjectSimpleNode, for statement " + statement.get_name() );
+	}
 	// Include statement reference
 	localAlteredCircuit->AddIncludeStatementAndRegister( GetNewIncludeStatementOfRadiationCircuit() );
 	// Injector instance
@@ -421,9 +425,11 @@ bool CircuitRadiator::InjectSimpleNode( Node& node, InstanceStatement& statement
 	// Add radiation source to parent (if not a subcircuit)
 	success = success && AddRadiationSourceInstance2Parent( statement, *localAlteredCircuit, *injectorSource);
 	// now update path 2 belonging circuit
-	post_parsing_statement_handler->FindPath2BelongingCircuit(injectorSource);
+	post_parsing_statement_handler->FindPath2BelongingCircuit( injectorSource );
 	// Injector monitoring
-	localAlteredCircuit->AddStatement( GetNewSaveInjectionStatement( "" ) );
+	if( radiation_spectre_handler->get_save_injection_sources() && simulation_mode->get_alteration_mode()->get_injection_mode() ){
+		localAlteredCircuit->AddStatement( GetNewSaveInjectionStatement( "" ) );
+	}
 	// Export netlists
 	log_io->ExportReadmeStandardInjection( statement.get_name() + ":" + node.get_name(),
 		statement.get_master_name(), statement.get_name(),
@@ -439,7 +445,7 @@ bool CircuitRadiator::InjectSimpleNode( Node& node, InstanceStatement& statement
 	#endif
 	// Mark node and update modification counter
 	node.set_injected( true );
-	modificationCounter++;
+	++modificationCounter;
 	delete localAlteredCircuit;
 	return true;
 }
@@ -473,12 +479,11 @@ bool CircuitRadiator::ReplaceAlteredSubcircuitInstances( std::string& deepLevel,
 	bool success = true;
 	deepLevel += " || Changing '" + originalSubcircuit.get_name() + "'' -> '"
 		+ alteredSubcircuit.get_name() + "'";
-	for(std::vector<InstanceStatement*>::iterator it_i = originalSubcircuit.get_progeny()->begin();
-			it_i != originalSubcircuit.get_progeny()->end(); it_i++){
-		if( !((*it_i)->get_unalterable()) ){
+	for( auto const& instanceStatement : *(originalSubcircuit.get_progeny()) ){
+		if( !(instanceStatement->get_unalterable()) ){
 			success = success && ReplaceAlteredSubcircuitInstance(deepLevel,
 				alteredParameterName, alteredStatementsCircuit,
-				**it_i, originalSubcircuit, alteredSubcircuit, modificationCounter, alteredStatementName,
+				*instanceStatement, originalSubcircuit, alteredSubcircuit, modificationCounter, alteredStatementName,
 				alteredStatementMasterName, alteredStatementPathToBelongingCircuit, alteredScopeName );
 		}
 	}
@@ -554,6 +559,7 @@ bool CircuitRadiator::ReplaceAlteredSubcircuitInstance(std::string& deepLevel, s
 		// Alterations made to a 'local' altered instance,
 		CircuitStatement* localInstanceOfSubcircuitAlteredCircuit = new CircuitStatement(
 			*(CircuitStatement*) instanceOfSubcircuit.get_belonging_circuit() );
+
 		Statement* alteredInstance;
 		if( !localInstanceOfSubcircuitAlteredCircuit->GetChildById( instanceOfSubcircuit.get_id(), alteredInstance ) ){
 			log_io->ReportError2AllLogs( k3Tab + "Error altering. Error finding statement with id '"
@@ -566,7 +572,7 @@ bool CircuitRadiator::ReplaceAlteredSubcircuitInstance(std::string& deepLevel, s
 		localInstanceOfSubcircuitAlteredCircuit->AddIncludeStatementAndRegister( GetNewIncludeStatementOfRadiationCircuit( ) );
 		localInstanceOfSubcircuitAlteredCircuit->AddIncludeStatementAndRegister( GetNewIncludeStatementOfAlteredStatementsCircuit( ) );
 		// monitor
-		if( simulation_mode->get_alteration_mode()->get_injection_mode() ){
+		if( radiation_spectre_handler->get_save_injection_sources() && simulation_mode->get_alteration_mode()->get_injection_mode() ){
 			localInstanceOfSubcircuitAlteredCircuit->AddStatement( GetNewSaveInjectionStatement( instanceOfSubcircuit.get_name() + "." ) );
 		}
 		// Export netlists
@@ -595,6 +601,12 @@ bool CircuitRadiator::ReplaceAlteredSubcircuitInstance(std::string& deepLevel, s
 				localInstanceOfSubcircuitAlteredCircuit->get_name(), alteredFolder,
 				alteredStatementName, alteredStatementMasterName, alteredScopeName );
 		#endif
+		// fgarcia: everything is alright till here
+// log_io->ReportGreenStandard("[debug] localInstanceOfSubcircuitAlteredCircuit " + localInstanceOfSubcircuitAlteredCircuit->get_name() );
+// log_io->ReportGreenStandard("[debug] instanceOfSubcircuit " + instanceOfSubcircuit.get_name() );
+// log_io->ReportGreenStandard("[debug] instanceOfSubcircuit.get_belonging_circuit() " + instanceOfSubcircuit.get_belonging_circuit()->get_name() );
+// log_io->ReportGreenStandard("[debug] alteredInstance " + alteredInstance->get_name() + " mastername:" + alteredInstance->get_master_name() );
+// log_io->ReportGreenStandard("[debug] export " + localInstanceOfSubcircuitAlteredCircuit->ExportCircuitStatement(""));
 		circuit_io_handler->ExportAlteredScenario( radiationSubcircuitsCircuit, *localInstanceOfSubcircuitAlteredCircuit,
 			*localAlteredStatementsCircuit, *main_circuit, alteredFolder );
 		radiation_spectre_handler->AddScenarioFolderPath( modificationCounter, alteredFolder, pathInject );
@@ -693,7 +705,7 @@ ControlStatement* CircuitRadiator::GetNewSaveInjectionStatement( std::string pat
 	RadiationSourceSubcircuitStatement* selectedSource =
 		simulation_mode->get_alteration_mode()->get_selected_radiation_source();
 	saveStatement->set_name( selectedSource->get_name() + kSaveInjectionSufix );
-	saveStatement->set_master_name( kSaveInjectionMasterName );
+	saveStatement->set_master_name( kSaveMasterName );
 	saveStatement->set_advanced_control_statement(false);
 	saveStatement->set_special_syntax_control_statement(true);
 	// We add the node to the injected source but not to the scope

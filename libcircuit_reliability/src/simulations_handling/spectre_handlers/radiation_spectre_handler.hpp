@@ -163,6 +163,10 @@ public:
 		this->critical_parameter = critical_parameter;
 	}
 
+	// Save individual transients
+	void set_save_injection_sources( const bool save_injection_sources ){ this->save_injection_sources = save_injection_sources;}
+	bool get_save_injection_sources() const{return save_injection_sources;}
+
 private:
 
 	/// Simulation parameters
@@ -176,6 +180,10 @@ private:
 	/// Log manager
 	LogIO* log_io;
 
+	/// max parallel instances per parameter
+	unsigned int montecarlo_iterations;
+	/// save (if applies the injected magnitude (like radiation current))
+	bool save_injection_sources;
 	/// saves individually spectre transients
 	bool delete_spectre_transients;
 	/// saves individually processed transients
@@ -193,9 +201,6 @@ private:
 	bool plot_last_transients;
 	/// exports metric errors
 	bool export_metric_errors;
-
-	/// max parallel instances per parameter
-	unsigned int montecarlo_iterations;
 
 	/// ESimulationsMode
 	SimulationMode* simulation_mode;

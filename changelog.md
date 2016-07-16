@@ -1,4 +1,6 @@
 # To Do
+* **Bug: included files not only containing subcircuits**
+* **Explicitly save injections**
 * **Global results: [CriticalParameterNDParametersSweep] maps ?**
 * Revise parameter design space exploration ( 10^ is not e^!!)
 * **To do: Latex/Html export**
@@ -7,13 +9,17 @@
 * **Instance. Nodes instead absolute nodes**
 * Weighted Nodes
 
-# Changelog of version 3.1.1
-* Fixed **ProcessLine** trim
-* **Metric** handling improvements
+# Changelog of version 3.1.2
+* **LogIO** handling improvements
+* Major bug fixes in **RAWFormatProcessor, CircuitIOHandler and CircuitRadiator** classes.
 
 # Version 3.x.y
 
 ## Version 3.0.y
+
+* Changelog of version 3.1.2
+	* **LogIO** handling improvements
+	* Major bug fixes in **RAWFormatProcessor, CircuitIOHandler and CircuitRadiator** classes.
 
 * Changelog of version 3.1.1
 	* Fixed **ProcessLine** trim

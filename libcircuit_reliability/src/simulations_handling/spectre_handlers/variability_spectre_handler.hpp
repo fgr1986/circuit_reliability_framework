@@ -149,15 +149,10 @@ public:
 	void AddSimulationParameter(
 		SimulationParameter* simulationParameter );
 
-	/**
-	 * @brief setscritical_parameter
-	 * @details critical_parameter
-	 *
-	 * @param critical_parameter
-	 */
-	// void set_critical_parameter( SimulationParameter* critical_parameter){
-	// 	this->critical_parameter = critical_parameter;
-	// }
+
+	// Save individual transients
+	void set_save_injection_sources( const bool save_injection_sources ){ this->save_injection_sources = save_injection_sources;}
+	bool get_save_injection_sources() const{return save_injection_sources;}
 
 private:
 
@@ -175,7 +170,8 @@ private:
 
 	/// max parallel instances per parameter
 	unsigned int montecarlo_iterations;
-
+	/// save (if applies the injected magnitude (like radiation current))
+	bool save_injection_sources;
 	/// saves individually spectre transients
 	bool delete_spectre_transients;
 	/// saves individually processed transients

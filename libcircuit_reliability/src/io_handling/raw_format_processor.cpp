@@ -252,10 +252,12 @@ bool RAWFormatProcessor::ProcessPSFASCII(){
 				// auto pMag = static_cast<Magnitude*>(*it_m);
 				// pMag->AddValue( atof( lineTockensSpaces.at(1).c_str() ) );
 				// ++it_m;
+// std::cout << "[debug] metric: " << (*it_m)->get_name() << " val: " << lineTockensSpaces.at(1).c_str() << "\n";
 				(static_cast<Magnitude*>(*(it_m)++))->AddValue( atof( lineTockensSpaces.at(1).c_str() ) );
 				if(it_m == it_end){
 					it_m = it_begin;
 					if( additional_save ){
+// std::cout << "[debug] additional_save!" << "\n";
 						// read the //save injector
 						getline(file, currentReadLine);
 					}
