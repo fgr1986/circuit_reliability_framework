@@ -79,6 +79,8 @@ private:
 	std::string images_folder;
 	std::string data_folder;
 
+	bool GenerateAndPlotParameterPairResults( const std::vector<SimulationParameter*>& simulationParameters );
+
 	bool ProcessStandardSimulationMode();
 
 	bool ProcessCriticalParameterValueSimulationMode();

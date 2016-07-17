@@ -121,8 +121,8 @@ bool MontecarloNDParametersSweepSimulation::TestSetUp(){
 }
 
 MontecarloSimulation* MontecarloNDParametersSweepSimulation::CreateProfile(
-	const std::vector<unsigned int> & parameterCountIndexes,
-	std::vector< SimulationParameter* > & parameters2sweep, const unsigned int threadNumber ){
+	const std::vector<unsigned int>& parameterCountIndexes,
+	std::vector<SimulationParameter*>& parameters2sweep, const unsigned int threadNumber ){
 	// Create folder
 	std::string s_threadNumber = number2String(threadNumber);
 	std::string currentFolder = folder + kFolderSeparator
@@ -154,8 +154,8 @@ MontecarloSimulation* MontecarloNDParametersSweepSimulation::CreateProfile(
 }
 
 MontecarloSimulation* MontecarloNDParametersSweepSimulation::CreateMontecarloSimulation(
-		const std::string currentFolder, const std::vector<unsigned int> & parameterCountIndexes,
-		std::vector< SimulationParameter* > & parameters2sweep, const int threadNumber  ){
+		const std::string currentFolder, const std::vector<unsigned int>& parameterCountIndexes,
+		std::vector<SimulationParameter*>& parameters2sweep, const int threadNumber  ){
 	std::string s_threadNumber = number2String(threadNumber);
 	// Simulation
 	MontecarloSimulation* pMSS = new MontecarloSimulation();
@@ -211,7 +211,7 @@ MontecarloSimulation* MontecarloNDParametersSweepSimulation::CreateMontecarloSim
 }
 
 bool MontecarloNDParametersSweepSimulation::GenerateAndPlotResults(
-	const std::vector< SimulationParameter* > & parameters2sweep  ){
+	const std::vector<SimulationParameter*>& parameters2sweep  ){
 	// a) General Results
 	// 1 file: upsets ratio at each profile
 	// N files, one per metric/metric, including meanMaxError, maxError, etc
@@ -258,6 +258,9 @@ bool MontecarloNDParametersSweepSimulation::GenerateAndPlotResults(
 	// reserve memory
 	main_nd_simulation_results.ReservePlanesInMemory( CountInvolvedPlanes(parameters2sweep) );
 	unsigned int p1Index = 0;
+	std::string planesMapsFolder;
+	std::string planesGnuplotScriptFolder;
+	std::string planesImagesFolder;
 	for( auto const &p1 : parameters2sweep ){
 		unsigned int p2Index = 0;
 		for( auto const &p2 : parameters2sweep ){
@@ -270,15 +273,14 @@ bool MontecarloNDParametersSweepSimulation::GenerateAndPlotResults(
 				#ifdef RESULTS_POST_PROCESSING_VERBOSE
 				log_io->ReportPlainStandard("Exporting map: " + p1->get_name() + "-" + p2->get_name() );
 				#endif
-				std::string planesMapsFolder =  mapsFolder + kFolderSeparator
-					 + p1->get_file_name() + "_" + p2->get_file_name();
-				std::string planesGnuplotScriptFolder =  gnuplotScriptFolder + kFolderSeparator
-					 + p1->get_file_name() + "_" + p2->get_file_name();
-				std::string planesImagesFolder = imagesFolder + kFolderSeparator
-					 + p1->get_file_name() + "_" + p2->get_file_name();
+				planesMapsFolder.clear();
+				planesGnuplotScriptFolder.clear();
+				planesImagesFolder.clear();
+				planesMapsFolder =  mapsFolder + kFolderSeparator + p1->get_file_name() + "_" + p2->get_file_name();
+				planesGnuplotScriptFolder =  gnuplotScriptFolder + kFolderSeparator + p1->get_file_name() + "_" + p2->get_file_name();
+				planesImagesFolder = imagesFolder + kFolderSeparator + p1->get_file_name() + "_" + p2->get_file_name();
 				if( !CreateFolder(planesMapsFolder, true ) || !CreateFolder(planesImagesFolder, true ) || !CreateFolder(planesGnuplotScriptFolder, true ) ){
-					log_io->ReportError2AllLogs( k2Tab + "-> Error creating folders: '"
-						+ planesMapsFolder + " and " + planesImagesFolder + "'." );
+					log_io->ReportError2AllLogs( k2Tab + "-> Error creating folders: '" + planesMapsFolder + " and " + planesImagesFolder + "'." );
 					log_io->ReportError2AllLogs( "Error GenerateAndPlotResults" );
 					return false;
 				}

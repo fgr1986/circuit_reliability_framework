@@ -289,6 +289,9 @@ bool XMLIOManager::ReadExperimentXML( const std::string &xmlExperiment, int& sta
 			+ ptExperiment.get<std::string>("root.radiation_simulator_target_version") );
 		// save injecion source
 		radiationSpectreHandler.set_save_injection_sources( ptExperiment.get<bool>("root.save_injection_sources") );
+		log_io->ReportPlainStandard( radiationSpectreHandler.get_save_injection_sources() ?
+			kTab + "Experiment will save the injected magnitude." :
+			kTab + "Experiment will not save the injected magnitude." );
 		// delete_spectre_folders
 		radiationSpectreHandler.set_delete_spectre_folders( ptExperiment.get<bool>("root.delete_spectre_folders") );
 		log_io->ReportPlainStandard( radiationSpectreHandler.get_delete_spectre_folders() ?

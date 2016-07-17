@@ -3,7 +3,7 @@
 ##########################################
 
 # # of cores used during compiling
-export MAKEFLAGS="-j $(grep -c ^processor /proc/cpuinfo)"
+# export MAKEFLAGS="-j $(grep -c ^processor /proc/cpuinfo)"
 # export MAKEFLAGS="-j 2"
 # export MAKEFLAGS="-j 1"
 ############

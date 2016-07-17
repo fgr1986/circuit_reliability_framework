@@ -57,8 +57,7 @@ protected:
 	/// Logger
 	LogIO* log_io;
 
-	bool PreProcessResultsFiles( std::string&& path,
-		unsigned int& totalRows, unsigned int& totalColumns );
+	bool PreProcessResultsFiles( const std::string&& path, unsigned int& totalRows, unsigned int& totalColumns );
 	bool MeanProcessResultFile( const std::string&& path,
 		Matrix& matrix, const std::vector<unsigned int>&& columnIndexes );
 	bool StatisticProcessResultFile( const std::string&& path,

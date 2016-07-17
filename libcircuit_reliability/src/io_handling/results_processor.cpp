@@ -31,7 +31,7 @@ ResultsProcessor::~ResultsProcessor() {
 	#endif
 }
 
-bool ResultsProcessor::PreProcessResultsFiles( std::string&& path,
+bool ResultsProcessor::PreProcessResultsFiles( const std::string&& path,
 	unsigned int& totalRows, unsigned int& totalColumns ){
 	totalRows = 0;
 	totalColumns = 0;

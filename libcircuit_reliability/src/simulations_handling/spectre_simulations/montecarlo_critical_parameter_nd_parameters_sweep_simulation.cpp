@@ -160,7 +160,7 @@ MontecarloCriticalParameterValueSimulation* MontecarloCriticalParameterNDParamet
 }
 
 MontecarloCriticalParameterValueSimulation* MontecarloCriticalParameterNDParametersSweepSimulation::CreateMontecarloCriticalParameterValueSimulation(
-		const std::string& currentFolder, const std::vector<unsigned int> & parameterCountIndexes,
+		const std::string& currentFolder, const std::vector<unsigned int>& parameterCountIndexes,
 		std::vector<SimulationParameter*>& parameters2sweep, const int ndProfileIndex  ){
 	std::string s_ndProfileIndex = number2String(ndProfileIndex);
 	// Simulation
@@ -222,7 +222,7 @@ MontecarloCriticalParameterValueSimulation* MontecarloCriticalParameterNDParamet
 }
 
 bool MontecarloCriticalParameterNDParametersSweepSimulation::GenerateAndPlotResults(
-	const std::vector< SimulationParameter* > & parameters2sweep  ){
+	const std::vector<SimulationParameter*>& parameters2sweep  ){
 	// a) General Results
 	// 1 file: parameter critical value at each profile
 	// N files, one per metric/metric, including meanMaxError, maxError, etc
@@ -269,6 +269,10 @@ bool MontecarloCriticalParameterNDParametersSweepSimulation::GenerateAndPlotResu
 	}
 	// reserve memory
 	main_nd_simulation_results.ReservePlanesInMemory( CountInvolvedPlanes(parameters2sweep) );
+	// create planes
+	std::string planesMapsFolder;
+	std::string planesGnuplotScriptFolder;
+	std::string planesImagesFolder;
 	unsigned int p1Index = 0;
 	for( auto const &p1 : parameters2sweep ){
 		unsigned int p2Index = 0;
@@ -282,15 +286,14 @@ bool MontecarloCriticalParameterNDParametersSweepSimulation::GenerateAndPlotResu
 				#ifdef RESULTS_POST_PROCESSING_VERBOSE
 				log_io->ReportPlainStandard("Exporting map: " + p1->get_name() + "-" + p2->get_name() );
 				#endif
-				std::string planesMapsFolder =  mapsFolder + kFolderSeparator
-					 + p1->get_file_name() + "_" + p2->get_file_name();
-				std::string planesGnuplotScriptFolder =  gnuplotScriptFolder + kFolderSeparator
-					 + p1->get_file_name() + "_" + p2->get_file_name();
-				std::string planesImagesFolder = imagesFolder + kFolderSeparator
-					 + p1->get_file_name() + "_" + p2->get_file_name();
+				planesMapsFolder.clear();
+				planesGnuplotScriptFolder.clear();
+				planesImagesFolder.clear();
+				planesMapsFolder =  mapsFolder + kFolderSeparator + p1->get_file_name() + "_" + p2->get_file_name();
+				planesGnuplotScriptFolder =  gnuplotScriptFolder + kFolderSeparator + p1->get_file_name() + "_" + p2->get_file_name();
+				planesImagesFolder = imagesFolder + kFolderSeparator + p1->get_file_name() + "_" + p2->get_file_name();
 				if( !CreateFolder(planesMapsFolder, true ) || !CreateFolder(planesImagesFolder, true ) || !CreateFolder(planesGnuplotScriptFolder, true ) ){
-					log_io->ReportError2AllLogs( k2Tab + "-> Error creating folders: '"
-						+ planesMapsFolder + " and " + planesImagesFolder + "'." );
+					log_io->ReportError2AllLogs( k2Tab + "-> Error creating folders: '" + planesMapsFolder + " and " + planesImagesFolder + "'." );
 					log_io->ReportError2AllLogs( "Error GenerateAndPlotResults" );
 					return false;
 				}

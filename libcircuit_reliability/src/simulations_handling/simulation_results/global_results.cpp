@@ -150,7 +150,7 @@ bool GlobalResults::ProcessCriticalParameterValueSimulationMode(){
 	outputFile.close();
 	// plot it!
 	if( correctlyExported ){
-		correctlyExported = correctlyExported & PlotCriticalParameterValueSimulationMode(
+		correctlyExported = correctlyExported && PlotCriticalParameterValueSimulationMode(
 			*auxMetrics, critParamOffset, firstMagOffset,
 			dataColumnsPerMetric, *criticalParameter, outputFilePath);
 	}
@@ -337,14 +337,66 @@ bool GlobalResults::ProcessCriticalParameterNDParametersSweepSimulationMode(){
 			return false;
 		}
 		// create gnuplot scatter map graphs
-		partialResult = partialResult & PlotCriticalParameterNDParametersSweepSimulationMode(
+		partialResult = partialResult && PlotCriticalParameterNDParametersSweepSimulationMode(
 			*auxMetrics, critParamOffset, firstMagOffset,
 			dataColumnsPerMetric, *criticalParameter, outputFilePath);
+		// planes
+		auto simulatedParameters = (* simulations->begin())->get_simulation_parameters();
+		partialResult = partialResult && GenerateAndPlotParameterPairResults(
+			*simulatedParameters );
 	}
 	// fgarcia
 	// critical parameter value for each Scenario (mean between profiles)
 
 	return partialResult;
+}
+
+bool GlobalResults::GenerateAndPlotParameterPairResults( const std::vector<SimulationParameter*>& simulationParameters ){
+	bool correctlyPlotted = true;
+	std::vector<SimulationParameter*> parameters2sweep;
+	for( auto const &p : simulationParameters ){
+		if( p->get_allow_sweep() ){
+			parameters2sweep.push_back( p );
+		}
+	}
+	auto exportedParamTuples = new std::set<std::pair<unsigned int,unsigned int>>();
+	unsigned int p1Index = 0;
+	std::string planesMapsFolder;
+	std::string planesGnuplotScriptFolder;
+	std::string planesImagesFolder;
+	for( auto const &p1 : parameters2sweep ){
+		unsigned int p2Index = 0;
+		for( auto const &p2 : parameters2sweep ){
+			auto auxPair1 = std::make_pair( p1Index, p2Index);
+			auto auxPair2 = std::make_pair( p2Index, p1Index);
+			if( p1Index!=p2Index &&
+					exportedParamTuples->end()==exportedParamTuples->find( auxPair1 ) &&
+					exportedParamTuples->end()==exportedParamTuples->find( auxPair2 ) ){
+				// create folders
+				planesMapsFolder.clear();
+				planesGnuplotScriptFolder.clear();
+				planesImagesFolder.clear();
+				planesMapsFolder =  data_folder + kFolderSeparator + p1->get_file_name() + "_" + p2->get_file_name();
+				planesGnuplotScriptFolder =  gnuplot_script_folder + kFolderSeparator + p1->get_file_name() + "_" + p2->get_file_name();
+				planesImagesFolder = images_folder + kFolderSeparator + p1->get_file_name() + "_" + p2->get_file_name();
+				if( !CreateFolder(planesMapsFolder, true ) || !CreateFolder(planesImagesFolder, true ) || !CreateFolder(planesGnuplotScriptFolder, true ) ){
+					log_io->ReportError2AllLogs( k2Tab + "-> Error creating folders: '" + planesMapsFolder + " and " + planesImagesFolder + "'." );
+					log_io->ReportError2AllLogs( "Error GenerateAndPlotResults" );
+					return false;
+				}
+				// process statistics
+				// plot statistics
+				// correctlyPlotted = correctlyPlotted && GenerateAndPlotParameterPairResults(
+				// 	*auxMetrics, totalAnalizableMetrics,
+				// 	p1Index, p2Index, parameters2sweep, planesMapsFolder, planesGnuplotScriptFolder, planesImagesFolder );
+				// add parameters to set
+				exportedParamTuples->insert(auxPair1);
+			}
+			++p2Index;
+		}
+		++p1Index;
+	} // end of p1 vs p2 3d plot
+	return correctlyPlotted;
 }
 
 bool GlobalResults::PlotCriticalParameterNDParametersSweepSimulationMode(
@@ -541,7 +593,7 @@ bool GlobalResults::ProcessMontecarloCriticalParameterNDParametersSweepMode(){
 			return false;
 		}
 		// create gnuplot scatter map graphs
-		partialResult = partialResult & PlotMontecarloCriticalParameterNDParametersSweepMode(
+		partialResult = partialResult && PlotMontecarloCriticalParameterNDParametersSweepMode(
 			*auxMetrics, critParamOffset, firstMagOffset,
 			dataColumnsPerMetric, *criticalParameter, outputFilePath);
 	}

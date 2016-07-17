@@ -281,6 +281,9 @@ bool CriticalParameterNDParameterSweepSimulation::GenerateAndPlotResults(
 	// reserve memory
 	main_nd_simulation_results.ReservePlanesInMemory( CountInvolvedPlanes(parameters2sweep) );
 	// create planes
+	std::string planesMapsFolder;
+	std::string planesGnuplotScriptFolder;
+	std::string planesImagesFolder;
 	unsigned int p1Index = 0;
 	for( auto const &p1 : parameters2sweep ){
 		unsigned int p2Index = 0;
@@ -288,18 +291,18 @@ bool CriticalParameterNDParameterSweepSimulation::GenerateAndPlotResults(
 			auto auxPair1 = std::make_pair( p1Index, p2Index);
 			auto auxPair2 = std::make_pair( p2Index, p1Index);
 			if( p1Index!=p2Index &&
-				exportedParamTuples.end()==exportedParamTuples.find( auxPair1 ) &&
-				exportedParamTuples.end()==exportedParamTuples.find( auxPair2 ) ){
+					exportedParamTuples.end()==exportedParamTuples.find( auxPair1 ) &&
+					exportedParamTuples.end()==exportedParamTuples.find( auxPair2 ) ){
 				// generate partial map and results
 				#ifdef RESULTS_POST_PROCESSING_VERBOSE
 				log_io->ReportPlainStandard("Exporting map: " + p1->get_name() + "-" + p2->get_name() );
 				#endif
-				std::string planesMapsFolder =  mapsFolder + kFolderSeparator
-					 + p1->get_file_name() + "_" + p2->get_file_name();
-				std::string planesGnuplotScriptFolder =  gnuplotScriptFolder + kFolderSeparator
-					 + p1->get_file_name() + "_" + p2->get_file_name();
-				std::string planesImagesFolder = imagesFolder + kFolderSeparator
-					 + p1->get_file_name() + "_" + p2->get_file_name();
+				planesMapsFolder.clear();
+				planesGnuplotScriptFolder.clear();
+				planesImagesFolder.clear();
+				planesMapsFolder =  mapsFolder + kFolderSeparator + p1->get_file_name() + "_" + p2->get_file_name();
+				planesGnuplotScriptFolder =  gnuplotScriptFolder + kFolderSeparator + p1->get_file_name() + "_" + p2->get_file_name();
+				planesImagesFolder = imagesFolder + kFolderSeparator + p1->get_file_name() + "_" + p2->get_file_name();
 				if( !CreateFolder(planesMapsFolder, true ) || !CreateFolder(planesImagesFolder, true ) || !CreateFolder(planesGnuplotScriptFolder, true ) ){
 					log_io->ReportError2AllLogs( k2Tab + "-> Error creating folders: '"
 						+ planesMapsFolder + " and " + planesImagesFolder + "'." );
