@@ -35,7 +35,14 @@ void NDSimulationResults::AddPlaneResultsStructure( PlaneResultsStructure* plane
 	plane_results_structures->push_back( plane );
 }
 
-void NDSimulationResults::ReservePlanesInMemory( unsigned int planesLength ){
+PlaneResultsStructure* NDSimulationResults::GetPlaneResultsStructure( const unsigned int planeIndex ){
+	if( planeIndex<plane_results_structures->size() ){
+		return plane_results_structures->at(planeIndex);
+	}
+	return nullptr;
+}
+
+void NDSimulationResults::ReservePlanesInMemory( const unsigned int planesLength ){
 	// reserve memory
 	plane_results_structures->reserve(planesLength);
 }

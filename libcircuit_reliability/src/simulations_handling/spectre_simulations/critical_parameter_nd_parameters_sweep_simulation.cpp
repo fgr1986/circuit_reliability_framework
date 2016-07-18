@@ -727,7 +727,6 @@ int CriticalParameterNDParameterSweepSimulation::GnuplotPlane(
 	}else{
 		plane.set_general_image_path( outputImagePath );
 	}
-
 	return std::system( execCommand.c_str() );
 }
 

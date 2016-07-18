@@ -79,6 +79,8 @@ public:
 
 	std::vector<unsigned int>* get_metric_column_indexes(){ return &metric_column_indexes; }
 
+	unsigned int get_data_per_metric_per_line() const{ return data_per_metric_per_line; }
+
 private:
 
 	/// Critical parameter value
@@ -93,7 +95,7 @@ private:
 	/// plot last transient
 	bool plot_last_transients;
 	/// data per metric per line for gnuplot maps
-	const int data_per_metric_per_line = 3;
+	const unsigned int data_per_metric_per_line = 3;
 	std::vector<unsigned int> metric_column_indexes;
 
 	bool InitMetricColumnIndexes( const std::vector<Metric*>& auxMetrics );

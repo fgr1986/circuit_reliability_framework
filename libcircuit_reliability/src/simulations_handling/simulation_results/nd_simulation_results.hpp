@@ -38,8 +38,9 @@ public:
 	void AddPlaneResultsStructure( PlaneResultsStructure* plane );
 
 	std::vector<PlaneResultsStructure*>* get_plane_results_structures(){ return plane_results_structures; };
+	PlaneResultsStructure* GetPlaneResultsStructure( const unsigned int planeIndex);
 
-	void ReservePlanesInMemory( unsigned int planesLength );
+	void ReservePlanesInMemory( const unsigned int planesLength );
 
 	// void AddGeneralMetricDataPath( const std::string& path, const std::string& title );
 	void AddGeneralMetricImagePath( const std::string& path, const std::string& title );

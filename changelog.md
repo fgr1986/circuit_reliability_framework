@@ -12,6 +12,7 @@
 # Changelog of version 3.1.2
 * **LogIO** handling improvements
 * Major bug fixes in **RAWFormatProcessor, CircuitIOHandler and CircuitRadiator** classes.
+* Radiation summary reports now include parameter versus parameter planes.
 
 # Version 3.x.y
 
@@ -20,6 +21,7 @@
 * Changelog of version 3.1.2
 	* **LogIO** handling improvements
 	* Major bug fixes in **RAWFormatProcessor, CircuitIOHandler and CircuitRadiator** classes.
+	* Radiation summary reports now include parameter versus parameter planes.
 
 * Changelog of version 3.1.1
 	* Fixed **ProcessLine** trim

@@ -33,7 +33,6 @@ bool GlobalResults::ProcessScenarioStatistics(){
 	data_folder = top_folder + "/" + kResultsFolder + "/" + kResultsDataFolder + "/" + kSummaryResultsFolder;
 	bool partialResult = true;
 	// Process results
-	std::cout << "[ðebug] mode: " << simulation_mode->get_id() << "\n";
 	switch( simulation_mode->get_id() ){
 		case kStandardMode: {
 				partialResult = ProcessStandardSimulationMode();
@@ -308,6 +307,8 @@ bool GlobalResults::ProcessCriticalParameterNDParametersSweepSimulationMode(){
 	std::string outputFilePath = data_folder + "/critical_parameter_" + kSummaryFile.c_str();
 	// scenario paths
 	std::map<std::string, std::string> paths;
+	// simulationsNDSimulationResults
+	std::vector<NDSimulationResults*> simulationsNDSimulationResults;
 	ResultsProcessor rp;
 	auto pFirstMagColumnIndexes= ( dynamic_cast<CriticalParameterNDParameterSweepSimulation*>(
 		(*simulations->begin())) )->get_metric_column_indexes();
@@ -315,6 +316,7 @@ bool GlobalResults::ProcessCriticalParameterNDParametersSweepSimulationMode(){
 		auto pCPNDPSS = dynamic_cast<CriticalParameterNDParameterSweepSimulation*>(s);
 		paths.insert( std::make_pair(
 			(pCPNDPSS->get_main_nd_simulation_results())->get_general_data_path(), pCPNDPSS->get_simulation_id() ) );
+		simulationsNDSimulationResults.push_back( pCPNDPSS->get_main_nd_simulation_results() );
 	}
 	// process results
 	partialResult = partialResult && rp.StatisticProcessResultsFiles(
@@ -338,12 +340,15 @@ bool GlobalResults::ProcessCriticalParameterNDParametersSweepSimulationMode(){
 		}
 		// create gnuplot scatter map graphs
 		partialResult = partialResult && PlotCriticalParameterNDParametersSweepSimulationMode(
-			*auxMetrics, critParamOffset, firstMagOffset,
-			dataColumnsPerMetric, *criticalParameter, outputFilePath);
+			*auxMetrics, critParamOffset, firstMagOffset, dataColumnsPerMetric, *criticalParameter, outputFilePath);
 		// planes
-		auto simulatedParameters = (* simulations->begin())->get_simulation_parameters();
+		auto auxSim = dynamic_cast<CriticalParameterNDParameterSweepSimulation*> (simulations->front());
+		auto simulatedParameters = simulations->front()->get_simulation_parameters();
+		auto metricColumnIndexes = auxSim->get_metric_column_indexes();
 		partialResult = partialResult && GenerateAndPlotParameterPairResults(
-			*simulatedParameters );
+			auxSim->get_golden_critical_parameter()->get_title_name(),
+			auxSim->get_data_per_metric_per_line(), *auxMetrics, *simulatedParameters,
+			std::move(*metricColumnIndexes), simulationsNDSimulationResults );
 	}
 	// fgarcia
 	// critical parameter value for each Scenario (mean between profiles)
@@ -351,7 +356,12 @@ bool GlobalResults::ProcessCriticalParameterNDParametersSweepSimulationMode(){
 	return partialResult;
 }
 
-bool GlobalResults::GenerateAndPlotParameterPairResults( const std::vector<SimulationParameter*>& simulationParameters ){
+bool GlobalResults::GenerateAndPlotParameterPairResults(
+		const std::string& criticalParameterName,
+		const unsigned int dataPerMetricPerLine, const std::vector<Metric*>& analyzedMetrics,
+		const std::vector<SimulationParameter*>& simulationParameters,
+		const std::vector<unsigned int>&& metricColumnIndexes,
+		const std::vector<NDSimulationResults*>& simulationsNDSimulationResults	){
 	bool correctlyPlotted = true;
 	std::vector<SimulationParameter*> parameters2sweep;
 	for( auto const &p : simulationParameters ){
@@ -359,45 +369,200 @@ bool GlobalResults::GenerateAndPlotParameterPairResults( const std::vector<Simul
 			parameters2sweep.push_back( p );
 		}
 	}
-	auto exportedParamTuples = new std::set<std::pair<unsigned int,unsigned int>>();
-	unsigned int p1Index = 0;
+	log_io->ReportGreenStandard( "Generating Summary 3d p1 vs p2 planes. Parameters2sweep size: " + number2String(parameters2sweep.size()));
+
 	std::string planesMapsFolder;
 	std::string planesGnuplotScriptFolder;
 	std::string planesImagesFolder;
-	for( auto const &p1 : parameters2sweep ){
-		unsigned int p2Index = 0;
-		for( auto const &p2 : parameters2sweep ){
-			auto auxPair1 = std::make_pair( p1Index, p2Index);
-			auto auxPair2 = std::make_pair( p2Index, p1Index);
-			if( p1Index!=p2Index &&
-					exportedParamTuples->end()==exportedParamTuples->find( auxPair1 ) &&
-					exportedParamTuples->end()==exportedParamTuples->find( auxPair2 ) ){
-				// create folders
-				planesMapsFolder.clear();
-				planesGnuplotScriptFolder.clear();
-				planesImagesFolder.clear();
-				planesMapsFolder =  data_folder + kFolderSeparator + p1->get_file_name() + "_" + p2->get_file_name();
-				planesGnuplotScriptFolder =  gnuplot_script_folder + kFolderSeparator + p1->get_file_name() + "_" + p2->get_file_name();
-				planesImagesFolder = images_folder + kFolderSeparator + p1->get_file_name() + "_" + p2->get_file_name();
-				if( !CreateFolder(planesMapsFolder, true ) || !CreateFolder(planesImagesFolder, true ) || !CreateFolder(planesGnuplotScriptFolder, true ) ){
-					log_io->ReportError2AllLogs( k2Tab + "-> Error creating folders: '" + planesMapsFolder + " and " + planesImagesFolder + "'." );
-					log_io->ReportError2AllLogs( "Error GenerateAndPlotResults" );
-					return false;
-				}
-				// process statistics
-				// plot statistics
-				// correctlyPlotted = correctlyPlotted && GenerateAndPlotParameterPairResults(
-				// 	*auxMetrics, totalAnalizableMetrics,
-				// 	p1Index, p2Index, parameters2sweep, planesMapsFolder, planesGnuplotScriptFolder, planesImagesFolder );
-				// add parameters to set
-				exportedParamTuples->insert(auxPair1);
-			}
-			++p2Index;
+	std::string generalParameterResultsFile;
+	std::map<std::string,std::string> planeStructurePaths;
+	// planeStructurePaths.reserve( simulationsNDSimulationResults.size() );
+	// fgarcia:
+	auto auxNDSimulationResults = simulationsNDSimulationResults.front();
+	log_io->ReportRedStandard( "[debug] " + auxNDSimulationResults->GetPlaneResultsStructure(0)->get_general_data_path());
+	unsigned int planeCount = 0;
+	ResultsProcessor rp;
+	std::vector<std::string> paramTokens;
+	std::string planeId;
+	for ( auto const &planeStructure : * auxNDSimulationResults->get_plane_results_structures() ){
+		// create folders
+		planesMapsFolder.clear();
+		planesGnuplotScriptFolder.clear();
+		planesImagesFolder.clear();
+		planeId = planeStructure->get_plane_id();
+		planesMapsFolder =  data_folder + kFolderSeparator + planeId;
+		planesGnuplotScriptFolder =  gnuplot_script_folder + kFolderSeparator + planeId;
+		planesImagesFolder = images_folder + kFolderSeparator + planeId;
+		if( !CreateFolder(planesMapsFolder, true ) || !CreateFolder(planesImagesFolder, true ) || !CreateFolder(planesGnuplotScriptFolder, true ) ){
+			log_io->ReportError2AllLogs( k2Tab + "-> Error creating folders: '" + planesMapsFolder + " and " + planesImagesFolder + "'." );
+			log_io->ReportError2AllLogs( "Error GenerateAndPlotResults" );
+			return false;
 		}
-		++p1Index;
+		log_io->ReportRedStandard( "[debug] " + planeId );
+		// process statistics
+		generalParameterResultsFile.clear();
+		generalParameterResultsFile = planesMapsFolder + kFolderSeparator +  planeId + "_general_scenarios" + kDataSufix;
+		planeStructurePaths.clear();
+		for( auto const &pNDSR : simulationsNDSimulationResults ){
+			planeStructurePaths.insert( std::make_pair(
+				pNDSR->GetPlaneResultsStructure(planeCount)->get_general_data_path(), pNDSR->GetPlaneResultsStructure(planeCount)->get_plane_id()) );
+		}
+		++planeCount;
+		// generate mean data file
+		// fgarcia ( hay max min etc? ): critical nd no, motnecarlo_critical_nd sí
+		correctlyPlotted = correctlyPlotted && rp.MeanProcessResultsFiles(
+			&planeStructurePaths, generalParameterResultsFile, std::move(metricColumnIndexes));
+		paramTokens.clear();
+		boost::split( paramTokens, planeId, boost::is_any_of("_"), boost::token_compress_on );
+		if( paramTokens.size()!=2 ){
+			log_io->ReportError2AllLogs( planeId + "paramTokens error" );
+			break;
+		}
+		auto p1 = parameters2sweep.at( std::atoi( paramTokens.at(0).c_str() ) );
+		auto p2 = parameters2sweep.at( std::atoi( paramTokens.at(1).c_str() ) );
+		// metrics
+		int gnuplotResult = GnuplotPlane( criticalParameterName, *p1, *p2, planeId,
+			generalParameterResultsFile, planesGnuplotScriptFolder, planesImagesFolder );
+		gnuplotResult += GnuplotPlaneMetricResults( dataPerMetricPerLine, analyzedMetrics, *p1, *p2,
+			planeId, generalParameterResultsFile, planesGnuplotScriptFolder, planesImagesFolder );
+		if( gnuplotResult > 0 ){
+			log_io->ReportError2AllLogs( ".Unexpected gnuplot result: " + number2String(gnuplotResult) );
+		}
+
 	} // end of p1 vs p2 3d plot
 	return correctlyPlotted;
 }
+
+int GlobalResults::GnuplotPlane(
+	const std::string& criticalParameterName,
+	const SimulationParameter& p1, const SimulationParameter& p2,
+	const std::string& partialPlaneId, const std::string& gnuplotDataFile,
+	const std::string& gnuplotScriptFolder, const std::string& imagesFolder ){
+	// Files
+	std::string gnuplotScriptFilePath = gnuplotScriptFolder + kFolderSeparator + partialPlaneId + "_" + kGnuPlotScriptSufix;
+	std::string outputImagePath = imagesFolder + kFolderSeparator + partialPlaneId + "_3D" + kSvgSufix;
+	// Generate scripts
+	std::ofstream gnuplotScriptFile;
+	gnuplotScriptFile.open( gnuplotScriptFilePath.c_str() );
+	gnuplotScriptFile << "set term svg  size " << kSvgImageWidth << ","<< kSvgImageHeight << " fname " << kSvgFont << "\n";
+	gnuplotScriptFile << "set output \"" << outputImagePath << "\"\n";
+
+	gnuplotScriptFile << "set grid\n";
+	// Axis
+	if( p1.get_value_change_mode()!=kSPLineal ){
+		gnuplotScriptFile << "set logscale x\n";
+	}
+	if( p2.get_value_change_mode()!=kSPLineal ){
+		gnuplotScriptFile << "set logscale y\n";
+	}
+	gnuplotScriptFile << "set format x \"%g\"\n";
+	gnuplotScriptFile << "set format y \"%g\"\n";
+	gnuplotScriptFile << "set mxtics\n";
+	gnuplotScriptFile << "set xlabel \""  << p1.get_title_name() << "\"\n";
+	gnuplotScriptFile << "set ylabel \""  << p2.get_title_name() << "\"\n";
+	gnuplotScriptFile << "set zlabel \"" << criticalParameterName << "\" offset -2.5,0\n";
+	// Offset for xtics
+	gnuplotScriptFile << "set ytics left offset 0,-0.5\n";
+	// Color Paletes
+	gnuplotScriptFile << kUpsetsPalette << "\n";
+	// Background
+	gnuplotScriptFile << kWholeBackground << "\n";
+	gnuplotScriptFile << "set title \"" << criticalParameterName
+		<< ", " << partialPlaneId << " \"\n";
+	gnuplotScriptFile << kTransparentObjects << "\n";
+	// linestyle
+	gnuplotScriptFile << kElegantLine << "\n";
+	// mp3d interpolation and hidden3d
+	// mp3d z-offset, interpolation and hidden3d
+	gnuplotScriptFile <<  "set ticslevel 0\n";
+	gnuplotScriptFile << "set pm3d hidden3d 100\n";
+	gnuplotScriptFile << "set pm3d interpolate 2,2\n";
+	gnuplotScriptFile << "# set pm3d corners2color max\n";
+	gnuplotScriptFile << "splot '" << gnuplotDataFile << "' u 1:2:3 notitle w pm3d\n";
+	gnuplotScriptFile << "unset output\n";
+	// close file
+	gnuplotScriptFile << "quit\n";
+	gnuplotScriptFile.close();
+
+	// Exec comand
+	std::string execCommand = kGnuplotCommand + gnuplotScriptFilePath + kGnuplotEndCommand;
+	return std::system( execCommand.c_str() );
+}
+
+int GlobalResults::GnuplotPlaneMetricResults( unsigned int dataPerMetricPerLine,
+	const std::vector<Metric*>& analyzedMetrics,
+	const SimulationParameter& p1, const SimulationParameter& p2,
+	const std::string& partialPlaneId, const std::string& gnuplotDataFile,
+	const std::string& gnuplotScriptFolder, const std::string& imagesFolder ){
+	unsigned int magCount = 0;
+	int partialResults = 0;
+	for( auto const &m : analyzedMetrics ){
+		if( m->get_analyzable() ){
+			// Files
+			std::string gnuplotScriptFilePath = gnuplotScriptFolder + kFolderSeparator
+				 + partialPlaneId + "_mag_" + number2String(magCount) + "_" + kGnuPlotScriptSufix;
+			std::string outputImagePath = imagesFolder + kFolderSeparator
+				 + partialPlaneId + "_mag_" + number2String(magCount) + "_3D" + kSvgSufix;
+			std::string title = m->get_title_name() + ", " + partialPlaneId;
+			// Generate scripts
+			std::ofstream gnuplotScriptFile;
+			gnuplotScriptFile.open( gnuplotScriptFilePath.c_str() );
+			gnuplotScriptFile << "set term svg  size " << kSvgImageWidth << ","<< kSvgImageHeight << " fname " << kSvgFont << "\n";
+			gnuplotScriptFile << "set output \"" << outputImagePath  << "\"\n";
+			gnuplotScriptFile << "set grid\n";
+			// Axis
+			if( p1.get_value_change_mode()!=kSPLineal ){
+				gnuplotScriptFile << "set logscale x\n";
+			}
+			if( p2.get_value_change_mode()!=kSPLineal ){
+				gnuplotScriptFile << "set logscale y\n";
+			}
+			gnuplotScriptFile << "set format x \"%g\"\n";
+			gnuplotScriptFile << "set format y \"%g\"\n";
+			gnuplotScriptFile << "set mxtics\n";
+			gnuplotScriptFile << "set xlabel \"" << p1.get_title_name() << "\"\n";
+			gnuplotScriptFile << "set ylabel \"" << p2.get_title_name() << "\"\n";
+			gnuplotScriptFile << "set zlabel \"" << m->get_title_name() << "\" offset -2.5,0\n";
+			// Offset for xtics
+			gnuplotScriptFile << "set ytics left offset 0,-0.5\n";
+			// Format
+			gnuplotScriptFile << "set format cb \"%g\"\n";
+			// Color Paletes
+			gnuplotScriptFile << kUpsetsPalette << "\n";
+			// Background
+			gnuplotScriptFile << kWholeBackground << "\n";
+			gnuplotScriptFile << "set title \"" << title << " \"\n";
+			gnuplotScriptFile << kTransparentObjects << "\n";
+			// linestyle
+			gnuplotScriptFile << kElegantLine << "\n";
+			gnuplotScriptFile << "set style line 1 lc rgb '#aa3333' lt 1 pt 6 ps 1 lw 1\n";
+			// mp3d interpolation and hidden3d
+			// mp3d z-offset, interpolation and hidden3d
+			gnuplotScriptFile <<  "set ticslevel 0\n";
+			gnuplotScriptFile << "set pm3d hidden3d 100\n";
+			gnuplotScriptFile << "set pm3d interpolate 2,2\n";
+			gnuplotScriptFile << "# set pm3d corners2color max\n";
+
+			int magDataIndex = 4 + dataPerMetricPerLine*magCount; // title
+			gnuplotScriptFile << "splot '" << gnuplotDataFile << "' u 1:2:" << (magDataIndex+1)
+				<< " title 'global_max_err_" << m->get_title_name() << "' w lp ls 1, \\\n";
+			gnuplotScriptFile << " '" << gnuplotDataFile << "' u 1:2:" << (magDataIndex+2)
+					<< " title 'metric_max_err_" << m->get_title_name() << "' w pm3d\n";
+			gnuplotScriptFile << "unset output\n";
+			// close file
+			gnuplotScriptFile << "quit\n";
+			gnuplotScriptFile.close();
+
+			// Exec comand
+			std::string execCommand = kGnuplotCommand + gnuplotScriptFilePath + kGnuplotEndCommand;
+			partialResults += std::system( execCommand.c_str() );
+			// update counter
+			++magCount;
+		}
+	}
+	return partialResults;
+}
+
 
 bool GlobalResults::PlotCriticalParameterNDParametersSweepSimulationMode(
 		const std::vector<Metric*>& analyzedMetrics, const unsigned int &critParamOffset,
