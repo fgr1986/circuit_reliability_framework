@@ -207,52 +207,67 @@ bool MontecarloCriticalParameterValueSimulation::AnalyzeMontecarloResults(){
 	// create metric metrics structure
 	unsigned int upsetsCount = 0;
 	auto metricMetrics = golden_metrics_structure->GetBasicMetricMetricsVector();
-	double maxErrorGlobal [metricMetrics->size()];
+	// metric errors
 	double maxErrorMetric [metricMetrics->size()];
 	double minErrorMetric [metricMetrics->size()];
 	double meanMaxErrorMetric [metricMetrics->size()];
 	double medianMaxErrorMetric [metricMetrics->size()];
 	double q12MaxErrorMetric [metricMetrics->size()];
 	double q34MaxErrorMetric [metricMetrics->size()];
-	// double** errorData = new double*[metricMetrics->size()];
-	// std::vector<std::vector<double>> errorData( metricMetrics->size(), std::vector<double>(montecarlo_iterations) );
+	// global errors
+	double maxMaxErrorGlobal [metricMetrics->size()];
+	double minMaxErrorGlobal [metricMetrics->size()];
+	double meanMaxErrorGlobal [metricMetrics->size()];
+	// data
 	std::vector<std::vector<double>> errorData( metricMetrics->size(), std::vector<double>(montecarlo_iterations, 0));
 	for (unsigned int i=0;i<metricMetrics->size();++i){
-		maxErrorGlobal[i] = 0.0;
+		// metric
 		maxErrorMetric[i] = 0.0;
-		minErrorMetric[i] = 0.0;
+		minErrorMetric[i] = std::numeric_limits<double>::max();	// min
 		meanMaxErrorMetric[i] = 0.0;
 		medianMaxErrorMetric[i] = 0.0;
 		q12MaxErrorMetric[i] = 0.0;
 		q34MaxErrorMetric[i] = 0.0;
+		//global
+		maxMaxErrorGlobal[i] = 0.0;
+		minMaxErrorGlobal[i] = std::numeric_limits<double>::max();	// min
+		meanMaxErrorGlobal[i] = 0.0;
 		// errorData[i] = new double[montecarlo_iterations];
 		for(unsigned int j=0; j<montecarlo_iterations;++j){
 			errorData[i][j] = 0.0;
 		}
 	}
 	double criticalParameterValueMean = 0;
+	double criticalParameterValueMax = 0;
+	double criticalParameterValueMin = std::numeric_limits<double>::max();	// min
 
 	std::string gnuplotMapFilePath = top_folder + kFolderSeparator
 		+ kResultsFolder + kFolderSeparator + kResultsDataFolder + kFolderSeparator
 		+ kMontecarloCriticalParameterNDParametersSweepResultsFolderSubProfiles + kFolderSeparator
-		+ "sim_" + simulation_id
-		+ "_profile_" + number2String( n_d_profile_index ) + kDataSufix;
+		+ "sim_" + simulation_id + "_profile_" + number2String( n_d_profile_index ) + kDataSufix;
 	// export file
 	std::ofstream gnuplotMapFile;
 	try {
 		gnuplotMapFile.open( gnuplotMapFilePath.c_str() );
-		gnuplotMapFile << "#montecarlo_iteration #" << golden_critical_parameter->get_name() << "\n";
+		gnuplotMapFile.setf(std::ios::scientific);
+		gnuplotMapFile << "#montecarlo_iteration #" << golden_critical_parameter->get_name() << " #spectre_error\n";
 		// compute statistics
 		unsigned int mcCount = 0;
 		correctly_simulated_count = 0;
 		for( const auto& gS : *(critical_parameter_value_simulations_vector.get_spectre_simulations()) ){
 			CriticalParameterValueSimulation* pCPVS = dynamic_cast<CriticalParameterValueSimulation*>(gS);
 			if( pCPVS->get_correctly_simulated() ){
-				gnuplotMapFile <<  mcCount << " " << pCPVS->get_critical_parameter_value() << " 0\n";
+				gnuplotMapFile  << std::defaultfloat <<  mcCount << " " << pCPVS->get_critical_parameter_value() << " 0\n";
 				criticalParameterValueMean += pCPVS->get_critical_parameter_value();
+				if( criticalParameterValueMax<pCPVS->get_critical_parameter_value() ){
+					criticalParameterValueMax = pCPVS->get_critical_parameter_value();
+				}
+				if( criticalParameterValueMin>pCPVS->get_critical_parameter_value() ){
+					criticalParameterValueMin = pCPVS->get_critical_parameter_value();
+				}
 				// last transient results
 				auto tr = pCPVS->get_last_valid_transient_simulation_results();
-				if(tr==nullptr){ // double check
+				if( tr==nullptr ){ // double check
 					log_io->ReportError2AllLogs( "[montecarlo_critical_parameter_value_simulation] pCPVS->get_last_valid_transient_simulation_results() is null: " + pCPVS->get_simulation_id() );
 					// update mcCount
 					++mcCount;
@@ -272,15 +287,22 @@ bool MontecarloCriticalParameterValueSimulation::AnalyzeMontecarloResults(){
 					log_io->ReportError2AllLogs( "[fgarcia-debug] metricMetrics->size(): " + number2String(metricMetrics->size()) );
 				}
 				for( auto const &me : *(tr->get_metrics_errors()) ){
-					if( me->get_max_abs_error_global()>maxErrorGlobal[magCount] ){
-						maxErrorGlobal[magCount] = me->get_max_abs_error_global();
+					// global
+					if( me->get_max_abs_error_global()>maxMaxErrorGlobal[magCount] ){
+						maxMaxErrorGlobal[magCount] = me->get_max_abs_error_global();
 					}
+					if( me->get_max_abs_error_global()<minMaxErrorGlobal[magCount] ){
+						minMaxErrorGlobal[magCount] = me->get_max_abs_error_global();
+					}
+					meanMaxErrorGlobal[magCount] += me->get_max_abs_error_global();
+					// metric mean
 					meanMaxErrorMetric[magCount] += me->get_max_abs_error();
+					// all remaining statistics for metric
 					errorData[magCount][mcCount] = me->get_max_abs_error();
 					++magCount;
 				}
 			}else{
-				gnuplotMapFile <<  mcCount << " -666 1\n";
+				gnuplotMapFile  << std::defaultfloat << mcCount << " -666 1\n";
 			}
 			// update counter, everything was alright
 			++mcCount;
@@ -301,10 +323,11 @@ bool MontecarloCriticalParameterValueSimulation::AnalyzeMontecarloResults(){
 	// report results
 	montecarlo_simulation_results.set_upsets_count(upsetsCount);
 	// set file
-	montecarlo_simulation_results.set_critical_parameter_value_data_path(gnuplotMapFilePath);
+	montecarlo_simulation_results.set_critical_parameter_value_data_path( gnuplotMapFilePath );
 	// compute mean
 	for( unsigned int m=0; m<metricMetrics->size(); ++m){
 		meanMaxErrorMetric[m] = meanMaxErrorMetric[m]/((double) correctly_simulated_count);
+		meanMaxErrorGlobal[m] = meanMaxErrorGlobal[m]/((double) correctly_simulated_count);
 		// compute q12, q34 and median
 		// short
 		std::sort(std::begin( errorData[m] ), std::end( errorData[m] ));
@@ -319,6 +342,8 @@ bool MontecarloCriticalParameterValueSimulation::AnalyzeMontecarloResults(){
 	}
 	// report results
 	criticalParameterValueMean = (double)( criticalParameterValueMean/((double)correctly_simulated_count) );
+	montecarlo_simulation_results.set_max_critical_parameter_value( criticalParameterValueMax );
+	montecarlo_simulation_results.set_min_critical_parameter_value( criticalParameterValueMin );
 	montecarlo_simulation_results.set_mean_critical_parameter_value( criticalParameterValueMean );
 	// reserve memory
 	montecarlo_simulation_results.ReserveMetricMontecarloResults( metricMetrics->size() );
@@ -327,16 +352,20 @@ bool MontecarloCriticalParameterValueSimulation::AnalyzeMontecarloResults(){
 		// deleted in MontecarloSimulationResults destructur
 		auto mMCR = new metric_montecarlo_results_t();
 		mMCR->metric_name = m->get_name();
-		mMCR->max_error_global = maxErrorGlobal[magCount];
+		// errors in metric
 		mMCR->max_error_metric = maxErrorMetric[magCount];
 		mMCR->min_error_metric = minErrorMetric[magCount];
 		mMCR->mean_max_error_metric = meanMaxErrorMetric[magCount];
 		mMCR->median_max_error_metric = medianMaxErrorMetric[magCount];
 		mMCR->q12_max_error_metric = q12MaxErrorMetric[magCount];
 		mMCR->q34_max_error_metric = q34MaxErrorMetric[magCount];
+		// global errors
+		mMCR->max_max_error_global = maxMaxErrorGlobal[magCount];
+		mMCR->min_max_error_global = minMaxErrorGlobal[magCount];
+		mMCR->mean_max_error_global = meanMaxErrorGlobal[magCount];
 		montecarlo_simulation_results.AddMetricMontecarloResults( mMCR );
 		#ifdef RESULTS_ANALYSIS_VERBOSE
-		log_io->ReportGreenStandard( simulation_id +  "-> max_error_global:" + number2String(maxErrorGlobal[magCount])
+		log_io->ReportGreenStandard( simulation_id +  "-> max_error_global:" + number2String(maxMaxErrorGlobal[magCount])
 			+ " mean_max_error_metric:" + number2String(meanMaxErrorMetric[magCount])
 			+ " b max_error_global:" + number2String(mMCR->max_error_global)
 			+ " b mean_max_error_metric:" + number2String(mMCR->mean_max_error_metric)  );
@@ -378,7 +407,7 @@ bool MontecarloCriticalParameterValueSimulation::PlotProfileResults(){
 	}
 	// plot metric scatters
 	if( plot_scatters ){
-		partialResults = partialResults && PlotProfileResultsMetrics(gnuplotScriptFolder, imagesFolder);
+		partialResults = partialResults && PlotMetricScatters(gnuplotScriptFolder, imagesFolder);
 	}
 	// title
 	std::string title = golden_critical_parameter->get_title_name() + ", " +  simulation_id;
@@ -393,7 +422,7 @@ bool MontecarloCriticalParameterValueSimulation::PlotProfileResults(){
 		// Generate scripts
 		gnuplotScriptFile.open( gnuplotScriptFilePath.c_str() );
 		// Svg
-		gnuplotScriptFile << "set term svg  size " << kSvgImageWidth << ","<< kSvgImageHeight
+		gnuplotScriptFile << "set term svg noenhanced size " << kSvgImageWidth << ","<< kSvgImageHeight
 			 << " fname " << kSvgFont << "\n";
 		gnuplotScriptFile << "set output \"" << outputImagePath << "\"" << "\n";
 		gnuplotScriptFile << "set title \" " << title << " \"" << "\n";
@@ -451,7 +480,7 @@ bool MontecarloCriticalParameterValueSimulation::PlotProfileResults(){
 	return partialResults;
 }
 
-bool MontecarloCriticalParameterValueSimulation::PlotProfileResultsMetrics(
+bool MontecarloCriticalParameterValueSimulation::PlotMetricScatters(
 		const std::string& gnuplotScriptFolder, const std::string& imagesFolder ){
 	bool partialResults = true;
 	std::string goldenFilePath  = golden_metrics_structure->GetFilePath( n_d_profile_index );
@@ -473,7 +502,7 @@ bool MontecarloCriticalParameterValueSimulation::PlotProfileResultsMetrics(
 			// Generate scripts
 			gnuplotScriptFile.open( gnuplotScriptFilePath.c_str() );
 			// Svg
-			gnuplotScriptFile << "set term svg  size " << kSvgImageWidth << ","<< kSvgImageHeight
+			gnuplotScriptFile << "set term svg noenhanced size " << kSvgImageWidth << ","<< kSvgImageHeight
 				 << " fname " << kSvgFont << "\n";
 			gnuplotScriptFile << "set output \"" << outputImagePath << "\"" << "\n";
 			gnuplotScriptFile << "set title \" " << title << " \"" << "\n";

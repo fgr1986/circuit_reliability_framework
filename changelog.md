@@ -9,14 +9,24 @@
 * **Instance. Nodes instead absolute nodes**
 * Weighted Nodes
 
-# Changelog of version 3.1.2
-* **LogIO** handling improvements
-* Major bug fixes in **RAWFormatProcessor, CircuitIOHandler and CircuitRadiator** classes.
+# Changelog of version 3.1.3
 * Radiation summary reports now include parameter versus parameter planes.
 
 # Version 3.x.y
 
 ## Version 3.0.y
+
+* Changelog of version 3.1.3
+	* Radiation summary reports now include parameter versus parameter planes.
+	* Result files PLANE structures: [ M m -] stands for Max Min and mean
+
+				Crit ND->
+				Partial Plane:	... magName	magMetricError	magMGlobalError
+				General Plane:	... ''			[ M m -]				[ M m -]
+
+				MC Crit ND->
+				Partial Plane:	... magName	magMetricError [ M m -]	magMGlobalError [ M m -]
+				General Plane:	... ''			[ M m -]				[ M m -]
 
 * Changelog of version 3.1.2
 	* **LogIO** handling improvements

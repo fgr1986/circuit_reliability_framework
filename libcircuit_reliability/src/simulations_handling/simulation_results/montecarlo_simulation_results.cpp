@@ -22,6 +22,8 @@ MontecarloSimulationResults::MontecarloSimulationResults() {
 	this->spectre_result = kNotDefinedInt;
 	this->full_id = kNotDefinedString;
 	this->upsets_count = kNotDefinedInt;
+	this->max_critical_parameter_value = kNotDefinedInt + 0.0;
+	this->min_critical_parameter_value = kNotDefinedInt + 0.0;
 	this->mean_critical_parameter_value = kNotDefinedInt + 0.0;
 }
 

@@ -195,10 +195,19 @@ template<class any_number>
 void PrintIndexes( const std::vector<any_number>& indexes ){
 	// fgarcia test
 	for (auto& i : indexes ){
-		std::cout << number2String(i) << ' ';
+		std::cout << i << ' ';
 	}
 	std::cout << "\n";
 }
+
+template<class any_integer>
+void PrintBools( bool* data, any_integer size ){
+	for( any_integer i=0; i<size; ++i ){
+		std::cout << data[i] << ' ';
+	}
+	std::cout << "\n";
+}
+
 
 /**
 * Template

@@ -189,7 +189,7 @@ int GoldenSimulation::CreateGoldenGnuplotTransientImages(){
 			if( pMag->get_plottable()  && pMag->get_found_in_results() ){
 				std::string mgName = (*it_mg)->get_title_name();
 				// Svg
-				gnuplotScriptFile <<  "set term svg  size "<< kSvgImageWidth << ","
+				gnuplotScriptFile <<  "set term svg noenhanced size "<< kSvgImageWidth << ","
 					<< kSvgImageHeight << " fname " << kSvgFont << "\n";
 				gnuplotScriptFile <<  "set output \"" << outputImagePath << "_m_"
 					<< mgName << kGnuplotTransientSVGSufix << "\"\n";

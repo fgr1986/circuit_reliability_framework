@@ -44,11 +44,21 @@ public:
 	bool StatisticProcessResultsFiles( const std::map<std::string, std::string>* paths,
 		const std::string outputPath, const std::vector<unsigned int>&& columnIndexes );
 
+	// creates a file extending those in paths,
+	// For each column in columnIndexes, we compute mean, max val and min val
+	bool StatisticProcessStatisticsFiles( const std::map<std::string, std::string>* paths,
+		const std::string outputPath, const std::vector<unsigned int>&& maxFieldsColumnIndexes,
+		const std::vector<unsigned int>&& minFieldsColumnIndexes, const std::vector<unsigned int>&& meanFieldsColumnIndexes );
+
 	bool ExportScenariosList(
 		const std::string& topFolder, const std::vector<AlteredScenarioSummary*>& scenariosList );
 
 	bool ExportProfilesList(
 		const std::string& topFolder, const std::vector<SimulationParameter*>& parameterList );
+
+	static const unsigned int kMeanProcessResultsFiles = 0;
+	static const unsigned int kStatisticProcessResultsFiles = 1;
+	static const unsigned int kStatisticProcessStatisticsFiles = 2;
 
 protected:
 
@@ -59,9 +69,13 @@ protected:
 
 	bool PreProcessResultsFiles( const std::string&& path, unsigned int& totalRows, unsigned int& totalColumns );
 	bool MeanProcessResultFile( const std::string&& path,
-		Matrix& matrix, const std::vector<unsigned int>&& columnIndexes );
+		Matrix& matrix, bool* computedColumns ); //(int (&myArray)[100])
 	bool StatisticProcessResultFile( const std::string&& path,
-		Matrix& matrix, const std::vector<unsigned int>&& columnIndexes );
+		Matrix& matrix, bool* computedColumns );
+	bool StatisticProcessStatisticsFile( const std::string&& path,
+		Matrix& matrixMax, Matrix& matrixMin, Matrix& matrixMean,
+		bool* computedColumnsMax, bool* computedColumnsMin, bool* computedColumnsMean );
+
 };
 
 #endif /* RESULTS_PROCESSOR_H */

@@ -80,20 +80,22 @@ private:
 	std::string data_folder;
 
 	bool GenerateAndPlotParameterPairResults(
-		const std::string& criticalParameterName,
-		const unsigned int dataPerMetricPerLine, const std::vector<Metric*>& analyzedMetrics,
+		const unsigned int statisticMethod, const std::string& criticalParameterName,
+		const unsigned int magColumnOffset, const unsigned int dataPerMetricPerLine,
+		const std::vector<Metric*>& analyzedMetrics,
 		const std::vector<SimulationParameter*>& simulationParameters,
-		const std::vector<unsigned int>&& metricColumnIndexes,
-		const std::vector<NDSimulationResults*>& simulationsNDSimulationResults	);
+		const std::vector<unsigned int>&& magGPCOMax, const std::vector<unsigned int>&& magGPCOMin,
+		const std::vector<unsigned int>&& magGPCOMean, const std::vector<NDSimulationResults*>& simulationsNDSimulationResults);
 
 	int GnuplotPlaneMetricResults(
-		unsigned int dataPerMetricPerLine,
+		const unsigned int magColumnOffset,
+		const unsigned int dataPerMetricPerLine,
 		const std::vector<Metric*>& analyzedMetrics,
 		const SimulationParameter& p1, const SimulationParameter& p2,
 		const std::string& partialPlaneId, const std::string& gnuplotDataFile,
 		const std::string& gnuplotScriptFolder, const std::string& imagesFolder );
 
-	int GnuplotPlane(
+	int GnuplotCriticalParameterValuePlane(
 		const std::string& criticalParameterName,
 		const SimulationParameter& p1, const SimulationParameter& p2,
 		const std::string& partialPlaneId, const std::string& gnuplotDataFile,

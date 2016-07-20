@@ -504,7 +504,7 @@ int CriticalParameterValueSimulation::CreateGnuplotCriticalParameterEvolution(){
 	critParameterEvolutionDataFile.close();
 	// plots
 	// Svg
-	gnuplotScriptFile <<  "set term svg  size "<< kSvgImageWidth << ","
+	gnuplotScriptFile <<  "set term svg noenhanced size "<< kSvgImageWidth << ","
 		<< kSvgImageHeight << " fname " << kSvgFont << "\n";
 	gnuplotScriptFile <<  "set output \"" << outputImagePath  << "\"\n";
 

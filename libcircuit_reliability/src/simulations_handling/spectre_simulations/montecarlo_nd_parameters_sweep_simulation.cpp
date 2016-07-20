@@ -407,7 +407,8 @@ bool MontecarloNDParametersSweepSimulation::GenerateAndPlotItemizedPlane(
 				for( auto& m : *(mcSSim->get_montecarlo_simulation_results()->get_metric_montecarlo_results()) ){
 					gnuplotMapFile << " " << m->metric_name << " " << m->max_error_metric << " " << m->min_error_metric
 						<< " " << m->mean_max_error_metric << " " << m->median_max_error_metric << " " << m->q12_max_error_metric
-						<< " " << m->q34_max_error_metric << " " << m->max_error_global;
+						<< " " << m->q34_max_error_metric << " " << m->max_max_error_global
+						<< " " << m->min_max_error_global<< " " << m->mean_max_error_global;
 				}
 				gnuplotMapFile << "\n";
 			}// update counters
@@ -456,8 +457,9 @@ bool MontecarloNDParametersSweepSimulation::GenerateAndPlotGeneralResults(
 		gnuplotMapFile.open( gnuplotMapFilePath.c_str() );
 		gnuplotMapFile.setf(std::ios::scientific);
 		gnuplotSpectreErrorMapFile.open( gnuplotSpectreErrorMapFilePath.c_str() );
-		gnuplotMapFile << "#profileCount #Profile #upsets MAG_i_name MAG_i_maxErrorMetric MAG_i_minErrorMetric "
-			<< "MAG_i_meanMaxErrorMetric MAG_i_medianMaxErrorMetric q12 q34 MAG_i_maxErrorGlobal\n";
+		gnuplotMapFile << "#profileCount #Profile #upsets "
+			<< "#MAG_i_name #MAG_i_maxErrorMetric #MAG_i_minErrorMetric #MAG_i_meanMaxErrorMetric"
+			<< "#MAG_i_medianMaxErrorMetric q12 q34 MAG_i_maxMaxErrorGlobal MAG_i_minMaxErrorGlobal MAG_i_meanMaxErrorGlobal\n";
 		gnuplotSpectreErrorMapFile << "#profileCount #Profile SpectreError \n";
 		// fgarcia
 		gnuplotMapFile << std::scientific;
@@ -467,18 +469,15 @@ bool MontecarloNDParametersSweepSimulation::GenerateAndPlotGeneralResults(
 			std::string auxIndexes = getIndexCode( auxiliarIndexes );
 			std::string auxSpectreError = mcSSim->get_correctly_simulated() ? "0" : "1";
 			double upsetsRatio = (double) 100*(mcSSim->get_montecarlo_simulation_results()->get_upsets_count())/((double)montecarlo_iterations);
-			#ifdef GCC_OLD
-			gnuplotMapFile << number2String(profileCount) << " " << auxIndexes << " " << upsetsRatio;
-			#else
 			gnuplotMapFile << std::defaultfloat << profileCount << " " << auxIndexes << " " << upsetsRatio;
-			#endif
 			// update maxUpsetRatio
 			maxUpsetRatio = upsetsRatio>maxUpsetRatio ? upsetsRatio : maxUpsetRatio;
 			// metrics
 			for( auto const &m : *(mcSSim->get_montecarlo_simulation_results()->get_metric_montecarlo_results()) ){
 				gnuplotMapFile << " " << m->metric_name << " " << m->max_error_metric << " " << m->min_error_metric
 					<< " " << m->mean_max_error_metric << " " << m->median_max_error_metric << " " << m->q12_max_error_metric
-					<< " " << m->q34_max_error_metric << " " << m->max_error_global;
+					<< " " << m->q34_max_error_metric << " " << m->max_max_error_global
+					<< " " << m->min_max_error_global<< " " << m->mean_max_error_global;
 			}
 			gnuplotMapFile << "\n";
 			gnuplotSpectreErrorMapFile << profileCount++ << " " << auxIndexes << " " << auxSpectreError << "\n";
@@ -527,7 +526,7 @@ int MontecarloNDParametersSweepSimulation::GnuplotGeneralResults(
 	std::ofstream gnuplotScriptFile;
 	gnuplotScriptFile.open( gnuplotScriptFilePath.c_str() );
 	// Svg
-	gnuplotScriptFile << "set term svg  size " << kSvgImageWidth << ","<< kSvgImageHeight
+	gnuplotScriptFile << "set term svg noenhanced size " << kSvgImageWidth << ","<< kSvgImageHeight
 		 << " fname " << kSvgFont << "\n";
 	gnuplotScriptFile << "set output \"" << outputImagePath << "\"\n";
 	gnuplotScriptFile << "set title \" " << title << " \"\n";
@@ -595,7 +594,7 @@ int MontecarloNDParametersSweepSimulation::GnuplotGeneralMetricMetricResults(
 			std::ofstream gnuplotScriptFile;
 			gnuplotScriptFile.open( gnuplotScriptFilePath.c_str() );
 			// Svg
-			gnuplotScriptFile << "set term svg  size " << kSvgImageWidth << ","<< kSvgImageHeight
+			gnuplotScriptFile << "set term svg noenhanced size " << kSvgImageWidth << ","<< kSvgImageHeight
 				<< " fname " << kSvgFont << "\n";
 			gnuplotScriptFile << "set output \"" << outputImagePath << "\"\n";
 			gnuplotScriptFile << "set title \" " << title << " \"\n";
@@ -686,7 +685,7 @@ int MontecarloNDParametersSweepSimulation::GnuplotPlane(
 	// Generate scripts
 	std::ofstream gnuplotScriptFile;
 	gnuplotScriptFile.open( gnuplotScriptFilePath.c_str() );
-	gnuplotScriptFile << "set term svg  size " << kSvgImageWidth << ","<< kSvgImageHeight << " fname " << kSvgFont << "\n";
+	gnuplotScriptFile << "set term svg noenhanced size " << kSvgImageWidth << ","<< kSvgImageHeight << " fname " << kSvgFont << "\n";
 	gnuplotScriptFile << "set output \"" << outputImagePath  << "\"\n";
 	gnuplotScriptFile << "set grid\n";
 	// Axix border
@@ -759,7 +758,7 @@ int MontecarloNDParametersSweepSimulation::GnuplotPlaneMetricResults(
 			// Generate scripts
 			std::ofstream gnuplotScriptFile;
 			gnuplotScriptFile.open( gnuplotScriptFilePath.c_str() );
-			gnuplotScriptFile << "set term svg  size " << kSvgImageWidth << ","<< kSvgImageHeight << " fname " << kSvgFont << "\n";
+			gnuplotScriptFile << "set term svg noenhanced size " << kSvgImageWidth << ","<< kSvgImageHeight << " fname " << kSvgFont << "\n";
 			gnuplotScriptFile << "set output \"" << outputImagePath  << "\"\n";
 			gnuplotScriptFile << "set grid\n";
 			// Axix border

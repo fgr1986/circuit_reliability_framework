@@ -28,8 +28,6 @@
 struct metric_montecarlo_results_t {
 	std::string metric_name;
 	std::string mc_scatter_image_path;
-	// includes punctual errors
-	double max_error_global;
 	// only errors considered in metric
 	double max_error_metric;
 	double min_error_metric;
@@ -37,6 +35,10 @@ struct metric_montecarlo_results_t {
 	double median_max_error_metric;
 	double q12_max_error_metric;
 	double q34_max_error_metric;
+	// includes punctual errors
+	double max_max_error_global;
+	double min_max_error_global;
+	double mean_max_error_global;
 };
 
 class MontecarloSimulationResults {
@@ -115,6 +117,26 @@ public:
 	unsigned int get_upsets_count() const{return upsets_count;}
 
 	/**
+	* @brief sets max_critical_parameter_value
+	*
+	* @param max_critical_parameter_value
+	*/
+	void set_max_critical_parameter_value( const double max_critical_parameter_value ){
+		this->max_critical_parameter_value = max_critical_parameter_value;
+	}
+
+
+	/**
+	* @brief sets min_critical_parameter_value
+	*
+	* @param min_critical_parameter_value
+	*/
+	void set_min_critical_parameter_value( const double min_critical_parameter_value ){
+		this->min_critical_parameter_value = min_critical_parameter_value;
+	}
+
+
+	/**
 	* @brief sets mean_critical_parameter_value
 	*
 	* @param mean_critical_parameter_value
@@ -124,11 +146,22 @@ public:
 	}
 
 	/**
+	* @brief gets max_critical_parameter_value
+	* @return max_critical_parameter_value
+	*/
+	double get_max_critical_parameter_value() const{return max_critical_parameter_value;}
+
+	/**
+	* @brief gets min_critical_parameter_value
+	* @return min_critical_parameter_value
+	*/
+	double get_min_critical_parameter_value() const{return min_critical_parameter_value;}
+
+	/**
 	* @brief gets mean_critical_parameter_value
 	* @return mean_critical_parameter_value
 	*/
 	double get_mean_critical_parameter_value() const{return mean_critical_parameter_value;}
-
 	/**
 	* @brief gets full_id
 	* @return full_id
@@ -141,6 +174,8 @@ private:
 	/// simulated parameters: name-value
 	std::map<std::string,std::string> simulation_parameters;
 	/// critical parameter value
+	double max_critical_parameter_value;
+	double min_critical_parameter_value;
 	double mean_critical_parameter_value;
 	/// upsets count
 	unsigned int upsets_count;

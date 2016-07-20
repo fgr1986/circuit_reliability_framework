@@ -826,10 +826,9 @@ std::vector<Metric*>* SpectreSimulation::CreateMetricsVectorFromGoldenMetrics(
 }
 
 int SpectreSimulation::CreateGnuplotTransientImages( const std::string& localSimulationId,
-	TransientSimulationResults& transientSimulationResults,
-	const unsigned int& index, const bool& hasOtherInfo,
-	const std::string& otherInfo  ){
-
+		TransientSimulationResults& transientSimulationResults,
+		const unsigned int& index, const bool& hasOtherInfo,
+		const std::string& otherInfo  ){
 	std::string fullSimId = hasOtherInfo ? localSimulationId + "_" + otherInfo : localSimulationId;
 	std::string gnuplotScriptFilePath = top_folder + kFolderSeparator
 		+ kResultsFolder + kFolderSeparator + kResultsGnuplotScriptsFolder + kFolderSeparator + kTransientResultsFolder + kFolderSeparator
@@ -865,7 +864,7 @@ int SpectreSimulation::CreateGnuplotTransientImages( const std::string& localSim
 					+ kResultsFolder + kFolderSeparator + kResultsImagesFolder + kFolderSeparator
 					+ kTransientResultsFolder + kFolderSeparator + fullSimId + "_m_" + (*it_mg)->get_file_name() + kGnuplotTransientSVGSufix;
 				// Svg
-				gnuplotScriptFile <<  "set term svg  size "<< kSvgImageWidth << ","
+				gnuplotScriptFile <<  "set term svg noenhanced size "<< kSvgImageWidth << ","
 					<< kSvgImageHeight << " fname " << kSvgFont << "\n";
 				gnuplotScriptFile <<  "set output \"" << outputImagePath  << "\"\n";
 

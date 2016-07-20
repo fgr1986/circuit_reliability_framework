@@ -132,6 +132,8 @@ bool RadiationSpectreHandler::RunSimulations(){
 	}
 	if( plot_transients ){
 		log_io->ReportCyanStandard( k2Tab + "Single transients will be plotted." );
+	}else{
+		log_io->ReportCyanStandard( k2Tab + "Single transients will NOT be plotted." );
 	}
 	// exporting the scenario path (id) and altered instance
 	log_io->ReportCyanStandard( k2Tab + "Exporting scenarios and profiles." );
@@ -257,8 +259,7 @@ bool RadiationSpectreHandler::RunSimulations(){
 		// result files
 		sss->set_delete_spectre_folders( delete_spectre_folders );
 		sss->set_delete_spectre_transients( delete_spectre_transients );
-		sss->set_export_processed_metrics( export_processed_metrics ||
-			plot_scatters || plot_transients || plot_last_transients );
+		sss->set_export_processed_metrics( export_processed_metrics || plot_scatters || plot_transients || plot_last_transients );
 		sss->set_delete_processed_transients( sss->get_export_processed_metrics() && delete_processed_transients );
 		sss->set_plot_scatters( plot_scatters );
 		sss->set_plot_transients( plot_transients );

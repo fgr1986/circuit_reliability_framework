@@ -194,7 +194,7 @@ MontecarloCriticalParameterValueSimulation* MontecarloCriticalParameterNDParamet
 	pMCPVS->set_delete_processed_transients( delete_processed_transients );
 	pMCPVS->set_plot_scatters( plot_scatters );
 	pMCPVS->set_plot_transients( plot_transients );
-	// pMCPVS->set_plot_last_transients( plot_last_transients );
+	pMCPVS->set_plot_last_transients( plot_last_transients );
 	pMCPVS->set_interpolate_plots_ratio( interpolate_plots_ratio );
 	pMCPVS->set_main_analysis( main_analysis );
 	pMCPVS->set_main_transient_analysis( main_transient_analysis );
@@ -262,7 +262,7 @@ bool MontecarloCriticalParameterNDParametersSweepSimulation::GenerateAndPlotResu
 	// p1 vs p2 3d plots
 	// std::vector<std::tuple<int,int>>
 	std::set<std::pair<unsigned int,unsigned int>> exportedParamTuples;
-	// init metric_column_indexes
+	// init all metric column_indexes
 	if( !InitMetricColumnIndexes(*auxMetrics) ){
 		log_io->ReportError2AllLogs( "Unexpected error in InitMetricColumnIndexes" );
 		return false;
@@ -312,22 +312,53 @@ bool MontecarloCriticalParameterNDParametersSweepSimulation::GenerateAndPlotResu
 
 bool MontecarloCriticalParameterNDParametersSweepSimulation::InitMetricColumnIndexes(
 		const std::vector<Metric*>& auxMetrics ){
-	// 0   1      2          3                4                    5
-	// p1  p2     p_critical value MAG_i_name MAG_i_maxErrorMetric MAG_i_minErrorMetric
-	// 6                         7                         8   9   10
-	// MAG_i_meanMaxErrorMetric MAG_i_medianMaxErrorMetric q12 q34 MAG_i_maxErrorGlobal
-	metric_column_indexes = {2}; // parameter critical value
-	unsigned int auxMagCount = 3; // MAG_i_name
+	// profile outputs
+	// #profileCount #Profile #max_critical_parameter_value #min_critical_parameter_value #mean_critical_parameter_value "
+	// #MAG_i_name #MAG_i_maxErrorMetric #MAG_i_minErrorMetric #MAG_i_meanMaxErrorMetric"
+	// #MAG_i_medianMaxErrorMetric q12 q34 MAG_i_maxMaxErrorGlobal MAG_i_minMaxErrorGlobal MAG_i_meanMaxErrorGlobal\n";
+	out_profile_c_i_max = {2};
+	out_profile_c_i_min = {3};
+	out_profile_c_i_mean = {4};
+	// partial plane inputs
+	// p1 p2 critParamMax critParamMin critParamMean
+	// MAG_i_name MAG_i_maxErrorMetric MAG_i_minErrorMetric MAG_i_meanMaxErrorMetric MAG_i_medianMaxErrorMetric q12 q34
+	// MAG_i_maxMaxErrorGlobal MAG_i_minMaxErrorGlobal MAG_i_meanMaxErrorGlobal\n";
+	p_p_c_i_max = {2};
+	p_p_c_i_min = {3};
+	p_p_c_i_mean = {4}; // critical param
+	// partial plane outputs
+	// p1 p2 critParamMax critParamMin critParamMean
+	// MAG_i_name MAG_i_maxErrorMetric MAG_i_minErrorMetric MAG_i_meanMaxErrorMetric MAG_i_medianMaxErrorMetric q12 q34
+	// MAG_i_maxMaxErrorGlobal MAG_i_minMaxErrorGlobal MAG_i_meanMaxErrorGlobal\n";
+	out_p_c_i_max = {2};
+	out_p_c_i_min = {3};
+	out_p_c_i_mean = {4};
+	unsigned int magCount = 5; // MAG_i_name in input
 	for( auto const &m: auxMetrics ){
 		if(m->get_analyzable()){
-			metric_column_indexes.push_back( auxMagCount+1 ); // MAG_i_maxErrorMetric
-			metric_column_indexes.push_back( auxMagCount+2 ); // MAG_i_minErrorMetric
-			metric_column_indexes.push_back( auxMagCount+3 ); // MAG_i_meanMaxErrorMetric
-			metric_column_indexes.push_back( auxMagCount+4 ); // MAG_i_medianMaxErrorMetric
-			metric_column_indexes.push_back( auxMagCount+5 ); // q12
-			metric_column_indexes.push_back( auxMagCount+6 ); // q34
-			metric_column_indexes.push_back( auxMagCount+7 ); // MAG_i_maxErrorGlobal
-			auxMagCount += 8; // next MAG_i_name
+			// for use inside MontecarloCriticalParameterNDParametersSweepSimulation
+			p_p_c_i_max.push_back( magCount+1 );
+			p_p_c_i_min.push_back( magCount+2 );
+			p_p_c_i_mean.push_back( magCount+3 ); // metric
+			p_p_c_i_max.push_back( magCount+7 );
+			p_p_c_i_min.push_back( magCount+8 );
+			p_p_c_i_mean.push_back( magCount+9 ); // global
+			// for use outside MontecarloCriticalParameterNDParametersSweepSimulation
+			out_profile_c_i_max.push_back( magCount+1 );
+			out_profile_c_i_min.push_back( magCount+2 );
+			out_profile_c_i_mean.push_back( magCount+3 ); // metric
+			out_profile_c_i_max.push_back( magCount+7 );
+			out_profile_c_i_min.push_back( magCount+8 );
+			out_profile_c_i_mean.push_back( magCount+9 ); // global
+			// plane
+			out_p_c_i_max.push_back( magCount + 1 );
+			out_p_c_i_min.push_back( magCount + 2 );
+			out_p_c_i_mean.push_back( magCount + 3 ); // metric
+			out_p_c_i_max.push_back( magCount + 7 );
+			out_p_c_i_min.push_back( magCount + 8 );
+			out_p_c_i_mean.push_back( magCount + 9 ); // global
+			// update counters
+			magCount += 10; // next MAG_i_name in input
 		}
 	}
 	return true;
@@ -350,8 +381,6 @@ bool MontecarloCriticalParameterNDParametersSweepSimulation::GenerateAndPlotPara
 	planeStructure->ResizeItemizedPlanesMemory( planes->size() );
 	planeStructure->set_plane_id( number2String(p1Index) + "_" + number2String(p2Index) );
 	for( auto& planeIndexes : *planes ){
-		// debug
-		// PrintIndexes( * plane );
 		partialResults = partialResults && GenerateAndPlotItemizedPlane(
 			auxMetrics, p1Index, p2Index, itemizedCount++,
 			parameters2sweep, mapsFolder, gnuplotScriptFolder, imagesFolder, *planeIndexes, *planeStructure);
@@ -363,9 +392,10 @@ bool MontecarloCriticalParameterNDParametersSweepSimulation::GenerateAndPlotPara
 	ResultsProcessor rp;
 	std::string generalParameterResultsFile = mapsFolder + kFolderSeparator
 		+ planeStructure->get_plane_id() + "_general" + kDataSufix;
-	// process only mean
-	partialResults = partialResults && rp.MeanProcessResultsFiles(
-		planeStructure->get_itemized_data_paths(), generalParameterResultsFile, std::move(metric_column_indexes));
+	// process statistically
+	partialResults = partialResults && rp.StatisticProcessStatisticsFiles(
+		planeStructure->get_itemized_data_paths(), generalParameterResultsFile,
+		std::move(p_p_c_i_max), std::move(p_p_c_i_min), std::move(p_p_c_i_mean));
 	if( !partialResults ){
 		log_io->ReportError2AllLogs( "[ERROR ResultsProcessor] Error processing " + generalParameterResultsFile );
 		return partialResults;
@@ -374,8 +404,8 @@ bool MontecarloCriticalParameterNDParametersSweepSimulation::GenerateAndPlotPara
 	// plot parameter critical value and metric errors
 	SimulationParameter* p1 = parameters2sweep.at(p1Index);
 	SimulationParameter* p2 = parameters2sweep.at(p2Index);
-	log_io->ReportPlainStandard("Processed GnuplotPlane" );
-	int gnuplotResult = GnuplotPlane( *planeStructure, false, *p1, *p2,
+	log_io->ReportPlainStandard("Processed GnuplotPlaneCriticalParam" );
+	int gnuplotResult = GnuplotPlaneCriticalParam( *planeStructure, false, *p1, *p2,
 		planeStructure->get_plane_id() + "_general_", generalParameterResultsFile,
 		gnuplotScriptFolder, imagesFolder );
 	gnuplotResult += GnuplotPlaneMetricResults( auxMetrics, *planeStructure,
@@ -409,10 +439,10 @@ bool MontecarloCriticalParameterNDParametersSweepSimulation::GenerateAndPlotItem
 	try {
 		gnuplotMapFile.open( gnuplotMapFilePath.c_str() );
 		gnuplotMapFile.setf(std::ios::scientific);
-		gnuplotMapFile << "#" << p1->get_name() << " " << p2->get_name() << " mean_"
-			<< golden_critical_parameter->get_name()
+		gnuplotMapFile << "#" << p1->get_name() << " " << p2->get_name() << " "
+			<< golden_critical_parameter->get_name() << "(max, min and mean)"
 			<<" MAG_i_name MAG_i_maxErrorMetric MAG_i_minErrorMetric "
-			<< "MAG_i_meanMaxErrorMetric MAG_i_medianMaxErrorMetric q12 q34 MAG_i_maxErrorGlobal\n";
+			<< "MAG_i_meanMaxErrorMetric MAG_i_medianMaxErrorMetric q12 q34 MAG_i_maxMaxErrorGlobal MAG_i_minMaxErrorGlobal MAG_i_meanMaxErrorGlobal\n";
 		unsigned int profileCount = 0;
 		unsigned int p1SweepCount = 0;
 		unsigned int p2SweepCount = 0;
@@ -425,12 +455,15 @@ bool MontecarloCriticalParameterNDParametersSweepSimulation::GenerateAndPlotItem
 					gnuplotMapFile << "\n";
 				}
 				gnuplotMapFile << p1->GetSweepValue(p1SweepCount) << " " << p2->GetSweepValue(p2SweepCount++)
+					<< " " << mcSSim->get_montecarlo_simulation_results()->get_max_critical_parameter_value()
+					<< " " << mcSSim->get_montecarlo_simulation_results()->get_min_critical_parameter_value()
 					<< " " << mcSSim->get_montecarlo_simulation_results()->get_mean_critical_parameter_value();
 				// metrics
 				for( auto& m : *(mcSSim->get_montecarlo_simulation_results()->get_metric_montecarlo_results()) ){
 					gnuplotMapFile << " " << m->metric_name << " " << m->max_error_metric << " " << m->min_error_metric
 						<< " " << m->mean_max_error_metric << " " << m->median_max_error_metric << " " << m->q12_max_error_metric
-						<< " " << m->q34_max_error_metric << " " << m->max_error_global;
+						<< " " << m->q34_max_error_metric << " " << m->max_max_error_global
+						<< " " << m->min_max_error_global<< " " << m->mean_max_error_global;
 				}
 				gnuplotMapFile << "\n";
 			}// update counters
@@ -449,7 +482,7 @@ bool MontecarloCriticalParameterNDParametersSweepSimulation::GenerateAndPlotItem
 	// create gnuplot scatter map graphs
 	if( partialResults ){
 		// create gnuplot scatter map graphs
-		int gnuplotResult = GnuplotPlane( plane, true, *p1, *p2,
+		int gnuplotResult = GnuplotPlaneCriticalParam( plane, true, *p1, *p2,
 			"partialPlaneId_" + partialPlaneId, gnuplotMapFilePath,
 			gnuplotScriptFolder, imagesFolder );
 		gnuplotResult += GnuplotPlaneMetricResults( auxMetrics, plane, true,
@@ -463,8 +496,7 @@ bool MontecarloCriticalParameterNDParametersSweepSimulation::GenerateAndPlotItem
 }
 
 bool MontecarloCriticalParameterNDParametersSweepSimulation::GenerateAndPlotGeneralResults(
-		const std::vector<Metric*>& auxMetrics,
-		const std::vector< SimulationParameter*>& parameters2sweep,
+		const std::vector<Metric*>& auxMetrics, const std::vector< SimulationParameter*>& parameters2sweep,
 		const std::string& mapsFolder, const std::string& gnuplotScriptFolder, const std::string& imagesFolder ){
 	bool partialResults = true;
 	// auxiliar indexes
@@ -479,27 +511,29 @@ bool MontecarloCriticalParameterNDParametersSweepSimulation::GenerateAndPlotGene
 		gnuplotMapFile.open( gnuplotMapFilePath.c_str() );
 		gnuplotMapFile.setf(std::ios::scientific);
 		gnuplotSpectreErrorMapFile.open( gnuplotSpectreErrorMapFilePath.c_str() );
-		gnuplotMapFile << "#profileCount #Profile #mean_critical_parameter_value MAG_i_name MAG_i_maxErrorMetric MAG_i_minErrorMetric "
-			<< "MAG_i_meanMaxErrorMetric MAG_i_medianMaxErrorMetric q12 q34 MAG_i_maxErrorGlobal\n";
+		gnuplotMapFile << "#profileCount #Profile #max_critical_parameter_value #min_critical_parameter_value #mean_critical_parameter_value "
+			<< "#MAG_i_name #MAG_i_maxErrorMetric #MAG_i_minErrorMetric #MAG_i_meanMaxErrorMetric"
+			<< "#MAG_i_medianMaxErrorMetric q12 q34 MAG_i_maxMaxErrorGlobal MAG_i_minMaxErrorGlobal MAG_i_meanMaxErrorGlobal\n";
 		gnuplotSpectreErrorMapFile << "#profileCount #Profile SpectreError \n";
 		unsigned int profileCount = 0;
+		std::string auxIndexes;
+		std::string auxSpectreError;
 		for( auto const &simulation : *(montecarlo_critical_parameter_value_simulations_vector.get_spectre_simulations()) ){
 			MontecarloCriticalParameterValueSimulation* mcSSim = dynamic_cast<MontecarloCriticalParameterValueSimulation*>(simulation);
-			std::string auxIndexes = getIndexCode( auxiliarIndexes );
-			std::string auxSpectreError = mcSSim->get_correctly_simulated() ? "0" : "1";
-			double critParamValue = mcSSim->get_montecarlo_simulation_results()->get_mean_critical_parameter_value();
-			#ifdef GCC_OLD
-			gnuplotMapFile << number2String(profileCount) << " " << auxIndexes << " " << critParamValue;
-			#else
-			gnuplotMapFile << std::defaultfloat << profileCount << " " << auxIndexes << " " << critParamValue;
-			#endif
+			auxIndexes = getIndexCode( auxiliarIndexes );
+			auxSpectreError = mcSSim->get_correctly_simulated() ? "0" : "1";
+			auto auxMCResults = mcSSim->get_montecarlo_simulation_results();
+			auto currentMaxCritParamValue = auxMCResults->get_max_critical_parameter_value();
+			gnuplotMapFile << std::defaultfloat << profileCount << " " << auxIndexes << " " << currentMaxCritParamValue
+				<< " " << auxMCResults->get_min_critical_parameter_value() << " " << auxMCResults->get_mean_critical_parameter_value();
 			// update maxCritParamValue
-			maxCritParamValue = critParamValue>maxCritParamValue ? critParamValue : maxCritParamValue;
+			maxCritParamValue = currentMaxCritParamValue>maxCritParamValue ? currentMaxCritParamValue : maxCritParamValue;
 			// metrics
 			for( auto const &m : *(mcSSim->get_montecarlo_simulation_results()->get_metric_montecarlo_results()) ){
 				gnuplotMapFile << " " << m->metric_name << " " << m->max_error_metric << " " << m->min_error_metric
 					<< " " << m->mean_max_error_metric << " " << m->median_max_error_metric << " " << m->q12_max_error_metric
-					<< " " << m->q34_max_error_metric << " " << m->max_error_global;
+					<< " " << m->q34_max_error_metric << " " << m->max_max_error_global
+					<< " " << m->min_max_error_global<< " " << m->mean_max_error_global;
 			}
 			gnuplotMapFile << "\n";
 			gnuplotSpectreErrorMapFile << profileCount++ << " " << auxIndexes << " " << auxSpectreError << "\n";
@@ -548,7 +582,7 @@ int MontecarloCriticalParameterNDParametersSweepSimulation::GnuplotGeneralResult
 	std::ofstream gnuplotScriptFile;
 	gnuplotScriptFile.open( gnuplotScriptFilePath.c_str() );
 	// Svg
-	gnuplotScriptFile << "set term svg  size " << kSvgImageWidth << ","<< kSvgImageHeight
+	gnuplotScriptFile << "set term svg noenhanced size " << kSvgImageWidth << ","<< kSvgImageHeight
 		 << " fname " << kSvgFont << "\n";
 	gnuplotScriptFile << "set output \"" << outputImagePath << "\"\n";
 	gnuplotScriptFile << "set title \" " << title << " \"\n";
@@ -565,8 +599,9 @@ int MontecarloCriticalParameterNDParametersSweepSimulation::GnuplotGeneralResult
 	gnuplotScriptFile << "set border 3 back ls 11\n";
 	gnuplotScriptFile << "set tics nomirror\n";
 	// line style
-	gnuplotScriptFile <<  "set style line 1 lc rgb '#8b1a0e' pt 1 ps 1 lt 1 lw 2 # --- red\n";
-	gnuplotScriptFile <<  "set style line 2 lc rgb '#5e9c36' pt 6 ps 1 lt 1 lw 2 # --- green\n";
+	gnuplotScriptFile <<  "set style line 1 lc rgb '#cf3a00' pt 1 ps 1 lt 1 lw 2 # --- red\n";
+	gnuplotScriptFile <<  "set style line 2 lc rgb '#0060ad' pt 6 ps 1 lt 1 lw 2 # --- blue\n";
+	// gnuplotScriptFile <<  "set style line 3 lc rgb '#5e9c36' pt 6 ps 1 lt 1 lw 2 # --- green\n";
 	gnuplotScriptFile <<  "set style fill solid\n";
 	// // Background
 	gnuplotScriptFile << kWholeBackground << "\n";
@@ -576,13 +611,12 @@ int MontecarloCriticalParameterNDParametersSweepSimulation::GnuplotGeneralResult
 	// Plot
 	// add xtics with xtic(2), u 1:3:xtic(2)
 	if( correctly_simulated ){
-		gnuplotScriptFile <<  "plot '" << gnuplotDataFile << "' u 1:3 axes x1y1 w lp ls 2 title '"
-			<< golden_critical_parameter->get_title_name() << "'\n";
-
+		gnuplotScriptFile <<  "plot '" << gnuplotDataFile << "' u 1:5:4:3 axes x1y1 w errorbars ls 1 notitle, \\\n";
+		gnuplotScriptFile <<  " '" << gnuplotDataFile << "' u 1:5 axes x1y1 w lp ls 2 title '" << golden_critical_parameter->get_title_name() << "'\n";
 	}else{
-		gnuplotScriptFile <<  "plot '" << gnuplotDataFile << "' u 1:3 axes x1y1 w lp ls 2 title '"
-			<< golden_critical_parameter->get_title_name() << "', \\\n";
-		gnuplotScriptFile <<  " '" << gnuplotSpectreErrorMapFilePath << "' u 1:3 axes x1y2 with boxes ls 1 notitle\n";
+		gnuplotScriptFile <<  "plot '" << gnuplotDataFile << "' u 1:5:4:3 axes x1y1 w errorbars ls 2 title '" << golden_critical_parameter->get_title_name() << "', \\\n";
+		gnuplotScriptFile <<  " '" << gnuplotSpectreErrorMapFilePath << "' u 1:5 axes x1y2 with boxes ls 1 notitle\n";
+		gnuplotScriptFile <<  " '" << gnuplotDataFile << "' u 1:5 axes x1y1 w lp ls 2 title '" << golden_critical_parameter->get_title_name() << "'\n";
 	}
 	gnuplotScriptFile <<  "set xtics ntics\n";
 
@@ -617,7 +651,7 @@ int MontecarloCriticalParameterNDParametersSweepSimulation::GnuplotGeneralMetric
 			std::ofstream gnuplotScriptFile;
 			gnuplotScriptFile.open( gnuplotScriptFilePath.c_str() );
 			// Svg
-			gnuplotScriptFile << "set term svg  size " << kSvgImageWidth << ","<< kSvgImageHeight
+			gnuplotScriptFile << "set term svg noenhanced size " << kSvgImageWidth << ","<< kSvgImageHeight
 				<< " fname " << kSvgFont << "\n";
 			gnuplotScriptFile << "set output \"" << outputImagePath << "\"\n";
 			gnuplotScriptFile << "set title \" " << title << " \"\n";
@@ -635,7 +669,7 @@ int MontecarloCriticalParameterNDParametersSweepSimulation::GnuplotGeneralMetric
 			gnuplotScriptFile << "set tics nomirror\n";
 			gnuplotScriptFile << "set y2tics\n";
 			// palete range
-			if( maxCritParamValue < 1 ){
+			if( maxCritParamValue < 0 ){
 				maxCritParamValue = 1;
 				// Palete
 				gnuplotScriptFile << kMinimalPalette << "\n";
@@ -648,31 +682,34 @@ int MontecarloCriticalParameterNDParametersSweepSimulation::GnuplotGeneralMetric
 				gnuplotScriptFile << "set cbrange [0:"<< maxCritParamValue << "]\n";
 			}
 			// line style
-			gnuplotScriptFile <<  "set style line 1 lc rgb '#0060ad' lt 1 lw 1 pt 7 ps 1  # --- blue\n";
-			gnuplotScriptFile <<  "set style line 2 lc rgb '#0060ad' lt 1 lw 3 pt 7 ps 1.5  # --- blue\n";
-			gnuplotScriptFile <<  "set style line 3 lc rgb '#ffd35a' lt 3 lw 1 pt 9 ps 1  # --- yellow\n";
-			gnuplotScriptFile <<  "set style line 4 lc rgb '#ff3a00' lt 3 lw 0 pt 9 ps 1  # --- red\n";
-			gnuplotScriptFile <<  "set style line 5 lc rgb '#666666' lt 3 lw 2 pt 9 ps 1  # --- grey \n";
+			gnuplotScriptFile <<  "set style line 1 lc rgb '#0060ad' lt 1 lw 1 pt 7 ps 1  # --- blue\n"; // candle metric
+			gnuplotScriptFile <<  "set style line 2 lc rgb '#0060ad' lt 1 lw 3 pt 7 ps 1.5  # --- blue\n"; // metric
+			gnuplotScriptFile <<  "set style line 3 lc rgb '#cf3a00' lt 1 lw 1 pt 7 ps 1  # --- red\n"; // global
+			gnuplotScriptFile <<  "set style line 4 lc rgb '#ffd35a' lt 3 lw 1 pt 9 ps 1  # --- yellow filled\n"; // crit mean
+			gnuplotScriptFile <<  "set style line 5 lc rgb '#ffb35a' lt 3 lw 1 pt 9 ps 1  # --- orange filled\n";
+			gnuplotScriptFile <<  "set style line 6 lc rgb '#ff6666' lt 3 lw 1 pt 9 ps 1  # --- red filled\n";
+			gnuplotScriptFile <<  "set style line 7 lc rgb '#666666' lt 3 lw 1 pt 9 ps 1  # --- grey\n";
 			gnuplotScriptFile <<  "set boxwidth 0.5 relative\n";
 			gnuplotScriptFile <<  "set style fill transparent solid 0.5\n";
 			// // Background
 			gnuplotScriptFile << kWholeBackground << "\n";
 			// Plot
-			// # 1              2            3      4             5                6              7             8   9   10  11
-			// # profCount profile crit_val MAG_i_name MAG_i_maxError MAG_i_minError MAG_i_mean MAG_i_median q12 q34 MAG_i_maxErrorGlobal
-			int magDataIndex = 4 + data_per_metric_per_line*magCount; // title
-			gnuplotScriptFile <<  "plot '" << gnuplotDataFile << "' using 1:3 axis x1y2 with filledcurve x1 ls 3 title '"
-				<< golden_critical_parameter->get_title_name() << "', \\\n";
-			// max min
-			gnuplotScriptFile <<  "     '" << gnuplotDataFile << "' u 1:" << (magDataIndex+5)  <<  ":" << (magDataIndex+2)
-				<< ":" << (magDataIndex+1) << ":" << (magDataIndex+6) << " axis x1y1  w candlesticks ls 1 notitle whiskerbars, \\\n";
-			gnuplotScriptFile <<  "     '" << gnuplotDataFile << "' u 1:" << (magDataIndex+3) << " axis x1y1  w lp ls 2 title '" << m->get_title_name()
-				<< "  (mean_max_error_metric)'\n";
+			// #p1 p2 crit_max crit_min crit_mean  (6)MAG_i_name MAG_i_maxErrorMetric MAG_i_minErrorMetric MAG_i_meanMaxErrorMetric
+			// (10)MAG_i_medianMaxErrorMetric q12 q34 MAG_i_maxMaxErrorGlobal MAG_i_minMaxErrorGlobal MAG_i_meanMaxErrorGlobal\n";
+			int magDataIndex = p_gnuplot_first_mag_offset + p_data_per_metric_per_line*magCount; // title
+			gnuplotScriptFile <<  "plot '" << gnuplotDataFile << "' using 1:3 axis x1y2 with filledcurve x1 ls 5 title '" << golden_critical_parameter->get_title_name() << "_max', \\\n";
+			gnuplotScriptFile <<  " '" << gnuplotDataFile << "' using 1:5 axis x1y2 with filledcurve x1 ls 4 title '" << golden_critical_parameter->get_title_name() << "_mean', \\\n";
+			gnuplotScriptFile <<  " '" << gnuplotDataFile << "' using 1:4 axis x1y2 with filledcurve x1 ls 6 title '" << golden_critical_parameter->get_title_name() << "_min', \\\n";
+			// candlesticks  # Data columns: X Min 1stQuartile Median 3rdQuartile Max
+			// metric
+			gnuplotScriptFile <<  "     '" << gnuplotDataFile << "' u 1:" << (magDataIndex+2)  <<  ":" << (magDataIndex+5) << ":" << (magDataIndex+4) << ":" << (magDataIndex+6) << ":" << (magDataIndex+1) << " axis x1y1  w candlesticks ls 1 notitle whiskerbars, \\\n";
+			gnuplotScriptFile <<  "     '" << gnuplotDataFile << "' u 1:" << (magDataIndex+3) << " axis x1y1  w lp ls 2 title '" << m->get_title_name() << " (max_error_metric)', \\\n";
+			// global
+			gnuplotScriptFile <<  "     '" << gnuplotDataFile << "' u 1:" << (magDataIndex+9)  <<  ":" << (magDataIndex+8) << ":" << (magDataIndex+7) << " axis x1y1  w errorbars ls 3 notitle, \\\n";
+			gnuplotScriptFile <<  "     '" << gnuplotDataFile << "' u 1:" << (magDataIndex+9) << " axis x1y1  w lp ls 3 title '" << m->get_title_name() << " (max_error_global)'\n";
+			//
 			gnuplotScriptFile << " # Uncomment the following for ploting the median\n";
-			gnuplotScriptFile <<  "#     '" << gnuplotDataFile << "' u 1:" << (magDataIndex+4) << " axis x1y1  w lp ls 5 title 'median max_err_"
-				<< m->get_title_name() << "'\n";
-			gnuplotScriptFile << " # Uncomment the following for ploting upsets region\n";
-			gnuplotScriptFile <<  "#     '" << gnuplotDataFile << "' using 1:3 axis x1y2 with filledcurve x2 ls 4 notitle, \\\n";
+			gnuplotScriptFile <<  "#     '" << gnuplotDataFile << "' u 1:" << (magDataIndex+4) << " axis x1y1  w lp ls 5 title 'median max_err_" << m->get_title_name() << "'\n";
 			// legend
 			gnuplotScriptFile <<  "set key top left\n";
 
@@ -695,7 +732,7 @@ int MontecarloCriticalParameterNDParametersSweepSimulation::GnuplotGeneralMetric
 	return partialResult;
 }
 
-int MontecarloCriticalParameterNDParametersSweepSimulation::GnuplotPlane(
+int MontecarloCriticalParameterNDParametersSweepSimulation::GnuplotPlaneCriticalParam(
 	PlaneResultsStructure& plane, const bool isPartialPlane,
 	const SimulationParameter& p1, const SimulationParameter& p2,
 	const std::string& partialPlaneId, const std::string& gnuplotDataFile,
@@ -709,7 +746,7 @@ int MontecarloCriticalParameterNDParametersSweepSimulation::GnuplotPlane(
 	// Generate scripts
 	std::ofstream gnuplotScriptFile;
 	gnuplotScriptFile.open( gnuplotScriptFilePath.c_str() );
-	gnuplotScriptFile << "set term svg  size " << kSvgImageWidth << ","<< kSvgImageHeight << " fname " << kSvgFont << "\n";
+	gnuplotScriptFile << "set term svg noenhanced size " << kSvgImageWidth << ","<< kSvgImageHeight << " fname " << kSvgFont << "\n";
 	gnuplotScriptFile << "set output \"" << outputImagePath  << "\"\n";
 	gnuplotScriptFile << "set grid\n";
 	// Axis
@@ -780,7 +817,7 @@ int MontecarloCriticalParameterNDParametersSweepSimulation::GnuplotPlaneMetricRe
 			// Generate scripts
 			std::ofstream gnuplotScriptFile;
 			gnuplotScriptFile.open( gnuplotScriptFilePath.c_str() );
-			gnuplotScriptFile << "set term svg  size " << kSvgImageWidth << ","<< kSvgImageHeight << " fname " << kSvgFont << "\n";
+			gnuplotScriptFile << "set term svg noenhanced size " << kSvgImageWidth << ","<< kSvgImageHeight << " fname " << kSvgFont << "\n";
 			gnuplotScriptFile << "set output \"" << outputImagePath  << "\"\n";
 			gnuplotScriptFile << "set grid\n";
 			// Axix border
@@ -819,9 +856,12 @@ int MontecarloCriticalParameterNDParametersSweepSimulation::GnuplotPlaneMetricRe
 			}else{
 				gnuplotScriptFile << "set pm3d corners2color max\n";
 			}
-			int magDataIndex = 4 + data_per_metric_per_line*magCount; // title
-			gnuplotScriptFile << "splot '" << gnuplotDataFile << "' u 1:2:" << (magDataIndex+4)
-				<< " title 'mean_max_err_" << m->get_title_name() << "' w pm3d\n";
+			gnuplotScriptFile << "set style line 1 lc rgb '#cf3a00' lt 1 pt 6 ps 1 lw 1\n"; // red
+			gnuplotScriptFile << "set style line 2 lc rgb '#3333aa' lt 1 pt 6 ps 1 lw 1\n"; // blue
+			int magDataIndex = p_gnuplot_first_mag_offset + g_data_per_metric_per_line*magCount; // title
+			gnuplotScriptFile << "splot '" << gnuplotDataFile << "' u 1:2:" << (magDataIndex+2) << " notitle w lp ls 2, \\\n";
+			gnuplotScriptFile << " '" << gnuplotDataFile << "' u 1:2:" << (magDataIndex+1) << " notitle w lp ls 1, \\\n";
+			gnuplotScriptFile << " '" << gnuplotDataFile << "' u 1:2:" << (magDataIndex+3) << " title 'max_err_" << m->get_title_name() << "' w pm3d\n";
 			gnuplotScriptFile << "unset output\n";
 			// close file
 			gnuplotScriptFile << "quit\n";

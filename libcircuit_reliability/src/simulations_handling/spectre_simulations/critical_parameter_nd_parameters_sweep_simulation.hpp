@@ -77,9 +77,14 @@ public:
 	 */
 	void set_plot_last_transients( bool plot_last_transients) { this->plot_last_transients = plot_last_transients; }
 
-	std::vector<unsigned int>* get_metric_column_indexes(){ return &metric_column_indexes; }
+	// for use outside [profile files]
+	std::vector<unsigned int>* get_out_profile_c_i_mean(){ return &out_profile_c_i_mean; }
+		// for use outside [planes files]
+	std::vector<unsigned int>* get_out_p_c_i_max(){ return &out_p_c_i_max; }
+	std::vector<unsigned int>* get_out_p_c_i_min(){ return &out_p_c_i_min; }
+	std::vector<unsigned int>* get_out_p_c_i_mean(){ return &out_p_c_i_mean; }
 
-	unsigned int get_data_per_metric_per_line() const{ return data_per_metric_per_line; }
+	unsigned int get_g_data_per_metric_per_line() const{ return g_data_per_metric_per_line; }
 
 private:
 
@@ -94,9 +99,18 @@ private:
 	int max_parallel_profile_instances;
 	/// plot last transient
 	bool plot_last_transients;
-	/// data per metric per line for gnuplot maps
-	const unsigned int data_per_metric_per_line = 3;
-	std::vector<unsigned int> metric_column_indexes;
+	/// data per metric per line for PARTIAL gnuplot maps
+	const unsigned int p_data_per_metric_per_line = 3;
+	/// data per metric per line for GENERAL gnuplot maps
+	const unsigned int g_data_per_metric_per_line = 7;
+	/// profile columns indexes
+	std::vector<unsigned int> out_profile_c_i_mean;
+	/// partial plane column indexes to be STATISTICALLY ( mean - max -min ) processed
+	std::vector<unsigned int> p_p_c_i_statistic_2be_processed;
+	/// general (at this specific scenario) plane column indexes of mean values
+	std::vector<unsigned int> out_p_c_i_mean;
+	std::vector<unsigned int> out_p_c_i_max;
+	std::vector<unsigned int> out_p_c_i_min;
 
 	bool InitMetricColumnIndexes( const std::vector<Metric*>& auxMetrics );
 	/**

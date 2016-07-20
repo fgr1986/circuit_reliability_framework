@@ -62,7 +62,17 @@ public:
 
 	void set_montecarlo_iterations( unsigned int montecarlo_iterations) { this->montecarlo_iterations = montecarlo_iterations; }
 
-	std::vector<unsigned int>* get_metric_column_indexes(){ return &metric_column_indexes; }
+	// for use outside [profile files]
+	std::vector<unsigned int>* get_out_profile_c_i_max(){ return &out_profile_c_i_max; }
+	std::vector<unsigned int>* get_out_profile_c_i_min(){ return &out_profile_c_i_min; }
+	std::vector<unsigned int>* get_out_profile_c_i_mean(){ return &out_profile_c_i_mean; }
+		// for use outside [planes files]
+	std::vector<unsigned int>* get_out_p_c_i_max(){ return &out_p_c_i_max; }
+	std::vector<unsigned int>* get_out_p_c_i_min(){ return &out_p_c_i_min; }
+	std::vector<unsigned int>* get_out_p_c_i_mean(){ return &out_p_c_i_mean; }
+
+	unsigned int get_g_data_per_metric_per_line() const{ return g_data_per_metric_per_line; }
+	unsigned int get_p_gnuplot_first_mag_offset() const{ return p_gnuplot_first_mag_offset; }
 
 private:
 	/// Montecarlo Iterations
@@ -75,9 +85,26 @@ private:
 	unsigned int max_parallel_montecarlo_instances;
 	/// plot last transient
 	bool plot_last_transients;
-	/// data per metric per line for gnuplot maps
-	const int data_per_metric_per_line = 8;
-	std::vector<unsigned int> metric_column_indexes;
+
+	/// offset to first mag, both in profile and plane data files
+	const unsigned int p_gnuplot_first_mag_offset = 6;
+	/// data per metric per line for PARTIAL gnuplot maps
+	const unsigned int p_data_per_metric_per_line = 10;
+	/// data per metric per line for GENERAL gnuplot maps
+	const unsigned int g_data_per_metric_per_line = 10;
+
+	/// profile columns indexes
+	std::vector<unsigned int> out_profile_c_i_max;
+	std::vector<unsigned int> out_profile_c_i_min;
+	std::vector<unsigned int> out_profile_c_i_mean;
+	/// partial plane column indexes to be STATISTICALLY processed (class internal)
+	std::vector<unsigned int> p_p_c_i_max;
+	std::vector<unsigned int> p_p_c_i_min;
+	std::vector<unsigned int> p_p_c_i_mean;
+	/// general (at this specific scenario) plane column indexes of mean values
+	std::vector<unsigned int> out_p_c_i_max;
+	std::vector<unsigned int> out_p_c_i_min;
+	std::vector<unsigned int> out_p_c_i_mean;
 
 	bool InitMetricColumnIndexes( const std::vector<Metric*>& auxMetricsauxMetrics );
 
@@ -143,7 +170,7 @@ private:
 		const std::string& mapsFolder, const std::string& gnuplotScriptFolder, const std::string& imagesFolder,
 		const std::vector<unsigned int>& profileIndexesInPlane, PlaneResultsStructure& plane );
 
-	int GnuplotPlane( PlaneResultsStructure& plane, const bool isPartialPlane,
+	int GnuplotPlaneCriticalParam( PlaneResultsStructure& plane, const bool isPartialPlane,
 		const SimulationParameter& p1, const SimulationParameter& p2,
 		const std::string& partialPlaneId, const std::string& gnuplotDataFile,
 		const std::string& gnuplotScriptFolder, const std::string& imagesFolder );

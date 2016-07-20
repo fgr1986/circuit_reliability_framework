@@ -22,10 +22,11 @@
 #include "../../io_handling/raw_format_processor.hpp"
 // constants
 // in header file: #include "global_template_functions.hpp"
-#include "../../global_functions_and_constants/gnuplot_constants.hpp"
 #include "../../global_functions_and_constants/global_constants.hpp"
+#include "../../global_functions_and_constants/gnuplot_constants.hpp"
 #include "../../global_functions_and_constants/global_template_functions.hpp"
 #include "../../global_functions_and_constants/files_folders_io_constants.hpp"
+// #include "../../global_functions_and_constants/name_functions.hpp"
 
 CriticalParameterNDParameterSweepSimulation::CriticalParameterNDParameterSweepSimulation() {
 	this->critical_parameter_value = kNotDefinedInt;
@@ -218,20 +219,39 @@ bool CriticalParameterNDParameterSweepSimulation::TestSetUp(){
 
 bool CriticalParameterNDParameterSweepSimulation::InitMetricColumnIndexes(
 		const std::vector<Metric*>& auxMetrics ){
-	// 0   1      2          3                4                    5
-	// p1  p2     p_critical value MAG_i_name MAG_i_maxErrorMetric MAG_i_minErrorMetric
-	// 6                         7                         8   9   10
-	// MAG_i_meanMaxErrorMetric MAG_i_medianMaxErrorMetric q12 q34 MAG_i_maxErrorGlobal
-	metric_column_indexes = {2}; // parameter critical value
+	// profile outputs
 	// 0  1  2      3          4                    5
-	// p1 p2 upsets MAG_i_name MAG_i_maxErrorGlobal MAG_i_maxErrorMetric
-	metric_column_indexes = {2}; // critical param
-	unsigned int auxMagCount = 3; // MAG_i_name
+	// #profCount #Profile #Qcoll #MAG_i_name #MAG_i_maxErrorMetric #MAG_i_maxErrorGlobal
+	out_profile_c_i_mean = {2};
+	// partial plane inputs
+	// 0  1  2      3          4                    5
+	// p1 p2 crit 	MAG_i_name MAG_i_maxErrorGlobal MAG_i_maxErrorMetric
+	p_p_c_i_statistic_2be_processed = {2}; // critical param
+	// partial plane outputs
+	// 0  1  2      	3       	4         5				6						7						8							9						10					11						12
+	// p1 p2 critMax  critMin 	critMean 	m0Name	m0MetricMax	m0MetricMin	m0MetricMean  m0GlobalMax	m0GlobalMin	m0GlobalMean	m1Name
+	out_p_c_i_max = {2};
+	out_p_c_i_min = {3};
+	out_p_c_i_mean = {4};
+	unsigned int inMagCount = 3; // MAG_i_name in input
+	unsigned int outMagCount = 5; // MAG_i_name in output
 	for( auto const &m: auxMetrics ){
 		if(m->get_analyzable()){
-			metric_column_indexes.push_back( auxMagCount+1 ); // MAG_i_maxErrorGlobal
-			metric_column_indexes.push_back( auxMagCount+2 ); // MAG_i_maxErrorMetric
-			auxMagCount += 3; // next MAG_i_name
+			// for use inside CriticalParameterNDParameterSweepSimulation
+			p_p_c_i_statistic_2be_processed.push_back( inMagCount+1 ); // MAG_i_maxErrorMetric
+			p_p_c_i_statistic_2be_processed.push_back( inMagCount+2 ); // MAG_i_maxErrorGlobal
+			// for use outside CriticalParameterNDParameterSweepSimulation
+			out_profile_c_i_mean.push_back( inMagCount+1 );// MAG_i_maxErrorMetric
+			out_profile_c_i_mean.push_back( inMagCount+2 );// MAG_i_maxErrorGlobal
+			out_p_c_i_max.push_back( outMagCount + 1 );
+			out_p_c_i_min.push_back( outMagCount + 2 );
+			out_p_c_i_mean.push_back( outMagCount + 3 );
+			out_p_c_i_max.push_back( outMagCount + 4 );
+			out_p_c_i_min.push_back( outMagCount + 5 );
+			out_p_c_i_mean.push_back( outMagCount + 6 );
+			// update counters
+			inMagCount += 3; // next MAG_i_name in input
+			outMagCount += 7; // next MAG_i_name in output
 		}
 	}
 	return true;
@@ -273,7 +293,7 @@ bool CriticalParameterNDParameterSweepSimulation::GenerateAndPlotResults(
 	// p1 vs p2 3d plots
 	// std::vector<std::tuple<int,int>>
 	std::set<std::pair<unsigned int,unsigned int>> exportedParamTuples;
-	// init metric_column_indexes
+	// init all column indexes
 	if( !InitMetricColumnIndexes(*auxMetrics) ){
 		log_io->ReportError2AllLogs( "Unexpected error in InitMetricColumnIndexes" );
 		return false;
@@ -341,23 +361,19 @@ bool CriticalParameterNDParameterSweepSimulation::GenerateAndPlotGeneralResults(
 		gnuplotMapFile.setf(std::ios::scientific);
 		gnuplotSpectreErrorMapFile.open( gnuplotSpectreErrorMapFilePath.c_str() );
 		gnuplotMapFile << "#profCount #Profile" << " #"  << golden_critical_parameter->get_name()
-			<< " #MAG_i_name #MAG_i_maxErrorGlobal #MAG_i_maxErrorMetric\n";
+			<< " #MAG_i_name #MAG_i_maxErrorMetric #MAG_i_maxErrorGlobal\n";
 		gnuplotSpectreErrorMapFile << "#profCount #Profile #SpectreError \n";
 		unsigned int profileCount = 0;
 		for( auto const &simulation : *(critical_parameter_value_simulations_vector.get_spectre_simulations()) ){
 			CriticalParameterValueSimulation* convSim = dynamic_cast<CriticalParameterValueSimulation*>(simulation);
 			std::string auxIndexes = getIndexCode( auxiliarIndexes );
 			std::string auxSpectreError = convSim->get_correctly_simulated() ? "0" : "1";
-			#ifdef GCC_OLD
-			gnuplotMapFile << number2String(profileCount) << " " << auxIndexes << " " << convSim->get_critical_parameter_value();
-			#else
 			gnuplotMapFile << std::defaultfloat << profileCount << " " << auxIndexes << " " << convSim->get_critical_parameter_value();
-			#endif
 			maxCritCharge = convSim->get_critical_parameter_value()>maxCritCharge ? convSim->get_critical_parameter_value() : maxCritCharge;
 			// mag errors
 			auto magErrors = convSim->get_last_valid_transient_simulation_results()->get_metrics_errors();
 			for( auto const &m : *magErrors ){
-				gnuplotMapFile << " " << m->get_metric_name() << " " << m->get_max_abs_error_global() << " " << m->get_max_abs_error();
+				gnuplotMapFile << " " << m->get_metric_name() << " " << m->get_max_abs_error() << " " << m->get_max_abs_error_global();
 			}
 			gnuplotMapFile << "\n";
 			// spectre errors
@@ -413,8 +429,9 @@ bool CriticalParameterNDParameterSweepSimulation::GenerateAndPlotParameterPairRe
 	ResultsProcessor rp;
 	std::string generalParameterResultsFile = mapsFolder + kFolderSeparator
 		+ planeStructure->get_plane_id() + "_general_" + kDataSufix;
-	partialResults = partialResults && rp.MeanProcessResultsFiles(
-		planeStructure->get_itemized_data_paths(), generalParameterResultsFile, std::move(metric_column_indexes));
+	// statistic process metric and global max errors
+	partialResults = partialResults && rp.StatisticProcessResultsFiles(
+		planeStructure->get_itemized_data_paths(), generalParameterResultsFile, std::move(p_p_c_i_statistic_2be_processed));
 	if( !partialResults ){
 		log_io->ReportError2AllLogs( "[ERROR ResultsProcessor] Error processing " + generalParameterResultsFile );
 		return partialResults;
@@ -424,10 +441,10 @@ bool CriticalParameterNDParameterSweepSimulation::GenerateAndPlotParameterPairRe
 	SimulationParameter* p1 = parameters2sweep.at(p1Index);
 	SimulationParameter* p2 = parameters2sweep.at(p2Index);
 	int gnuplotResult = GnuplotPlane( *planeStructure, false, *p1, *p2,
-		planeStructure->get_plane_id() + "_general", generalParameterResultsFile,
+		planeStructure->get_plane_id() + "general", generalParameterResultsFile,
 		gnuplotScriptFolder, imagesFolder );
 	gnuplotResult += GnuplotPlaneMetricResults( auxMetrics, *planeStructure,
-		false, *p1, *p2, 0, "_general_", generalParameterResultsFile,
+		false, *p1, *p2, 0, "general", generalParameterResultsFile,
 		gnuplotScriptFolder, imagesFolder );
 	if( gnuplotResult > 0 ){
 		log_io->ReportError2AllLogs( "Sim " + simulation_id + ".Unexpected gnuplot result: " + number2String(gnuplotResult) );
@@ -459,7 +476,7 @@ bool CriticalParameterNDParameterSweepSimulation::GenerateAndPlotItemizedPlane(
 		gnuplotMapFile.setf(std::ios::scientific);
 		gnuplotMapFile << "#" << p1->get_name() << " " << p2->get_name()
 			<< " "  << golden_critical_parameter->get_name()
-			<< " #MAG_i_name #MAG_i_maxErrorGlobal #MAG_i_maxErrorMetric\n";
+			<< " #MAG_i_name #MAG_i_maxErrorMetric #MAG_i_maxErrorGlobal\n";
 		unsigned int profileCount = 0;
 		unsigned int p1SweepCount = 0;
 		unsigned int p2SweepCount = 0;
@@ -476,7 +493,7 @@ bool CriticalParameterNDParameterSweepSimulation::GenerateAndPlotItemizedPlane(
 				// mag errors
 				auto magErrors = convSim->get_last_valid_transient_simulation_results()->get_metrics_errors();
 				for( auto const &m : *magErrors ){
-					gnuplotMapFile << " " << m->get_metric_name() << " " << m->get_max_abs_error_global() << " " << m->get_max_abs_error();
+					gnuplotMapFile << " " << m->get_metric_name() << " " << m->get_max_abs_error() << " " << m->get_max_abs_error_global();
 				}
 				gnuplotMapFile << "\n";
 			}// update counters
@@ -523,7 +540,7 @@ int CriticalParameterNDParameterSweepSimulation::GnuplotGeneralResults(
 	std::ofstream gnuplotScriptFile;
 	gnuplotScriptFile.open( gnuplotScriptFilePath.c_str() );
 	// Svg
-	gnuplotScriptFile << "set term svg  size " << kSvgImageWidth << ","<< kSvgImageHeight
+	gnuplotScriptFile << "set term svg noenhanced size " << kSvgImageWidth << ","<< kSvgImageHeight
 		 << " fname " << kSvgFont << "\n";
 	gnuplotScriptFile << "set output \"" << outputImagePath << "\"\n";
 	gnuplotScriptFile << "set title \" " << title
@@ -558,7 +575,6 @@ int CriticalParameterNDParameterSweepSimulation::GnuplotGeneralResults(
 	if( correctly_simulated ){
 		gnuplotScriptFile <<  "plot '" << gnuplotDataFile << "' u 1:3 axes x1y1 w lp ls 2 title '"
 			<< golden_critical_parameter->get_title_name() << "'\n";
-
 	}else{
 		gnuplotScriptFile <<  "plot '" << gnuplotDataFile << "' u 1:3 axes x1y1 w lp ls 2 title '"
 			<< golden_critical_parameter->get_title_name() << "', \\\n";
@@ -596,7 +612,7 @@ int CriticalParameterNDParameterSweepSimulation::GnuplotGeneralMetricMetricResul
 			std::ofstream gnuplotScriptFile;
 			gnuplotScriptFile.open( gnuplotScriptFilePath.c_str() );
 			// Svg
-			gnuplotScriptFile << "set term svg  size " << kSvgImageWidth << ","<< kSvgImageHeight
+			gnuplotScriptFile << "set term svg noenhanced size " << kSvgImageWidth << ","<< kSvgImageHeight
 				<< " fname " << kSvgFont << "\n";
 			gnuplotScriptFile << "set output \"" << outputImagePath << "\"\n";
 			gnuplotScriptFile << "set title \" " << title << " \"\n";
@@ -613,7 +629,7 @@ int CriticalParameterNDParameterSweepSimulation::GnuplotGeneralMetricMetricResul
 			gnuplotScriptFile << "set tics nomirror\n";
 			gnuplotScriptFile << "set y2tics\n";
 			// palete range
-			if( maxCritCharge < 1 ){
+			if( maxCritCharge < 0 ){
 				maxCritCharge = 1;
 				// Palete
 				gnuplotScriptFile << kMinimalPalette << "\n";
@@ -637,14 +653,14 @@ int CriticalParameterNDParameterSweepSimulation::GnuplotGeneralMetricMetricResul
 			gnuplotScriptFile << kWholeBackground << "\n";
 			// Plot
 			// # 1              2            3         4                      5
-			// # profCount profile %crit_param #MAG_i_name #MAG_i_maxErrorGlobal #MAG_i_maxErrorMetric
-			int magDataIndex = 4 + data_per_metric_per_line*magCount; // title
+			// # profCount profile %crit_param #MAG_i_name #AG_i_maxErrorMetric #MMAG_i_maxErrorGlobal
+			int magDataIndex = 4 + p_data_per_metric_per_line*magCount; // title
 			gnuplotScriptFile <<  "plot '" << gnuplotDataFile << "' using 1:3 axis x1y2 with filledcurve x1 ls 3 title '\% "
 				<< golden_critical_parameter->get_title_name() << "', \\\n";
-			gnuplotScriptFile <<  "     '" << gnuplotDataFile << "' u 1:" << (magDataIndex+1) << " axis x1y1  w lp ls 1 title '"
-				<< m->get_title_name() << "  (max\\_error\\_global)', \\\n";
-			gnuplotScriptFile <<  "     '" << gnuplotDataFile << "' u 1:" << (magDataIndex+2) << " axis x1y1  w lp ls 2 title '"
-				<< m->get_title_name() << "  (max\\_error\\_metric)'\n";
+			gnuplotScriptFile <<  "     '" << gnuplotDataFile << "' u 1:" << (magDataIndex+1) << " axis x1y1  w lp ls 2 title '"
+				<< m->get_title_name() << "  (max\\_error\\_metric)', \\\n";
+			gnuplotScriptFile <<  "     '" << gnuplotDataFile << "' u 1:" << (magDataIndex+2) << " axis x1y1  w lp ls 1 title '"
+				<< m->get_title_name() << "  (max\\_error\\_global)'\n";
 			// legend
 			gnuplotScriptFile <<  "set key top left\n";
 
@@ -676,7 +692,7 @@ int CriticalParameterNDParameterSweepSimulation::GnuplotPlane(
 	// Generate scripts
 	std::ofstream gnuplotScriptFile;
 	gnuplotScriptFile.open( gnuplotScriptFilePath.c_str() );
-	gnuplotScriptFile << "set term svg  size " << kSvgImageWidth << ","<< kSvgImageHeight << " fname " << kSvgFont << "\n";
+	gnuplotScriptFile << "set term svg noenhanced size " << kSvgImageWidth << ","<< kSvgImageHeight << " fname " << kSvgFont << "\n";
 	gnuplotScriptFile << "set output \"" << outputImagePath << "\"\n";
 
 	gnuplotScriptFile << "set grid\n";
@@ -700,7 +716,7 @@ int CriticalParameterNDParameterSweepSimulation::GnuplotPlane(
 	// Background
 	gnuplotScriptFile << kWholeBackground << "\n";
 	gnuplotScriptFile << "set title \"" << golden_critical_parameter->get_title_name()
-		<< ", " << partialPlaneId << " \"\n";
+		<< ", " << partialPlaneId << " \" \n";
 	gnuplotScriptFile << kTransparentObjects << "\n";
 	// linestyle
 	gnuplotScriptFile << kElegantLine << "\n";
@@ -713,7 +729,18 @@ int CriticalParameterNDParameterSweepSimulation::GnuplotPlane(
 	}else{
 		gnuplotScriptFile << "set pm3d corners2color max\n";
 	}
-	gnuplotScriptFile << "splot '" << gnuplotDataFile << "' u 1:2:3 notitle w pm3d\n";
+	if( isPartialPlane ){
+		// p1 p2 critParamValue
+		gnuplotScriptFile << "splot '" << gnuplotDataFile << "' u 1:2:3 notitle w pm3d\n";
+	}else{
+		// p1 p2 MaxCritParamValue MinCritParamValue MeanCritParamValue
+		gnuplotScriptFile << "splot '" << gnuplotDataFile << "' u 1:2:5 notitle w pm3d\n";
+		gnuplotScriptFile << "# additional available plots: \n";
+		gnuplotScriptFile << "# Max qcrit (considering profiles): \n";
+		gnuplotScriptFile << "# splot '" << gnuplotDataFile << "' u 1:2:3 notitle w pm3d\n";
+		gnuplotScriptFile << "# Min qcrit (considering profiles): \n";
+		gnuplotScriptFile << "# splot '" << gnuplotDataFile << "' u 1:2:5 notitle w pm3d\n";
+	}
 	gnuplotScriptFile << "unset output\n";
 	// close file
 	gnuplotScriptFile << "quit\n";
@@ -739,6 +766,7 @@ int CriticalParameterNDParameterSweepSimulation::GnuplotPlaneMetricResults(
 	const std::string& gnuplotScriptFolder, const std::string& imagesFolder ){
 	unsigned int magCount = 0;
 	int partialResults = 0;
+	int magDataIndex = 0; // column index to mag title
 	for( auto const &m : analyzedMetrics ){
 		if( m->get_analyzable() ){
 			// Files
@@ -750,7 +778,7 @@ int CriticalParameterNDParameterSweepSimulation::GnuplotPlaneMetricResults(
 			// Generate scripts
 			std::ofstream gnuplotScriptFile;
 			gnuplotScriptFile.open( gnuplotScriptFilePath.c_str() );
-			gnuplotScriptFile << "set term svg  size " << kSvgImageWidth << ","<< kSvgImageHeight << " fname " << kSvgFont << "\n";
+			gnuplotScriptFile << "set term svg noenhanced size " << kSvgImageWidth << ","<< kSvgImageHeight << " fname " << kSvgFont << "\n";
 			gnuplotScriptFile << "set output \"" << outputImagePath  << "\"\n";
 			gnuplotScriptFile << "set grid\n";
 			// Axis
@@ -788,11 +816,26 @@ int CriticalParameterNDParameterSweepSimulation::GnuplotPlaneMetricResults(
 			}else{
 				gnuplotScriptFile << "set pm3d corners2color max\n";
 			}
-			int magDataIndex = 4 + data_per_metric_per_line*magCount; // title
-			gnuplotScriptFile << "splot '" << gnuplotDataFile << "' u 1:2:" << (magDataIndex+1)
-				<< " title 'global_max_err_" << m->get_title_name() << "' w lp ls 1, \\\n";
-			gnuplotScriptFile << " '" << gnuplotDataFile << "' u 1:2:" << (magDataIndex+2)
-					<< " title 'metric_max_err_" << m->get_title_name() << "' w pm3d\n";
+			if( isPartialPlane ){
+				magDataIndex = 4 + p_data_per_metric_per_line*magCount; // title
+				// p1 p2 critParamValue magName magMetricError magGlobalError
+				gnuplotScriptFile << "splot '" << gnuplotDataFile << "' u 1:2:" << (magDataIndex+1) << " title 'metric\\_max\\_err\\_" << m->get_title_name() << "' w pm3d, \\\n";
+				gnuplotScriptFile << " '" << gnuplotDataFile << "' u 1:2:" << (magDataIndex+2) << " title 'global\\_max\\_err\\_" << m->get_title_name() << "' w lp ls 1\n";
+			}else{
+				magDataIndex = 4 + g_data_per_metric_per_line*magCount; // title
+				// p1 p2 MaxCritParamValue MinCritParamValue MeanCritParamValue
+				// magName magMaxMetricError magMinMetricError magMeanMetricError
+				// magMaxGlobalError magMinGlobalError magMeanGlobalError
+				gnuplotScriptFile << "splot '" << gnuplotDataFile << "' u 1:2:" << (magDataIndex+3) << " title 'metric\\_mean\\_max\\_err\\_" << m->get_title_name() << "' w pm3d, \\\n";
+				gnuplotScriptFile << " '" << gnuplotDataFile << "' u 1:2:" << (magDataIndex+6) << " title 'global\\_mean\\_max\\_err\\_" << m->get_title_name() << "' w lp ls 1\n";
+				gnuplotScriptFile << "# additional available plots: \n";
+				gnuplotScriptFile << "# Max errors (considering profiles): \n";
+				gnuplotScriptFile << "# splot '" << gnuplotDataFile << "' u 1:2:" << (magDataIndex+1) << " title 'metric\\_max\\_max\\_err\\_" << m->get_title_name() << "' w pm3d, \\\n";
+				gnuplotScriptFile << "#  '" << gnuplotDataFile << "' u 1:2:" << (magDataIndex+4) << " title 'global\\_max\\_max\\_err\\_" << m->get_title_name() << "' w lp ls 1\n";
+				gnuplotScriptFile << "# Min errors (considering profiles): \n";
+				gnuplotScriptFile << "# splot '" << gnuplotDataFile << "' u 1:2:" << (magDataIndex+2) << " title 'metric\\_min\\_max\\_err\\_" << m->get_title_name() << "' w pm3d, \\\n";
+				gnuplotScriptFile << "#  '" << gnuplotDataFile << "' u 1:2:" << (magDataIndex+5) << " title 'global\\_min\\_max\\_err\\_" << m->get_title_name() << "' w lp ls 1\n";
+			}
 			gnuplotScriptFile << "unset output\n";
 			// close file
 			gnuplotScriptFile << "quit\n";

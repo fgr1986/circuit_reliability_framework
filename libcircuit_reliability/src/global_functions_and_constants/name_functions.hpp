@@ -19,10 +19,10 @@ static std::string FilenameWithoutIllegalChars( const std::string& fileName ) {
 }
 
 static std::string TitleWithoutIllegalChars( const std::string& fileName ) {
-	// std::string resultName = FilenameWithoutIllegalChars(fileName);
-	std::string resultName = fileName;
-	boost::replace_all( resultName, "_", "\\_");
-	return resultName;
+	// std::string resultName = fileName;
+	// boost::replace_all( resultName, "_", "\\_");
+	// we now use
+	return fileName;
 }
 
 #endif /* NAME_GLOBAL_FUNCTIONS_H */

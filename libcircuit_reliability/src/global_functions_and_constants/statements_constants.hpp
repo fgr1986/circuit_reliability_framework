@@ -39,7 +39,7 @@ static const std::string kParamTestStatementDesc =  "param_test";
 static const std::string kBSourceStatementDesc =  "bsource";
 static const std::string kAlterationSourceSubcircuitStatementDesc =  "radiation source subcircuit";
 static const std::string kGlobalStatementDesc =  "global nodes";
-static const std::string kFirstRunParamName = "my_firstrun";
+static const std::string kFirstRunParamName = "p_firstrun";
 // Default Paralell Statements
 static const std::string kDefaultParallelStatements = "1";
 

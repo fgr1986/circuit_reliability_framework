@@ -2,8 +2,14 @@
 ###  Spectre Handler Library makefile  ###
 ##########################################
 
+HOST=$(shell hostname)
+
+ifeq "$(HOST)" "lion"
+else
+	export MAKEFLAGS="-j $(grep -c ^processor /proc/cpuinfo)"
+endif
 # # of cores used during compiling
-export MAKEFLAGS="-j $(grep -c ^processor /proc/cpuinfo)"
+# export MAKEFLAGS="-j $(grep -c ^processor /proc/cpuinfo)"
 # export MAKEFLAGS="-j 2"
 # export MAKEFLAGS="-j 1"
 ############
@@ -131,6 +137,7 @@ DIST+= ../../aux_resources/bash_variables/*
 all: ${BINARY}
 
 $(BINARY): $(OBJECTS) $(HEADERS)
+	@echo "Host:" $(HOST)
 #	@echo $(HEADERS)
 #	g++  -Wall -O3 -g -fdump-tree-original  -c -o parameter.o parameter.cpp
 	$(CC) $(OBJECTS) -o $(EXECDIR)$(BINARY) $(LDFLAGS)
