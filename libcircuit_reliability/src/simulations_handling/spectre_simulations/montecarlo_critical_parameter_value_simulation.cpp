@@ -364,12 +364,12 @@ bool MontecarloCriticalParameterValueSimulation::AnalyzeMontecarloResults(){
 		mMCR->min_max_error_global = minMaxErrorGlobal[magCount];
 		mMCR->mean_max_error_global = meanMaxErrorGlobal[magCount];
 		montecarlo_simulation_results.AddMetricMontecarloResults( mMCR );
-		#ifdef RESULTS_ANALYSIS_VERBOSE
-		log_io->ReportGreenStandard( simulation_id +  "-> max_error_global:" + number2String(maxMaxErrorGlobal[magCount])
-			+ " mean_max_error_metric:" + number2String(meanMaxErrorMetric[magCount])
-			+ " b max_error_global:" + number2String(mMCR->max_error_global)
-			+ " b mean_max_error_metric:" + number2String(mMCR->mean_max_error_metric)  );
-		#endif
+		// #ifdef RESULTS_ANALYSIS_VERBOSE
+		// log_io->ReportGreenStandard( "[debug]" simulation_id +  "-> meanMaxErrorGlobal:" + number2String(meanMaxErrorGlobal[magCount])
+		// 	+ " mean_max_error_metric:" + number2String(meanMaxErrorMetric[magCount])
+		// 	+ " b max_error_global:" + number2String(mMCR->max_max_error_global)
+		// 	+ " b mean_max_error_metric:" + number2String(mMCR->mean_max_error_metric)  );
+		// #endif
 		++magCount;
 	}
 	// plot scatters

@@ -87,7 +87,7 @@ bool XMLIOManager::ReadCadenceXML( const std::string &xmlCadence, int& statement
 		read_xml(xmlCadence, ptCadence);
 		log_io->ReportPlain2Log( kTab + "Cadence XML conf file read. Structures creation." );
 		// Version
-		log_io->ReportPlainStandard( kTab + "Cadence file writen for radiation_simulator version: " + ptCadence.get<std::string>("root.radiation_simulator_target_version") );
+		log_io->ReportPlainStandard( kTab + "Cadence file writen for reliability_framework_target_version: " + ptCadence.get<std::string>("root.reliability_framework_target_version") );
 		// Simulator version
 		log_io->ReportPlain2Log( kTab + "Works with Cadence: " + ptCadence.get<std::string>("root.cadence_version") );
 		// Spectre run commands
@@ -202,8 +202,8 @@ bool XMLIOManager::ReadTechnologyXML( const std::string &xmlTechnology, int& sta
 		// technology
 		log_io->ReportPlainStandard( kTab + "Technology: " + ptTechnology.get<std::string>("root.technology") );
 		experimentEnvironment.set_technology_name( ptTechnology.get<std::string>("root.technology") );
-		log_io->ReportPlainStandard( kTab + "Technology file writen for radiation_simulator version: "
-			+ ptTechnology.get<std::string>("root.radiation_simulator_target_version") );
+		log_io->ReportPlainStandard( kTab + "Technology file writen for reliability_framework_target_version: "
+			+ ptTechnology.get<std::string>("root.reliability_framework_target_version") );
 		// path to top models and section handling
 		experimentEnvironment.set_technology_models_file_path( ptTechnology.get<std::string>("root.technology_models_file_path") );
 		experimentEnvironment.set_technology_considering_sections( ptTechnology.get<bool>("root.technology_considering_sections") );
@@ -285,8 +285,8 @@ bool XMLIOManager::ReadExperimentXML( const std::string &xmlExperiment, int& sta
 		// experiment metadata
 		experimentTitle = ptExperiment.get<std::string>("root.experiment_title");
 		log_io->ReportPlainStandard( kTab + "Experiment title: " + experimentTitle );
-		log_io->ReportPlainStandard( kTab + "Experiment file writen for radiation_simulator version: "
-			+ ptExperiment.get<std::string>("root.radiation_simulator_target_version") );
+		log_io->ReportPlainStandard( kTab + "Experiment file writen for reliability_framework_target_version: "
+			+ ptExperiment.get<std::string>("root.reliability_framework_target_version") );
 		// save injecion source
 		radiationSpectreHandler.set_save_injection_sources( ptExperiment.get<bool>("root.save_injection_sources") );
 		log_io->ReportPlainStandard( radiationSpectreHandler.get_save_injection_sources() ?

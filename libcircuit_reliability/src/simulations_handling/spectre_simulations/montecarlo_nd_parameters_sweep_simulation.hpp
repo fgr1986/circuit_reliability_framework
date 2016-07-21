@@ -86,7 +86,12 @@ private:
 	/// plot last transient
 	bool plot_last_transients;
 	/// data per metric per line for gnuplot maps
-	const int data_per_metric_per_line = 8;
+	const int data_per_metric_per_line = 10;
+
+	const unsigned int in_profile_gnuplot_first_mag_metric_offset = 5;
+	const unsigned int in_profile_gnuplot_first_mag_global_offset = 11;
+	const unsigned int in_plane_gnuplot_first_mag_metric_offset = 5;
+	const unsigned int in_plane_gnuplot_first_mag_global_offset = 11;
 
 	/**
 	 * @brief Virtual overrides TestSetup
@@ -130,11 +135,11 @@ private:
 			const std::vector< SimulationParameter*>& parameters2sweep,
 			const std::string& mapsFolder, const std::string& gnuplotScriptFolder, const std::string& imagesFolder );
 
-	int GnuplotGeneralResults(
+	int GnuplotUpsetsGeneralResults(
 		const std::string& gnuplotSpectreErrorMapFilePath,
 		const std::string& gnuplotScriptFolder, const std::string& imagesFolder );
 
-	int GnuplotGeneralMetricMetricResults( const std::vector<Metric*>& analyzedMetrics,
+	int GnuplotGeneralMetricResults( const std::vector<Metric*>& analyzedMetrics,
 		double& maxUpsetRatio, const std::string& mapsFolder, const std::string& gnuplotScriptFolder, const std::string& imagesFolder );
 
 	bool GenerateAndPlotParameterPairResults(
@@ -150,7 +155,7 @@ private:
 		const std::string& mapsFolder, const std::string& gnuplotScriptFolder, const std::string& imagesFolder,
 		const std::vector<unsigned int>& profileIndexesInPlane, PlaneResultsStructure& plane );
 
-	int GnuplotPlane( PlaneResultsStructure& plane, const bool isPartialPlane,
+	int GnuplotUpsetsPlane( PlaneResultsStructure& plane, const bool isPartialPlane,
 		const SimulationParameter& p1, const SimulationParameter& p2,
 		const std::string& partialPlaneId, const std::string& gnuplotDataFile,
 		const std::string& gnuplotScriptFolder, const std::string& imagesFolder );

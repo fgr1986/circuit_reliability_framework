@@ -1,7 +1,8 @@
-# To Do
-* **Bug: included files not only containing subcircuits**
-* **Explicitly save injections**
-* **Global results: [CriticalParameterNDParametersSweep] maps ?**
+#To do list **Milestone 4.x**
+
+##Major
+
+* Only plot crit param evolution if required
 * Revise parameter design space exploration ( 10^ is not e^!!)
 * **To do: Latex/Html export**
 * **TO DO** simulation_parameter_golden_fixed in radiation scenarios
@@ -9,8 +10,36 @@
 * **Instance. Nodes instead absolute nodes**
 * Weighted Nodes
 
+##Minor
+* If (obj) delete obj (test if the object exist before the deletion)
+* New conditional parsing scheme: REGEX:
+	* if () statement
+	* if () { statements }
+	* if () statement elseif () statement
+	* if () { statements } elseif () statement
+	* if () { statements } elseif () { statementd }
+	* if () { statements } else { statementd }
+	* if () { statements } elseif () { statements } else {statements}
+	* if () { statements } elseif () { statements } else statement
+	* if () { statements } else { statementd }
+* New model parsing scheme: Group of models:
+
 # Changelog of version 3.1.3
 * Radiation summary reports now include parameter versus parameter planes.
+* Result files PLANE structures: [ M m -] stands for Max Min and mean
+
+			Crit ND->
+			Partial Plane:	... magName	magMetricError	magMGlobalError
+			General Plane:	... ''			[ M m -]				[ M m -]
+
+			MC Crit ND->
+			Partial Plane:	... magName	magMetricError [ M m - median q12 q34 ]	magMGlobalError [ M m -]
+			General Plane:	... ''			[ M m - median q12 q34 ]				[ M m -]
+
+* *Fixed Bug:* included files not only containing subcircuits
+* **Explicitly save critical parameter injections**
+* **Global results**
+* MC Variability plots
 
 # Version 3.x.y
 
@@ -27,6 +56,12 @@
 				MC Crit ND->
 				Partial Plane:	... magName	magMetricError [ M m - median q12 q34 ]	magMGlobalError [ M m -]
 				General Plane:	... ''			[ M m - median q12 q34 ]				[ M m -]
+
+	* Radiation summary reports now include parameter versus parameter planes.
+	* *Fixed Bug:* included files not only containing subcircuits
+	* **Explicitly save critical parameter injections**
+	* **Global results**
+	* MC Variability plots
 
 * Changelog of version 3.1.2
 	* **LogIO** handling improvements

@@ -837,7 +837,6 @@ int MontecarloCriticalParameterNDParametersSweepSimulation::GnuplotPlaneMetricRe
 			}
 			gnuplotScriptFile << kTransientSimilarLinesPalette;
 
-
 			int magDataMetricIndex = out_plane_gnuplot_first_mag_metric_offset + out_data_per_metric_per_line*magCount; // max
 			int magDataGlobalIndex = out_plane_gnuplot_first_mag_global_offset + out_data_per_metric_per_line*magCount; // max
 

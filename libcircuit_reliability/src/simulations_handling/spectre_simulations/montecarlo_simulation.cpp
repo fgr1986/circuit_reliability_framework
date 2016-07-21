@@ -286,9 +286,10 @@ bool MontecarloSimulation::AnalyzeMontecarloResults(){
 	// compute mean
 	for( unsigned int m=0; m<metricMetrics->size(); ++m){
 		meanMaxErrorMetric[m] = meanMaxErrorMetric[m]/((double) correctly_simulated_count);
+		meanMaxErrorGlobal[m] = meanMaxErrorGlobal[m]/((double) correctly_simulated_count);
 		// compute q12, q34 and median
 		// short
-		std::sort(std::begin( errorData[m] ), std::end( errorData[m] ));
+		std::sort( std::begin( errorData[m] ), std::end( errorData[m] ));
 		// min error is the first
 		minErrorMetric[m] = errorData[m][0];
 		maxErrorMetric[m] = errorData[m][errorData[m].size()-1];
@@ -317,13 +318,13 @@ bool MontecarloSimulation::AnalyzeMontecarloResults(){
 		mMCR->min_max_error_global = minMaxErrorGlobal[magCount];
 		mMCR->mean_max_error_global = meanMaxErrorGlobal[magCount];
 		montecarlo_simulation_results.AddMetricMontecarloResults( mMCR );
-		#ifdef RESULTS_POST_PROCESSING_VERBOSE
-		log_io->ReportGreenStandard( simulation_id + " mag: " + number2String(magCount)
-			+ "-> max_error_global:" + number2String(maxErrorGlobal[magCount])
-			+ " mean_max_error_metric:" + number2String(meanMaxErrorMetric[magCount])
-			+ " b max_error_global:" + number2String(mMCR->max_error_global)
-			+ " b mean_max_error_metric:" + number2String(mMCR->mean_max_error_metric)  );
-		#endif
+		// #ifdef RESULTS_POST_PROCESSING_VERBOSE
+		// log_io->ReportGreenStandard( "[debug]" simulation_id + " mag: " + number2String(magCount)
+		// 	+ "-> meanMaxErrorGlobal:" + number2String(meanMaxErrorGlobal[magCount])
+		// 	+ " mean_max_error_metric:" + number2String(meanMaxErrorMetric[magCount])
+		// 	+ " b max_error_global:" + number2String(mMCR->max_max_error_global)
+		// 	+ " b mean_max_error_metric:" + number2String(mMCR->mean_max_error_metric)  );
+		// #endif
 		++magCount;
 	}
 	// plot scatters

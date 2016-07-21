@@ -18,7 +18,7 @@
 #include <boost/lexical_cast.hpp>
 // for xml ptree
 #include <boost/version.hpp>
-// radiation simulator io includes
+
 #include "xml_io_manager.hpp"
 
 // Spectre Handler Library
@@ -36,7 +36,6 @@
 #include "netlist_modeling/statements/analysis_statement.hpp"
 #include "netlist_modeling/statements/control_statement.hpp"
 #include "netlist_modeling/statements/transistor_statement.hpp"
-#include "netlist_modeling/statements/radiation_source_subcircuit_statement.hpp"
 #include "netlist_modeling/statements/simple_statement.hpp"
 #include "netlist_modeling/statements/instance_statement.hpp"
 #include "netlist_modeling/statements/model_statement.hpp"
@@ -87,7 +86,7 @@ bool XMLIOManager::ReadCadenceXML( const std::string &xmlCadence, int& statement
 		read_xml(xmlCadence, ptCadence);
 		log_io->ReportPlain2Log( kTab + "Cadence XML conf file read. Structures creation." );
 		// Version
-		log_io->ReportPlainStandard( kTab + "Cadence file writen for radiation_simulator version: " + ptCadence.get<std::string>("root.radiation_simulator_target_version") );
+		log_io->ReportPlainStandard( kTab + "Cadence file writen for reliability_framework_target_version: " + ptCadence.get<std::string>("root.reliability_framework_target_version") );
 		// Simulator version
 		log_io->ReportPlain2Log( kTab + "Works with Cadence: " + ptCadence.get<std::string>("root.cadence_version") );
 		// Spectre run commands
@@ -200,8 +199,8 @@ bool XMLIOManager::ReadTechnologyXML( const std::string &xmlTechnology, int& sta
 		// technology
 		log_io->ReportPlainStandard( kTab + "Technology: " + ptTechnology.get<std::string>("root.technology") );
 		experimentEnvironment.set_technology_name( ptTechnology.get<std::string>("root.technology") );
-		log_io->ReportPlainStandard( kTab + "Technology file writen for radiation_simulator version: "
-			+ ptTechnology.get<std::string>("root.radiation_simulator_target_version") );
+		log_io->ReportPlainStandard( kTab + "Technology file writen for reliability_framework_target_version: "
+			+ ptTechnology.get<std::string>("root.reliability_framework_target_version") );
 		// path to top models and section handling
 		experimentEnvironment.set_technology_models_file_path( ptTechnology.get<std::string>("root.technology_models_file_path") );
 		experimentEnvironment.set_technology_considering_sections( ptTechnology.get<bool>("root.technology_considering_sections") );
@@ -284,11 +283,11 @@ bool XMLIOManager::ReadExperimentXML( const std::string &xmlExperiment, int& sta
 		// experiment metadata
 		experimentTitle = ptExperiment.get<std::string>("root.experiment_title");
 		log_io->ReportPlainStandard( kTab + "Experiment title: " + experimentTitle );
-		log_io->ReportPlainStandard( kTab + "Experiment file writen for radiation_simulator version: "
-			+ ptExperiment.get<std::string>("root.radiation_simulator_target_version") );
+		log_io->ReportPlainStandard( kTab + "Experiment file writen for reliability_framework_target_version: "
+			+ ptExperiment.get<std::string>("root.reliability_framework_target_version") );
 		// save injecion source
 		variabilitySpectreHandler.set_save_injection_sources( ptExperiment.get<bool>("root.save_injection_sources") );
-		log_io->ReportPlainStandard( radiationSpectreHandler.get_save_injection_sources() ?
+		log_io->ReportPlainStandard( variabilitySpectreHandler.get_save_injection_sources() ?
 			kTab + "Experiment will save the injected magnitude." :
 			kTab + "Experiment will not save the injected magnitude." );
 		// delete_spectre_folders
@@ -693,133 +692,6 @@ bool XMLIOManager::ProcessMetric(boost::property_tree::ptree::value_type const &
 	}
 	variabilitySpectreHandler.AddMetric( newMetric );
 	circuitIOHandler.AddMetric( newMetric );
-	return true;
-}
-
-bool XMLIOManager::ProcessRadiationSource(boost::property_tree::ptree::value_type const &v,
-	int& statementCounter, AlterationMode& radiationMode){
-	// v.first="radiation_source"
-	for( auto const & st : v.second ){
-		if ( boost::iequals( st.first, "statement" ) ){
-			RadiationSourceSubcircuitStatement* rsss = new RadiationSourceSubcircuitStatement();
-			rsss->set_id(statementCounter);
-			rsss->set_radiation_source_substitute_statement( !radiationMode.get_injection_mode() );
-			rsss->set_name(st.second.get<std::string>("name"));
-			rsss->set_master_name(st.second.get<std::string>("master_name"));
-			if( st.second.count("parameters") > 0){
-				for( auto const & param : st.second.get_child("parameters") ){
-					if ( boost::iequals( param.first, "parameter" )) {
-						rsss->AddParameter( new Parameter(
-							param.second.get<std::string>("name"), param.second.get<std::string>("value")));
-						log_io->ReportPlainStandard( k3Tab + "-> " + rsss->get_name() + " param: "
-							+ param.second.get<std::string>("name") + " " + param.second.get<std::string>("value") );
-					}
-				}
-			}
-			if( st.second.count("nodes") > 0){
-				for( auto const & node : st.second.get_child("nodes") ){
-					if ( boost::iequals( node.first, "node" )) {
-						rsss->AddLocalNode( new Node( node.second.get<std::string>("name"), false ));
-					}
-				}
-			}
-			if( st.second.count("children") > 0){
-				for( auto const & child : st.second.get_child("children") ){
-					if ( boost::iequals( child.first, "statement" )) {
-						if( !ProcessSubcircuitChild( child, statementCounter, *rsss ) ){
-							log_io->ReportError2AllLogs("Error processing radiation source child.");
-							return false;
-						}
-					}
-				}
-			}
-			log_io->ReportPlainStandard( k2Tab + "-> " + radiationMode.get_name() + " radiation mode has "
-				+ number2String(radiationMode.get_available_radiation_sources()->size()) + " sources." );
-			log_io->ReportPlainStandard( k2Tab + "-> Found radiation_source reference '" + rsss->get_name()
-				+ "'. Source add to " + radiationMode.get_name() + " radiation mode." );
-			radiationMode.AddRadiationSource( rsss );
-			log_io->ReportPlainStandard( k2Tab + "-> " + radiationMode.get_name() + " radiation mode has "
-				+ number2String(radiationMode.get_available_radiation_sources()->size()) + " sources." );
-			statementCounter++;
-		}
-	}
-	return true;
-}
-
-bool XMLIOManager::ProcessSubcircuitChild(boost::property_tree::ptree::value_type const &v,
-	int& statementCounter, SubcircuitStatement& subcircuit){
-
-	// v.first="statement"
-	Statement* st;
-	int statementType = v.second.get<int>("statement_type");
-	bool error = false;
-	switch( statementType ){
-		case kSimpleStatement:{
-			st = new SimpleStatement();
-		}
-		break;
-		case kInstanceStatement:{
-			st = new InstanceStatement();
-		}
-		break;
-		case kTransistorStatement:{
-			st = new TransistorStatement();
-		}
-		break;
-		case kModelStatement:{
-			st = new ModelStatement();
-		}
-		break;
-		case kAnalogModelStatement:{
-			st = new AnalogModelStatement();
-		}
-		break;
-		case kSubcircuitStatement:{
-			st = new SubcircuitStatement();
-		}
-		break;
-		default:{
-			error= true;
-		}
-		break;
-	}
-	if( error ){
-		log_io->ReportError2AllLogs("Statement type not allowed processing radiation source child.");
-		return false;
-	}
-	st->set_id(statementCounter);
-	st->set_name(v.second.get<std::string>("name"));
-	st->set_master_name(v.second.get<std::string>("master_name"));
-	if( v.second.count("parameters") > 0){
-		for( auto const & param : v.second.get_child("parameters") ){
-			if ( boost::iequals( param.first, "parameter" )) {
-				st->AddParameter( new Parameter(
-					param.second.get<std::string>("name"), param.second.get<std::string>("value")));
-				log_io->ReportPlainStandard( k3Tab + "-> " + st->get_name() + " param: "
-					+ param.second.get<std::string>("name") + " " + param.second.get<std::string>("value") );
-			}
-		}
-	}
-	if( v.second.count("nodes") > 0){
-		for( auto const & node : v.second.get_child("nodes") ){
-			if ( boost::iequals( node.first, "node" )) {
-				st->AddLocalNode( new Node( node.second.get<std::string>("name"), false ));
-			}
-		}
-	}
-	if( statementType == kSubcircuitStatement && v.second.count("children") > 0){
-		for( auto const & child : v.second.get_child("children") ){
-			if ( boost::iequals( child.first, "statement" )) {
-				if( !ProcessSubcircuitChild( child, statementCounter, *dynamic_cast<SubcircuitStatement*>(st) ) ){
-					log_io->ReportError2AllLogs("Error processing subcircuit child.");
-					return false;
-				}
-			}
-		}
-	}
-	log_io->ReportPlainStandard( k2Tab + "-> Found child '" + st->get_name() + "'" );
-	subcircuit.AddStatement( st );
-	statementCounter++;
 	return true;
 }
 

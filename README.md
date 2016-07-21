@@ -10,12 +10,17 @@ https://github.com/fgr1986/circuit_reliability_framework
 #Full changelog in *changelog.md* file.
 ******
 
-#To do list **Milestone 3.x**
+#To do list **Milestone 4.x**
 
 #Major
 
-* Auto tests: transients generation using inputs/outputs information
-* Layout Information in scheme: ¿GDSii?
+* Only plot crit param evolution if required
+* Revise parameter design space exploration ( 10^ is not e^!!)
+* **To do: Latex/Html export**
+* **TO DO** simulation_parameter_golden_fixed in radiation scenarios
+* **¿TO DO? Regex for large components (ports)**
+* **Instance. Nodes instead absolute nodes**
+* Weighted Nodes
 
 ##Minor
 * If (obj) delete obj (test if the object exist before the deletion)

@@ -59,7 +59,7 @@ public:
  	*/
 	bool ReadExperimentEnvironmentFromXML(
 		const std::string &xml_cadence, const std::string &xml_technology, const std::string &xml_experiment,
-		ExperimentEnvironment& experimentEnvironment, VariabilitySpectreHandler& radiation_spectre_handler,
+		ExperimentEnvironment& experimentEnvironment, VariabilitySpectreHandler& variabilitySpectreHandler,
 		SimulationModesHandler& simulationModesHandler, CircuitIOHandler& circuitIOHandler,
 		std::string& experimentTitle );
 
@@ -256,19 +256,6 @@ private:
 		boost::property_tree::ptree::value_type const &vrp, VariabilitySpectreHandler& variabilitySpectreHandler );
 
 	/**
- 	* @details Process a radiation source placed in a xml file
- 	*
- 	* @param v <boost::property_tree::ptree::value_type const &> ptree value type node
- 	* @param statementCounter <int&> statement counter
- 	* @param injectionSource <bool> injection/substitution source
- 	* @param experimentEnvironment <ExperimentEnvironment&> experiment environment
- 	*
- 	* @return correctly read and set up <bool>
- 	*
- 	*/
-	bool ProcessRadiationSource(boost::property_tree::ptree::value_type const &v,
-		int& statementCounter, AlterationMode& radiationMode);
-	/**
 	 * @brief Process simulation mode from xml
 	 * @param pAvailableAnalysis
 	 * @param simulationModeName
@@ -280,17 +267,6 @@ private:
 	bool ProcessSimulationMode( boost::property_tree::ptree pAvailableAnalysis, std::string simulationModeName,
 		SimulationMode& simulationMode, int& statementCounter, bool& simulationAnalysisFound );
 
-	/**
-	 * @brief Process a subcircuit child
-	 * @details [long description]
-	 *
-	 * @param v [description]
-	 * @param statementCounter [description]
-	 * @param subcircuit [description]
-	 * @return [description]
-	 */
-	bool ProcessSubcircuitChild(boost::property_tree::ptree::value_type const &v,
-		int& statementCounter, SubcircuitStatement& subcircuit);
 };
 
 #endif /* XMLIOMANAGER_H */

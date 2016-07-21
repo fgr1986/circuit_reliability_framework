@@ -352,8 +352,8 @@ bool MontecarloNDParametersSweepSimulation::GenerateAndPlotParameterPairResults(
 	// plot upsets and metric errors
 	SimulationParameter* p1 = parameters2sweep.at(p1Index);
 	SimulationParameter* p2 = parameters2sweep.at(p2Index);
-	log_io->ReportPlainStandard("Processed GnuplotPlane" );
-	int gnuplotResult = GnuplotPlane( *planeStructure, false, *p1, *p2,
+	log_io->ReportPlainStandard("Processed GnuplotUpsetsPlane" );
+	int gnuplotResult = GnuplotUpsetsPlane( *planeStructure, false, *p1, *p2,
 		planeStructure->get_plane_id() + "_general_", generalParameterResultsFile,
 		gnuplotScriptFolder, imagesFolder );
 	gnuplotResult += GnuplotPlaneMetricResults( auxMetrics, *planeStructure,
@@ -427,7 +427,7 @@ bool MontecarloNDParametersSweepSimulation::GenerateAndPlotItemizedPlane(
 	// create gnuplot scatter map graphs
 	if( partialResults ){
 		// create gnuplot scatter map graphs
-		int gnuplotResult = GnuplotPlane( plane, true, *p1, *p2,
+		int gnuplotResult = GnuplotUpsetsPlane( plane, true, *p1, *p2,
 			"partialPlaneId_" + partialPlaneId, gnuplotMapFilePath,
 			gnuplotScriptFolder, imagesFolder );
 		gnuplotResult += GnuplotPlaneMetricResults( auxMetrics, plane, true,
@@ -498,8 +498,8 @@ bool MontecarloNDParametersSweepSimulation::GenerateAndPlotGeneralResults(
 	#endif
 	if( partialResults ){
 		// create gnuplot scatter map graphs
-		int gnuplotResult = GnuplotGeneralResults( gnuplotSpectreErrorMapFilePath, gnuplotScriptFolder, imagesFolder );
-		gnuplotResult += GnuplotGeneralMetricMetricResults( auxMetrics,
+		int gnuplotResult = GnuplotUpsetsGeneralResults( gnuplotSpectreErrorMapFilePath, gnuplotScriptFolder, imagesFolder );
+		gnuplotResult += GnuplotGeneralMetricResults( auxMetrics,
 			maxUpsetRatio, mapsFolder, gnuplotScriptFolder, imagesFolder );
 		if( gnuplotResult > 0 ){
 			log_io->ReportError2AllLogs( "Sim " + simulation_id + ". Unexpected gnuplot result: " + number2String(gnuplotResult) );
@@ -508,11 +508,11 @@ bool MontecarloNDParametersSweepSimulation::GenerateAndPlotGeneralResults(
 	return partialResults;
 }
 
-int MontecarloNDParametersSweepSimulation::GnuplotGeneralResults(
+int MontecarloNDParametersSweepSimulation::GnuplotUpsetsGeneralResults(
 	const std::string& gnuplotSpectreErrorMapFilePath,
 	const std::string& gnuplotScriptFolder, const std::string& imagesFolder ){
 	#ifdef RESULTS_POST_PROCESSING_VERBOSE
-	log_io->ReportPlainStandard( k2Tab + "Plot with GnuplotGeneralResults" );
+	log_io->ReportPlainStandard( k2Tab + "Plot with GnuplotUpsetsGeneralResults" );
 	#endif
 	// title
 	std::string title = "[General] Upset Ratio, " +  simulation_id +  " general_profiles";
@@ -569,7 +569,7 @@ int MontecarloNDParametersSweepSimulation::GnuplotGeneralResults(
 	return std::system( execCommand.c_str() );
 }
 
-int MontecarloNDParametersSweepSimulation::GnuplotGeneralMetricMetricResults(
+int MontecarloNDParametersSweepSimulation::GnuplotGeneralMetricResults(
 	const std::vector<Metric*>& analyzedMetrics, double& maxUpsetRatio,
 	const std::string& mapsFolder, const std::string& gnuplotScriptFolder, const std::string& imagesFolder ){
 
@@ -607,31 +607,35 @@ int MontecarloNDParametersSweepSimulation::GnuplotGeneralMetricMetricResults(
 			if( maxUpsetRatio < 1 ){
 				maxUpsetRatio = 1;
 				// Palete
-				gnuplotScriptFile << kMinimalPalette << "\n";
+				gnuplotScriptFile << kMinimalPalette;
 				gnuplotScriptFile << "set y2range [0:1]\n";
 				gnuplotScriptFile << "set cbrange [0:1]\n";
 			}else{
 				// Color Paletes
-				gnuplotScriptFile << kUpsetsPalette << "\n";
+				gnuplotScriptFile << kUpsetsPalette;
 				gnuplotScriptFile << "set y2range [0:"<< maxUpsetRatio << "]\n";
 				gnuplotScriptFile << "set cbrange [0:"<< maxUpsetRatio << "]\n";
 			}
 			// line style
 			gnuplotScriptFile <<  kProfilesPalette;
-			// Plot
+			// Plot upsets
+
 			// # 1              2            3      4             5                6              7             8   9   10  11
 			// # profCount profile %upsets MAG_i_name MAG_i_maxError MAG_i_minError MAG_i_mean MAG_i_median q12 q34 MAG_i_maxErrorGlobal
-			int magDataIndex = 4 + data_per_metric_per_line*magCount; // title
 			gnuplotScriptFile <<  "plot '" << gnuplotDataFile << "' using 1:3 axis x1y2 with filledcurve x1 ls 6 title '\% Upsets', \\\n";
-			// max min
-			gnuplotScriptFile <<  "     '" << gnuplotDataFile << "' u 1:" << (magDataIndex+5)  <<  ":" << (magDataIndex+2) << ":" << (magDataIndex+1) << ":" << (magDataIndex+6) << " axis x1y1  w candlesticks ls 1 notitle whiskerbars, \\\n";
-			gnuplotScriptFile <<  "     '" << gnuplotDataFile << "' u 1:" << (magDataIndex+3) << " axis x1y1  w lp ls 2 title '" << m->get_title_name()
-				<< "  (mean_max_error_metric)'\n";
+
+			int magDataMetricIndex = in_profile_gnuplot_first_mag_metric_offset + data_per_metric_per_line*magCount; // max
+			int magDataGlobalIndex = in_profile_gnuplot_first_mag_global_offset + data_per_metric_per_line*magCount; // max
+			// candlesticks  # Data columns: X Min 1stQuartile Median 3rdQuartile Max
+			// metric
+			gnuplotScriptFile <<  "     '" << gnuplotDataFile << "' u 1:" << (magDataMetricIndex+1)  <<  ":" << (magDataMetricIndex+4) << ":" << (magDataMetricIndex+3) << ":" << (magDataMetricIndex+5) << ":" << magDataMetricIndex << " axis x1y1  w candlesticks ls 1 notitle whiskerbars, \\\n";
+			gnuplotScriptFile <<  "     '" << gnuplotDataFile << "' u 1:" << (magDataMetricIndex+2) << " axis x1y1  w lp ls 2 title '" << m->get_title_name() << " (max_error_metric)', \\\n";
+			// global
+			gnuplotScriptFile <<  "     '" << gnuplotDataFile << "' u 1:" << (magDataGlobalIndex+2)  <<  ":" << (magDataGlobalIndex+1) << ":" << magDataGlobalIndex << " axis x1y1  w errorbars ls 3 notitle, \\\n";
+			gnuplotScriptFile <<  "     '" << gnuplotDataFile << "' u 1:" << (magDataGlobalIndex+2) << " axis x1y1  w lp ls 3 title '" << m->get_title_name() << " (max_error_global)'\n";
+			//
 			gnuplotScriptFile << " # Uncomment the following for ploting the median\n";
-			gnuplotScriptFile <<  "#     '" << gnuplotDataFile << "' u 1:" << (magDataIndex+4) << " axis x1y1  w lp ls 5 title 'median max_err_"
-				<< m->get_title_name() << "'\n";
-			gnuplotScriptFile << " # Uncomment the following for ploting upsets region\n";
-			gnuplotScriptFile <<  "#     '" << gnuplotDataFile << "' using 1:3 axis x1y2 with filledcurve x2 ls 4 notitle, \\\n";
+			gnuplotScriptFile <<  "#     '" << gnuplotDataFile << "' u 1:" << (magDataGlobalIndex+3) << " axis x1y1  w lp ls 5 title 'median max_err_" << m->get_title_name() << "'\n";
 			// legend
 			gnuplotScriptFile <<  "set key top left\n";
 
@@ -654,7 +658,7 @@ int MontecarloNDParametersSweepSimulation::GnuplotGeneralMetricMetricResults(
 	return partialResult;
 }
 
-int MontecarloNDParametersSweepSimulation::GnuplotPlane(
+int MontecarloNDParametersSweepSimulation::GnuplotUpsetsPlane(
 	PlaneResultsStructure& plane, const bool isPartialPlane,
 	const SimulationParameter& p1, const SimulationParameter& p2,
 	const std::string& partialPlaneId, const std::string& gnuplotDataFile,
@@ -762,10 +766,11 @@ int MontecarloNDParametersSweepSimulation::GnuplotPlaneMetricResults(
 			gnuplotScriptFile << "set ytics left offset 0,-0.5\n";
 			// Format
 			gnuplotScriptFile << "set format cb \"%g\"\n";
-			// Color Paletes
-			gnuplotScriptFile << kUpsetsPalette;
 			gnuplotScriptFile << "set title \"" << title << " \"\n";
 			gnuplotScriptFile << kTransparent3DObjects;
+			// Color Paletes
+			gnuplotScriptFile << kUpsetsPalette;
+			gnuplotScriptFile << kTransientSimilarLinesPalette;
 			// linestyle
 			gnuplotScriptFile << kElegantLine;
 			// mp3d interpolation and hidden3d
@@ -777,9 +782,22 @@ int MontecarloNDParametersSweepSimulation::GnuplotPlaneMetricResults(
 			}else{
 				gnuplotScriptFile << "set pm3d corners2color max\n";
 			}
-			int magDataIndex = 4 + data_per_metric_per_line*magCount; // title
-			gnuplotScriptFile << "splot '" << gnuplotDataFile << "' u 1:2:" << (magDataIndex+4)
-				<< " title 'mean_max_err_" << m->get_title_name() << "' w pm3d\n";
+
+			int magDataMetricIndex = in_plane_gnuplot_first_mag_metric_offset + data_per_metric_per_line*magCount; // max
+			int magDataGlobalIndex = in_plane_gnuplot_first_mag_global_offset + data_per_metric_per_line*magCount; // max
+
+			gnuplotScriptFile << "set multiplot layout 2, 1 \n";
+
+			gnuplotScriptFile << "splot '" << gnuplotDataFile << "' u 1:2:" << (magDataMetricIndex+1) << " notitle w lp ls 2, \\\n";
+			gnuplotScriptFile << " '" << gnuplotDataFile << "' u 1:2:" << magDataMetricIndex << " notitle w lp ls 1, \\\n";
+			gnuplotScriptFile << " '" << gnuplotDataFile << "' u 1:2:" << (magDataMetricIndex+2) << " title 'max_err_metric_" << m->get_title_name() << "' w pm3d\n";
+			gnuplotScriptFile << "# Uncomment for global error \n";
+			gnuplotScriptFile << "splot '" << gnuplotDataFile << "' u 1:2:" << (magDataGlobalIndex+1) << " notitle w lp ls 2, \\\n";
+			gnuplotScriptFile << " '" << gnuplotDataFile << "' u 1:2:" << (magDataGlobalIndex) << " notitle w lp ls 1, \\\n";
+			gnuplotScriptFile << " '" << gnuplotDataFile << "' u 1:2:" << (magDataGlobalIndex+2) << " title 'max_err_global_" << m->get_title_name() << "' w pm3d\n";
+
+			gnuplotScriptFile << "unset multiplot\n";
+
 			gnuplotScriptFile << "unset output\n";
 			// close file
 			gnuplotScriptFile << "quit\n";
