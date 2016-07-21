@@ -78,7 +78,7 @@ private:
 
 	bool AnalyzeMontecarloResults();
 
-	bool PlotProfileResults();
+	bool PlotScatters();
 
 	bool PlotMetricScatters(
 		const std::string& gnuplotScriptFolder, const std::string& imagesFolder );

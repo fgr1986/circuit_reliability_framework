@@ -539,15 +539,9 @@ int MontecarloNDParametersSweepSimulation::GnuplotGeneralResults(
 	gnuplotScriptFile << "set y2label \"Spectre error\"\n";
 
 	// # remove border on top and right and set color to gray
-	gnuplotScriptFile << "set style line 11 lc rgb '#808080' lt 1\n";
-	gnuplotScriptFile << "set border 3 back ls 11\n";
-	gnuplotScriptFile << "set tics nomirror\n";
+	gnuplotScriptFile << kCustomBorders;
 	// line style
-	gnuplotScriptFile <<  "set style line 1 lc rgb '#8b1a0e' pt 1 ps 1 lt 1 lw 2 # --- red\n";
-	gnuplotScriptFile <<  "set style line 2 lc rgb '#5e9c36' pt 6 ps 1 lt 1 lw 2 # --- green\n";
-	gnuplotScriptFile <<  "set style fill solid\n";
-	// // Background
-	gnuplotScriptFile << kWholeBackground << "\n";
+	gnuplotScriptFile <<  kTransientSimilarLinesPalette;
 	// legend
 	gnuplotScriptFile <<  "set key bottom right\n";
 	gnuplotScriptFile <<  "ntics = 10\n";
@@ -607,9 +601,7 @@ int MontecarloNDParametersSweepSimulation::GnuplotGeneralMetricMetricResults(
 			gnuplotScriptFile << "set y2label \"Upset \%\"\n";
 			gnuplotScriptFile << "set ylabel \"Error in metric "  << m->get_title_name() << "\"\n";
 			// # remove border on top and right and set color to gray
-			gnuplotScriptFile << "set style line 11 lc rgb '#808080' lt 1\n";
-			gnuplotScriptFile << "set border 3 back ls 11\n";
-			gnuplotScriptFile << "set tics nomirror\n";
+			gnuplotScriptFile << kCustomBorders << "\n";
 			gnuplotScriptFile << "set y2tics\n";
 			// palete range
 			if( maxUpsetRatio < 1 ){
@@ -625,23 +617,14 @@ int MontecarloNDParametersSweepSimulation::GnuplotGeneralMetricMetricResults(
 				gnuplotScriptFile << "set cbrange [0:"<< maxUpsetRatio << "]\n";
 			}
 			// line style
-			gnuplotScriptFile <<  "set style line 1 lc rgb '#0060ad' lt 1 lw 1 pt 7 ps 1  # --- blue\n";
-			gnuplotScriptFile <<  "set style line 2 lc rgb '#0060ad' lt 1 lw 3 pt 7 ps 1.5  # --- blue\n";
-			gnuplotScriptFile <<  "set style line 3 lc rgb '#ffd35a' lt 3 lw 1 pt 9 ps 1  # --- yellow\n";
-			gnuplotScriptFile <<  "set style line 4 lc rgb '#ff3a00' lt 3 lw 0 pt 9 ps 1  # --- red\n";
-			gnuplotScriptFile <<  "set style line 5 lc rgb '#666666' lt 3 lw 2 pt 9 ps 1  # --- grey \n";
-			gnuplotScriptFile <<  "set boxwidth 0.5 relative\n";
-			gnuplotScriptFile <<  "set style fill transparent solid 0.5\n";
-			// // Background
-			gnuplotScriptFile << kWholeBackground << "\n";
+			gnuplotScriptFile <<  kProfilesPalette;
 			// Plot
 			// # 1              2            3      4             5                6              7             8   9   10  11
 			// # profCount profile %upsets MAG_i_name MAG_i_maxError MAG_i_minError MAG_i_mean MAG_i_median q12 q34 MAG_i_maxErrorGlobal
 			int magDataIndex = 4 + data_per_metric_per_line*magCount; // title
-			gnuplotScriptFile <<  "plot '" << gnuplotDataFile << "' using 1:3 axis x1y2 with filledcurve x1 ls 3 title '\% Upsets', \\\n";
+			gnuplotScriptFile <<  "plot '" << gnuplotDataFile << "' using 1:3 axis x1y2 with filledcurve x1 ls 6 title '\% Upsets', \\\n";
 			// max min
-			gnuplotScriptFile <<  "     '" << gnuplotDataFile << "' u 1:" << (magDataIndex+5)  <<  ":" << (magDataIndex+2)
-				<< ":" << (magDataIndex+1) << ":" << (magDataIndex+6) << " axis x1y1  w candlesticks ls 1 notitle whiskerbars, \\\n";
+			gnuplotScriptFile <<  "     '" << gnuplotDataFile << "' u 1:" << (magDataIndex+5)  <<  ":" << (magDataIndex+2) << ":" << (magDataIndex+1) << ":" << (magDataIndex+6) << " axis x1y1  w candlesticks ls 1 notitle whiskerbars, \\\n";
 			gnuplotScriptFile <<  "     '" << gnuplotDataFile << "' u 1:" << (magDataIndex+3) << " axis x1y1  w lp ls 2 title '" << m->get_title_name()
 				<< "  (mean_max_error_metric)'\n";
 			gnuplotScriptFile << " # Uncomment the following for ploting the median\n";
@@ -705,13 +688,12 @@ int MontecarloNDParametersSweepSimulation::GnuplotPlane(
 	gnuplotScriptFile << "set zlabel \"Upset Ratio\" offset -2.5,0\n";
 	// Offset for xtics
 	gnuplotScriptFile << "set ytics left offset 0,-0.5\n";
-
-	// Background
-	gnuplotScriptFile << kWholeBackground << "\n";
 	gnuplotScriptFile << "set title \"" << title << "\"\n";
-	gnuplotScriptFile << kTransparentObjects << "\n";
+
+	gnuplotScriptFile << kTransparent3DObjects ;
+	gnuplotScriptFile << kUpsetsPalette ;
 	// linestyle
-	gnuplotScriptFile << kElegantLine << "\n";
+	gnuplotScriptFile << kElegantLine;
 	// mp3d interpolation and hidden3d
 	// mp3d z-offset, interpolation and hidden3d
 	gnuplotScriptFile <<  "set ticslevel 0\n";
@@ -781,13 +763,11 @@ int MontecarloNDParametersSweepSimulation::GnuplotPlaneMetricResults(
 			// Format
 			gnuplotScriptFile << "set format cb \"%g\"\n";
 			// Color Paletes
-			gnuplotScriptFile << kUpsetsPalette << "\n";
-			// Background
-			gnuplotScriptFile << kWholeBackground << "\n";
+			gnuplotScriptFile << kUpsetsPalette;
 			gnuplotScriptFile << "set title \"" << title << " \"\n";
-			gnuplotScriptFile << kTransparentObjects << "\n";
+			gnuplotScriptFile << kTransparent3DObjects;
 			// linestyle
-			gnuplotScriptFile << kElegantLine << "\n";
+			gnuplotScriptFile << kElegantLine;
 			// mp3d interpolation and hidden3d
 			// mp3d z-offset, interpolation and hidden3d
 			gnuplotScriptFile <<  "set ticslevel 0\n";

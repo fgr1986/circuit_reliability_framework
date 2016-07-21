@@ -328,7 +328,7 @@ bool MontecarloSimulation::AnalyzeMontecarloResults(){
 	}
 	// plot scatters
 	if( plot_scatters ){
-		partialResult = partialResult && PlotProfileResults();
+		partialResult = partialResult && PlotScatters();
 	}
 	// handle individual results
 	for( const auto& gS : *(montecarlo_simulations_vector.get_spectre_simulations()) ){
@@ -342,7 +342,7 @@ bool MontecarloSimulation::AnalyzeMontecarloResults(){
 	return partialResult;
 }
 
-bool MontecarloSimulation::PlotProfileResults(){
+bool MontecarloSimulation::PlotScatters(){
 	bool partialResults = true;
 	// Create folders
 	std::string gnuplotScriptFolder =  top_folder + kFolderSeparator
@@ -402,16 +402,12 @@ bool MontecarloSimulation::PlotMetricScatters(
 			gnuplotScriptFile << "set xlabel \""  << "Profile" << "\"" << "\n";
 			gnuplotScriptFile << "set ylabel \" " << mag->get_title_name() << " \"" << "\n";
 			// # remove border on top and right and set color to gray
-			gnuplotScriptFile << "set style line 11 lc rgb '#808080' lt 1" << "\n";
-			gnuplotScriptFile << "set border 3 back ls 11" << "\n";
-			gnuplotScriptFile << "set tics nomirror" << "\n";
+			gnuplotScriptFile << kCustomBorders;
 			// Color Paletes
-			gnuplotScriptFile << kUpsetsPalette << "\n";
+			gnuplotScriptFile << kUpsetsPalette;
 			// line style
-			gnuplotScriptFile << "set style line 1 lc rgb '#5e9c36' pt 6 ps 1 lt 1 lw 2 # --- green" << "\n";
+			gnuplotScriptFile << kTransientSimilarLinesPalette;
 			gnuplotScriptFile << "set style fill solid" << "\n";
-			// // Background
-			gnuplotScriptFile << kWholeBackground << "\n";
 			// legend
 			gnuplotScriptFile << "set key bottom right" << "\n";
 			// Plot

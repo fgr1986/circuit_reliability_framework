@@ -392,8 +392,8 @@ bool CriticalParameterNDParameterSweepSimulation::GenerateAndPlotGeneralResults(
 	main_nd_simulation_results.set_general_data_path(gnuplotMapFilePath);
 	if( partialResults ){
 		// create gnuplot scatter map graphs
-		int gnuplotResult = GnuplotGeneralResults( gnuplotSpectreErrorMapFilePath, gnuplotScriptFolder, imagesFolder );
-		gnuplotResult += GnuplotGeneralMetricMetricResults( auxMetrics,
+		int gnuplotResult = GnuplotGeneralCritParamValueResults( gnuplotSpectreErrorMapFilePath, gnuplotScriptFolder, imagesFolder );
+		gnuplotResult += GnuplotGeneralMetricResults( auxMetrics,
 			maxCritCharge, mapsFolder, gnuplotScriptFolder, imagesFolder );
 		if( gnuplotResult > 0 ){
 			log_io->ReportError2AllLogs( "Sim " + simulation_id + ". Unexpected gnuplot result: " + number2String(gnuplotResult) );
@@ -525,7 +525,7 @@ bool CriticalParameterNDParameterSweepSimulation::GenerateAndPlotItemizedPlane(
 	return partialResults;
 }
 
-int CriticalParameterNDParameterSweepSimulation::GnuplotGeneralResults(
+int CriticalParameterNDParameterSweepSimulation::GnuplotGeneralCritParamValueResults(
 	const std::string& gnuplotSpectreErrorMapFilePath,
 	const std::string& gnuplotScriptFolder, const std::string& imagesFolder ){
 	// title
@@ -555,18 +555,11 @@ int CriticalParameterNDParameterSweepSimulation::GnuplotGeneralResults(
 	gnuplotScriptFile << "set xlabel \""  << "Profile" << "\"\n";
 	gnuplotScriptFile << "set ylabel \""  << golden_critical_parameter->get_title_name() << "\"\n";
 	gnuplotScriptFile << "set y2label \"Spectre error\"\n";
-	// Color Paletes
-	gnuplotScriptFile << kUpsetsPalette << "\n";
 	// # remove border on top and right and set color to gray
-	gnuplotScriptFile << "set style line 11 lc rgb '#808080' lt 1\n";
-	gnuplotScriptFile << "set border 3 back ls 11\n";
-	gnuplotScriptFile << "set tics nomirror\n";
+	gnuplotScriptFile << kCustomBorders;
 	// line style
-	gnuplotScriptFile <<  "set style line 1 lc rgb '#8b1a0e' pt 1 ps 1 lt 1 lw 2 # --- red\n";
-	gnuplotScriptFile <<  "set style line 2 lc rgb '#5e9c36' pt 6 ps 1 lt 1 lw 2 # --- green\n";
+	gnuplotScriptFile <<  kTransientSimilarLinesPalette;
 	gnuplotScriptFile <<  "set style fill solid\n";
-	// // Background
-	gnuplotScriptFile << kWholeBackground << "\n";
 	// legend
 	gnuplotScriptFile <<  "set key bottom right\n";
 	gnuplotScriptFile <<  "ntics = 10\n";
@@ -594,7 +587,7 @@ int CriticalParameterNDParameterSweepSimulation::GnuplotGeneralResults(
 	return std::system( execCommand.c_str() );
 }
 
-int CriticalParameterNDParameterSweepSimulation::GnuplotGeneralMetricMetricResults(
+int CriticalParameterNDParameterSweepSimulation::GnuplotGeneralMetricResults(
 		const std::vector<Metric*>& analyzedMetrics, double& maxCritCharge,
 		const std::string& mapsFolder, const std::string& gnuplotScriptFolder, const std::string& imagesFolder ){
 	int partialResult = 0;
@@ -621,12 +614,10 @@ int CriticalParameterNDParameterSweepSimulation::GnuplotGeneralMetricMetricResul
 			gnuplotScriptFile << "set format y \"%g\"\n";
 			gnuplotScriptFile << "set format y2 \"%g\"\n";
 			gnuplotScriptFile << "set xlabel \"Profile\"\n";
-			gnuplotScriptFile << "set y2label \"" << golden_critical_parameter->get_title_name() << " \%\"\n";
+			gnuplotScriptFile << "set y2label \"" << golden_critical_parameter->get_title_name() << " \"\n";
 			gnuplotScriptFile << "set ylabel \"Error in metric "  << m->get_title_name() << "\"\n";
 			// # remove border on top and right and set color to gray
-			gnuplotScriptFile << "set style line 11 lc rgb '#808080' lt 1\n";
-			gnuplotScriptFile << "set border 3 back ls 11\n";
-			gnuplotScriptFile << "set tics nomirror\n";
+			gnuplotScriptFile << kCustomBorders;
 			gnuplotScriptFile << "set y2tics\n";
 			// palete range
 			if( maxCritCharge < 0 ){
@@ -642,25 +633,15 @@ int CriticalParameterNDParameterSweepSimulation::GnuplotGeneralMetricMetricResul
 				gnuplotScriptFile << "set cbrange [0:"<< maxCritCharge << "]\n";
 			}
 			// line style
-			gnuplotScriptFile <<  "set style line 1 lc rgb '#ff3a00' lt 1 lw 1 pt 7 ps 1  # --- red\n";
-			gnuplotScriptFile <<  "set style line 2 lc rgb '#0060ad' lt 1 lw 3 pt 7 ps 1.5  # --- blue\n";
-			gnuplotScriptFile <<  "set style line 3 lc rgb '#ffd35a' lt 3 lw 1 pt 9 ps 1  # --- yellow\n";
-			gnuplotScriptFile <<  "set style line 4 lc rgb '#ff3a00' lt 3 lw 0 pt 9 ps 1  # --- red\n";
-			gnuplotScriptFile <<  "set style line 5 lc rgb '#666666' lt 3 lw 2 pt 9 ps 1  # --- grey \n";
-			gnuplotScriptFile <<  "set boxwidth 0.5 relative\n";
-			gnuplotScriptFile <<  "set style fill transparent solid 0.5\n";
-			// // Background
-			gnuplotScriptFile << kWholeBackground << "\n";
+			gnuplotScriptFile <<  kProfilesPalette;
 			// Plot
-			// # 1              2            3         4                      5
+			// # 1              2            3         4                      5				6
 			// # profCount profile %crit_param #MAG_i_name #AG_i_maxErrorMetric #MMAG_i_maxErrorGlobal
-			int magDataIndex = 4 + p_data_per_metric_per_line*magCount; // title
-			gnuplotScriptFile <<  "plot '" << gnuplotDataFile << "' using 1:3 axis x1y2 with filledcurve x1 ls 3 title '\% "
-				<< golden_critical_parameter->get_title_name() << "', \\\n";
-			gnuplotScriptFile <<  "     '" << gnuplotDataFile << "' u 1:" << (magDataIndex+1) << " axis x1y1  w lp ls 2 title '"
-				<< m->get_title_name() << "  (max\\_error\\_metric)', \\\n";
-			gnuplotScriptFile <<  "     '" << gnuplotDataFile << "' u 1:" << (magDataIndex+2) << " axis x1y1  w lp ls 1 title '"
-				<< m->get_title_name() << "  (max\\_error\\_global)'\n";
+			int magDataMetricIndex = in_profile_gnuplot_first_mag_metric_offset + p_data_per_metric_per_line*magCount; // metric
+			int magDataGlobalIndex = in_profile_gnuplot_first_mag_global_offset + p_data_per_metric_per_line*magCount; // global
+			gnuplotScriptFile <<  "plot '" << gnuplotDataFile << "' using 1:3 axis x1y2 with filledcurve x1 ls 6 title ' " << golden_critical_parameter->get_title_name() << "', \\\n";
+			gnuplotScriptFile <<  "     '" << gnuplotDataFile << "' u 1:" << magDataMetricIndex << " axis x1y1  w lp ls 1 title '" << m->get_title_name() << "  (max_error_metric)', \\\n";
+			gnuplotScriptFile <<  "     '" << gnuplotDataFile << "' u 1:" << magDataGlobalIndex << " axis x1y1  w lp ls 3 title '" << m->get_title_name() << "  (max_error_global)'\n";
 			// legend
 			gnuplotScriptFile <<  "set key top left\n";
 
@@ -712,12 +693,10 @@ int CriticalParameterNDParameterSweepSimulation::GnuplotPlane(
 	// Offset for xtics
 	gnuplotScriptFile << "set ytics left offset 0,-0.5\n";
 	// Color Paletes
-	gnuplotScriptFile << kUpsetsPalette << "\n";
-	// Background
-	gnuplotScriptFile << kWholeBackground << "\n";
+	gnuplotScriptFile << kUpsetsPalette;
 	gnuplotScriptFile << "set title \"" << golden_critical_parameter->get_title_name()
 		<< ", " << partialPlaneId << " \" \n";
-	gnuplotScriptFile << kTransparentObjects << "\n";
+	gnuplotScriptFile << kTransparent3DObjects << "\n";
 	// linestyle
 	gnuplotScriptFile << kElegantLine << "\n";
 	// mp3d interpolation and hidden3d
@@ -766,7 +745,6 @@ int CriticalParameterNDParameterSweepSimulation::GnuplotPlaneMetricResults(
 	const std::string& gnuplotScriptFolder, const std::string& imagesFolder ){
 	unsigned int magCount = 0;
 	int partialResults = 0;
-	int magDataIndex = 0; // column index to mag title
 	for( auto const &m : analyzedMetrics ){
 		if( m->get_analyzable() ){
 			// Files
@@ -798,15 +776,13 @@ int CriticalParameterNDParameterSweepSimulation::GnuplotPlaneMetricResults(
 			gnuplotScriptFile << "set ytics left offset 0,-0.5\n";
 			// Format
 			gnuplotScriptFile << "set format cb \"%g\"\n";
-			// Color Paletes
-			gnuplotScriptFile << kUpsetsPalette << "\n";
-			// Background
-			gnuplotScriptFile << kWholeBackground << "\n";
 			gnuplotScriptFile << "set title \"" << title << " \"\n";
-			gnuplotScriptFile << kTransparentObjects << "\n";
+			gnuplotScriptFile << kTransparent3DObjects;
 			// linestyle
-			gnuplotScriptFile << kElegantLine << "\n";
-			gnuplotScriptFile << "set style line 1 lc rgb '#aa3333' lt 1 pt 6 ps 1 lw 1\n";
+			gnuplotScriptFile << kElegantLine;
+			// Color Paletes
+			gnuplotScriptFile << kUpsetsPalette;
+			gnuplotScriptFile << kTransientSimilarLinesPalette;
 			// mp3d interpolation and hidden3d
 			// mp3d z-offset, interpolation and hidden3d
 			gnuplotScriptFile <<  "set ticslevel 0\n";
@@ -817,24 +793,28 @@ int CriticalParameterNDParameterSweepSimulation::GnuplotPlaneMetricResults(
 				gnuplotScriptFile << "set pm3d corners2color max\n";
 			}
 			if( isPartialPlane ){
-				magDataIndex = 4 + p_data_per_metric_per_line*magCount; // title
+				int magDataIndex =  plane_gnuplot_first_mag_offset + p_data_per_metric_per_line*magCount; // title
 				// p1 p2 critParamValue magName magMetricError magGlobalError
-				gnuplotScriptFile << "splot '" << gnuplotDataFile << "' u 1:2:" << (magDataIndex+1) << " title 'metric\\_max\\_err\\_" << m->get_title_name() << "' w pm3d, \\\n";
-				gnuplotScriptFile << " '" << gnuplotDataFile << "' u 1:2:" << (magDataIndex+2) << " title 'global\\_max\\_err\\_" << m->get_title_name() << "' w lp ls 1\n";
+				gnuplotScriptFile << "splot '" << gnuplotDataFile << "' u 1:2:" << (magDataIndex+1) << " title 'metric_max_err_" << m->get_title_name() << "' w pm3d, \\\n";
+				gnuplotScriptFile << " '" << gnuplotDataFile << "' u 1:2:" << (magDataIndex+2) << " title 'global_max_err_" << m->get_title_name() << "' w lp ls 1\n";
 			}else{
-				magDataIndex = 4 + g_data_per_metric_per_line*magCount; // title
+				int magDataMetricIndex = out_plane_gnuplot_first_mag_metric_offset + out_data_per_metric_per_line*magCount; // max
+				int magDataGlobalIndex = out_plane_gnuplot_first_mag_global_offset + out_data_per_metric_per_line*magCount; // max
 				// p1 p2 MaxCritParamValue MinCritParamValue MeanCritParamValue
 				// magName magMaxMetricError magMinMetricError magMeanMetricError
 				// magMaxGlobalError magMinGlobalError magMeanGlobalError
-				gnuplotScriptFile << "splot '" << gnuplotDataFile << "' u 1:2:" << (magDataIndex+3) << " title 'metric\\_mean\\_max\\_err\\_" << m->get_title_name() << "' w pm3d, \\\n";
-				gnuplotScriptFile << " '" << gnuplotDataFile << "' u 1:2:" << (magDataIndex+6) << " title 'global\\_mean\\_max\\_err\\_" << m->get_title_name() << "' w lp ls 1\n";
-				gnuplotScriptFile << "# additional available plots: \n";
-				gnuplotScriptFile << "# Max errors (considering profiles): \n";
-				gnuplotScriptFile << "# splot '" << gnuplotDataFile << "' u 1:2:" << (magDataIndex+1) << " title 'metric\\_max\\_max\\_err\\_" << m->get_title_name() << "' w pm3d, \\\n";
-				gnuplotScriptFile << "#  '" << gnuplotDataFile << "' u 1:2:" << (magDataIndex+4) << " title 'global\\_max\\_max\\_err\\_" << m->get_title_name() << "' w lp ls 1\n";
-				gnuplotScriptFile << "# Min errors (considering profiles): \n";
-				gnuplotScriptFile << "# splot '" << gnuplotDataFile << "' u 1:2:" << (magDataIndex+2) << " title 'metric\\_min\\_max\\_err\\_" << m->get_title_name() << "' w pm3d, \\\n";
-				gnuplotScriptFile << "#  '" << gnuplotDataFile << "' u 1:2:" << (magDataIndex+5) << " title 'global\\_min\\_max\\_err\\_" << m->get_title_name() << "' w lp ls 1\n";
+
+				gnuplotScriptFile << "set multiplot layout 2, 1 \n";
+
+				gnuplotScriptFile << "splot '" << gnuplotDataFile << "' u 1:2:" << (magDataMetricIndex+1) << " notitle w lp ls 2, \\\n";
+				gnuplotScriptFile << " '" << gnuplotDataFile << "' u 1:2:" << magDataMetricIndex << " notitle w lp ls 1, \\\n";
+				gnuplotScriptFile << " '" << gnuplotDataFile << "' u 1:2:" << (magDataMetricIndex+2) << " title 'max_err_metric_" << m->get_title_name() << "' w pm3d\n";
+				gnuplotScriptFile << "# Uncomment for global error \n";
+				gnuplotScriptFile << "splot '" << gnuplotDataFile << "' u 1:2:" << (magDataGlobalIndex+1) << " notitle w lp ls 2, \\\n";
+				gnuplotScriptFile << " '" << gnuplotDataFile << "' u 1:2:" << (magDataGlobalIndex) << " notitle w lp ls 1, \\\n";
+				gnuplotScriptFile << " '" << gnuplotDataFile << "' u 1:2:" << (magDataGlobalIndex+2) << " title 'max_err_global_" << m->get_title_name() << "' w pm3d\n";
+
+				gnuplotScriptFile << "unset multiplot\n";
 			}
 			gnuplotScriptFile << "unset output\n";
 			// close file

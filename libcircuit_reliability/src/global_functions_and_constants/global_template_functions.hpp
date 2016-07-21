@@ -191,10 +191,10 @@ std::string number2String( const any_number& number){
 * Template
 * Debugs a vector of numbers
 */
-template<class any_number>
-void PrintIndexes( const std::vector<any_number>& indexes ){
+template<class any_printable>
+void PrintVector( const std::vector<any_printable>& data ){
 	// fgarcia test
-	for (auto& i : indexes ){
+	for (auto& i : data ){
 		std::cout << i << ' ';
 	}
 	std::cout << "\n";

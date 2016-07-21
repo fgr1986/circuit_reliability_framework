@@ -174,11 +174,9 @@ int GoldenSimulation::CreateGoldenGnuplotTransientImages(){
 	gnuplotScriptFile << "set format y \"%g\"\n";
 
 	// # remove border on top and right and set color to gray
-	gnuplotScriptFile << "set style line 11 lc rgb '#808080' lt 1\n";
-	gnuplotScriptFile << "set border 3 back ls 11\n";
-	gnuplotScriptFile << "set tics nomirror\n";
+	gnuplotScriptFile << kCustomBorders;
 	// line style
-	gnuplotScriptFile <<  "set style line 1 lc rgb '#5e9c36' pt 6 ps 1 lt 1 lw 2 # --- green\n";
+	gnuplotScriptFile <<  kTransientSimilarLinesPalette;
 	// plots
 	int indexCount = 2;
 	for(std::vector<Metric*>::iterator it_mg = ++(processed_metrics->begin());

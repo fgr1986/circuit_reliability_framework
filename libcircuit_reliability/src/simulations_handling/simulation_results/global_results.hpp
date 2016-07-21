@@ -80,15 +80,16 @@ private:
 	std::string data_folder;
 
 	bool GenerateAndPlotParameterPairResults(
-		const unsigned int statisticMethod, const std::string& criticalParameterName,
-		const unsigned int magColumnOffset, const unsigned int dataPerMetricPerLine,
-		const std::vector<Metric*>& analyzedMetrics,
-		const std::vector<SimulationParameter*>& simulationParameters,
-		const std::vector<unsigned int>&& magGPCOMax, const std::vector<unsigned int>&& magGPCOMin,
-		const std::vector<unsigned int>&& magGPCOMean, const std::vector<NDSimulationResults*>& simulationsNDSimulationResults);
+			const unsigned int statisticMethod, const std::string& criticalParameterName,
+			const unsigned int critParamOffset, const unsigned int magMetricColumnOffset, const unsigned int magGlobalColumnOffset,
+			const unsigned int dataPerMetricPerLine, const std::vector<Metric*>& analyzedMetrics,
+			const std::vector<SimulationParameter*>& simulationParameters,
+			const std::vector<unsigned int>&& magGPCIMax, const std::vector<unsigned int>&& magGPCIMin,
+			const std::vector<unsigned int>&& magGPCIMean, const std::vector<NDSimulationResults*>& simulationsNDSimulationResults );
 
 	int GnuplotPlaneMetricResults(
-		const unsigned int magColumnOffset,
+		const unsigned int magMetricColumnOffset,
+		const unsigned int magGlobalColumnOffset,
 		const unsigned int dataPerMetricPerLine,
 		const std::vector<Metric*>& analyzedMetrics,
 		const SimulationParameter& p1, const SimulationParameter& p2,
@@ -96,7 +97,7 @@ private:
 		const std::string& gnuplotScriptFolder, const std::string& imagesFolder );
 
 	int GnuplotCriticalParameterValuePlane(
-		const std::string& criticalParameterName,
+		const unsigned int critParamOffset, const std::string& criticalParameterName,
 		const SimulationParameter& p1, const SimulationParameter& p2,
 		const std::string& partialPlaneId, const std::string& gnuplotDataFile,
 		const std::string& gnuplotScriptFolder, const std::string& imagesFolder );
@@ -112,13 +113,14 @@ private:
 	bool ProcessCriticalParameterNDParametersSweepSimulationMode();
 	bool PlotCriticalParameterNDParametersSweepSimulationMode(
 			const std::vector<Metric*>& analyzedMetrics, const unsigned int &critParamOffset,
-			const unsigned int& firstMagOffset, const unsigned int& dataPerMetricPerLine,
+			const unsigned int& profileFirstMagMetricOffset, const unsigned int& profileFirstMagGlobalOffset, const unsigned int& dataColumnsPerMetric,
 			const SimulationParameter& criticalParameter, const std::string& gnuplotDataFile );
 
 	bool ProcessMontecarloCriticalParameterNDParametersSweepMode();
 	bool PlotMontecarloCriticalParameterNDParametersSweepMode(
 			const std::vector<Metric*>& analyzedMetrics, const unsigned int &critParamOffset,
-			const unsigned int& firstMagOffset, const unsigned int& dataPerMetricPerLine,
+			const unsigned int& profileFirstMagMetricOffset, const unsigned int& profileFirstMagGlobalOffset,
+			const unsigned int& dataColumnsPerMetric,
 			const SimulationParameter& criticalParameter, const std::string& gnuplotDataFile );
 
 };

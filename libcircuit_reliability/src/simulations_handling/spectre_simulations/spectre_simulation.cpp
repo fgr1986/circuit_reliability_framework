@@ -842,12 +842,9 @@ int SpectreSimulation::CreateGnuplotTransientImages( const std::string& localSim
 	gnuplotScriptFile << "set format y \"%g\"\n";
 
 	// # remove border on top and right and set color to gray
-	gnuplotScriptFile << "set style line 11 lc rgb '#808080' lt 1\n";
-	gnuplotScriptFile << "set border 3 back ls 11\n";
-	gnuplotScriptFile << "set tics nomirror\n";
+	gnuplotScriptFile << kCustomBorders << "\n";
 	// line style
-	gnuplotScriptFile <<  "set style line 1 lc rgb '#8b1a0e' pt 1 ps 1 lt 1 lw 2 # --- red\n";
-	gnuplotScriptFile <<  "set style line 2 lc rgb '#5e9c36' pt 6 ps 1 lt 1 lw 2 # --- green\n";
+	gnuplotScriptFile << kTransientSimilarLinesPalette<<  "\n";
 	// plots
 	int indexCount = 2;
 	std::vector<Metric*>* golden_metrics =
@@ -874,10 +871,8 @@ int SpectreSimulation::CreateGnuplotTransientImages( const std::string& localSim
 				gnuplotScriptFile <<  "set title \"" << mgName << " \"\n";
 				gnuplotScriptFile <<  "set key bottom right\n";
 				// Plot
-				gnuplotScriptFile <<  "plot '" << transientSimulationResults.get_processed_file_path() << "' u 1:"
-					+ number2String(indexCount) << " w lp ls 1 title 'altered', \\\n";
-				gnuplotScriptFile <<  " '" + goldenFilePath + "' u 1:"
-					+ number2String(indexCount) << " w lp ls 2 title 'golden'\n";
+				gnuplotScriptFile <<  "plot '" << transientSimulationResults.get_processed_file_path() << "' u 1:" + number2String(indexCount) << " w lp ls 1 title 'altered', \\\n";
+				gnuplotScriptFile <<  " '" + goldenFilePath + "' u 1:" + number2String(indexCount) << " w lp ls 2 title 'golden'\n";
 				gnuplotScriptFile << "unset output\n";
 				// Add images path
 				transientSimulationResults.AddTransientImage( outputImagePath, mgName );

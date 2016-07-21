@@ -279,6 +279,7 @@ bool ResultsProcessor::StatisticProcessStatisticsFiles( const std::map<std::stri
 	// to reduce computational load on std::find
 	// 1) iterate over columns
 	// 2), use of computedColumns
+	bool* computedColumns = new bool[originalColumns];
 	bool* computedColumnsMax = new bool[originalColumns];
 	bool* computedColumnsMin = new bool[originalColumns];
 	bool* computedColumnsMean = new bool[originalColumns];
@@ -286,6 +287,7 @@ bool ResultsProcessor::StatisticProcessStatisticsFiles( const std::map<std::stri
 		computedColumnsMax[j] = vectorContains( maxFieldsColumnIndexes, j );
 		computedColumnsMin[j] = vectorContains( minFieldsColumnIndexes, j );
 		computedColumnsMean[j] = vectorContains( meanFieldsColumnIndexes, j );
+		computedColumns[j] = computedColumnsMax[j] || computedColumnsMin[j] || computedColumnsMean[j];
 	}
 	// data structure init
 	for(unsigned int i = 0; i < totalRows; ++i){
@@ -301,9 +303,8 @@ bool ResultsProcessor::StatisticProcessStatisticsFiles( const std::map<std::stri
 	}
 	// process all files
 	for( auto const &path: *paths ){
-		result = result && StatisticProcessStatisticsFile(
-			std::move(path.first), matrixMax, matrixMin, matrixMean,
-			computedColumnsMax, computedColumnsMin, computedColumnsMean );
+		result = result && StatisticProcessStatisticsFile( std::move(path.first), matrixMax, matrixMin, matrixMean,
+			computedColumns, computedColumnsMax, computedColumnsMin, computedColumnsMean );
 		if( !result ){
 			log_io->ReportError2AllLogs( "[Error] Error processing " + path.first );
 			return false;
@@ -347,8 +348,6 @@ bool ResultsProcessor::StatisticProcessStatisticsFiles( const std::map<std::stri
 						++columnCounter;
 						if( columnCounter<originalColumns ){
 							gnuplotMapFile << " ";
-						}else{
-							log_io->ReportRedStandard("[debug] columnCounter:" + number2String(columnCounter) + ", originalColumns:" + number2String(originalColumns));
 						}
 					} // end tockens
 					gnuplotMapFile << "\n";
@@ -363,6 +362,7 @@ bool ResultsProcessor::StatisticProcessStatisticsFiles( const std::map<std::stri
 	gnuplotMapFile.close();
 	exampleFile.close();
 	// clear memory
+	delete[] computedColumns;
 	delete[] computedColumnsMean;
 	delete[] computedColumnsMax;
 	delete[] computedColumnsMin;
@@ -375,7 +375,7 @@ bool ResultsProcessor::StatisticProcessStatisticsFiles( const std::map<std::stri
 }
 
 bool ResultsProcessor::StatisticProcessStatisticsFile( const std::string&& path,
-	Matrix& matrixMax, Matrix& matrixMin, Matrix& matrixMean,
+	Matrix& matrixMax, Matrix& matrixMin, Matrix& matrixMean, bool* computedColumns,
 	bool* computedColumnsMax, bool* computedColumnsMin, bool* computedColumnsMean ){
 	#ifdef RESULTS_POST_PROCESSING_VERBOSE
 		 log_io->ReportBlueStandard( "StatisticProcessStatisticsFile Processing:" + path );
@@ -397,13 +397,22 @@ bool ResultsProcessor::StatisticProcessStatisticsFile( const std::string&& path,
 					unsigned int minCounter = 0;
 					unsigned int meanCounter = 0;
 					for( auto const &st : lineTockensSpaces ){
-						double parsedValue = std::atof( st.c_str() );
-						if( computedColumnsMax[currentColumn] && matrixMax[currentRow][maxCounter]<parsedValue ){
-							matrixMax[currentRow][maxCounter++] = parsedValue;
-						}else if( computedColumnsMin[currentColumn] && matrixMin[currentRow][minCounter]>parsedValue ){
-							matrixMin[currentRow][minCounter++] = parsedValue;
-						}else if( computedColumnsMean[currentColumn] ){
-							matrixMean[currentRow][meanCounter++] += parsedValue;
+						if( computedColumns[currentColumn] ){
+							// parse value
+							double parsedValue = std::atof( st.c_str() );
+							if( computedColumnsMax[currentColumn] ){
+								if( matrixMax[currentRow][maxCounter]<parsedValue ){
+									matrixMax[currentRow][maxCounter] = parsedValue;
+								}
+								++maxCounter;
+							}else if( computedColumnsMin[currentColumn] ){
+								if( matrixMin[currentRow][minCounter]>parsedValue ){
+									matrixMin[currentRow][minCounter] = parsedValue;
+								}
+								++minCounter;
+							}else if( computedColumnsMean[currentColumn] ){
+								matrixMean[currentRow][meanCounter++] += parsedValue;
+							}
 						}
 						// else do nothing
 						++currentColumn;

@@ -71,8 +71,12 @@ public:
 	std::vector<unsigned int>* get_out_p_c_i_min(){ return &out_p_c_i_min; }
 	std::vector<unsigned int>* get_out_p_c_i_mean(){ return &out_p_c_i_mean; }
 
-	unsigned int get_g_data_per_metric_per_line() const{ return g_data_per_metric_per_line; }
-	unsigned int get_p_gnuplot_first_mag_offset() const{ return p_gnuplot_first_mag_offset; }
+	unsigned int get_out_data_per_metric_per_line() const{ return out_data_per_metric_per_line; }
+	unsigned int get_out_profile_gnuplot_first_mag_metric_offset() const{ return out_profile_gnuplot_first_mag_metric_offset; }
+	unsigned int get_out_plane_gnuplot_first_mag_metric_offset() const{ return out_plane_gnuplot_first_mag_metric_offset; }
+	unsigned int get_out_profile_gnuplot_first_mag_global_offset() const{ return out_profile_gnuplot_first_mag_global_offset; }
+	unsigned int get_out_plane_gnuplot_first_mag_global_offset() const{ return out_plane_gnuplot_first_mag_global_offset; }
+	unsigned int get_out_gnuplot_crit_param_offset() const{ return out_gnuplot_crit_param_offset; }
 
 private:
 	/// Montecarlo Iterations
@@ -86,12 +90,19 @@ private:
 	/// plot last transient
 	bool plot_last_transients;
 
-	/// offset to first mag, both in profile and plane data files
-	const unsigned int p_gnuplot_first_mag_offset = 6;
-	/// data per metric per line for PARTIAL gnuplot maps
-	const unsigned int p_data_per_metric_per_line = 10;
-	/// data per metric per line for GENERAL gnuplot maps
-	const unsigned int g_data_per_metric_per_line = 10;
+	/// offset to crit max value
+	const unsigned int out_gnuplot_crit_param_offset = 3;
+	/// offset to first mag title, both in profile and plane data files
+	// const unsigned int out_profile_gnuplot_first_mag_offset = 6;
+	// const unsigned int out_plane_gnuplot_first_mag_offset = 6;
+
+	const unsigned int out_profile_gnuplot_first_mag_metric_offset = 7;
+	const unsigned int out_plane_gnuplot_first_mag_metric_offset = 7;
+	const unsigned int out_profile_gnuplot_first_mag_global_offset = 13;
+	const unsigned int out_plane_gnuplot_first_mag_global_offset = 13;
+
+	/// data per metric per line for PARTIAL and GLOBAL plan es and PROFILE gnuplot
+	const unsigned int out_data_per_metric_per_line = 10;
 
 	/// profile columns indexes
 	std::vector<unsigned int> out_profile_c_i_max;
@@ -150,11 +161,11 @@ private:
 			const std::vector< SimulationParameter*>& parameters2sweep,
 			const std::string& mapsFolder, const std::string& gnuplotScriptFolder, const std::string& imagesFolder );
 
-	int GnuplotGeneralResults(
+	int GnuplotGeneralCritParamValueResults(
 		const std::string& gnuplotSpectreErrorMapFilePath,
 		const std::string& gnuplotScriptFolder, const std::string& imagesFolder );
 
-	int GnuplotGeneralMetricMetricResults( const std::vector<Metric*>& analyzedMetrics,
+	int GnuplotGeneralMetricResults( const std::vector<Metric*>& analyzedMetrics,
 		double& maxUpsetRatio, const std::string& mapsFolder, const std::string& gnuplotScriptFolder, const std::string& imagesFolder );
 
 	bool GenerateAndPlotParameterPairResults(

@@ -25,8 +25,8 @@
 				General Plane:	... ''			[ M m -]				[ M m -]
 
 				MC Crit ND->
-				Partial Plane:	... magName	magMetricError [ M m -]	magMGlobalError [ M m -]
-				General Plane:	... ''			[ M m -]				[ M m -]
+				Partial Plane:	... magName	magMetricError [ M m - median q12 q34 ]	magMGlobalError [ M m -]
+				General Plane:	... ''			[ M m - median q12 q34 ]				[ M m -]
 
 * Changelog of version 3.1.2
 	* **LogIO** handling improvements

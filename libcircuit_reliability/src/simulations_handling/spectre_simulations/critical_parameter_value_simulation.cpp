@@ -282,7 +282,7 @@ void CriticalParameterValueSimulation::ReportEndOfCriticalParameterValueSimulati
 	#endif
 	// Plot critical parameter evolution
 	if( endType==SENSITIVE_2_OTHER ){
-		if( (transGnuplot=CreateGnuplotCriticalParameterEvolution( )) > 0 ){
+		if( (transGnuplot=CreateGnuplotCriticalParameterEvolution()) > 0 ){
 			// log_io report
 			#ifdef RESULTS_ANALYSIS_VERBOSE
 			log_io->ReportError2AllLogs( "Unexpected gnuplot result: " + number2String(transGnuplot) );
@@ -491,11 +491,9 @@ int CriticalParameterValueSimulation::CreateGnuplotCriticalParameterEvolution(){
 	gnuplotScriptFile << "set format y \"%g\"\n";
 
 	// # remove border on top and right and set color to gray
-	gnuplotScriptFile << "set style line 11 lc rgb '#808080' lt 1\n";
-	gnuplotScriptFile << "set border 3 back ls 11\n";
-	gnuplotScriptFile << "set tics nomirror\n";
+	gnuplotScriptFile << kCustomBorders << "\n";
 	// line style
-	gnuplotScriptFile <<  "set style line 1 lc rgb '#8b1a0e' pt 6 ps 1 lt 1 lw 2 # --- red\n";
+	gnuplotScriptFile <<  kTransientSimilarLinesPalette;
 	// Create file
 	critParameterEvolutionDataFile.open( critParameterEvolutionDataPath.c_str() );
 	for( auto const & cv : critical_parameter_values_evolution ){
@@ -517,8 +515,7 @@ int CriticalParameterValueSimulation::CreateGnuplotCriticalParameterEvolution(){
 		gnuplotScriptFile << "set logscale y\n";
 	}
 	// Plot
-	gnuplotScriptFile <<  "plot '" << critParameterEvolutionDataPath
-		<< "' w lp ls 1 title 'Critical Parameter Value Evolution' \n";
+	gnuplotScriptFile <<  "plot '" << critParameterEvolutionDataPath << "' w lp ls 1 title 'Critical Parameter Value Evolution' \n";
 	gnuplotScriptFile << "unset output\n";
 	// Add images path
 	critical_parameter_values_evolution_image_path = outputImagePath;

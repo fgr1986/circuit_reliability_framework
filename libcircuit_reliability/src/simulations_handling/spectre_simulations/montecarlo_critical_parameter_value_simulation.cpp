@@ -374,7 +374,7 @@ bool MontecarloCriticalParameterValueSimulation::AnalyzeMontecarloResults(){
 	}
 	// plot scatters
 	if( plot_scatters ){
-		partialResult = partialResult && PlotProfileResults();
+		partialResult = partialResult && PlotScatters();
 	}
 	// handle individual results
 	for( const auto& gS : *(critical_parameter_value_simulations_vector.get_spectre_simulations()) ){
@@ -388,7 +388,7 @@ bool MontecarloCriticalParameterValueSimulation::AnalyzeMontecarloResults(){
 	return partialResult;
 }
 
-bool MontecarloCriticalParameterValueSimulation::PlotProfileResults(){
+bool MontecarloCriticalParameterValueSimulation::PlotScatters(){
 	bool partialResults = true;
 	// Create folders
 	std::string gnuplotScriptFolder =  top_folder + kFolderSeparator
@@ -436,17 +436,9 @@ bool MontecarloCriticalParameterValueSimulation::PlotProfileResults(){
 		gnuplotScriptFile << "set y2label \"Spectre error\"\n";
 		gnuplotScriptFile << "set ylabel \" " << golden_critical_parameter->get_title_name() << " \"" << "\n";
 		// # remove border on top and right and set color to gray
-		gnuplotScriptFile << "set style line 11 lc rgb '#808080' lt 1" << "\n";
-		gnuplotScriptFile << "set border 3 back ls 11" << "\n";
-		gnuplotScriptFile << "set tics nomirror" << "\n";
-		// Color Paletes
-		gnuplotScriptFile << kUpsetsPalette << "\n";
+		gnuplotScriptFile << kCustomBorders << "\n";
 		// line style
-		gnuplotScriptFile << "set style line 1 lc rgb '#0060ad' pt 6 ps 1 lt 1 lw 2 # --- blue" << "\n";
-		gnuplotScriptFile <<  "set style line 2 lc rgb '#8b1a0e' pt 1 ps 1 lt 1 lw 2 # --- red\n";
-		gnuplotScriptFile << "set style fill solid" << "\n";
-		// // Background
-		gnuplotScriptFile << kWholeBackground << "\n";
+		gnuplotScriptFile << kTransientSimilarLinesPalette;
 		// legend
 		gnuplotScriptFile << "set key bottom right" << "\n";
 		gnuplotScriptFile << "g(x,y) = y>0 ? 0 : x" << "\n";
@@ -515,16 +507,12 @@ bool MontecarloCriticalParameterValueSimulation::PlotMetricScatters(
 			gnuplotScriptFile << "set xlabel \""  << "Profile" << "\"" << "\n";
 			gnuplotScriptFile << "set ylabel \" " << mag->get_title_name() << " \"" << "\n";
 			// # remove border on top and right and set color to gray
-			gnuplotScriptFile << "set style line 11 lc rgb '#808080' lt 1" << "\n";
-			gnuplotScriptFile << "set border 3 back ls 11" << "\n";
-			gnuplotScriptFile << "set tics nomirror" << "\n";
+			gnuplotScriptFile << kCustomBorders;
 			// Color Paletes
-			gnuplotScriptFile << kUpsetsPalette << "\n";
+			gnuplotScriptFile << kUpsetsPalette;
 			// line style
-			gnuplotScriptFile << "set style line 1 lc rgb '#5e9c36' pt 6 ps 1 lt 1 lw 2 # --- green" << "\n";
+			gnuplotScriptFile << kTransientSimilarLinesPalette;
 			gnuplotScriptFile << "set style fill solid" << "\n";
-			// // Background
-			gnuplotScriptFile << kWholeBackground << "\n";
 			// legend
 			gnuplotScriptFile << "set key bottom right" << "\n";
 			// Plot

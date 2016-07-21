@@ -73,7 +73,7 @@ protected:
 	bool StatisticProcessResultFile( const std::string&& path,
 		Matrix& matrix, bool* computedColumns );
 	bool StatisticProcessStatisticsFile( const std::string&& path,
-		Matrix& matrixMax, Matrix& matrixMin, Matrix& matrixMean,
+		Matrix& matrixMax, Matrix& matrixMin, Matrix& matrixMean, bool* computedColumns,
 		bool* computedColumnsMax, bool* computedColumnsMin, bool* computedColumnsMean );
 
 };
