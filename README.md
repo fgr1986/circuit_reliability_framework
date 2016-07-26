@@ -1,6 +1,6 @@
 # README
 ***Circuit Reliability Frameowrk***
-version 3.1.3 22/07/2016
+version 3.2.0 26/07/2016
 https://github.com/fgr1986/circuit_reliability_framework
 
 [Fernando García Redondo](http://www.fernandeando.com)
@@ -14,10 +14,8 @@ https://github.com/fgr1986/circuit_reliability_framework
 
 #Major
 
-* Only plot crit param evolution if required
 * Revise parameter design space exploration ( 10^ is not e^!!)
 * **To do: Latex/Html export**
-* **TO DO** simulation_parameter_golden_fixed in radiation scenarios
 * **¿TO DO? Regex for large components (ports)**
 * **Instance. Nodes instead absolute nodes**
 * Weighted Nodes

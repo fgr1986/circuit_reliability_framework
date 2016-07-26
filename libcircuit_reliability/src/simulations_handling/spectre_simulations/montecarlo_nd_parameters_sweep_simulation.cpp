@@ -320,7 +320,7 @@ bool MontecarloNDParametersSweepSimulation::GenerateAndPlotParameterPairResults(
 	}
 	// add plane
 	main_nd_simulation_results.AddPlaneResultsStructure( planeStructure );
-	log_io->ReportPlainStandard("Processing itemized results with ResultsProcessor" );
+	log_io->ReportPlainStandard( "#" + simulation_id + ", Processing itemized results with ResultsProcessor" );
 	// Process itemized planes to extract the p1-p2 general plane results
 	ResultsProcessor rp;
 	// 0  1      2          3                    4                    5                       6                           7  8    9                   10

@@ -75,7 +75,15 @@ public:
 	 *
 	 * @param plot_last_transients
 	 */
-	void set_plot_last_transients( bool plot_last_transients) { this->plot_last_transients = plot_last_transients; }
+	void set_plot_last_transients( const bool plot_last_transients) { this->plot_last_transients = plot_last_transients; }
+
+	/**
+	 * @brief Sets plot_critical_parameter_value_evolution
+	 *
+	 * @param plot_critical_parameter_value_evolution
+	 */
+	void set_plot_critical_parameter_value_evolution ( const bool plot_critical_parameter_value_evolution) {
+		this->plot_critical_parameter_value_evolution = plot_critical_parameter_value_evolution; }
 
 	// for use outside [profile files]
 	std::vector<unsigned int>* get_out_profile_c_i_mean(){ return &out_profile_c_i_mean; }
@@ -104,6 +112,8 @@ private:
 	int max_parallel_profile_instances;
 	/// plot last transient
 	bool plot_last_transients;
+	/// plot_critical_parameter_value_evolution
+	bool plot_critical_parameter_value_evolution;
 
 	/// offset to crit max value
 	const unsigned int out_gnuplot_crit_param_offset = 3;

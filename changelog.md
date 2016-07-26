@@ -2,10 +2,8 @@
 
 ##Major
 
-* Only plot crit param evolution if required
 * Revise parameter design space exploration ( 10^ is not e^!!)
 * **To do: Latex/Html export**
-* **TO DO** simulation_parameter_golden_fixed in radiation scenarios
 * **¿TO DO? Regex for large components (ports)**
 * **Instance. Nodes instead absolute nodes**
 * Weighted Nodes
@@ -24,26 +22,19 @@
 	* if () { statements } else { statementd }
 * New model parsing scheme: Group of models:
 
-# Changelog of version 3.1.3
-* Radiation summary reports now include parameter versus parameter planes.
-* Result files PLANE structures: [ M m -] stands for Max Min and mean
-
-			Crit ND->
-			Partial Plane:	... magName	magMetricError	magMGlobalError
-			General Plane:	... ''			[ M m -]				[ M m -]
-
-			MC Crit ND->
-			Partial Plane:	... magName	magMetricError [ M m - median q12 q34 ]	magMGlobalError [ M m -]
-			General Plane:	... ''			[ M m - median q12 q34 ]				[ M m -]
-
-* *Fixed Bug:* included files not only containing subcircuits
-* **Explicitly save critical parameter injections**
-* **Global results**
-* MC Variability plots
+# Changelog of version 3.2.0
+	* **GoldenNDParametersSweepSimulation** now exclusively simulate those GoldenSimulation that are required.
+	* Critical parameter evolution plotting is controlled by **plot_critical_parameter_value_evolution**.
 
 # Version 3.x.y
 
-## Version 3.0.y
+## Version 3.2.y
+
+* Changelog of version 3.2.0
+	* **GoldenNDParametersSweepSimulation** now exclusively simulate those GoldenSimulation that are required.
+	* Critical parameter evolution plotting is controlled by **plot_critical_parameter_value_evolution**.
+
+## Version 3.1.y
 
 * Changelog of version 3.1.3
 	* Radiation summary reports now include parameter versus parameter planes.
@@ -78,6 +69,8 @@
 	* More efficient number2String
 	* Allows *OceanEval* expressions using **OceanEvalMetric**
 	* Explicit *std::scientific* export where needed
+
+## Version 3.0.y
 
 * Changelog of version 3.0.0
 	* Clean build for *smacd_2016*, including all *v2.9.y* improvements and bug fixes.

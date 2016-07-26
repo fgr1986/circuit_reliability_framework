@@ -29,6 +29,9 @@ CriticalParameterValueSimulation::CriticalParameterValueSimulation() {
 	this->montecarlo_transient_sufix = kNotDefinedString;
 	// injection mode related
 	this->has_additional_injection = false;
+	// critical parameter
+	this->plot_last_transients = false;
+	this->plot_critical_parameter_value_evolution = false;
 }
 
 CriticalParameterValueSimulation::~CriticalParameterValueSimulation(){
@@ -281,7 +284,7 @@ void CriticalParameterValueSimulation::ReportEndOfCriticalParameterValueSimulati
 	}
 	#endif
 	// Plot critical parameter evolution
-	if( endType==SENSITIVE_2_OTHER ){
+	if( plot_critical_parameter_value_evolution && endType==SENSITIVE_2_OTHER ){
 		if( (transGnuplot=CreateGnuplotCriticalParameterEvolution()) > 0 ){
 			// log_io report
 			#ifdef RESULTS_ANALYSIS_VERBOSE

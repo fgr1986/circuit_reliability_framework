@@ -97,7 +97,9 @@ public:
 	void set_export_metric_errors( bool export_metric_errors ) { this->export_metric_errors = export_metric_errors; }
 
 	bool get_plot_last_transients(){ return plot_last_transients; }
-	void set_plot_last_transients( bool plot_last_transients) { this->plot_last_transients = plot_last_transients; }
+	void set_plot_last_transients( const bool plot_last_transients) { this->plot_last_transients = plot_last_transients; }
+	bool get_plot_critical_parameter_value_evolution(){ return plot_critical_parameter_value_evolution; }
+	void set_plot_critical_parameter_value_evolution( const bool plot_critical_parameter_value_evolution) { this->plot_critical_parameter_value_evolution = plot_critical_parameter_value_evolution; }
 
 	void set_interpolate_plots_ratio( int interpolate_plots_ratio ){ this->interpolate_plots_ratio = interpolate_plots_ratio; }
 	int get_interpolate_plots_ratio() const{ return interpolate_plots_ratio; }
@@ -199,6 +201,7 @@ private:
 	/// only for critical_parameter_1d_parameter_sweep_simulation
 	/// (and others involving critical_parameter_simulation arrays)
 	bool plot_last_transients;
+	bool plot_critical_parameter_value_evolution;
 	/// exports metric errors
 	bool export_metric_errors;
 

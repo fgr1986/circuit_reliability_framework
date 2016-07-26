@@ -41,6 +41,7 @@ RadiationSpectreHandler::RadiationSpectreHandler() {
 	this->plot_scatters = false;
 	this->plot_transients = false;
 	this->plot_last_transients = false;
+	this->plot_critical_parameter_value_evolution = false;
 	this->export_matlab_script = false;
 	// files
 	this->export_metric_errors = false;
@@ -184,6 +185,9 @@ bool RadiationSpectreHandler::RunSimulations(){
 						return false;
 					}
 					sss = new CriticalParameterValueSimulation();
+					auto pCritValSim =  dynamic_cast<CriticalParameterValueSimulation*>(sss);
+					pCritValSim->set_plot_critical_parameter_value_evolution( plot_critical_parameter_value_evolution );
+					pCritValSim->set_plot_last_transients( plot_last_transients );
 				}
 			break;
 			case kCriticalParameterNDParametersSweepMode: {
@@ -192,9 +196,10 @@ bool RadiationSpectreHandler::RunSimulations(){
 						return false;
 					}
 					sss = new CriticalParameterNDParameterSweepSimulation();
-					CriticalParameterNDParameterSweepSimulation* pParameterSweep =  dynamic_cast<CriticalParameterNDParameterSweepSimulation*>(sss);
+					auto pParameterSweep =  dynamic_cast<CriticalParameterNDParameterSweepSimulation*>(sss);
 					pParameterSweep->set_max_parallel_profile_instances( max_parallel_profile_instances );
 					pParameterSweep->set_plot_last_transients( plot_last_transients );
+					pParameterSweep->set_plot_critical_parameter_value_evolution( plot_critical_parameter_value_evolution );
 				}
 			break;
 			case kMontecarloCriticalParameterNDParametersSweepMode: {
@@ -203,13 +208,13 @@ bool RadiationSpectreHandler::RunSimulations(){
 						return false;
 					}
 					sss = new MontecarloCriticalParameterNDParametersSweepSimulation();
-					MontecarloCriticalParameterNDParametersSweepSimulation* pMCPNDPSS =
-						dynamic_cast<MontecarloCriticalParameterNDParametersSweepSimulation*>(sss);
+				auto pMCPNDPSS = dynamic_cast<MontecarloCriticalParameterNDParametersSweepSimulation*>(sss);
 					// get numruns and set it to montecarlo_iterations
 					pMCPNDPSS->set_montecarlo_iterations( montecarlo_iterations );
 					pMCPNDPSS->set_max_parallel_profile_instances( max_parallel_profile_instances );
 					pMCPNDPSS->set_plot_last_transients( plot_last_transients );
 					pMCPNDPSS->set_max_parallel_montecarlo_instances( max_parallel_montecarlo_instances );
+					pMCPNDPSS->set_plot_critical_parameter_value_evolution( plot_critical_parameter_value_evolution );
 				}
 			break;
 			default: {

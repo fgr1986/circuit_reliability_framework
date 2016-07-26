@@ -33,8 +33,12 @@ public:
 	 *
 	 * @param plot_last_transients
 	 */
-	void set_plot_last_transients( bool plot_last_transients ){
+	void set_plot_last_transients( const bool plot_last_transients ){
 		this->plot_last_transients = plot_last_transients;
+	}
+
+	void set_plot_critical_parameter_value_evolution( const bool plot_critical_parameter_value_evolution ){
+		this->plot_critical_parameter_value_evolution = plot_critical_parameter_value_evolution;
 	}
 
 	/**
@@ -76,6 +80,8 @@ private:
 	static constexpr unsigned int SENSITIVE_2_MIN = 1;
 	static constexpr unsigned int SENSITIVE_2_OTHER = 2;
 
+	/// plot_critical_parameter_value_evolution
+	bool plot_critical_parameter_value_evolution;
 	/// plot_last_transients
 	bool plot_last_transients;
 	/// Critical parameter value

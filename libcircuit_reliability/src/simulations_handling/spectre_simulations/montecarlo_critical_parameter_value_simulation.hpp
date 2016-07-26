@@ -43,7 +43,8 @@ public:
 	SpectreSimulationsVector* get_critical_parameter_value_simulations_vector(){
 		return &critical_parameter_value_simulations_vector; }
 
-	void set_plot_last_transients( bool plot_last_transients) { this->plot_last_transients = plot_last_transients; }
+	void set_plot_last_transients(const  bool plot_last_transients) { this->plot_last_transients = plot_last_transients; }
+	void set_plot_critical_parameter_value_evolution( const bool plot_critical_parameter_value_evolution) { this->plot_critical_parameter_value_evolution = plot_critical_parameter_value_evolution; }
 
 private:
 
@@ -53,6 +54,7 @@ private:
 	unsigned int max_parallel_montecarlo_instances;
 
 	bool plot_last_transients;
+	bool plot_critical_parameter_value_evolution;
 	MontecarloSimulationResults montecarlo_simulation_results;
 	SpectreSimulationsVector critical_parameter_value_simulations_vector;
 

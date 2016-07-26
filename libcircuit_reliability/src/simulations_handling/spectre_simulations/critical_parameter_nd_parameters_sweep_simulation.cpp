@@ -34,6 +34,7 @@ CriticalParameterNDParameterSweepSimulation::CriticalParameterNDParameterSweepSi
 	this->affected_by_min_value= false;
 	this->max_parallel_profile_instances = 15;
 	this->plot_last_transients = false;
+	this->plot_critical_parameter_value_evolution = false;
 	// injection mode related
 	this->has_additional_injection = false;
 }
@@ -177,6 +178,7 @@ CriticalParameterValueSimulation* CriticalParameterNDParameterSweepSimulation::C
 	pCPVS->set_plot_scatters( plot_scatters );
 	pCPVS->set_plot_transients( plot_transients );
 	pCPVS->set_plot_last_transients( plot_last_transients );
+	pCPVS->set_plot_critical_parameter_value_evolution( plot_critical_parameter_value_evolution );
 	pCPVS->set_interpolate_plots_ratio( interpolate_plots_ratio );
 	pCPVS->set_main_analysis( main_analysis );
 	pCPVS->set_main_transient_analysis( main_transient_analysis );
@@ -424,6 +426,7 @@ bool CriticalParameterNDParameterSweepSimulation::GenerateAndPlotParameterPairRe
 			parameters2sweep, mapsFolder, gnuplotScriptFolder, imagesFolder, *planeIndexes, *planeStructure);
 	}
 	// add plane
+	log_io->ReportPlainStandard( "#" + simulation_id + ", Processing itemized results with ResultsProcessor" );
 	main_nd_simulation_results.AddPlaneResultsStructure( planeStructure );
 	// Process itemized planes to extract the p1-p2 general plane results
 	ResultsProcessor rp;

@@ -339,6 +339,13 @@ bool XMLIOManager::ReadExperimentXML( const std::string &xmlExperiment, int& sta
 		}else{
 			radiationSpectreHandler.set_plot_last_transients( false );
 		}
+		// plot_critical_parameter_value_evolution
+		if( ptExperiment.get<bool>("root.plot_critical_parameter_value_evolution") ){
+			log_io->ReportPlainStandard( kTab + "Experiment will plot critical parameter value evolution (binary search)." );
+			radiationSpectreHandler.set_plot_critical_parameter_value_evolution( ptExperiment.get<bool>("root.plot_critical_parameter_value_evolution") );
+		}else{
+			radiationSpectreHandler.set_plot_critical_parameter_value_evolution( false );
+		}
 		// Interpolation ratio
 		radiationSpectreHandler.set_interpolate_plots_ratio( ptExperiment.get<int>("root.interpolate_plots_ratio") );
 		if(radiationSpectreHandler.get_interpolate_plots_ratio()){

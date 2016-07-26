@@ -29,6 +29,7 @@
 MontecarloCriticalParameterNDParametersSweepSimulation::MontecarloCriticalParameterNDParametersSweepSimulation() {
 	this->max_parallel_profile_instances = 10;
 	this->plot_last_transients = false;
+	this->plot_critical_parameter_value_evolution = false;
 	// injection mode related
 	this->has_additional_injection = false;
 }
@@ -195,6 +196,7 @@ MontecarloCriticalParameterValueSimulation* MontecarloCriticalParameterNDParamet
 	pMCPVS->set_plot_scatters( plot_scatters );
 	pMCPVS->set_plot_transients( plot_transients );
 	pMCPVS->set_plot_last_transients( plot_last_transients );
+	pMCPVS->set_plot_critical_parameter_value_evolution( plot_critical_parameter_value_evolution );
 	pMCPVS->set_interpolate_plots_ratio( interpolate_plots_ratio );
 	pMCPVS->set_main_analysis( main_analysis );
 	pMCPVS->set_main_transient_analysis( main_transient_analysis );
@@ -387,7 +389,7 @@ bool MontecarloCriticalParameterNDParametersSweepSimulation::GenerateAndPlotPara
 	}
 	// add plane
 	main_nd_simulation_results.AddPlaneResultsStructure( planeStructure );
-	log_io->ReportPlainStandard("Processing itemized results with ResultsProcessor" );
+	log_io->ReportPlainStandard( "#" + simulation_id + ", Processing itemized results with ResultsProcessor" );
 	// Process itemized planes to extract the p1-p2 general plane results
 	ResultsProcessor rp;
 	std::string generalParameterResultsFile = mapsFolder + kFolderSeparator

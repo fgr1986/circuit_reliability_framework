@@ -25,6 +25,8 @@
 MontecarloCriticalParameterValueSimulation::MontecarloCriticalParameterValueSimulation() {
 	this->export_processed_metrics = true;
 	this->max_parallel_montecarlo_instances = 5;
+	this->plot_last_transients = false;
+	this->plot_critical_parameter_value_evolution = false;
 	// injection mode related
 	this->has_additional_injection = false;
 }
@@ -176,6 +178,7 @@ CriticalParameterValueSimulation* MontecarloCriticalParameterValueSimulation::Cr
 	pCPVS->set_plot_scatters( false );
 	pCPVS->set_plot_transients( plot_transients );
 	pCPVS->set_plot_last_transients( plot_last_transients );
+	pCPVS->set_plot_critical_parameter_value_evolution( plot_critical_parameter_value_evolution );
 	pCPVS->set_interpolate_plots_ratio( interpolate_plots_ratio );
 	pCPVS->set_main_analysis( main_analysis );
 	pCPVS->set_main_transient_analysis( main_transient_analysis );
