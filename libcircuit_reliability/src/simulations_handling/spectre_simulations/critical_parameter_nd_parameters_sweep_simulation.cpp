@@ -689,7 +689,7 @@ int CriticalParameterNDParameterSweepSimulation::GnuplotPlane(
 	gnuplotScriptFile << "set mxtics\n";
 	gnuplotScriptFile << "set xlabel \""  << p1.get_title_name() << "\"\n";
 	gnuplotScriptFile << "set ylabel \""  << p2.get_title_name() << "\"\n";
-	gnuplotScriptFile << "set zlabel \"" << golden_critical_parameter->get_title_name() << "\" offset -2.5,0\n";
+	gnuplotScriptFile << "set zlabel \"" << golden_critical_parameter->get_title_name() << "\" rotate by 90\n";
 	// Offset for xtics
 	gnuplotScriptFile << "set ytics left offset 0,-0.5\n";
 	// Color Paletes
@@ -701,12 +701,10 @@ int CriticalParameterNDParameterSweepSimulation::GnuplotPlane(
 	gnuplotScriptFile << kElegantLine << "\n";
 	// mp3d interpolation and hidden3d
 	// mp3d z-offset, interpolation and hidden3d
-	gnuplotScriptFile <<  "set ticslevel 0\n";
-	gnuplotScriptFile << "set pm3d hidden3d 100\n";
+	gnuplotScriptFile << "set ticslevel 0\n";
+	gnuplotScriptFile << k3DProperties;
 	if( interpolate_plots_ratio >= 0 ){
 		gnuplotScriptFile << "set pm3d interpolate " << interpolate_plots_ratio << "," << interpolate_plots_ratio << "\n";
-	}else{
-		gnuplotScriptFile << "set pm3d corners2color max\n";
 	}
 	if( isPartialPlane ){
 		// p1 p2 critParamValue
@@ -771,7 +769,7 @@ int CriticalParameterNDParameterSweepSimulation::GnuplotPlaneMetricResults(
 			gnuplotScriptFile << "set mxtics\n";
 			gnuplotScriptFile << "set xlabel \"" << p1.get_title_name() << "\"\n";
 			gnuplotScriptFile << "set ylabel \"" << p2.get_title_name() << "\"\n";
-			gnuplotScriptFile << "set zlabel \"" << m->get_title_name() << "\" offset -2.5,0\n";
+			gnuplotScriptFile << "set zlabel \"" << m->get_title_name() << "\" rotate by 90\n";
 			// Offset for xtics
 			gnuplotScriptFile << "set ytics left offset 0,-0.5\n";
 			// Format
@@ -785,12 +783,10 @@ int CriticalParameterNDParameterSweepSimulation::GnuplotPlaneMetricResults(
 			gnuplotScriptFile << kTransientSimilarLinesPalette;
 			// mp3d interpolation and hidden3d
 			// mp3d z-offset, interpolation and hidden3d
-			gnuplotScriptFile <<  "set ticslevel 0\n";
-			gnuplotScriptFile << "set pm3d hidden3d 100\n";
+			gnuplotScriptFile << "set ticslevel 0\n";
+			gnuplotScriptFile << k3DProperties;
 			if( interpolate_plots_ratio >= 0 ){
 				gnuplotScriptFile << "set pm3d interpolate " << interpolate_plots_ratio << "," << interpolate_plots_ratio << "\n";
-			}else{
-				gnuplotScriptFile << "set pm3d corners2color max\n";
 			}
 			if( isPartialPlane ){
 				int magDataIndex =  plane_gnuplot_first_mag_offset + p_data_per_metric_per_line*magCount; // title

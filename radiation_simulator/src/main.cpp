@@ -34,22 +34,6 @@ static const std::string kPermissiveParsingMode = "permissive";
 static const std::string kStrictParsingMode = "strict";
 
 static const std::string kAppTitle = "Radiation Simulator";
-static const std::string kAppVersion = "v3.1.2";
-static const std::string kAppAuthor = "Fernando García, fgarcia@die.upm.es";
-static const std::string kAppVersionDate = "19/07/2016";
-
-
-// // Get current date/time, format is DD-MM-YYYY.HH:mm:ss
-// std::string GetCurrentDateTime("%d-%m-%Y.%X") {
-// 	time_t	 now = time(0);
-// 	struct tm tstruct;
-// 	char	 buf[80];
-// 	tstruct = *localtime(&now);
-// 	// Visit http://en.cppreference.com/w/cpp/chrono/c/strftime
-// 	// for more information about date/time format
-// 	strftime(buf, sizeof(buf), "%d-%m-%Y.%X", &tstruct);
-// 	return buf;
-// }
 
 /*
  * @details main function of radiation simulator
@@ -74,11 +58,10 @@ int main(int argc, char** argv) {
 	log_io.ReportInfo2AllLogs( "" );
 	log_io.ReportInfo2AllLogs( k2Tab + kShortDelimiter );
 	log_io.ReportInfo2AllLogs( k2Tab + "||         " + kAppTitle  +"           ||" );
-	log_io.ReportInfo2AllLogs( k2Tab + "||  " + kAppAuthor  +"  ||" );
+	log_io.ReportInfo2AllLogs( k2Tab + "||  " + kAuthor  +"  ||" );
 	log_io.ReportInfo2AllLogs( k2Tab + kShortDelimiter );
-	log_io.ReportInfo2AllLogs( k2Tab + "|| App:     " + kAppVersion + ", " + kAppVersionDate + "          ||" );
 	log_io.ReportInfo2AllLogs( k2Tab + kShortDelimiter );
-	log_io.ReportInfo2AllLogs( k2Tab + "|| Lib:     " + kSpectreHandlerLibVersion + ", " + kSpectreHandlerLibVersionDate + "          ||" );
+	log_io.ReportInfo2AllLogs( k2Tab + "|| Framework:     " + kSpectreHandlerLibVersion + ", " + kSpectreHandlerLibVersionDate + "          ||" );
 	log_io.ReportInfo2AllLogs( k2Tab + kShortDelimiter );
 	log_io.ReportInfo2AllLogs( "" );
 	log_io.ReportInfo2AllLogs( "" );

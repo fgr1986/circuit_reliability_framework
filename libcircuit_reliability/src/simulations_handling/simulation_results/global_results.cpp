@@ -309,7 +309,7 @@ bool GlobalResults::ProcessCriticalParameterNDParametersSweepSimulationMode(){
 		std::vector<Metric*>* auxMetrics = nullptr;
 		unsigned int critParamOffset = auxSim->get_out_gnuplot_crit_param_offset();
 		unsigned int profileFirstMagMetricOffset =  auxSim->get_out_profile_gnuplot_first_mag_metric_offset();
-		unsigned int profileFirstMagGlobalOffset =  auxSim->get_out_profile_gnuplot_first_mag_metric_offset();
+		unsigned int profileFirstMagGlobalOffset =  auxSim->get_out_profile_gnuplot_first_mag_global_offset();
 		unsigned int planeFirstMagMetricOffset =  auxSim->get_out_plane_gnuplot_first_mag_metric_offset();
 		unsigned int planeFirstMagGlobalOffset =  auxSim->get_out_plane_gnuplot_first_mag_global_offset();
 		unsigned int dataColumnsPerMetric =  auxSim->get_out_data_per_metric_per_line(); // name + MAG_i_maxErrorMetric*3 + MAG_i_maxErrorGlobal*3
@@ -326,6 +326,9 @@ bool GlobalResults::ProcessCriticalParameterNDParametersSweepSimulationMode(){
 			*auxMetrics, critParamOffset, profileFirstMagMetricOffset, profileFirstMagGlobalOffset, dataColumnsPerMetric, *criticalParameter, outputFilePath);
 		// planes
 		auto simulatedParameters = auxSim->get_simulation_parameters();
+		// fgarcia
+		auto deleteAfter = GetGoldenProfiles2Simulate(* simulatedParameters);
+		delete deleteAfter;
 		partialResult = partialResult && GenerateAndPlotParameterPairResults(
 			ResultsProcessor::kStatisticProcessStatisticsFiles, auxSim->get_golden_critical_parameter()->get_title_name(),
 			critParamOffset, planeFirstMagMetricOffset, planeFirstMagGlobalOffset, dataColumnsPerMetric, *auxMetrics, *simulatedParameters,
@@ -508,7 +511,7 @@ bool GlobalResults::ProcessMontecarloCriticalParameterNDParametersSweepMode(){
 		// #profCount #Profile #Qcoll #MAG_i_name #MAG_i_maxErrorGlobal #MAG_i_maxErrorMetric
 		unsigned int critParamOffset = auxSim->get_out_gnuplot_crit_param_offset();
 		unsigned int profileFirstMagMetricOffset =  auxSim->get_out_profile_gnuplot_first_mag_metric_offset();
-		unsigned int profileFirstMagGlobalOffset =  auxSim->get_out_profile_gnuplot_first_mag_metric_offset();
+		unsigned int profileFirstMagGlobalOffset =  auxSim->get_out_profile_gnuplot_first_mag_global_offset();
 		unsigned int planeFirstMagMetricOffset =  auxSim->get_out_plane_gnuplot_first_mag_metric_offset();
 		unsigned int planeFirstMagGlobalOffset =  auxSim->get_out_plane_gnuplot_first_mag_global_offset();
 		unsigned int dataColumnsPerMetric =  auxSim->get_out_data_per_metric_per_line(); // 1+6+3
@@ -793,7 +796,7 @@ int GlobalResults::GnuplotCriticalParameterValuePlane(
 	gnuplotScriptFile << "set mxtics\n";
 	gnuplotScriptFile << "set xlabel \""  << p1.get_title_name() << "\"\n";
 	gnuplotScriptFile << "set ylabel \""  << p2.get_title_name() << "\"\n";
-	gnuplotScriptFile << "set zlabel \"" << criticalParameterName << "\" offset -2.5,0\n";
+	gnuplotScriptFile << "set zlabel \"" << criticalParameterName << "\" rotate by 90\n";
 	// Offset for xtics
 	gnuplotScriptFile << "set ytics left offset 0,-0.5\n";
 	// Color Paletes
@@ -807,9 +810,7 @@ int GlobalResults::GnuplotCriticalParameterValuePlane(
 	// mp3d interpolation and hidden3d
 	// mp3d z-offset, interpolation and hidden3d
 	gnuplotScriptFile <<  "set ticslevel 0\n";
-	gnuplotScriptFile << "set pm3d hidden3d 100\n";
-	gnuplotScriptFile << "set pm3d interpolate 2,2\n";
-	gnuplotScriptFile << "# set pm3d corners2color max\n";
+	gnuplotScriptFile << k3DProperties;
 
 
 	gnuplotScriptFile << "splot '" << gnuplotDataFile << "' u 1:2:" << (critParamOffset) << " title 'max_" << criticalParameterName << "' w lp ls 1, \\\n";
@@ -862,7 +863,7 @@ int GlobalResults::GnuplotPlaneMetricResults(
 			gnuplotScriptFile << "set mxtics\n";
 			gnuplotScriptFile << "set xlabel \"" << p1.get_title_name() << "\"\n";
 			gnuplotScriptFile << "set ylabel \"" << p2.get_title_name() << "\"\n";
-			gnuplotScriptFile << "set zlabel \"" << m->get_title_name() << "\" offset -2.5,0\n";
+			gnuplotScriptFile << "set zlabel \"" << m->get_title_name() << "\" rotate by 90\n";
 			// Offset for xtics
 			gnuplotScriptFile << "set ytics left offset 0,-0.5\n";
 			// Format
@@ -877,9 +878,7 @@ int GlobalResults::GnuplotPlaneMetricResults(
 			// mp3d interpolation and hidden3d
 			// mp3d z-offset, interpolation and hidden3d
 			gnuplotScriptFile <<  "set ticslevel 0\n";
-			gnuplotScriptFile << "set pm3d hidden3d 100\n";
-			gnuplotScriptFile << "set pm3d interpolate 2,2\n";
-			gnuplotScriptFile << "# set pm3d corners2color max\n";
+			gnuplotScriptFile << k3DProperties;
 
 			int magMetricDataIndex = magMetricColumnOffset + dataPerMetricPerLine*magCount; // max val
 			int magGlobalDataIndex = magGlobalColumnOffset + dataPerMetricPerLine*magCount; // max val

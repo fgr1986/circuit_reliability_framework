@@ -54,6 +54,13 @@ public:
 	std::vector<Metric*>* get_processed_metrics() { return processed_metrics; }
 
 	/**
+	 * @brief Retrieve Processed Metrics
+	 * @details Retrieve Processed Metrics
+	 * @return metrics vector
+	 */
+	void set_processed_metrics( std::vector<Metric*>* processed_metrics ) { this->processed_metrics = processed_metrics; }
+
+	/**
 	 * @brief Sets metrics_2be_found
 	 * @parammetrics_2be_found
 	 */
@@ -67,6 +74,26 @@ public:
 	 */
 	NDMetricsStructure* GetGoldenMetrics();
 
+	/**
+	 * @brief Sets similarComputedGS
+	 * @param similarComputedGS
+	 */
+	void set_similarComputedGS( GoldenSimulation* similarComputedGS ){
+		this->similarComputedGS = similarComputedGS; }
+
+
+	/**
+	 * @brief copies processed_metrics
+	 * @param processed_metrics
+	 */
+	bool CopyResultsFromGoldenSimulation( GoldenSimulation* similarSimulatedGS );
+
+	/**
+	 * @brief Sets similarComputedGS
+	 * @param similarComputedGS
+	 */
+	GoldenSimulation* get_similarComputedGS(){ return similarComputedGS; }
+
 private:
 	/// Simulation Results
 	TransientSimulationResults transient_simulation_results;
@@ -77,6 +104,8 @@ private:
 	/// Metrics to be found
 	std::vector<Metric*>* metrics_2be_found;
 
+	/// new in 3.2.0
+	GoldenSimulation* similarComputedGS;
 
 	std::vector<Metric*>* CreateGoldenMetricsVector();
 
@@ -85,7 +114,7 @@ private:
 	 *
 	 * @return spectre output
 	 */
-	int RunSpectre( );
+	int RunSpectre();
 
 	/**
 	 * @brief Virtual overrides TestSetup

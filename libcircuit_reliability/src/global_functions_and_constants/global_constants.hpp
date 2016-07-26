@@ -25,16 +25,16 @@
 // #define SPECTRE_SIMULATIONS_VERBOSE ;
 // Result analysis verbose
 // #define RESULTS_ANALYSIS_VERBOSE ; // for each transient etc
-#define RESULTS_POST_PROCESSING_VERBOSE ; // for montecarlo etc
+// #define RESULTS_POST_PROCESSING_VERBOSE ; // for montecarlo etc
 // Result destructors verbose
 // #define DESTRUCTORS_VERBOSE ;
 
 static const double kSpectreMaxAllowedSimDiffCoeff = 1e-12;
 
 static const std::string kSpectreHandlerLibTitle = "Spectre Handler Library";
-static const std::string kSpectreHandlerLibVersion = "v3.1.2";
+static const std::string kSpectreHandlerLibVersion = "v3.2.0";
 static const std::string kAuthor = "Fernando García, fgarcia@die.upm.es";
-static const std::string kSpectreHandlerLibVersionDate = "19/07/2016";
+static const std::string kSpectreHandlerLibVersionDate = "26/07/2016";
 
 // Remove windows special chars
 static const std::string kWindowsEOL = "\r";

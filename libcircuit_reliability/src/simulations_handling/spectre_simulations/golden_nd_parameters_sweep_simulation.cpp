@@ -17,7 +17,7 @@
 #include <cmath>
 // Boost
 #include "boost/filesystem.hpp" // includes all needed Boost.Filesystem declarations
-// Radiation simulator
+// Reliability simulator
 #include "golden_nd_parameters_sweep_simulation.hpp"
 // #include "../simulation_results/results_summary_critical_parameter_1d_parameters_sweep.hpp"
 #include "../../io_handling/raw_format_processor.hpp"
@@ -83,6 +83,8 @@ void GoldenNDParametersSweepSimulation::RunSimulation(){
 		totalThreads = totalThreads*p->get_sweep_steps_number();
 	}
 	log_io->ReportThread( "Total threads to be simulated: " + number2String(totalThreads) + ". Max number of sweep threads: " + number2String(max_parallel_profile_instances), 1 );
+
+	auto parameterSimulationIndexes2Simulate = GetGoldenProfiles2Simulate( parameters2sweep );
 	// parallel threads control
 	unsigned int runningThreads = 0;
 	// // made atomic
@@ -94,14 +96,22 @@ void GoldenNDParametersSweepSimulation::RunSimulation(){
 	// results
 	golden_simulations_vector.ReserveSimulationsInMemory( totalThreads );
 	golden_simulations_vector.set_group_name("golden_n-dimensional_analysis");
+	// non simulated GS
+	std::vector<GoldenSimulation*> nonSimulatedGS;
+	nonSimulatedGS.reserve( totalThreads - parameterSimulationIndexes2Simulate->size() );
+	// simulated GS
+	std::vector<GoldenSimulation*> simulatedGS;
+	simulatedGS.reserve( parameterSimulationIndexes2Simulate->size() );
 	// Threads Creation
+	GoldenSimulation* lastComputedGS = nullptr;
 	while( threadsCount<totalThreads ){
 		// wait for resources
 		WaitForResources( runningThreads, max_parallel_profile_instances, mainTG, threadsCount );
 		// CreateProfile sets all parameter values, and after the simulation object
 		// is created it can be updated.
 		// Thus, it avoids race conditions when updating parameterCountIndexes and parameters2sweep
-		GoldenSimulation* pGS = CreateProfile(parameterCountIndexes, parameters2sweep, threadsCount);
+		bool simulateThread =  vectorContains( *parameterSimulationIndexes2Simulate, threadsCount );
+		GoldenSimulation* pGS = CreateProfile( parameterCountIndexes, parameters2sweep, threadsCount, simulateThread );
 		if( pGS==nullptr ){
 			log_io->ReportError2AllLogs( "Null CreateProfile " + number2String(threadsCount) );
 			children_correctly_simulated = false;
@@ -109,15 +119,40 @@ void GoldenNDParametersSweepSimulation::RunSimulation(){
 			return;
 		}
 		golden_simulations_vector.AddSpectreSimulation( pGS );
-		mainTG.add_thread( new boost::thread(boost::bind(&GoldenSimulation::RunSimulation, pGS)) );
+		if( simulateThread ){
+			lastComputedGS = pGS;
+			simulatedGS.push_back( pGS );
+			mainTG.add_thread( new boost::thread(boost::bind(&GoldenSimulation::RunSimulation, pGS)) );
+			// update variables
+			++runningThreads;
+		}else{
+			if( lastComputedGS==nullptr ){
+				log_io->ReportError2AllLogs( "lastComputedGS==nullptr" + pGS->get_simulation_id() );
+				children_correctly_simulated = false;
+				children_correctly_processed = false;
+				return;
+			}
+			nonSimulatedGS.push_back( pGS );
+			pGS->set_similarComputedGS( lastComputedGS );
+		}
 		// update variables
 		UpdateParameterSweepIndexes( parameterCountIndexes, parameters2sweep);
 		++threadsCount;
-		++runningThreads;
 	}
 	mainTG.join_all();
 	log_io->ReportPlain2Log( "GoldenNDParametersSweepSimulation: mainTG.join_all()" );
-	//
+	// copy results from simulated GS
+	for( auto const &pGS : nonSimulatedGS ){
+		auto similarPM = pGS->get_similarComputedGS();
+		pGS->CopyResultsFromGoldenSimulation( similarPM );
+		if( !pGS->CopyResultsFromGoldenSimulation( similarPM ) ){
+			log_io->ReportError2AllLogs( "Error in CopyResultsFromGoldenSimulation " + pGS->get_simulation_id() );
+			children_correctly_simulated = false;
+			children_correctly_processed = false;
+			return;
+		}
+	}
+	// all simulations
 	for( auto const &pSS : *(golden_simulations_vector.get_spectre_simulations()) ){
 		// obtain metrics and file references
 		auto pGS = dynamic_cast<GoldenSimulation*>(pSS);
@@ -139,31 +174,35 @@ void GoldenNDParametersSweepSimulation::RunSimulation(){
 	if( !children_correctly_simulated || !children_correctly_processed){
 		golden_simulations_vector.ReportChildrenCorrectness();
 	}
+	// clean
+	delete parameterSimulationIndexes2Simulate;
 	log_io->ReportPlain2Log( "END OF GoldenNDParametersSweepSimulation::RunSimulation" );
 }
 
 GoldenSimulation* GoldenNDParametersSweepSimulation::CreateProfile(
 	const std::vector<unsigned int>& parameterCountIndexes,
-	std::vector<SimulationParameter*>& parameters2sweep, const unsigned int ndIndex ){
+	std::vector<SimulationParameter*>& parameters2sweep, const unsigned int ndIndex, const bool simulateThread ){
 	// Create folder
 	std::string s_ndIndex = number2String(ndIndex);
 	std::string currentFolder = folder + kFolderSeparator + "param_profile_" + s_ndIndex;
-	if( !CreateFolder(currentFolder, true ) ){
-		log_io->ReportError2AllLogs( k2Tab + "-> Error creating folder '" + currentFolder + "'." );
-		log_io->ReportError2AllLogs( "Error running profile" );
-		return nullptr;
-	}
-	// copy only files to folder
-	// find . -maxdepth 1 -type f -exec cp {} destination_path \;
-	std::string copyNetlists0 = "find ";
-	std::string copyNetlists1 = " -maxdepth 1 -type f -exec cp {} ";
-	std::string copyNetlists2 = " \\;";
-	std::string copyNetlists;
-	copyNetlists = copyNetlists0 + folder + copyNetlists1 + currentFolder + copyNetlists2;
-	if( std::system( copyNetlists.c_str() ) > 0){
-		log_io->ReportError2AllLogs( k2Tab + "-> Error while copying netlist to '" + currentFolder + "'." );
-		log_io->ReportError2AllLogs( "Error running sweep" );
-		return nullptr;
+	if( simulateThread ){
+		if( !CreateFolder(currentFolder, true ) ){
+			log_io->ReportError2AllLogs( k2Tab + "-> Error creating folder '" + currentFolder + "'." );
+			log_io->ReportError2AllLogs( "Error running profile" );
+			return nullptr;
+		}
+		// copy only files to folder
+		// find . -maxdepth 1 -type f -exec cp {} destination_path \;
+		std::string copyNetlists0 = "find ";
+		std::string copyNetlists1 = " -maxdepth 1 -type f -exec cp {} ";
+		std::string copyNetlists2 = " \\;";
+		std::string copyNetlists;
+		copyNetlists = copyNetlists0 + folder + copyNetlists1 + currentFolder + copyNetlists2;
+		if( std::system( copyNetlists.c_str() ) > 0){
+			log_io->ReportError2AllLogs( k2Tab + "-> Error while copying netlist to '" + currentFolder + "'." );
+			log_io->ReportError2AllLogs( "Error running sweep" );
+			return nullptr;
+		}
 	}
 	// create thread
 	GoldenSimulation* pGS = new GoldenSimulation();

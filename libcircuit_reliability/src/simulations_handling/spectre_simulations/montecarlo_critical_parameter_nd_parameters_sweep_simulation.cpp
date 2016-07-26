@@ -691,7 +691,7 @@ int MontecarloCriticalParameterNDParametersSweepSimulation::GnuplotGeneralMetric
 			gnuplotScriptFile <<  "     '" << gnuplotDataFile << "' u 1:" << (magDataGlobalIndex+2) << " axis x1y1  w lp ls 3 title '" << m->get_title_name() << " (max_error_global)'\n";
 			//
 			gnuplotScriptFile << " # Uncomment the following for ploting the median\n";
-			gnuplotScriptFile <<  "#     '" << gnuplotDataFile << "' u 1:" << (magDataGlobalIndex+3) << " axis x1y1  w lp ls 5 title 'median max_err_" << m->get_title_name() << "'\n";
+			gnuplotScriptFile <<  "#     '" << gnuplotDataFile << "' u 1:" << (magDataMetricIndex+3) << " axis x1y1  w lp ls 5 title 'median max_err_" << m->get_title_name() << "'\n";
 			// legend
 			gnuplotScriptFile <<  "set key top left\n";
 
@@ -742,7 +742,7 @@ int MontecarloCriticalParameterNDParametersSweepSimulation::GnuplotPlaneCritical
 	gnuplotScriptFile << "set mxtics\n";
 	gnuplotScriptFile << "set xlabel \""  << p1.get_title_name() << "\"\n";
 	gnuplotScriptFile << "set ylabel \""  << p2.get_title_name() << "\"\n";
-	gnuplotScriptFile << "set zlabel \"" << golden_critical_parameter->get_title_name() << "\" offset -2.5,0\n";
+	gnuplotScriptFile << "set zlabel \"" << golden_critical_parameter->get_title_name() << "\" rotate by 90\n";
 	// Offset for xtics
 	gnuplotScriptFile << "set ytics left offset 0,-0.5\n";
 
@@ -755,11 +755,9 @@ int MontecarloCriticalParameterNDParametersSweepSimulation::GnuplotPlaneCritical
 	// mp3d interpolation and hidden3d
 	// mp3d z-offset, interpolation and hidden3d
 	gnuplotScriptFile <<  "set ticslevel 0\n";
-	gnuplotScriptFile << "set pm3d hidden3d 100\n";
+	gnuplotScriptFile << k3DProperties;
 	if( interpolate_plots_ratio >= 0 ){
 		gnuplotScriptFile << "set pm3d interpolate " << interpolate_plots_ratio << "," << interpolate_plots_ratio << "\n";
-	}else{
-		gnuplotScriptFile << "set pm3d corners2color max\n";
 	}
 	gnuplotScriptFile << "splot '" << gnuplotDataFile << "' u 1:2:3 notitle w pm3d\n";
 	gnuplotScriptFile << "unset output\n";
@@ -815,7 +813,7 @@ int MontecarloCriticalParameterNDParametersSweepSimulation::GnuplotPlaneMetricRe
 			gnuplotScriptFile << "set mxtics\n";
 			gnuplotScriptFile << "set xlabel \"" << p1.get_title_name() << "\"\n";
 			gnuplotScriptFile << "set ylabel \"" << p2.get_title_name() << "\"\n";
-			gnuplotScriptFile << "set zlabel \"" << m->get_title_name() << "\" offset -2.5,0\n";
+			gnuplotScriptFile << "set zlabel \"" << m->get_title_name() << "\" rotate by 90\n";
 			// Offset for xtics
 			gnuplotScriptFile << "set ytics left offset 0,-0.5\n";
 			// Format
@@ -828,12 +826,10 @@ int MontecarloCriticalParameterNDParametersSweepSimulation::GnuplotPlaneMetricRe
 			gnuplotScriptFile << kElegantLine;
 			// mp3d interpolation and hidden3d
 			// mp3d z-offset, interpolation and hidden3d
-			gnuplotScriptFile <<  "set ticslevel 0\n";
-			gnuplotScriptFile << "set pm3d hidden3d 100\n";
+			gnuplotScriptFile << "set ticslevel 0\n";
+			gnuplotScriptFile << k3DProperties;
 			if( interpolate_plots_ratio >= 0 ){
 				gnuplotScriptFile << "set pm3d interpolate " << interpolate_plots_ratio << "," << interpolate_plots_ratio << "\n";
-			}else{
-				gnuplotScriptFile << "set pm3d corners2color max\n";
 			}
 			gnuplotScriptFile << kTransientSimilarLinesPalette;
 

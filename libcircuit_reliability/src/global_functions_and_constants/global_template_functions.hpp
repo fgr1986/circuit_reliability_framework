@@ -75,8 +75,9 @@ void deepCopyVectorOfPointers(const std::vector<any_data_type*> source,
 	if( destination.size()>0 ){
 		deleteContentsOfVectorOfPointers( destination );
 	}
-	for ( auto& pElem : source ){
-		destination.push_back( new any_data_type( *pElem ) );
+	destination.reserve( source.size() );
+	for ( const auto& pElem : source ){
+		destination.emplace_back( new any_data_type( *pElem ) );
 	}
 }
 
@@ -96,8 +97,9 @@ void deepCopyVectorOfInheritancePointers(const std::vector<any_data_type*> sourc
 	if( destination.size()>0 ){
 		deleteContentsOfVectorOfPointers( destination );
 	}
+	destination.reserve( source.size() );
 	for ( auto& pElem : source ){
-		destination.push_back( pElem->GetCopy() );
+		destination.emplace_back( pElem->GetCopy() );
 	}
 }
 
@@ -195,7 +197,7 @@ template<class any_printable>
 void PrintVector( const std::vector<any_printable>& data ){
 	// fgarcia test
 	for (auto& i : data ){
-		std::cout << i << ' ';
+		std::cout << i << ", ";
 	}
 	std::cout << "\n";
 }
@@ -280,6 +282,7 @@ void UpdateNonSelectedParameterSweepIndexes(
 	// PrintIndexes(parameterSweepIndexes);
 }
 
+
 /**
 * Template
 * Updates a vector containing reference to a given count
@@ -315,11 +318,69 @@ std::vector<any_number>* GetProfilesInPlane(
 		if (inPlane){
 			// std::cout << "adding indexes ->" ;
 			// PrintIndexes( parameterCountIndexes );
-			indexesInPlane->push_back(i);
+			indexesInPlane->emplace_back(i);
 		}
 		UpdateParameterSweepIndexes(parameterCountIndexes, params);
 	}
 	return indexesInPlane;
+}
+
+/// all param in params2beSweeped is sweeped!
+template<class any_parameter>
+std::vector<unsigned int>* GetGoldenProfiles2Simulate( const std::vector<any_parameter*>& params2beSweeped ){
+	// return indexes
+	std::vector<unsigned int>* indexes2Simulate = new std::vector<unsigned int>();
+	// aux structure
+	unsigned int totalProfiles = 1;
+	unsigned int totalProfiles2beSimulated = 1;
+	// pattern
+	std::vector<unsigned int> planeIndexesPattern( params2beSweeped.size(), 0 );
+	unsigned int paramCount = 0;
+	for(auto const & p : params2beSweeped){
+		totalProfiles*=p->get_sweep_steps_number();
+		if( !p->get_fixed() && !p->get_golden_fixed() ){
+			totalProfiles2beSimulated *= p->get_sweep_steps_number();
+		}else{
+			planeIndexesPattern.at(paramCount) = NON_UPDATE_INDEX;
+		}
+		++paramCount;
+	}
+	// First,
+	std::vector<std::vector<unsigned int>> patterns2Simulate( totalProfiles2beSimulated, std::vector<unsigned int>(params2beSweeped.size(), 0));
+	std::vector<unsigned int> currentPattern;
+	// iteratet through patterns to be simulated
+	for( unsigned int i=0; i<totalProfiles2beSimulated; ++i ){
+		currentPattern.clear();
+		currentPattern = planeIndexesPattern;
+		// std::copy ( planeIndexesPattern.begin(), planeIndexesPattern.end(), currentPattern );
+		patterns2Simulate.at(i) =  currentPattern;
+
+		UpdateNonSelectedParameterSweepIndexes( planeIndexesPattern, params2beSweeped );
+	}
+	std::vector<unsigned int> parameterCountIndexes(params2beSweeped.size(), 0);
+	unsigned int patternCount = 0;
+	bool addIndex = true;
+	for( unsigned int i=0; i<totalProfiles; ++i ){
+		paramCount = 0;
+		if( addIndex ){
+			for(auto const & p : params2beSweeped){
+				if( !p->get_fixed() && !p->get_golden_fixed() ){
+					addIndex = addIndex && parameterCountIndexes.at(paramCount)==patterns2Simulate.at(patternCount).at(paramCount) ;
+				}
+				// update counter
+				++paramCount;
+			}
+		}
+		if( addIndex ){
+			indexes2Simulate->emplace_back( i );
+			++patternCount;
+		}
+		// update
+		addIndex = indexes2Simulate->size()<totalProfiles2beSimulated;
+		// update sweeo ciybters
+		UpdateParameterSweepIndexes(parameterCountIndexes, params2beSweeped);
+	}
+	return indexes2Simulate;
 }
 
 /**
@@ -352,7 +413,7 @@ PlaneProfileIndexesStructure<any_number>* GetPlanesForParams(
 	planeIndexesPattern[pAIndex] = NON_UPDATE_INDEX;
 	planeIndexesPattern[pBIndex] = NON_UPDATE_INDEX;
 	for( any_number i=0; i<totalPlanes; ++i){
-		planes->push_back( GetProfilesInPlane( planeIndexesPattern, pAIndex, pBIndex, params) );
+		planes->emplace_back( GetProfilesInPlane( planeIndexesPattern, pAIndex, pBIndex, params) );
 		UpdateNonSelectedParameterSweepIndexes( planeIndexesPattern, params );
 	}
 	return planes;

@@ -116,7 +116,7 @@ private:
 	 * @param threadNumber
 	 */
 	GoldenSimulation* CreateProfile( const std::vector<unsigned int>& parameterCountIndexes,
-		std::vector<SimulationParameter*>& parameters2sweep, const unsigned int ndIndex );
+		std::vector<SimulationParameter*>& parameters2sweep, const unsigned int ndIndex, const bool simulateThread );
 
 };
 

@@ -26,6 +26,27 @@ TransientSimulationResults::TransientSimulationResults() {
 	this->has_metrics_errors = false;
 }
 
+TransientSimulationResults::TransientSimulationResults(
+		const TransientSimulationResults& orig, const bool copySimulationParameters ){
+	this->spectre_result = orig.spectre_result;
+	this->reliability_result = orig.reliability_result;
+	this->full_id = orig.full_id;
+	this->title = orig.title;
+	this->has_metrics_errors = orig.has_metrics_errors;
+	this->original_file_path = orig.original_file_path;
+	this->processed_file_path = orig.processed_file_path;
+	// data structures
+	deepCopyVectorOfPointers( orig.metrics_errors, metrics_errors );
+	for( const auto& sp : orig.transient_image_paths ){
+		transient_image_paths.insert(std::make_pair( sp.first, sp.second));
+	}
+	if( copySimulationParameters ){
+		for( const auto& sp : orig.simulation_parameters ){
+			simulation_parameters.insert(std::make_pair( sp.first, sp.second));
+		}
+	}
+}
+
 TransientSimulationResults::~TransientSimulationResults(){
 	#ifdef DESTRUCTORS_VERBOSE
 		std::cout<< "TransientSimulationResults destructor. direction:" + number2String(this) << "\n";

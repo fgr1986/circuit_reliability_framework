@@ -28,6 +28,7 @@ GoldenSimulation::GoldenSimulation() {
 	this->singular_results_path = kNotDefinedString;
 	// injection mode related
 	this->has_additional_injection = false;
+	this->similarComputedGS = nullptr;
 }
 
 GoldenSimulation::~GoldenSimulation(){
@@ -47,7 +48,29 @@ GoldenSimulation::~GoldenSimulation(){
 	}
 }
 
-void GoldenSimulation::RunSimulation( ){
+
+bool GoldenSimulation::CopyResultsFromGoldenSimulation( GoldenSimulation* similarSimulatedGS ){
+	if( similarSimulatedGS==nullptr ){
+		log_io->ReportError2AllLogs( "Null similarSimulatedGS");
+		return false;
+	}
+	// transient simulation results
+	transient_simulation_results = TransientSimulationResults(
+		*similarSimulatedGS->get_simulation_results(), false );
+	// Register Parameters
+	transient_simulation_results.RegisterSimulationParameters(simulation_parameters);
+	// other values
+	correctly_simulated = similarSimulatedGS->get_correctly_simulated();
+	correctly_processed = similarSimulatedGS->get_correctly_processed();
+	singular_results_path = similarSimulatedGS->get_singular_results_path();
+	// processed_metrics
+	processed_metrics = new std::vector<Metric*>();
+	deepCopyVectorOfInheritancePointers( *(similarSimulatedGS->get_processed_metrics()), *processed_metrics );
+	// and nothing else! :D
+	return true;
+}
+
+void GoldenSimulation::RunSimulation(){
 	if (!TestSetUp()){
 		log_io->ReportError2AllLogs( "RunSimulation had not been previously set up. ");
 		return;

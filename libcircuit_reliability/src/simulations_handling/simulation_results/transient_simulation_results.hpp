@@ -26,6 +26,7 @@
 class TransientSimulationResults {
 public:
 	TransientSimulationResults();
+	TransientSimulationResults( const TransientSimulationResults& orig, const bool copySimulationParameters );
 	virtual ~TransientSimulationResults();
 
 	/**

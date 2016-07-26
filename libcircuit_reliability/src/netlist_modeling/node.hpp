@@ -13,8 +13,6 @@
 
 class Node {
 public:
-	// Node();
-	// Node(int position, std::string name);
 
 	Node( std::string name, bool injectable );
 	Node( std::string name, bool injectable, bool pin_in_subcircuit );
@@ -25,9 +23,9 @@ public:
 	std::string get_name() const {return name;}
 	void set_name(std::string name) { this->name = name; }
 	bool get_injected() const {return injected;}
-	void set_pin_in_subcircuit(bool pin_in_subcircuit) { this->pin_in_subcircuit = pin_in_subcircuit; }
+	void set_pin_in_subcircuit( const bool pin_in_subcircuit ) { this->pin_in_subcircuit = pin_in_subcircuit; }
 	bool get_pin_in_subcircuit() const {return pin_in_subcircuit;}
-	void set_injected(bool injected) { this->injected = injected; }
+	void set_injected( const bool injected ) { this->injected = injected; }
 	bool get_injectable() const {return injectable;}
 	void set_injectable(bool injectable) { this->injectable = injectable; }
 

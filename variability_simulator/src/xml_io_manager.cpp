@@ -742,6 +742,11 @@ bool XMLIOManager::ProcessSimulationParameter(
 	if (!rp->get_fixed()){
 		rp->set_allow_find_critical_value( vrp.second.get<bool>("simulation_parameter_allow_find_critical_value")  );
 		log_io->ReportPlain2Log( k3Tab + "-> Parameter value is NOT fixed" );
+		if( !rp->get_golden_fixed()){
+			log_io->ReportPlain2Log( k3Tab + "-> Parameter value is NOT fixed in GOLDEN SIMULATIONS" );
+		}else{
+				log_io->ReportPlain2Log( k3Tab + "-> Parameter value is FIXED in GOLDEN SIMULATIONS" );
+		}
 		if(rp->get_allow_find_critical_value()){
 			log_io->ReportRedStandard( k3Tab + "-> This program does not consider any parameter as critical. Use the other one!" );
 			// variabilitySpectreHandler.set_critical_parameter( rp );
