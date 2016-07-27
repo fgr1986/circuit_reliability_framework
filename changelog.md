@@ -25,6 +25,7 @@
 # Changelog of version 3.2.0
 	* **GoldenNDParametersSweepSimulation** now exclusively simulate those GoldenSimulation that are required.
 	* Critical parameter evolution plotting is controlled by **plot_critical_parameter_value_evolution**.
+	* 3D plot improvements
 
 # Version 3.x.y
 
@@ -33,6 +34,7 @@
 * Changelog of version 3.2.0
 	* **GoldenNDParametersSweepSimulation** now exclusively simulate those GoldenSimulation that are required.
 	* Critical parameter evolution plotting is controlled by **plot_critical_parameter_value_evolution**.
+	* 3D plot Improvements
 
 ## Version 3.1.y
 
