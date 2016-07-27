@@ -686,26 +686,17 @@ int MontecarloNDParametersSweepSimulation::GnuplotUpsetsPlane(
 	}
 	gnuplotScriptFile << "set format x \"%g\"\n";
 	gnuplotScriptFile << "set format y \"%g\"\n";
-	gnuplotScriptFile << "set mxtics\n";
 	gnuplotScriptFile << "set xlabel \""  << p1.get_title_name() << "\"\n";
 	gnuplotScriptFile << "set ylabel \""  << p2.get_title_name() << "\"\n";
 	gnuplotScriptFile << "set zlabel \"Upset Ratio\" rotate by 90\n";
-	// Offset for xtics
-	gnuplotScriptFile << "set ytics left offset 0,-0.5\n";
 	gnuplotScriptFile << "set title \"" << title << "\"\n";
 
-	gnuplotScriptFile << kTransparent3DObjects ;
 	gnuplotScriptFile << kUpsetsPalette ;
-	// linestyle
-	gnuplotScriptFile << kElegantLine;
-	// mp3d interpolation and hidden3d
-	// mp3d z-offset, interpolation and hidden3d
-	gnuplotScriptFile << "set ticslevel 0\n";
 	gnuplotScriptFile << k3DProperties;
 	if( interpolate_plots_ratio >= 0 ){
 		gnuplotScriptFile << "set pm3d interpolate " << interpolate_plots_ratio << "," << interpolate_plots_ratio << "\n";
 	}
-	gnuplotScriptFile << "splot '" << gnuplotDataFile << "' u 1:2:3 notitle w pm3d\n";
+	gnuplotScriptFile << "splot '" << gnuplotDataFile << "' u 1:2:3 notitle " << kElegantLine3D << " w pm3d\n";
 	gnuplotScriptFile << "unset output\n";
 	// close file
 	gnuplotScriptFile << "quit\n";
@@ -756,24 +747,15 @@ int MontecarloNDParametersSweepSimulation::GnuplotPlaneMetricResults(
 			}
 			gnuplotScriptFile << "set format x \"%g\"\n";
 			gnuplotScriptFile << "set format y \"%g\"\n";
-			gnuplotScriptFile << "set mxtics\n";
 			gnuplotScriptFile << "set xlabel \"" << p1.get_title_name() << "\"\n";
 			gnuplotScriptFile << "set ylabel \"" << p2.get_title_name() << "\"\n";
 			gnuplotScriptFile << "set zlabel \"" << m->get_title_name() << "\" rotate by 90\n";
-			// Offset for xtics
-			gnuplotScriptFile << "set ytics left offset 0,-0.5\n";
 			// Format
 			gnuplotScriptFile << "set format cb \"%g\"\n";
 			gnuplotScriptFile << "set title \"" << title << " \"\n";
-			gnuplotScriptFile << kTransparent3DObjects;
 			// Color Paletes
 			gnuplotScriptFile << kUpsetsPalette;
 			gnuplotScriptFile << kTransientSimilarLinesPalette;
-			// linestyle
-			gnuplotScriptFile << kElegantLine;
-			// mp3d interpolation and hidden3d
-			// mp3d z-offset, interpolation and hidden3d
-			gnuplotScriptFile << "set ticslevel 0\n";
 			gnuplotScriptFile << k3DProperties;
 			if( interpolate_plots_ratio >= 0 ){
 				gnuplotScriptFile << "set pm3d interpolate " << interpolate_plots_ratio << "," << interpolate_plots_ratio << "\n";
@@ -785,11 +767,11 @@ int MontecarloNDParametersSweepSimulation::GnuplotPlaneMetricResults(
 
 			gnuplotScriptFile << "splot '" << gnuplotDataFile << "' u 1:2:" << (magDataMetricIndex+1) << " notitle w lp ls 2, \\\n";
 			gnuplotScriptFile << " '" << gnuplotDataFile << "' u 1:2:" << magDataMetricIndex << " notitle w lp ls 1, \\\n";
-			gnuplotScriptFile << " '" << gnuplotDataFile << "' u 1:2:" << (magDataMetricIndex+2) << " title 'max_err_metric_" << m->get_title_name() << "' w pm3d\n";
+			gnuplotScriptFile << " '" << gnuplotDataFile << "' u 1:2:" << (magDataMetricIndex+2) << " title 'max_err_metric_" << m->get_title_name() << "' " << kElegantLine3D << " w pm3d\n";
 			gnuplotScriptFile << "# Uncomment for global error \n";
 			gnuplotScriptFile << "splot '" << gnuplotDataFile << "' u 1:2:" << (magDataGlobalIndex+1) << " notitle w lp ls 2, \\\n";
 			gnuplotScriptFile << " '" << gnuplotDataFile << "' u 1:2:" << (magDataGlobalIndex) << " notitle w lp ls 1, \\\n";
-			gnuplotScriptFile << " '" << gnuplotDataFile << "' u 1:2:" << (magDataGlobalIndex+2) << " title 'max_err_global_" << m->get_title_name() << "' w pm3d\n";
+			gnuplotScriptFile << " '" << gnuplotDataFile << "' u 1:2:" << (magDataGlobalIndex+2) << " title 'max_err_global_" << m->get_title_name() << "' " << kElegantLine3D << " w pm3d\n";
 
 			gnuplotScriptFile << "unset multiplot\n";
 

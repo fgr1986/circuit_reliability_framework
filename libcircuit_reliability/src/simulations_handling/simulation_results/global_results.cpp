@@ -187,9 +187,6 @@ bool GlobalResults::PlotCriticalParameterValueSimulationMode(
 		generalGSF << "set y2tics\n";
 		// palete range
 		generalGSF << kTransientSimilarLinesPalette << "\n";
-		// #altered_scenario_index #simulation_id #altered_element_path
-		// #folder #correctlySimulated #affected_by_min_value #affected_by_min_value
-	 	// #critical_parameter_value" << " #MAG_i_name #MAG_i_maxErrorGlobal #MAG_i_maxErrorMetric
 		generalGSF <<  "plot '" << gnuplotDataFile << "' using 1:" << critParamOffset << " axis x1y1 with lp ls 2 title '" << criticalParameter.get_title_name() << "'\n";
 		// legend
 		generalGSF <<  "set key top left\n";
@@ -793,29 +790,18 @@ int GlobalResults::GnuplotCriticalParameterValuePlane(
 	}
 	gnuplotScriptFile << "set format x \"%g\"\n";
 	gnuplotScriptFile << "set format y \"%g\"\n";
-	gnuplotScriptFile << "set mxtics\n";
 	gnuplotScriptFile << "set xlabel \""  << p1.get_title_name() << "\"\n";
 	gnuplotScriptFile << "set ylabel \""  << p2.get_title_name() << "\"\n";
 	gnuplotScriptFile << "set zlabel \"" << criticalParameterName << "\" rotate by 90\n";
-	// Offset for xtics
-	gnuplotScriptFile << "set ytics left offset 0,-0.5\n";
+	gnuplotScriptFile << "set title \"" << criticalParameterName << ", " << partialPlaneId << " \"\n";
 	// Color Paletes
-	gnuplotScriptFile << kUpsetsPalette << "\n";
+	gnuplotScriptFile << kUpsetsPalette;
 	gnuplotScriptFile << kTransientSimilarLinesPalette;
-	gnuplotScriptFile << "set title \"" << criticalParameterName
-		<< ", " << partialPlaneId << " \"\n";
-	gnuplotScriptFile << kTransparent3DObjects << "\n";
-	// linestyle
-	gnuplotScriptFile << kElegantLine << "\n";
-	// mp3d interpolation and hidden3d
-	// mp3d z-offset, interpolation and hidden3d
-	gnuplotScriptFile <<  "set ticslevel 0\n";
 	gnuplotScriptFile << k3DProperties;
-
 
 	gnuplotScriptFile << "splot '" << gnuplotDataFile << "' u 1:2:" << (critParamOffset) << " title 'max_" << criticalParameterName << "' w lp ls 1, \\\n";
 	gnuplotScriptFile << " '" << gnuplotDataFile << "' u 1:2:" << (critParamOffset+1) << " title 'min_" << criticalParameterName << "' w lp ls 1, \\\n";
-	gnuplotScriptFile << " '" << gnuplotDataFile << "' u 1:2:" << (critParamOffset+2) << " title 'mean_" << criticalParameterName << "' w pm3d\n";
+	gnuplotScriptFile << " '" << gnuplotDataFile << "' u 1:2:" << (critParamOffset+2) << " title 'mean_" << criticalParameterName << "' " << kElegantLine3D << " w pm3d\n";
 
 	gnuplotScriptFile << "unset output\n";
 	// close file
@@ -860,47 +846,29 @@ int GlobalResults::GnuplotPlaneMetricResults(
 			}
 			gnuplotScriptFile << "set format x \"%g\"\n";
 			gnuplotScriptFile << "set format y \"%g\"\n";
-			gnuplotScriptFile << "set mxtics\n";
 			gnuplotScriptFile << "set xlabel \"" << p1.get_title_name() << "\"\n";
 			gnuplotScriptFile << "set ylabel \"" << p2.get_title_name() << "\"\n";
 			gnuplotScriptFile << "set zlabel \"" << m->get_title_name() << "\" rotate by 90\n";
-			// Offset for xtics
-			gnuplotScriptFile << "set ytics left offset 0,-0.5\n";
 			// Format
 			gnuplotScriptFile << "set format cb \"%g\"\n";
 			gnuplotScriptFile << "set title \"" << title << " \"\n";
-			gnuplotScriptFile << kTransparent3DObjects;
-			// linestyle
-			gnuplotScriptFile << kElegantLine;
 			// Color Paletes
-			gnuplotScriptFile << kUpsetsPalette << "\n";
+			gnuplotScriptFile << kUpsetsPalette ;
 			gnuplotScriptFile << kTransientSimilarLinesPalette;
-			// mp3d interpolation and hidden3d
-			// mp3d z-offset, interpolation and hidden3d
-			gnuplotScriptFile <<  "set ticslevel 0\n";
 			gnuplotScriptFile << k3DProperties;
 
 			int magMetricDataIndex = magMetricColumnOffset + dataPerMetricPerLine*magCount; // max val
 			int magGlobalDataIndex = magGlobalColumnOffset + dataPerMetricPerLine*magCount; // max val
-			// gnuplotScriptFile << "splot '" << gnuplotDataFile << "' u 1:2:" << (magDataIndex+6) << " title 'mean_global_max_err_" << m->get_title_name() << "' w lp ls 1, \\\n";
-			// gnuplotScriptFile << " '" << gnuplotDataFile << "' u 1:2:" << (magDataIndex+3) << " title 'mean_metric_max_err_" << m->get_title_name() << "' w pm3d\n";
-			// gnuplotScriptFile << "# uncomment for max values";
-			// gnuplotScriptFile << "# splot '" << gnuplotDataFile << "' u 1:2:" << (magDataIndex+4) << " title 'max_global_max_err_" << m->get_title_name() << "' w lp ls 1, \\\n";
-			// gnuplotScriptFile << "# '" << gnuplotDataFile << "' u 1:2:" << (magDataIndex+1) << " title 'max_metric_max_err_" << m->get_title_name() << "' w pm3d\n";
-			// gnuplotScriptFile << "# uncomment for max values";
-			// gnuplotScriptFile << "# splot '" << gnuplotDataFile << "' u 1:2:" << (magDataIndex+5) << " title 'min_global_max_err_" << m->get_title_name() << "' w lp ls 1, \\\n";
-			// gnuplotScriptFile << "# '" << gnuplotDataFile << "' u 1:2:" << (magDataIndex+2) << " title 'min_metric_max_err_" << m->get_title_name() << "' w pm3d\n";
-			// gnuplotScriptFile << "unset output\n";
 
 			gnuplotScriptFile << "set multiplot layout 2, 1 \n";
 
 			gnuplotScriptFile << "splot '" << gnuplotDataFile << "' u 1:2:" << (magMetricDataIndex+1) << " notitle w lp ls 2, \\\n";
 			gnuplotScriptFile << " '" << gnuplotDataFile << "' u 1:2:" << (magMetricDataIndex) << " notitle w lp ls 1, \\\n";
-			gnuplotScriptFile << " '" << gnuplotDataFile << "' u 1:2:" << (magMetricDataIndex+2) << " title 'max_err_metric_" << m->get_title_name() << "' w pm3d\n";
+			gnuplotScriptFile << " '" << gnuplotDataFile << "' u 1:2:" << (magMetricDataIndex+2) << " title 'max_err_metric_" << m->get_title_name() << "' " << kElegantLine3D << " w pm3d\n";
 			gnuplotScriptFile << "# Uncomment for global error \n";
 			gnuplotScriptFile << "splot '" << gnuplotDataFile << "' u 1:2:" << (magGlobalDataIndex+1) << " notitle w lp ls 2, \\\n";
 			gnuplotScriptFile << " '" << gnuplotDataFile << "' u 1:2:" << (magGlobalDataIndex) << " notitle w lp ls 1, \\\n";
-			gnuplotScriptFile << " '" << gnuplotDataFile << "' u 1:2:" << (magGlobalDataIndex+2) << " title 'max_err_global_" << m->get_title_name() << "' w pm3d\n";
+			gnuplotScriptFile << " '" << gnuplotDataFile << "' u 1:2:" << (magGlobalDataIndex+2) << " title 'max_err_global_" << m->get_title_name() << "' " << kElegantLine3D << " w pm3d\n";
 
 			gnuplotScriptFile << "unset multiplot\n";
 			// close file

@@ -8,8 +8,8 @@ static const std::string kGnuplotCommand    = "gnuplot ";
 static const std::string kGnuplotEndCommand = "";
 // static const std::string kGnuplotEndCommand = ">> $RELIABILITY_GNUPLOT_LOG";
 //LineStiles
-static const std::string kElegantLine = "# elegant line \n"
-		"set style line 102 lc rgb '#333333' lt 1 lw 0.3\n\n";
+// static const std::string kElegantLine = "# elegant line \n"
+// 		"set style line 102 lc rgb '#333333' lt 1 lw 0.3\n\n";
 
 // Color palettes
 static const std::string kBlueForPalettes = "#C1DAE8";
@@ -30,13 +30,29 @@ static const std::string kRadiationInvertedPalette = "set palette defined ( 0 \"
 static const std::string kUpsetsPalette = "set palette defined ( 0 \"" + kBlueForPalettes + "\", 1e-19 \"#fffaef\", 50 \"#ffd35a\", 100 \"#ed2c29\")\n\n";
 static const std::string kUpsetsInvertedPalette = "set palette defined ( 0 \"" + kBlueForPalettes + "\", 1e-9 \"#ed2c29\", 50 \"#ffd35a\", 100 \"#fffaef\")\n\n";
 
+static const std::string kElegantLine3D = "linecolor rgb '#333333' linewidth 0.3";
+
 static const std::string k3DProperties =
-		"set style line 102 lc rgb '#333333' lt 1 lw 0.3\n"
-		"set style line 101 lc rgb '#333333' lt 1 lw 0.3\n"
-		"set style line 103 lc rgb '#333333' lt 1 lw 0.3\n"
+		// "set style line 102 lc rgb '#333333' lt 1 lw 0.3\n"
+		// "set style line 101 lc rgb '#333333' lt 1 lw 0.3\n"
+		// "set style line 103 lc rgb '#333333' lt 1 lw 0.3\n"
+		"# interpolates 3d plots\n"
 		"set pm3d interpolate 5,5\n"
-		"set pm3d depthorder hidden3d 102\n"
-		"set hidden3d\n\n";
+		"# shows lines between surfaces triangles\n"
+		"set pm3d depthorder\n"
+		"# removes hidden lines\n"
+		"set pm3d hidden3d\n"
+		"# removes hidden lines\n"
+		"# set hidden3d\n"
+		"# sets 3d object properties\n"
+		"set style fill transparent solid 0.5 border\n\n"
+		"# sets plane to ground\n"
+		"set ticslevel 0\n"
+		"# sets box arround 3d plot\n"
+		"set border 4095\n"
+		"# sets grid\n"
+		"set grid\n"
+		"\n\n";
 
 static const std::string kCustomBorders =
 	// # remove border on top and right and set color to gray
@@ -73,9 +89,6 @@ static const std::string kProfilesPalette =
 		"set boxwidth 0.5 relative\n"
 		"set style fill transparent solid 0.4\n";
 
-// Transparency
-// static const std::string kFillObjects = "set style fill solid 1.0 border\n\n";
-static const std::string kTransparent3DObjects = "set style fill transparent solid 0.5 border\n\n";
 
 // Background
 // static const std::string kWholeBackground = "set object 1 rect from screen 0.0, 0.0, 0 to screen 1, 1, 0 behind \n"
