@@ -67,7 +67,9 @@ void MontecarloNDParametersSweepSimulation::RunSimulation( ){
 		totalThreads = totalThreads*p->get_sweep_steps_number();
 	}
 	// Environment: maybe ConfigureEnvironmentVariables is required. see critical_parameter_ND_....
-	log_io->ReportThread( "Total threads to be simulated: " + number2String(totalThreads) + ". Max number of sweep threads: " + number2String(max_parallel_profile_instances), 1 );
+	log_io->ReportThread( "Total threads to be simulated: " + number2String(totalThreads)
+		+ ". Max number of concurrent profile threads: " + number2String(max_parallel_profile_instances)
+		+ ". Max number of concurrent montecarlo threads: " + number2String(max_parallel_montecarlo_instances), 1 );
 	// parallel threads control
 	unsigned int runningThreads = 0;
 	unsigned int threadsCount = 0;

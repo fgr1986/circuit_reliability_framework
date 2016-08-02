@@ -22,14 +22,17 @@
 	* if () { statements } else { statementd }
 * New model parsing scheme: Group of models:
 
-# Changelog of version 3.2.0
-	* **GoldenNDParametersSweepSimulation** now exclusively simulate those GoldenSimulation that are required.
-	* Critical parameter evolution plotting is controlled by **plot_critical_parameter_value_evolution**.
+# Changelog of version 3.2.1
+	* Metric error logging has been improved.
 	* 3D plot improvements
 
 # Version 3.x.y
 
 ## Version 3.2.y
+
+* Changelog of version 3.2.1
+	* Metric error logging has been improved.
+	* 3D plot improvements
 
 * Changelog of version 3.2.0
 	* **GoldenNDParametersSweepSimulation** now exclusively simulate those GoldenSimulation that are required.

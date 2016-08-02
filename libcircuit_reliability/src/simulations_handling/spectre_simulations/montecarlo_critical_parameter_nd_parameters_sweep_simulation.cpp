@@ -75,6 +75,9 @@ void MontecarloCriticalParameterNDParametersSweepSimulation::RunSimulation( ){
 	std::vector<unsigned int> parameterCountIndexes(parameters2sweep.size(), 0);
 	montecarlo_critical_parameter_value_simulations_vector.set_group_name("montecarlo_critical_parameter_value_simulations_vector");
 	montecarlo_critical_parameter_value_simulations_vector.ReserveSimulationsInMemory( totalThreads );
+	log_io->ReportThread( "Total threads to be simulated: " + number2String(totalThreads)
+		+ ". Max number of concurrent profile threads: " + number2String(max_parallel_profile_instances)
+		+ ". Max number of concurrent montecarlo threads: " + number2String(max_parallel_montecarlo_instances), 1 );
 	while( threadsCount<totalThreads ){
 		// wait for resources
 		WaitForResources( runningThreads, max_parallel_profile_instances, mainTG, threadsCount );

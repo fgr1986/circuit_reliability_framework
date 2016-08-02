@@ -331,6 +331,11 @@ bool XMLIOManager::ReadExperimentXML( const std::string &xmlExperiment, int& sta
 			variabilitySpectreHandler.set_plot_last_transients( false );
 		}
 		variabilitySpectreHandler.set_export_metric_errors( ptExperiment.get<bool>("root.export_metric_errors") );
+		if(variabilitySpectreHandler.get_export_metric_errors()){
+			log_io->ReportPlainStandard( kTab + "Experiment will export metric errors");
+		}else{
+			log_io->ReportPlainStandard( kTab + "Experiment will NOT export metric errors");
+		}
 		// Interpolation ratio
 		variabilitySpectreHandler.set_interpolate_plots_ratio( ptExperiment.get<int>("root.interpolate_plots_ratio") );
 		if(variabilitySpectreHandler.get_interpolate_plots_ratio()){

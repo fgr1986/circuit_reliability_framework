@@ -68,6 +68,9 @@ void MontecarloSimulation::RunSimulation( ){
 	unsigned int threadsCount = 0;
 	montecarlo_simulations_vector.set_group_name("montecarlo_simulations_vector");
 	montecarlo_simulations_vector.ReserveSimulationsInMemory( montecarlo_iterations );
+	#ifdef SPECTRE_SIMULATIONS_VERBOSE
+		log_io->ReportThread( "Total montecarlo to be simulated: " + number2String(montecarlo_iterations) + ". Max number of montecarlo threads: " + number2String(max_parallel_montecarlo_instances), 1 );
+	#endif
 	while( threadsCount<montecarlo_iterations ){
 		// wait for resources
 		WaitForResources( runningThreads, max_parallel_montecarlo_instances, mainTG, threadsCount );

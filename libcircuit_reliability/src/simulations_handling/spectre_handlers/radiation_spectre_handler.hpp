@@ -91,10 +91,10 @@ public:
 
 	void set_plot_scatters( const bool plot_scatters ) { this->plot_scatters = plot_scatters; }
 	bool get_plot_scatters(){ return plot_scatters; }
-	bool get_export_metric_errors(){ return export_metric_errors; }
 	void set_plot_transients( bool plot_transients ) { this->plot_transients = plot_transients; }
 	bool get_plot_transients(){ return plot_transients; }
 	void set_export_metric_errors( bool export_metric_errors ) { this->export_metric_errors = export_metric_errors; }
+	bool get_export_metric_errors(){ return export_metric_errors; }
 
 	bool get_plot_last_transients(){ return plot_last_transients; }
 	void set_plot_last_transients( const bool plot_last_transients) { this->plot_last_transients = plot_last_transients; }

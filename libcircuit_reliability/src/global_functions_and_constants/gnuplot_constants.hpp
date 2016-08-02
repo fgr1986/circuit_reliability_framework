@@ -89,25 +89,9 @@ static const std::string kProfilesPalette =
 		"set boxwidth 0.5 relative\n"
 		"set style fill transparent solid 0.4\n";
 
-
-// Background
-// static const std::string kWholeBackground = "set object 1 rect from screen 0.0, 0.0, 0 to screen 1, 1, 0 behind \n"
-// 	"set object 1 rect fc rgb \"white\" fillstyle solid 1.0 noborder\n\n";
-// static const std::string kUpperBackground = "set object 1 rect from screen 0.0, 0.5, 0 to screen 1, 1, 0 behind \n"
-// 	"set object 1 rect fc rgb \"white\" fillstyle solid 1.0 noborder\n\n";
-// static const std::string kLowerBackground = "set object 1 rect from screen 0, 0, 0 to screen 1, 0.5, 0 behind \n"
-// 	"set object 1 rect fc rgb \"white\" fillstyle solid 1.0 noborder\n\n";
-
-// Latex terminal
-static const std::string kLatexTerminal = "pdfcairo";
-static const std::string kLatexFont = "\"Times-New Roman,13\"";
 // svg terminal
-static const std::string kSvgFont = "'Times' fsize 18";
+static const std::string kSvgFont = "'Times' fsize 20";
 
-
-// Latex terminal default width (cm)
-static const double kLatexImageWidth = 20;
-static const double kLatexImageHeight = 15;
 // Svg terminal default width (px)
 static const int kSvgImageWidth = 1200;
 static const int kSvgImageHeight = 900;

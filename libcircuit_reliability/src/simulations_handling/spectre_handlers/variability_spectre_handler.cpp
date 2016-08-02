@@ -180,7 +180,6 @@ bool VariabilitySpectreHandler::RunSimulations(){
 	sss->set_main_analysis( simulation_mode->get_analysis_statement() );
 	sss->set_main_transient_analysis( simulation_mode->get_main_transient_analysis() );
 	sss->set_process_metrics( true );
-	sss->set_export_metric_errors( export_metric_errors );
 	// add simulation to list
 	simulations.push_back(sss);
 	// Run the threads

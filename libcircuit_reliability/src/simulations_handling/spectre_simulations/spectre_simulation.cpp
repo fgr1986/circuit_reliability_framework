@@ -71,10 +71,10 @@ void SpectreSimulation::AddAdditionalSimulationParameter(
 
 void SpectreSimulation::WaitForResources( unsigned int& threadsCount,
 	const unsigned int maxThreads, boost::thread_group& tg, const unsigned int thread2BeWaited ){
-	if( threadsCount == maxThreads-1 ){
+	if( threadsCount == maxThreads ){
 		// Wait for threads
 		#ifdef SPECTRE_SIMULATIONS_VERBOSE
-		log_io->ReportPlainStandard( "Scenario # " + simulation_id + " Waiting for resources until " + number2String(thread2BeWaited-1) );
+		log_io->ReportPlainStandard( "Scenario # " + simulation_id + " Waiting for resources until thread #" + number2String(thread2BeWaited) );
 		#endif
 		tg.join_all();
 		#ifdef SPECTRE_SIMULATIONS_VERBOSE
@@ -403,8 +403,7 @@ bool SpectreSimulation::InterpolateAndAnalyzeMagnitude( TransientSimulationResul
 	bool partialResult = true;
 	std::string computedErrorFilePath = top_folder + kFolderSeparator
 		+ kResultsFolder + kFolderSeparator + kResultsDataFolder + kFolderSeparator + kTransientResultsFolder + kFolderSeparator
-		+ simulation_id + "_" + partialId
-		+ "_mag_" + goldenMagnitude.get_file_name() + "_error_stats_" + kDataSufix;
+		+ simulation_id + "_" + partialId + "_mag_" + goldenMagnitude.get_file_name() + "_error_stats_" + kDataSufix;
 	std::ofstream computedErrorFile;
 	try{
 		// export mag errors
@@ -412,7 +411,13 @@ bool SpectreSimulation::InterpolateAndAnalyzeMagnitude( TransientSimulationResul
 			computedErrorFile.open( computedErrorFilePath.c_str() );
 			computedErrorFile << "# ID: " << partialId << "\n";
 			computedErrorFile << "# Mag: " << goldenMagnitude.get_name() << "\n";
-			computedErrorFile << "# time currentAbsError maxAbsError maxAbsErrorGlobal goldenValue simulatedValue\n";
+			computedErrorFile << "# time currentAbsError maxAbsError maxAbsErrorGlobal goldenValue simulatedValue PUNCTUAL \n";
+			#ifdef RESULTS_ANALYSIS_VERBOSE
+				// [fgarcia] for statistics
+				if( export_metric_errors ){
+					computedErrorFile << "# All punctual error is recorded as RESULTS_ANALYSIS_VERBOSE (compile time) is set.\n";
+				}
+			#endif
 		}
 		// current error etc
 		double currentMetricError;
@@ -501,11 +506,12 @@ bool SpectreSimulation::InterpolateAndAnalyzeMagnitude( TransientSimulationResul
 			if( maxAbsErrorGlobal<currentMetricError ){
 				maxAbsErrorGlobal = currentMetricError;
 			}
-			// for statistics
-			if( export_metric_errors ){
-				computedErrorFile << currentTime << " " << currentMetricError << " "
-				<< maxAbsError << " " << maxAbsErrorGlobal << " " << currentGoldenValue << " " << currentSimulatedValue << "\n";
-			}
+			#ifdef RESULTS_ANALYSIS_VERBOSE
+				// [fgarcia] for statistics
+				if( export_metric_errors ){
+					computedErrorFile << currentTime << " " << currentMetricError << " " << maxAbsError << " " << maxAbsErrorGlobal << " " << currentGoldenValue << " " << currentSimulatedValue << " 1\n";
+				}
+			#endif
 			// Analyze error
 			double absErrorMargin = simulatedMagnitude.get_abs_error_margin_default();
 			double absErrorTimeSpan = simulatedMagnitude.get_error_time_span_default();
@@ -529,6 +535,10 @@ bool SpectreSimulation::InterpolateAndAnalyzeMagnitude( TransientSimulationResul
 					VerboseReliabilityError( "punctual error", transientSimulationResults, partialId, simulatedMagnitude.get_name(),
 						currentTime, currentMetricError, currentSimulatedValue, currentGoldenValue, backSimulatedValue, backGoldenValue,
 						itSimulatedMetric, itGoldenMetric );
+					// export metric errors
+					if( export_metric_errors ){
+						computedErrorFile << currentTime << " " << currentMetricError << " " << maxAbsError << " " << maxAbsErrorGlobal << " " << currentGoldenValue << " " << currentSimulatedValue << " 0\n";
+					}
 				}
 			}else{
 				if ( CheckError( simulatedMagnitude, currentSimulatedValue, currentGoldenValue, currentMetricError, absErrorMargin ) ) {
@@ -543,6 +553,10 @@ bool SpectreSimulation::InterpolateAndAnalyzeMagnitude( TransientSimulationResul
 							reliabilityError = true;
 							metricError = true;
 							updateMaxAbsError = true;
+							// export metric errors
+							if( export_metric_errors ){
+								computedErrorFile << currentTime << " " << currentMetricError << " " << maxAbsError << " " << maxAbsErrorGlobal << " " << currentGoldenValue << " " << currentSimulatedValue << " 0\n";
+							}
 						}
 					} else {
 						onGoingError = true;

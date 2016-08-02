@@ -1,6 +1,6 @@
 # README
 ***Circuit Reliability Frameowrk***
-version 3.2.0 27/07/2016
+version 3.2.1 31/07/2016
 https://github.com/fgr1986/circuit_reliability_framework
 
 [Fernando García Redondo](http://www.fernandeando.com)

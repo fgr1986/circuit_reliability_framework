@@ -734,7 +734,7 @@ bool GlobalResults::GenerateAndPlotParameterPairResults(
 			case ResultsProcessor::kStatisticProcessStatisticsFiles: {
 				correctlyPlotted = correctlyPlotted && rp.StatisticProcessStatisticsFiles(
 					&planeStructurePaths, generalParameterResultsFile,
-					std::move(magGPCIMax) , std::move(magGPCIMin), std::move(magGPCIMean));
+					std::move(magGPCIMax), std::move(magGPCIMin), std::move(magGPCIMean));
 			}
 			break;
 			default:{

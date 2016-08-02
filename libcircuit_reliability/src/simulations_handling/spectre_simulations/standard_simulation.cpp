@@ -147,8 +147,9 @@ int StandardSimulation::RunSpectre( std::string scenarioId ){
 		+ folder + kFolderSeparator + kMainNetlistFile
 		+ " " + post_spectre_command + " " + folder + kFolderSeparator + kSpectreStandardLogsFile ;
 
-	log_io->ReportPlainStandard( k2Tab + "#" + scenarioId + " scenario: Simulating scenario."  );
-	log_io->ReportPlain2Log( k2Tab + "#" + scenarioId + " scenario: Simulating scenario." );
+	#ifdef SPECTRE_SIMULATIONS_VERBOSE
+		log_io->ReportPlainStandard( k2Tab + "#" + scenarioId + " scenario: Simulating scenario." );
+	#endif
 
 	int spectre_result = std::system( execCommand.c_str() ) ;
 	if(spectre_result>0){
