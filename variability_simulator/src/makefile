@@ -9,7 +9,7 @@ export MAKEFLAGS="-j $(grep -c ^processor /proc/cpuinfo)"
 ############
 # Version  #
 ############
-VERSION=$(VARIABILITY_SIMULATOR_VERSION)
+VERSION=$(RELIABILITY_FRAMEWORK_VERSION)
 
 #################
 # Compiler def  #

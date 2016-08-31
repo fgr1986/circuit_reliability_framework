@@ -142,10 +142,8 @@ private:
 	 * @param parameterChangeCount
 	 * @return spectre output
 	 */
-	int RunSpectre(  std::string currentFolder,
-		std::string scenario_id, std::string parameterChangeCount );
-
-
+	int RunSpectre( const std::string& currentFolder,
+		const std::string& localSimulationId, const unsigned int parameterChangeCount );
 
 	/**
 	 * @brief Virtual overrides TestSetup

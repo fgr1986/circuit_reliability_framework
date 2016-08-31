@@ -140,7 +140,7 @@ std::string StandardSimulation::GetProcessedResultsFilePath(const std::string& c
 	}
 }
 
-int StandardSimulation::RunSpectre( std::string scenarioId ){
+int StandardSimulation::RunSpectre( const std::string& scenarioId ){
 	std::string execCommand = spectre_command + " "
 		+ spectre_command_log_arg + " " + folder + kFolderSeparator + kSpectreLogFile + " "
 		+ spectre_command_folder_arg + " " + folder + kFolderSeparator + kSpectreResultsFolder + " "

@@ -47,7 +47,7 @@ public:
 	// creates a file extending those in paths,
 	// For each column in columnIndexes, we compute mean, max val and min val
 	bool StatisticProcessStatisticsFiles( const std::map<std::string, std::string>* paths,
-		const std::string outputPath, const std::vector<unsigned int>&& maxFieldsColumnIndexes,
+		const std::string& outputPath, const std::vector<unsigned int>&& maxFieldsColumnIndexes,
 		const std::vector<unsigned int>&& minFieldsColumnIndexes, const std::vector<unsigned int>&& meanFieldsColumnIndexes );
 
 	bool ExportScenariosList(

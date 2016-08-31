@@ -354,10 +354,12 @@ bool CriticalParameterValueSimulation::SimulateParameterCriticalValue(
 	}
 	localSimulationId = simulation_id + "_pvc_" + s_parameterVariationCount;
 	// Run Spectre
-	simulationResults.set_spectre_result( RunSpectre( localSimulationFolder, localSimulationId, s_parameterVariationCount ));
+	simulationResults.set_spectre_result( RunSpectre( localSimulationFolder, localSimulationId, parameterVariationCount ));
 	if( simulationResults.get_spectre_result() > 0 ){
-		log_io->ReportError2AllLogs( "Spectre ended with an unexpected value: "
-			+ number2String(simulationResults.get_spectre_result()) + ". Scenario #"  + localSimulationId );
+		if( parameterVariationCount!=0 ){
+			log_io->ReportError2AllLogs( "Spectre ended with an unexpected value: "
+				+ number2String(simulationResults.get_spectre_result()) + ". Scenario #"  + localSimulationId );
+		}
 		return false;
 	}
 	// Set up metrics
@@ -435,7 +437,7 @@ std::string CriticalParameterValueSimulation::GetProcessedResultsFilePath(const 
 }
 
 int CriticalParameterValueSimulation::RunSpectre(
-	std::string currentFolder, std::string localSimulationId, std::string parameterChangeCount ){
+	const std::string& currentFolder, const std::string& localSimulationId, const unsigned int parameterChangeCount ){
 	std::string execCommand = spectre_command + " "
 		+ spectre_command_log_arg + " " + currentFolder + kFolderSeparator + kSpectreLogFile + " "
 		+ spectre_command_folder_arg + " " + currentFolder + kFolderSeparator + kSpectreResultsFolder + " "
@@ -450,9 +452,16 @@ int CriticalParameterValueSimulation::RunSpectre(
 	int spectre_result = std::system( execCommand.c_str() ) ;
 	if(spectre_result>0){
 		correctly_simulated = false;
-		log_io->ReportError2AllLogs( "Unexpected Spectre spectre_result for scenario #"
-			+ localSimulationId + ": spectre output = " + number2String(spectre_result) );
-		log_io->ReportError2AllLogs( "Spectre Log Folder " + currentFolder );
+		if( parameterChangeCount==0 ){
+			log_io->ReportWarning2AllLogs( "Unexpected Spectre spectre_result for scenario #"
+				+ localSimulationId + ": spectre output = " + number2String(spectre_result) );
+			log_io->ReportWarning2AllLogs( "Spectre Log Folder " + currentFolder );
+			log_io->ReportWarning2AllLogs( "Max critical parameter value causes spectre error. Trying with other values." );
+		}else{
+			log_io->ReportError2AllLogs( "Unexpected Spectre spectre_result for scenario #"
+				+ localSimulationId + ": spectre output = " + number2String(spectre_result) );
+			log_io->ReportError2AllLogs( "Spectre Log Folder " + currentFolder );
+		}
 		return spectre_result;
 	}
 	correctly_simulated = true;

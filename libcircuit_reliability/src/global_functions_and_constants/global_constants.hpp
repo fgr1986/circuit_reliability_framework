@@ -32,9 +32,9 @@
 static const double kSpectreMaxAllowedSimDiffCoeff = 1e-12;
 
 static const std::string kSpectreHandlerLibTitle = "Spectre Handler Library";
-static const std::string kSpectreHandlerLibVersion = "v3.2.1";
+static const std::string kSpectreHandlerLibVersion = "v3.2.2";
 static const std::string kAuthor = "Fernando García, fgarcia@die.upm.es";
-static const std::string kSpectreHandlerLibVersionDate = "31/07/2016";
+static const std::string kSpectreHandlerLibVersionDate = "30/08/2016";
 
 // Remove windows special chars
 static const std::string kWindowsEOL = "\r";

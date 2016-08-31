@@ -15,7 +15,7 @@ endif
 ############
 # Version  #
 ############
-VERSION=$(LIBCIRCUIT_RELIABILITY_VERSION)
+VERSION=$(RELIABILITY_FRAMEWORK_VERSION)
 
 #################
 # Compiler def  #
@@ -120,7 +120,7 @@ DIST+=$(DIST_CPP)
 DIST+=$(DIST_MAKE)
 # DIST+= $(EXECDIR)$(LIBRARY_NAME)
 # installation script
-DIST+= ../../library_installation.sh
+# DIST+= ../../library_installation.sh
 # documentation
 # DIST+= ../doc/*
 # conf examples

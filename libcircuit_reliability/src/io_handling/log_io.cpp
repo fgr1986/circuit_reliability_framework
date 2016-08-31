@@ -372,6 +372,14 @@ void LogIO::ReportError2AllLogs( const std::string& text ){
 	std::cerr << kTab << "[ERROR REPORTED] " << text << std::endl;
 }
 
+void LogIO::ReportWarning2AllLogs( const std::string& text ){
+	std::cout << kTab << kOrange << "[WARNING REPORTED] " << text << kEndColor << std::endl;
+	#ifdef VERBOSE
+		std::clog << kTab << "[WARNING REPORTED] " << text << std::endl;
+	#endif
+	std::cerr << kTab << "[WARNING REPORTED] " << text << std::endl;
+}
+
 void LogIO::ReportThread( const std::string threadInfo, const int level ){
 	std::string tabulation = level>1 ? k2Tab : kTab;
 	tabulation = ( level >= 3 ? kTab : ""  ) + tabulation;

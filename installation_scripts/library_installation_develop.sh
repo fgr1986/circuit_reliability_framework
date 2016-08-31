@@ -3,17 +3,16 @@
 ############
 # Version  #
 ############
-LIBRARY_VERSION=3.2.1
-echo "Version $LIBRARY_VERSION"
+echo "Version $RELIABILITY_FRAMEWORK_VERSION"
 
-SOURCES_FOLDER=/simulation_data/circuit_reliability_framework/installers_last_version/lib_tmp/src/
-BINARY_FOLDER=/simulation_data/circuit_reliability_framework/installers_last_version/lib_tmp/bin
-# SOURCES_FOLDER=libcircuit_reliability/src/
-# BINARY_FOLDER=libcircuit_reliability/bin
+# SOURCES_FOLDER=/simulation_data/circuit_reliability_framework/installers_last_version/lib_tmp/src/
+# BINARY_FOLDER=/simulation_data/circuit_reliability_framework/installers_last_version/lib_tmp/bin
+SOURCES_FOLDER=libcircuit_reliability/src/
+BINARY_FOLDER=libcircuit_reliability/bin
 BASH_VARIABLES_FILES=bash_variables/*
-BASH_MAIN_FILE_PATH=~/bash_fgarcia_workspace
+BASH_MAIN_FILE_PATH=~/ownCloud/workspace/bash_environment_conf/bash_fgarcia_workspace
 LIBRARY_NAME=libcircuit_reliability.so
-BINARY=$LIBRARY_NAME.$LIBRARY_VERSION
+BINARY=$LIBRARY_NAME.$RELIABILITY_FRAMEWORK_VERSION
 INCLUDE_CIRCUIT_RELIABILITY_DIRECTORY=/usr/include/circuit_reliability
 LIB_PATH_CIRCUIT_RELIABILITY_DIRECTORY=/usr/lib/circuit_reliability
 

@@ -419,7 +419,6 @@ PlaneProfileIndexesStructure<any_number>* GetPlanesForParams(
 	return planes;
 }
 
-
 template<class any_parameter>
 unsigned int CountInvolvedPlanes( const std::vector<any_parameter>& parameters2sweep ){
 	std::set<std::pair<unsigned int,unsigned int>> exportedParamTuples;

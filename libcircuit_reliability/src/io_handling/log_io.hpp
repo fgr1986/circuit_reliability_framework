@@ -47,6 +47,13 @@ public:
 	void ReportError2AllLogs( const std::string& text );
 
 	/**
+ 	* @details Writes and report the warning text in all logs
+ 	* Standard output gets colored in orange.
+ 	* @param text <std::string> text to be written.
+ 	*/
+	void ReportWarning2AllLogs( const std::string& text );
+
+	/**
  	* @details Writes plain in the log file.
  	* @param text <std::string> text to be written.
  	*/

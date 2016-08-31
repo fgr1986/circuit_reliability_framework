@@ -131,7 +131,7 @@ bool ResultsProcessor::MeanProcessResultsFiles( const std::map<std::string, std:
 				unsigned int matrixColumnCounter = 0;
 				for( auto const &s : lineTockensSpaces ){
 					if( computedColumns[columnCounter++] ){
-						gnuplotMapFile << matrix[row][matrixColumnCounter++]/totalFiles;
+						gnuplotMapFile << matrix[row][matrixColumnCounter++]/((double)totalFiles);
 					}else{
 						gnuplotMapFile << s << " ";
 					}
@@ -225,7 +225,7 @@ bool ResultsProcessor::StatisticProcessResultsFiles( const std::map<std::string,
 							// mean max min
 							gnuplotMapFile << matrix[row][matrixColumnCounter++] << " ";
 							gnuplotMapFile << matrix[row][matrixColumnCounter++] << " ";
-							gnuplotMapFile << matrix[row][matrixColumnCounter++]/totalFiles;
+							gnuplotMapFile << matrix[row][matrixColumnCounter++]/((double)totalFiles);
 						}else{
 							gnuplotMapFile << s;
 						}
@@ -253,7 +253,7 @@ bool ResultsProcessor::StatisticProcessResultsFiles( const std::map<std::string,
 }
 
 bool ResultsProcessor::StatisticProcessStatisticsFiles( const std::map<std::string, std::string>* paths,
-		const std::string outputPath, const std::vector<unsigned int>&& maxFieldsColumnIndexes,
+		const std::string& outputPath, const std::vector<unsigned int>&& maxFieldsColumnIndexes,
 		const std::vector<unsigned int>&& minFieldsColumnIndexes, const std::vector<unsigned int>&& meanFieldsColumnIndexes ){
 	#ifdef RESULTS_POST_PROCESSING_VERBOSE
 		 log_io->ReportBlueStandard( "StatisticProcessStatisticsFiles Processing:" + outputPath );
@@ -292,7 +292,7 @@ bool ResultsProcessor::StatisticProcessStatisticsFiles( const std::map<std::stri
 	// data structure init
 	for(unsigned int i = 0; i < totalRows; ++i){
 		for(unsigned int j=0; j<maxFieldsColumnIndexes.size(); ++j){
-			matrixMax[i][j] = 0;	// for min
+			matrixMax[i][j] = 0;	// for max
 		}
 		for(unsigned int j=0; j<maxFieldsColumnIndexes.size(); ++j){
 			matrixMin[i][j] = std::numeric_limits<double>::max();	// for min
@@ -338,10 +338,10 @@ bool ResultsProcessor::StatisticProcessStatisticsFiles( const std::map<std::stri
 					for( auto const &s : lineTockensSpaces ){
 						if( computedColumnsMax[columnCounter] ){
 							gnuplotMapFile << matrixMax[row][maxCounter++];
-						}else if( computedColumnsMean[columnCounter] ){
+						}else if( computedColumnsMin[columnCounter] ){
 							gnuplotMapFile << matrixMin[row][minCounter++];
 						}else if( computedColumnsMean[columnCounter] ){
-							gnuplotMapFile << matrixMean[row][meanCounter++]/totalFiles;
+							gnuplotMapFile << matrixMean[row][meanCounter++]/((double)totalFiles);
 						}else{
 							gnuplotMapFile << s;
 						}
@@ -411,7 +411,16 @@ bool ResultsProcessor::StatisticProcessStatisticsFile( const std::string&& path,
 								}
 								++minCounter;
 							}else if( computedColumnsMean[currentColumn] ){
+								// debug
+								if( currentRow==0 && meanCounter==0){
+									log_io->ReportGreenStandard( path );
+									log_io->ReportGreenStandard( number2String(currentRow) + "_" + number2String(meanCounter) + " actual_mean " + number2String(matrixMean[currentRow][meanCounter])  + " " + number2String(parsedValue)  );
+								}
 								matrixMean[currentRow][meanCounter++] += parsedValue;
+								// debug
+								if( currentRow==0 && meanCounter==1){
+									log_io->ReportGreenStandard( number2String(currentRow) + "_" + number2String(meanCounter-1) + " new_mean " + number2String(matrixMean[currentRow][meanCounter-1]) );
+								}
 							}
 						}
 						// else do nothing

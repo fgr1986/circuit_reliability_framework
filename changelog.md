@@ -22,13 +22,16 @@
 	* if () { statements } else { statementd }
 * New model parsing scheme: Group of models:
 
-# Changelog of version 3.2.1
-	* Metric error logging has been improved.
-	* 3D plot improvements
+# Changelog of version 3.2.2
+	* Important: Summary results processor bug fixes.
+	* Minor bug fixes
 
 # Version 3.x.y
 
 ## Version 3.2.y
+
+* Changelog of version 3.2.2
+	* Summary results processor bug fixes.
 
 * Changelog of version 3.2.1
 	* Metric error logging has been improved.
