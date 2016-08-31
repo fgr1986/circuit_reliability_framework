@@ -411,16 +411,7 @@ bool ResultsProcessor::StatisticProcessStatisticsFile( const std::string&& path,
 								}
 								++minCounter;
 							}else if( computedColumnsMean[currentColumn] ){
-								// debug
-								if( currentRow==0 && meanCounter==0){
-									log_io->ReportGreenStandard( path );
-									log_io->ReportGreenStandard( number2String(currentRow) + "_" + number2String(meanCounter) + " actual_mean " + number2String(matrixMean[currentRow][meanCounter])  + " " + number2String(parsedValue)  );
-								}
 								matrixMean[currentRow][meanCounter++] += parsedValue;
-								// debug
-								if( currentRow==0 && meanCounter==1){
-									log_io->ReportGreenStandard( number2String(currentRow) + "_" + number2String(meanCounter-1) + " new_mean " + number2String(matrixMean[currentRow][meanCounter-1]) );
-								}
 							}
 						}
 						// else do nothing
