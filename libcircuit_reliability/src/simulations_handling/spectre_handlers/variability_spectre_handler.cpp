@@ -376,6 +376,10 @@ bool VariabilitySpectreHandler::SimulateGoldenNetlist( ){
 		return false;
 	}
 	log_io->ReportGreenStandard( "copying the golden metrics.");
+	if( golden_ss==nullptr ){
+		log_io->ReportError2AllLogs( "golden_ss==nullptr" );
+		return false;
+	}
 	golden_metrics_structure = golden_ss->GetGoldenMetrics();
 	log_io->ReportGreenStandard( "golden metrics copied. Deleting golden_ss");
 	//delete all simulations

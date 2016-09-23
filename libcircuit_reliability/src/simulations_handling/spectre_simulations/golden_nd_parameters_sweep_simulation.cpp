@@ -266,6 +266,7 @@ bool GoldenNDParametersSweepSimulation::TestSetUp(){
 }
 
 NDMetricsStructure* GoldenNDParametersSweepSimulation::GetGoldenMetrics(){
+std::cout << "GoldenNDParametersSweepSimulation:GetGoldenMetrics\n";
 	NDMetricsStructure* gms = new NDMetricsStructure(*golden_metrics_structure);
 	return gms;
 }

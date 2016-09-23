@@ -3,7 +3,7 @@
 ############
 # Version  #
 ############
-echo "Version $RELIABILITY_FRAMEWORK_VERSION"
+echo "Library Installation. Version $RELIABILITY_FRAMEWORK_VERSION"
 
 # SOURCES_FOLDER=/simulation_data/circuit_reliability_framework/installers_last_version/lib_tmp/src/
 # BINARY_FOLDER=/simulation_data/circuit_reliability_framework/installers_last_version/lib_tmp/bin

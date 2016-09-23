@@ -3,13 +3,13 @@
 ############
 # Version  #
 ############
-echo "Version $RELIABILITY_FRAMEWORK_VERSION"
+echo "Library Installation. Version $RELIABILITY_FRAMEWORK_VERSION"
 
 SOURCES_FOLDER=/simulation_data/circuit_reliability_framework/installers_last_version/lib_tmp/src/
 BINARY_FOLDER=/simulation_data/circuit_reliability_framework/installers_last_version/lib_tmp/bin
 # SOURCES_FOLDER=libcircuit_reliability/src/
 # BINARY_FOLDER=libcircuit_reliability/bin
-BASH_VARIABLES_FILES=bash_variables/*
+# BASH_VARIABLES_FILES=bash_variables/*
 BASH_MAIN_FILE_PATH=~/bash_fgarcia_workspace
 LIBRARY_NAME=libcircuit_reliability.so
 BINARY=$LIBRARY_NAME.$RELIABILITY_FRAMEWORK_VERSION
@@ -26,7 +26,6 @@ echo "**  some headers files should be placed and referenced.                   
 echo "*******************************************************************************"
 echo ""
 
-
 # Headers
 if [ ! -d $INCLUDE_CIRCUIT_RELIABILITY_DIRECTORY ]; then
 	echo "Privileges needed while creating $INCLUDE_CIRCUIT_RELIABILITY_DIRECTORY"
@@ -36,9 +35,9 @@ if [ ! -d $INCLUDE_CIRCUIT_RELIABILITY_DIRECTORY ]; then
 fi
 
 if [ -d $INCLUDE_CIRCUIT_RELIABILITY_DIRECTORY ]; then
-	echo "Copying bash_cadence and bash_cadence_develop to home directory"
-	cp $BASH_VARIABLES_FILES ~
-	echo "Copied"
+	# echo "Copying bash_cadence and bash_cadence_develop to home directory"
+	# cp $BASH_VARIABLES_FILES ~
+	# echo "Copied"
 	if [ ! "$BASH_VERSION" ] ; then
 		#echo "Please do not use sh to run this script ($0), just execute it directly" 1>&2
 		echo "Importing bash environment files: '. $BASH_MAIN_FILE_PATH'"

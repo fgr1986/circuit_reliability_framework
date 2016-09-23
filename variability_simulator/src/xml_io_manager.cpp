@@ -691,7 +691,8 @@ bool XMLIOManager::ProcessMetric(boost::property_tree::ptree::value_type const &
 			}
 		}else{ //oceanEval expresion
 			auto pOceanEvalMag = static_cast<OceanEvalMetric*>(newMetric);
-			pOceanEvalMag->set_abs_error_margin( v.second.get<double>("metric_abs_error_margin") );
+			pOceanEvalMag->set_error_margin_up( v.second.get<double>("metric_error_margin_up") );
+			pOceanEvalMag->set_error_margin_down( v.second.get<double>("metric_error_margin_down") );
 			pOceanEvalMag->set_ocean_eval_expression( v.second.get<std::string>("metric_ocean_eval_expression") );
 		}
 	}

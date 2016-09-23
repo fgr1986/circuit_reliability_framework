@@ -3,16 +3,24 @@
 ############
 # Version  #
 ############
-echo "Version $RELIABILITY_FRAMEWORK_VERSION";
+echo "";
+echo "Deploy Framework. Version $RELIABILITY_FRAMEWORK_VERSION";
 TAR_EXTENSION=$RELIABILITY_FRAMEWORK_VERSION.tar.gz;
 
 RELIABILITY_FW_PATH=/home/fgarcia/ownCloud/workspace/c++/circuit_reliability_framework;
+BASH_ENVIRONMENT_CONF_PATH=/home/fgarcia/ownCloud/workspace/bash_environment_conf;
+
+echo "************************";
+echo "bash environment configuration";
+echo "************************";
+cd $BASH_ENVIRONMENT_CONF_PATH;
+scp bash_fgarcia_workspace 10.2.220.9:/home/fgarcia/;
 
 echo "************************";
 echo "installation_scripts";
 echo "************************";
 cd $RELIABILITY_FW_PATH/installation_scripts;
-scp *.sh 10.2.220.9:/simulation_data/circuit_reliability_framework/installers_last_version/;
+scp *.sh 10.2.220.9:/simulation_data/circuit_reliability_framework/installers_last_version/installation_scripts/;
 
 echo "************************";
 echo "libcircuit_reliability";
