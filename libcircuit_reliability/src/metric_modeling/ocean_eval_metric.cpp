@@ -20,7 +20,8 @@ OceanEvalMetric::OceanEvalMetric( const std::string& name ) {
 	this->valid_formatted_names = true;
 	this->value = kNotDefinedInt;
 	this->ocean_eval_expression = kNotDefinedString;
-	this->abs_error_margin = kNotDefinedInt;
+	this->error_margin_up = kNotDefinedInt;
+	this->error_margin_down = kNotDefinedInt;
 	// standard from metric
 	this->found_in_results = false;
 	this->analyzable = false;
@@ -35,7 +36,8 @@ OceanEvalMetric::OceanEvalMetric(const OceanEvalMetric& orig) {
 	this->valid_formatted_names = true;
 	this->value = orig.value;
 	this->ocean_eval_expression = orig.ocean_eval_expression;
-	this->abs_error_margin = orig.abs_error_margin;
+	this->error_margin_up = orig.error_margin_up;
+	this->error_margin_down = orig.error_margin_down;
 	// standard from metric
 	this->found_in_results = orig.found_in_results;
 	this->analyzable = orig.analyzable;
@@ -54,7 +56,8 @@ OceanEvalMetric::OceanEvalMetric(const OceanEvalMetric& orig, const bool copyVal
 	this->enclosed_name = "\"" + orig.name + "\"";
 	this->valid_formatted_names = true;
 	this->ocean_eval_expression = orig.ocean_eval_expression;
-	this->abs_error_margin = orig.abs_error_margin;
+	this->error_margin_up = orig.error_margin_up;
+	this->error_margin_down = orig.error_margin_down;
 	// standard from metric
 	this->found_in_results = orig.found_in_results;
 	this->analyzable = orig.analyzable;

@@ -64,6 +64,13 @@ public:
 	void set_has_errors( const bool has_errors ){ this->has_errors = has_errors; }
 
 	/**
+	 * @brief set has_errors
+	 *
+	 * @param has_errors
+	 */
+	void set_metric_value( const double metric_value ){ this->metric_value = metric_value; }
+
+	/**
 	 * @brief gets metric_name
 	 * @return metric_name
 	 */
@@ -82,6 +89,12 @@ public:
 	double get_max_abs_error_global() const { return max_abs_error_global; }
 
 	/**
+	 * @brief gets metric_value
+	 * @return metric_value
+	 */
+	double get_metric_value() const { return metric_value; }
+
+	/**
 	 * @brief gets has_errors
 	 * @return has_errors
 	 */
@@ -92,6 +105,19 @@ public:
 	 * @return error_timing
 	 */
 	std::map<std::string,std::string>* get_error_timing(){ return &error_timing; }
+
+	/**
+	 * @brief gets transient_magnitude
+	 *
+	 * @return transient_magnitude
+	 */
+	bool is_transient_magnitude() const{ return transient_magnitude; }
+	/**
+	 * @brief set transient_magnitude
+	 *
+	 * @param transient_magnitude
+	 */
+	void set_transient_magnitude( const double transient_magnitude ){ this->transient_magnitude = transient_magnitude; }
 
 private:
 	/// max error in whole transient,
@@ -104,8 +130,12 @@ private:
 	std::string metric_name;
 	/// metric has_errors
 	bool has_errors;
+	/// transient_magnitude
+	bool transient_magnitude;
 	/// error timing: start-end
 	std::map<std::string,std::string> error_timing;
+	// new in 3.2.3, for OceanEvalMetric
+	double metric_value;
 };
 
 #endif /* METRIC_ERRORS_H */

@@ -2,7 +2,6 @@
 
 ##Major
 
-* Revise parameter design space exploration ( 10^ is not e^!!)
 * **To do: Latex/Html export**
 * **¿TO DO? Regex for large components (ports)**
 * **Instance. Nodes instead absolute nodes**
@@ -22,13 +21,18 @@
 	* if () { statements } else { statementd }
 * New model parsing scheme: Group of models:
 
-# Changelog of version 3.2.2
-	* Important: Summary results processor bug fixes.
-	* Minor bug fixes
+# Changelog of version 3.3.0
+	* Parameter design space exploration ( 10^ is not e^!!) has been revised.
+	* OceanEvalMetrics generate maps with both error and VALUES
+	* metric_montecarlo_results_t includes OceanEvalMetrics values
 
 # Version 3.x.y
 
 ## Version 3.2.y
+
+* Changelog of version 3.3.0
+	* Parameter design space exploration ( 10^ is not e^!!) has been revised.
+	* OceanEvalMetrics generate maps with both error and VALUES (*MetricErrors metric_value* takes *OceanEvalMetric value*).
 
 * Changelog of version 3.2.2
 	* Summary results processor bug fixes.

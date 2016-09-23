@@ -198,21 +198,30 @@ bool MontecarloSimulation::AnalyzeMontecarloResults(){
 	bool partialResult = true;
 	// create metric metrics structure
 	unsigned int upsetsCount = 0;
-	auto metricMetrics = golden_metrics_structure->GetBasicMetricMetricsVector();
+	auto analyzedMetrics = golden_metrics_structure->GetBasicAnalyzableMetricsVector();
+	auto oceanEvalMetrics = golden_metrics_structure->GetBasicOceanEvalMetricsVector();
+	// oceanEvalVals
+	double maxValEvalMetric [oceanEvalMetrics->size()];
+	double minValEvalMetric [oceanEvalMetrics->size()];
+	double meanValEvalMetric [oceanEvalMetrics->size()];
 	// metric errors
-	double maxErrorMetric [metricMetrics->size()];
-	double minErrorMetric [metricMetrics->size()];
-	double meanMaxErrorMetric [metricMetrics->size()];
-	double medianMaxErrorMetric [metricMetrics->size()];
-	double q12MaxErrorMetric [metricMetrics->size()];
-	double q34MaxErrorMetric [metricMetrics->size()];
+	double maxErrorMetric [analyzedMetrics->size()];
+	double minErrorMetric [analyzedMetrics->size()];
+	double meanMaxErrorMetric [analyzedMetrics->size()];
+	double medianMaxErrorMetric [analyzedMetrics->size()];
+	double q12MaxErrorMetric [analyzedMetrics->size()];
+	double q34MaxErrorMetric [analyzedMetrics->size()];
 	// global errors
-	double maxMaxErrorGlobal [metricMetrics->size()];
-	double minMaxErrorGlobal [metricMetrics->size()];
-	double meanMaxErrorGlobal [metricMetrics->size()];
+	double maxMaxErrorGlobal [analyzedMetrics->size()];
+	double minMaxErrorGlobal [analyzedMetrics->size()];
+	double meanMaxErrorGlobal [analyzedMetrics->size()];
 	// data
-	std::vector<std::vector<double>> errorData( metricMetrics->size(), std::vector<double>(montecarlo_iterations, 0));
-	for (unsigned int i=0;i<metricMetrics->size();++i){
+	std::vector<std::vector<double>> errorData( analyzedMetrics->size(), std::vector<double>(montecarlo_iterations, 0));
+	for (unsigned int i=0;i<analyzedMetrics->size();++i){
+		// oceanEvalMetrics
+		maxValEvalMetric[i] = 0.0;
+		minValEvalMetric[i] = std::numeric_limits<double>::max();	// min
+		meanValEvalMetric[i] = 0.0;
 		// metric
 		maxErrorMetric[i] = 0.0;
 		minErrorMetric[i] = std::numeric_limits<double>::max();	// min
@@ -248,27 +257,39 @@ bool MontecarloSimulation::AnalyzeMontecarloResults(){
 			}
 			++correctly_simulated_count;
 			// metrics
-			unsigned int magCount = 0;
+			unsigned int metricCount = 0;
+			unsigned int oceanEvalCount = 0;
 			// fgarcia
-			if( tr->get_metrics_errors()->size() != metricMetrics->size() ){
-				log_io->ReportError2AllLogs( "[fgarcia-debug] tr->get_metrics_errors()->size() != metricMetrics->size(), sim" + pSS->get_simulation_id());
+			if( tr->get_metrics_errors()->size() != analyzedMetrics->size() ){
+				log_io->ReportError2AllLogs( "[fgarcia-debug] tr->get_metrics_errors()->size() != analyzedMetrics->size(), sim" + pSS->get_simulation_id());
 				log_io->ReportError2AllLogs( "[fgarcia-debug] tr->get_metrics_errors()->size(): " + number2String(tr->get_metrics_errors()->size()) );
-				log_io->ReportError2AllLogs( "[fgarcia-debug] metricMetrics->size(): " + number2String(metricMetrics->size()) );
+				log_io->ReportError2AllLogs( "[fgarcia-debug] analyzedMetrics->size(): " + number2String(analyzedMetrics->size()) );
 			}
 			for( auto const &me : *(tr->get_metrics_errors()) ){
+				// ocean_eval_metrics
+				if( !me->is_transient_magnitude() ){
+					if( maxValEvalMetric[oceanEvalCount] < me->get_metric_value() ){
+						maxValEvalMetric[oceanEvalCount] = me->get_metric_value();
+					}
+					if( minValEvalMetric[oceanEvalCount] > me->get_metric_value() ){
+						minValEvalMetric[oceanEvalCount] = me->get_metric_value();
+					}
+					// mean and post increment
+					meanValEvalMetric[oceanEvalCount++] += me->get_metric_value();
+				}
 				// global
-				if( me->get_max_abs_error_global()>maxMaxErrorGlobal[magCount] ){
-					maxMaxErrorGlobal[magCount] = me->get_max_abs_error_global();
+				if( me->get_max_abs_error_global()>maxMaxErrorGlobal[metricCount] ){
+					maxMaxErrorGlobal[metricCount] = me->get_max_abs_error_global();
 				}
-				if( me->get_max_abs_error_global()<minMaxErrorGlobal[magCount] ){
-					minMaxErrorGlobal[magCount] = me->get_max_abs_error_global();
+				if( me->get_max_abs_error_global()<minMaxErrorGlobal[metricCount] ){
+					minMaxErrorGlobal[metricCount] = me->get_max_abs_error_global();
 				}
-				meanMaxErrorGlobal[magCount] += me->get_max_abs_error_global();
+				meanMaxErrorGlobal[metricCount] += me->get_max_abs_error_global();
 				// metric mean
-				meanMaxErrorMetric[magCount] += me->get_max_abs_error();
+				meanMaxErrorMetric[metricCount] += me->get_max_abs_error();
 				// other metric statistics
-				errorData[magCount][mcCount] = me->get_max_abs_error();
-				++magCount;
+				errorData[metricCount][mcCount] = me->get_max_abs_error();
+				++metricCount;
 			}
 		} // end of correctly simulated
 		// update counter
@@ -286,8 +307,12 @@ bool MontecarloSimulation::AnalyzeMontecarloResults(){
 	montecarlo_simulation_results.set_critical_parameter_value_data_path("~/no_file_required_in_this_mode");
 	// not needed
 	// montecarlo_simulation_results.set_mean_critical_parameter_value( kNotDefinedInt );
-	// compute mean
-	for( unsigned int m=0; m<metricMetrics->size(); ++m){
+	// compute mean of oceanMetric vals
+	for( unsigned int m=0; m<oceanEvalMetrics->size(); ++m){
+		meanValEvalMetric[m] = meanValEvalMetric[m]/((double) correctly_simulated_count);
+	}
+	// compute mean of all metrics
+	for( unsigned int m=0; m<analyzedMetrics->size(); ++m){
 		meanMaxErrorMetric[m] = meanMaxErrorMetric[m]/((double) correctly_simulated_count);
 		meanMaxErrorGlobal[m] = meanMaxErrorGlobal[m]/((double) correctly_simulated_count);
 		// compute q12, q34 and median
@@ -298,37 +323,38 @@ bool MontecarloSimulation::AnalyzeMontecarloResults(){
 		maxErrorMetric[m] = errorData[m][errorData[m].size()-1];
 		// obtain quantiles
 		q12MaxErrorMetric[m] = errorData[m][errorData[m].size()*1/4];
-		// double q23 = data[magCount][data[magCount].size()*2/4];
+		// double q23 = data[metricCount][data[metricCount].size()*2/4];
 		q34MaxErrorMetric[m] = errorData[m][errorData[m].size()*3/4];
 		medianMaxErrorMetric[m] = errorData[m][errorData[m].size()/2];
 	}
 	// reserve memory
-	montecarlo_simulation_results.ReserveMetricMontecarloResults( metricMetrics->size() );
-	unsigned int magCount = 0;
-	for( auto const &m : *metricMetrics ){
+	montecarlo_simulation_results.ReserveMetricMontecarloResults( analyzedMetrics->size() );
+	unsigned int mCount = 0;
+	unsigned int oemCount = 0;
+	for( auto const &m : *analyzedMetrics ){
 		// deleted in MontecarloSimulationResults destructur
 		auto mMCR = new metric_montecarlo_results_t();
 		mMCR->metric_name = m->get_name();
 		// metric
-		mMCR->max_error_metric = maxErrorMetric[magCount];
-		mMCR->min_error_metric = minErrorMetric[magCount];
-		mMCR->mean_max_error_metric = meanMaxErrorMetric[magCount];
-		mMCR->median_max_error_metric = medianMaxErrorMetric[magCount];
-		mMCR->q12_max_error_metric = q12MaxErrorMetric[magCount];
-		mMCR->q34_max_error_metric = q34MaxErrorMetric[magCount];
+		mMCR->max_error_metric = maxErrorMetric[mCount];
+		mMCR->min_error_metric = minErrorMetric[mCount];
+		mMCR->mean_max_error_metric = meanMaxErrorMetric[mCount];
+		mMCR->median_max_error_metric = medianMaxErrorMetric[mCount];
+		mMCR->q12_max_error_metric = q12MaxErrorMetric[mCount];
+		mMCR->q34_max_error_metric = q34MaxErrorMetric[mCount];
 		// global errors
-		mMCR->max_max_error_global = maxMaxErrorGlobal[magCount];
-		mMCR->min_max_error_global = minMaxErrorGlobal[magCount];
-		mMCR->mean_max_error_global = meanMaxErrorGlobal[magCount];
+		mMCR->max_max_error_global = maxMaxErrorGlobal[mCount];
+		mMCR->min_max_error_global = minMaxErrorGlobal[mCount];
+		mMCR->mean_max_error_global = meanMaxErrorGlobal[mCount];
 		montecarlo_simulation_results.AddMetricMontecarloResults( mMCR );
-		// #ifdef RESULTS_POST_PROCESSING_VERBOSE
-		// log_io->ReportGreenStandard( "[debug]" simulation_id + " mag: " + number2String(magCount)
-		// 	+ "-> meanMaxErrorGlobal:" + number2String(meanMaxErrorGlobal[magCount])
-		// 	+ " mean_max_error_metric:" + number2String(meanMaxErrorMetric[magCount])
-		// 	+ " b max_error_global:" + number2String(mMCR->max_max_error_global)
-		// 	+ " b mean_max_error_metric:" + number2String(mMCR->mean_max_error_metric)  );
-		// #endif
-		++magCount;
+		// oceanEvalMetrics
+		if( !m->is_transient_magnitude() ){
+			mMCR->ocean_eval_metric_max_val = maxValEvalMetric[oemCount];;
+			mMCR->ocean_eval_metric_min_val = minValEvalMetric[oemCount];
+			// mean and postincrement
+			mMCR->ocean_eval_metric_mean_val = meanValEvalMetric[oemCount++];
+		}
+		++mCount;
 	}
 	// plot scatters
 	if( plot_scatters ){

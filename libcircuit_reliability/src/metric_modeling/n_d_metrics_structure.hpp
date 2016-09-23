@@ -20,6 +20,7 @@
 // Radiation simulator
 #include "metric.hpp"
 #include "magnitude.hpp"
+#include "ocean_eval_metric.hpp"
 
 class NDMetricsStructure {
 public:
@@ -37,11 +38,18 @@ public:
 	std::vector<Metric*>* GetMetricsVector( const unsigned int nd_index );
 
 	/**
-	 * @brief gets the lists of metrics with metric
+	 * @brief gets the lists of metrics with metric (analyzable)
 	 * vector to be removed but NOT its contents
 	 * @return metrics_vector
 	 */
-	std::vector<Metric*>* GetBasicMetricMetricsVector() const;
+	std::vector<Metric*>* GetBasicAnalyzableMetricsVector() const;
+
+	/**
+	 * @brief gets the lists of ocean eval metrics
+	 * vector to be removed but NOT its contents
+	 * @return metrics_vector
+	 */
+	std::vector<OceanEvalMetric*>* GetBasicOceanEvalMetricsVector() const;
 
 
 	/**
@@ -123,8 +131,9 @@ private:
 	/// [nd_index]
 	std::vector<std::string>* files_structure;
 	// to increase performance
-	mutable std::vector<Metric*>* metrics_metrics_vector;
+	mutable std::vector<Metric*>* analyzable_metrics_vector;
 	mutable std::vector<Magnitude*>* plottable_metrics_vector;
+	mutable std::vector<OceanEvalMetric*>* ocean_eval_metrics_vector;
 	mutable bool valid_useful_metric_vectors{false};
 
 	bool CreateUsefulMetricVectors() const;

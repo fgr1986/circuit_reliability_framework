@@ -32,17 +32,20 @@ public:
 	virtual double get_value_at( const int index ) override;
 
 	double get_value() const{ return value; }
-	double get_abs_error_margin() const{ return abs_error_margin; }
+	double get_error_margin_up() const{ return error_margin_up; }
+	double get_error_margin_down() const{ return error_margin_down; }
 	std::string get_ocean_eval_expression() const{ return ocean_eval_expression; }
 
 	void set_value( double value ){this->value = value;}
-	void set_abs_error_margin( const double abs_error_margin ){this->abs_error_margin = abs_error_margin;}
+	void set_error_margin_up( const double error_margin_up ){this->error_margin_up = error_margin_up;}
+	void set_error_margin_down( const double error_margin_down ){this->error_margin_down = error_margin_down;}
 
 	void set_ocean_eval_expression( const std::string& ocean_eval_expression ){this->ocean_eval_expression = ocean_eval_expression;}
 
 private:
 	double value;
-	double abs_error_margin;
+	double error_margin_up;
+	double error_margin_down;
 	std::string ocean_eval_expression;
 };
 

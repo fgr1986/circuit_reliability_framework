@@ -1,6 +1,6 @@
 # README
 ***Circuit Reliability Frameowrk***
-version 3.2.2 30/08/2016
+version 3.3.0 23/09/2016
 https://github.com/fgr1986/circuit_reliability_framework
 
 [Fernando García Redondo](http://www.fernandeando.com)
@@ -14,7 +14,6 @@ https://github.com/fgr1986/circuit_reliability_framework
 
 #Major
 
-* Revise parameter design space exploration ( 10^ is not e^!!)
 * **To do: Latex/Html export**
 * **¿TO DO? Regex for large components (ports)**
 * **Instance. Nodes instead absolute nodes**

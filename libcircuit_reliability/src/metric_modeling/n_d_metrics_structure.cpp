@@ -24,7 +24,7 @@ NDMetricsStructure::NDMetricsStructure() {
 	this->files_structure = nullptr;
 	this->valid_useful_metric_vectors = false;
 	// useful metric_vectors
-	metrics_metrics_vector = new std::vector<Metric*>();
+	analyzable_metrics_vector = new std::vector<Metric*>();
 	plottable_metrics_vector = new std::vector<Magnitude*>();
 }
 
@@ -34,7 +34,7 @@ NDMetricsStructure::NDMetricsStructure(const NDMetricsStructure& orig) {
 	/// [nd_index][MetricCount]
 	metrics_structure = new std::vector<std::vector<Metric*>*>();
 	// useful metric_vectors
-	metrics_metrics_vector = new std::vector<Metric*>();
+	analyzable_metrics_vector = new std::vector<Metric*>();
 	plottable_metrics_vector = new std::vector<Magnitude*>();
 	// reserve memory
 	metrics_structure->reserve( orig.metrics_structure->size() );
@@ -139,14 +139,18 @@ std::string NDMetricsStructure::GetFilePath( const unsigned int index ){
 
 bool NDMetricsStructure::CreateUsefulMetricVectors() const{
 	// clear, do not delete contents
-	if( metrics_metrics_vector!=nullptr ){
-		metrics_metrics_vector->clear();
+	if( analyzable_metrics_vector!=nullptr ){
+		analyzable_metrics_vector->clear();
 	}
 	if( plottable_metrics_vector!=nullptr ){
 		plottable_metrics_vector->clear();
 	}
-	metrics_metrics_vector = new std::vector<Metric*>();
+	if( ocean_eval_metrics_vector!=nullptr ){
+		ocean_eval_metrics_vector->clear();
+	}
+	analyzable_metrics_vector = new std::vector<Metric*>();
 	plottable_metrics_vector = new std::vector<Magnitude*>();
+	ocean_eval_metrics_vector = new std::vector<OceanEvalMetric*>();
 	if( metrics_structure->size()<=0 ){
 		std::cout << "[ERROR] NDMetricsStructure metrics_structure is null or empty\n";
 		std::cerr << "[ERROR] NDMetricsStructure metrics_structure is null or empty\n";
@@ -154,8 +158,12 @@ bool NDMetricsStructure::CreateUsefulMetricVectors() const{
 	}
 	// accessing metrics_structure->at(0) (basic usage, no data other than names will be used)
 	for(auto const &m : *metrics_structure->at(0)){
+		if( m->is_transient_magnitude() ){
+			auto pOceanEvMe = static_cast<OceanEvalMetric*>(m);
+			ocean_eval_metrics_vector->push_back( pOceanEvMe );
+		}
 		if( m->get_analyzable() ){
-			metrics_metrics_vector->push_back(m);
+			analyzable_metrics_vector->push_back(m);
 		}
 		if( m->is_transient_magnitude() ){
 			auto pMag = static_cast<Magnitude*>(m);
@@ -167,16 +175,28 @@ bool NDMetricsStructure::CreateUsefulMetricVectors() const{
 	return true;
 }
 
-std::vector<Metric*>* NDMetricsStructure::GetBasicMetricMetricsVector() const{
+std::vector<Metric*>* NDMetricsStructure::GetBasicAnalyzableMetricsVector() const{
 	if( !valid_useful_metric_vectors ){
 		if( !CreateUsefulMetricVectors() ){
-			std::cout << "[ERROR] Called from NDMetricsStructure::GetBasicMetricMetricsVector\n";
-			std::cerr << "[ERROR] Called from NDMetricsStructure::GetBasicMetricMetricsVector\n";
+			std::cout << "[ERROR] Called from NDMetricsStructure::GetBasicAnalyzableMetricsVector\n";
+			std::cerr << "[ERROR] Called from NDMetricsStructure::GetBasicAnalyzableMetricsVector\n";
 			return nullptr;
 		}
 		valid_useful_metric_vectors = true;
 	}
-	return metrics_metrics_vector;
+	return analyzable_metrics_vector;
+}
+
+std::vector<OceanEvalMetric*>* NDMetricsStructure::GetBasicOceanEvalMetricsVector() const{
+	if( !valid_useful_metric_vectors ){
+		if( !CreateUsefulMetricVectors() ){
+			std::cout << "[ERROR] Called from NDMetricsStructure::GetBasicOceanEvalMetricsVector\n";
+			std::cerr << "[ERROR] Called from NDMetricsStructure::GetBasicOceanEvalMetricsVector\n";
+			return nullptr;
+		}
+		valid_useful_metric_vectors = true;
+	}
+	return ocean_eval_metrics_vector;
 }
 
 std::vector<Magnitude*>* NDMetricsStructure::GetBasicPlottableMetricsVector() const{

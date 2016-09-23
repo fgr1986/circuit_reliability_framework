@@ -229,16 +229,26 @@ bool SpectreSimulation::AnalyzeOceanEvalMetric(TransientSimulationResults& trans
 					+ " variation, metric " + simulatedMetric.get_name() + " Analyzed.");
 	#endif
 	MetricErrors* metricErrors = new MetricErrors();
+	metricErrors->set_transient_magnitude( false );
 	metricErrors->set_metric_name( simulatedMetric.get_name() );
 	// add it
 	transientSimulationResults.AddMetricErrors( metricErrors );
 	// report results
-	double error = std::abs( goldenMetric.get_value() - simulatedMetric.get_value());
+	double error = 0;
+	bool hasErrors = false;
+	if( simulatedMetric.get_error_margin_up()>0 && goldenMetric.get_value() < simulatedMetric.get_value() ){
+		error = std::abs( goldenMetric.get_value() - simulatedMetric.get_value());
+		hasErrors = true;
+	}
+	if( simulatedMetric.get_error_margin_down()>0 && goldenMetric.get_value() > simulatedMetric.get_value() ){
+		error = std::max( error, std::abs( goldenMetric.get_value() - simulatedMetric.get_value()) );
+		hasErrors = true;
+	}
 	metricErrors->set_max_abs_error( error );
-// log_io->ReportPlainStandard( "[debug]> #" + partialId + " simulated: "+ number2String(simulatedMetric.get_value()) + " golden: " + number2String(goldenMetric.get_value()) );
-// std::cout << "[debug] errorC: "<< std::scientific << metricErrors->get_max_abs_error() << "\n";
 	metricErrors->set_max_abs_error_global( error );
-	metricErrors->set_has_errors( error > goldenMetric.get_abs_error_margin() );
+	metricErrors->set_has_errors( hasErrors );
+	//
+	metricErrors->set_metric_value( simulatedMetric.get_value() );
 	if( metricErrors->get_has_errors() ){
 		transientSimulationResults.set_has_metrics_errors( true );
 		reliabilityError = true;
@@ -378,6 +388,7 @@ bool SpectreSimulation::InterpolateAndAnalyzeMagnitude( TransientSimulationResul
 	}
 	// MetricError
 	MetricErrors* metricErrors = new MetricErrors();
+	metricErrors->set_transient_magnitude( true );
 	metricErrors->set_metric_name( simulatedMagnitude.get_name() );
 	// add it
 	transientSimulationResults.AddMetricErrors( metricErrors );

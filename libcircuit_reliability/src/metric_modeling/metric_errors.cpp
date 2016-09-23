@@ -21,6 +21,8 @@ MetricErrors::MetricErrors() {
 	this->has_errors = false;
 	this->max_abs_error= 0;
 	this->max_abs_error_global = 0;
+	this->metric_value = kNotDefinedInt;
+	this->transient_magnitude = true;
 }
 
 MetricErrors::~MetricErrors(){
@@ -28,5 +30,5 @@ MetricErrors::~MetricErrors(){
 }
 
 void MetricErrors::AddErrorTiming( const std::string& start, const std::string& stop ){
-	error_timing.insert(std::make_pair(start, stop));
+	error_timing.insert( std::make_pair(start, stop) );
 }

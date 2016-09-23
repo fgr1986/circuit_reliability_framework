@@ -14,7 +14,7 @@
 // Radiation simulator
 #include "plane_results_structure.hpp"
 
-class NDSimulationResults  {
+class NDSimulationResults {
 public:
 
 	/**

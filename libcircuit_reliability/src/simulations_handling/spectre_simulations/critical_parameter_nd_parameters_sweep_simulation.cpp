@@ -238,7 +238,7 @@ bool CriticalParameterNDParameterSweepSimulation::InitMetricColumnIndexes(
 	unsigned int inMagCount = 3; // MAG_i_name in input
 	unsigned int outMagCount = 5; // MAG_i_name in output
 	for( auto const &m: auxMetrics ){
-		if(m->get_analyzable()){
+		if( m->get_analyzable() ){
 			// for use inside CriticalParameterNDParameterSweepSimulation
 			p_p_c_i_statistic_2be_processed.push_back( inMagCount+1 ); // MAG_i_maxErrorMetric
 			p_p_c_i_statistic_2be_processed.push_back( inMagCount+2 ); // MAG_i_maxErrorGlobal

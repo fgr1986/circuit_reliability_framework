@@ -19,6 +19,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <limits>
 // Radiation simulator
 #include "../../metric_modeling/metric_errors.hpp"
 #include "../../netlist_modeling/simulation_parameter.hpp"
@@ -39,6 +40,10 @@ struct metric_montecarlo_results_t {
 	double max_max_error_global;
 	double min_max_error_global;
 	double mean_max_error_global;
+	// only for OceanEvalMetric
+	double ocean_eval_metric_max_val = 0;
+	double ocean_eval_metric_min_val = std::numeric_limits<double>::max();
+	double ocean_eval_metric_mean_val = 0;
 };
 
 class MontecarloSimulationResults {
