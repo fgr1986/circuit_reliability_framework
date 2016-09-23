@@ -236,13 +236,17 @@ bool SpectreSimulation::AnalyzeOceanEvalMetric(TransientSimulationResults& trans
 	// report results
 	double error = 0;
 	bool hasErrors = false;
-	if( simulatedMetric.get_error_margin_up()>0 && goldenMetric.get_value() < simulatedMetric.get_value() ){
-		error = std::abs( goldenMetric.get_value() - simulatedMetric.get_value());
+	// diff is positive if golden is higher than simulated
+	double diff = std::abs( goldenMetric.get_value() - simulatedMetric.get_value() );
+	bool goldenHigher = goldenMetric.get_value() >= simulatedMetric.get_value();
+	if( simulatedMetric.get_error_margin_up()>0 && !goldenHigher && diff>simulatedMetric.get_error_margin_up() ){
+		error = diff;
 		hasErrors = true;
-	}
-	if( simulatedMetric.get_error_margin_down()>0 && goldenMetric.get_value() > simulatedMetric.get_value() ){
-		error = std::max( error, std::abs( goldenMetric.get_value() - simulatedMetric.get_value()) );
+		log_io->ReportRedStandard( "[debug] UP in " + partialId + " " +  simulatedMetric.get_name() + " with diff: " + number2String(diff) + ", marging: " + number2String(simulatedMetric.get_error_margin_up())  );
+	} else if( simulatedMetric.get_error_margin_down()>0 && goldenHigher && diff>simulatedMetric.get_error_margin_down() ){
+		error = diff;
 		hasErrors = true;
+		log_io->ReportRedStandard( "[debug] DOWN in " + partialId + " " +  simulatedMetric.get_name() + " with diff: " + number2String(diff) + ", marging: " + number2String(simulatedMetric.get_error_margin_down())  );
 	}
 	metricErrors->set_max_abs_error( error );
 	metricErrors->set_max_abs_error_global( error );
