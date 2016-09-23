@@ -40,6 +40,7 @@ struct metric_montecarlo_results_t {
 	double max_max_error_global;
 	double min_max_error_global;
 	double mean_max_error_global;
+	bool transient_magnitude = true;
 	// only for OceanEvalMetric
 	double ocean_eval_metric_max_val = 0;
 	double ocean_eval_metric_min_val = std::numeric_limits<double>::max();

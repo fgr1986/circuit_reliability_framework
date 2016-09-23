@@ -299,6 +299,44 @@ bool MontecarloNDParametersSweepSimulation::GenerateAndPlotResults(
 	return partialResults;
 }
 
+
+bool MontecarloNDParametersSweepSimulation::InitMetricColumnIndexes(
+		const std::vector<Metric*>& auxMetrics ){
+	// partial plane inputs
+
+	// (0) p1 p2 Upset_Ratio
+	// (3 + 0) metric_name  max_error_metric min_error_metric mean_max_error_metric"
+	// (3 + 4) median_max_error_metric  q12_max_error_metric q34_max_error_metric "
+	// (3 + 7) max_max_error_global min_max_error_global mean_max_error_global"
+	// if oceanEvalMetric
+	// (3 + 10) METRIC_MAX_VAL METRIC_MIN_VAL METRIC_MEAN_VAL\n";
+	p_p_c_i_statistic_2be_processed = {2}; // upsets
+	p_p_c_i_max = {};
+	p_p_c_i_min = {};
+	p_p_c_i_mean = {2};
+	unsigned int metricCount = 3; // MAG_i_name in input
+	for( auto const &m: auxMetrics ){
+		if( m->get_analyzable() ){
+			// for use inside MontecarloCriticalParameterNDParametersSweepSimulation
+			p_p_c_i_max.push_back( metricCount+1 );
+			p_p_c_i_min.push_back( metricCount+2 );
+			p_p_c_i_mean.push_back( metricCount+3 ); // metric
+			p_p_c_i_max.push_back( metricCount+7 );
+			p_p_c_i_min.push_back( metricCount+8 );
+			p_p_c_i_mean.push_back( metricCount+9 ); // global
+			if( !m->is_transient_magnitude() ){
+				p_p_c_i_max.push_back( metricCount+10 );
+				p_p_c_i_min.push_back( metricCount+11 );
+				p_p_c_i_mean.push_back( metricCount+12 ); // oceanEvalMetric
+				metricCount += 3;
+			}
+			// update counters
+			metricCount += 10; // next MAG_i_name in input
+		}
+	}
+	return true;
+}
+
 bool MontecarloNDParametersSweepSimulation::GenerateAndPlotParameterPairResults(
 		const std::vector<Metric*>& auxMetrics, const unsigned int& totalAnalizableMetrics,
 		const unsigned int& p1Index, const unsigned int& p2Index,
@@ -325,27 +363,12 @@ bool MontecarloNDParametersSweepSimulation::GenerateAndPlotParameterPairResults(
 	log_io->ReportPlainStandard( "#" + simulation_id + ", Processing itemized results with ResultsProcessor" );
 	// Process itemized planes to extract the p1-p2 general plane results
 	ResultsProcessor rp;
-	// 0  1      2          3                    4                    5                       6                           7  8    9                   10
-	//p1 p2 upsets MAG_i_name MAG_i_maxErrorMetric MAG_i_minErrorMetric MAG_i_meanMaxErrorMetric MAG_i_medianMaxErrorMetric q12 q34 MAG_i_maxErrorGlobal
-	std::vector<unsigned int> columnIndexes = {2}; // upsets
-	unsigned int auxMagCount = 3; // MAG_i_name
-	for( auto const &m: auxMetrics ){
-		if(m->get_analyzable()){
-			columnIndexes.push_back( auxMagCount+1 ); // MAG_i_maxErrorMetric
-			columnIndexes.push_back( auxMagCount+2 ); // MAG_i_minErrorMetric
-			columnIndexes.push_back( auxMagCount+3 ); // MAG_i_meanMaxErrorMetric
-			columnIndexes.push_back( auxMagCount+4 ); // MAG_i_medianMaxErrorMetric
-			columnIndexes.push_back( auxMagCount+5 ); // q12
-			columnIndexes.push_back( auxMagCount+6 ); // q34
-			columnIndexes.push_back( auxMagCount+7 ); // MAG_i_maxErrorGlobal
-			auxMagCount += 8; // next MAG_i_name
-		}
-	}
 	std::string generalParameterResultsFile = mapsFolder + kFolderSeparator
 		+ planeStructure->get_plane_id() + "_general" + kDataSufix;
 	// process only mean
-	partialResults = partialResults && rp.MeanProcessResultsFiles(
-		planeStructure->get_itemized_data_paths(), generalParameterResultsFile, std::move(columnIndexes));
+	partialResults = partialResults && rp.StatisticProcessStatisticsFiles(
+		planeStructure->get_itemized_data_paths(), generalParameterResultsFile,
+		std::move(p_p_c_i_max), std::move(p_p_c_i_min), std::move(p_p_c_i_mean));
 	if( !partialResults ){
 		log_io->ReportError2AllLogs( "[ERROR ResultsProcessor] Error processing " + generalParameterResultsFile );
 		return partialResults;
@@ -389,9 +412,11 @@ bool MontecarloNDParametersSweepSimulation::GenerateAndPlotItemizedPlane(
 	try {
 		gnuplotMapFile.open( gnuplotMapFilePath.c_str() );
 		gnuplotMapFile.setf(std::ios::scientific);
-		gnuplotMapFile << "#" << p1->get_name() << " " << p2->get_name() << " Upset Ratio"
-			<<"MAG_i_name MAG_i_maxErrorMetric MAG_i_minErrorMetric "
-			<< "MAG_i_meanMaxErrorMetric MAG_i_medianMaxErrorMetric q12 q34 MAG_i_maxErrorGlobal\n";
+		gnuplotMapFile << "#" << p1->get_name() << " " << p2->get_name() << " Upset_Ratio"
+			<< "\n# metric_name  max_error_metric min_error_metric mean_max_error_metric"
+			<< "\n# median_max_error_metric  q12_max_error_metric q34_max_error_metric "
+			<< "\n# max_max_error_global min_max_error_global mean_max_error_global";
+		gnuplotMapFile << "\n# if oceanEvalMetric METRIC_MAX_VAL METRIC_MIN_VAL METRIC_MEAN_VAL\n";
 		unsigned int profileCount = 0;
 		unsigned int p1SweepCount = 0;
 		unsigned int p2SweepCount = 0;
@@ -406,11 +431,16 @@ bool MontecarloNDParametersSweepSimulation::GenerateAndPlotItemizedPlane(
 				gnuplotMapFile << p1->GetSweepValue(p1SweepCount) << " " << p2->GetSweepValue(p2SweepCount++)
 					<< " " << (double)(mcSSim->get_montecarlo_simulation_results()->get_upsets_count()/((double)montecarlo_iterations));
 				// metrics
-				for( auto& m : *(mcSSim->get_montecarlo_simulation_results()->get_metric_montecarlo_results()) ){
-					gnuplotMapFile << " " << m->metric_name << " " << m->max_error_metric << " " << m->min_error_metric
-						<< " " << m->mean_max_error_metric << " " << m->median_max_error_metric << " " << m->q12_max_error_metric
-						<< " " << m->q34_max_error_metric << " " << m->max_max_error_global
-						<< " " << m->min_max_error_global<< " " << m->mean_max_error_global;
+				for( auto& mMCr : *(mcSSim->get_montecarlo_simulation_results()->get_metric_montecarlo_results()) ){
+					gnuplotMapFile << " " << mMCr->metric_name << " " << mMCr->max_error_metric << " " << mMCr->min_error_metric
+						<< " " << mMCr->mean_max_error_metric << " " << mMCr->median_max_error_metric << " " << mMCr->q12_max_error_metric
+						<< " " << mMCr->q34_max_error_metric << " " << mMCr->max_max_error_global
+						<< " " << mMCr->min_max_error_global<< " " << mMCr->mean_max_error_global;
+						// ocean_eval_metric
+						if( !mMCr->transient_magnitude ){
+							gnuplotMapFile << " " << mMCr->ocean_eval_metric_max_val
+								<< " " << mMCr->ocean_eval_metric_min_val << " " << mMCr->ocean_eval_metric_mean_val;
+						}
 				}
 				gnuplotMapFile << "\n";
 			}// update counters
@@ -459,9 +489,11 @@ bool MontecarloNDParametersSweepSimulation::GenerateAndPlotGeneralResults(
 		gnuplotMapFile.open( gnuplotMapFilePath.c_str() );
 		gnuplotMapFile.setf(std::ios::scientific);
 		gnuplotSpectreErrorMapFile.open( gnuplotSpectreErrorMapFilePath.c_str() );
-		gnuplotMapFile << "#profileCount #Profile #upsets "
-			<< "#MAG_i_name #MAG_i_maxErrorMetric #MAG_i_minErrorMetric #MAG_i_meanMaxErrorMetric"
-			<< "#MAG_i_medianMaxErrorMetric q12 q34 MAG_i_maxMaxErrorGlobal MAG_i_minMaxErrorGlobal MAG_i_meanMaxErrorGlobal\n";
+		gnuplotMapFile << "#profileCount #Profile Upset_Ratio"
+			<< "\n# metric_name  max_error_metric min_error_metric mean_max_error_metric"
+			<< "\n# median_max_error_metric  q12_max_error_metric q34_max_error_metric "
+			<< "\n# max_max_error_global min_max_error_global mean_max_error_global";
+		gnuplotMapFile << "\n# if oceanEvalMetric METRIC_MAX_VAL METRIC_MIN_VAL METRIC_MEAN_VAL\n";
 		gnuplotSpectreErrorMapFile << "#profileCount #Profile SpectreError \n";
 		// fgarcia
 		gnuplotMapFile << std::scientific;
@@ -475,11 +507,16 @@ bool MontecarloNDParametersSweepSimulation::GenerateAndPlotGeneralResults(
 			// update maxUpsetRatio
 			maxUpsetRatio = upsetsRatio>maxUpsetRatio ? upsetsRatio : maxUpsetRatio;
 			// metrics
-			for( auto const &m : *(mcSSim->get_montecarlo_simulation_results()->get_metric_montecarlo_results()) ){
-				gnuplotMapFile << " " << m->metric_name << " " << m->max_error_metric << " " << m->min_error_metric
-					<< " " << m->mean_max_error_metric << " " << m->median_max_error_metric << " " << m->q12_max_error_metric
-					<< " " << m->q34_max_error_metric << " " << m->max_max_error_global
-					<< " " << m->min_max_error_global<< " " << m->mean_max_error_global;
+			for( auto const &mMCr : *(mcSSim->get_montecarlo_simulation_results()->get_metric_montecarlo_results()) ){
+				gnuplotMapFile << " " << mMCr->metric_name << " " << mMCr->max_error_metric << " " << mMCr->min_error_metric
+					<< " " << mMCr->mean_max_error_metric << " " << mMCr->median_max_error_metric << " " << mMCr->q12_max_error_metric
+					<< " " << mMCr->q34_max_error_metric << " " << mMCr->max_max_error_global
+					<< " " << mMCr->min_max_error_global<< " " << mMCr->mean_max_error_global;
+					// ocean_eval_metric
+					if( !mMCr->transient_magnitude ){
+						gnuplotMapFile << " " << mMCr->ocean_eval_metric_max_val
+							<< " " << mMCr->ocean_eval_metric_min_val << " " << mMCr->ocean_eval_metric_mean_val;
+					}
 			}
 			gnuplotMapFile << "\n";
 			gnuplotSpectreErrorMapFile << profileCount++ << " " << auxIndexes << " " << auxSpectreError << "\n";
@@ -576,15 +613,22 @@ int MontecarloNDParametersSweepSimulation::GnuplotGeneralMetricResults(
 	const std::string& mapsFolder, const std::string& gnuplotScriptFolder, const std::string& imagesFolder ){
 
 	int partialResult = 0;
-	unsigned int magCount = 0;
 	std::string gnuplotDataFile = main_nd_simulation_results.get_general_data_path();
+	// mag count indexes
+	unsigned int metricCount = 0;
+	int magDataMetricIndex = in_profile_gnuplot_first_mag_metric_offset; // max
+	int magDataGlobalIndex = magDataMetricIndex + in_profile_gnuplot_partial_mag_global_offset; // max
+	int magDataOveanEvalValIndex = magDataMetricIndex + in_profile_gnuplot_partial_mag_ocean_eval_val_offset; // max
 	for( auto const &m : analyzedMetrics ){
 		if( m->get_analyzable() ){
+			// update indexes
+			magDataGlobalIndex += magDataMetricIndex + in_profile_gnuplot_partial_mag_global_offset; // max
+			magDataOveanEvalValIndex = magDataMetricIndex + in_profile_gnuplot_partial_mag_ocean_eval_val_offset; // max
 			// Files
 			std::string gnuplotScriptFilePath = gnuplotScriptFolder + kFolderSeparator
-				+ simulation_id + "_general_mag_" + number2String(magCount) + kGnuPlotScriptSufix;
+				+ simulation_id + "_general_mag_" + number2String(metricCount) + kGnuPlotScriptSufix;
 			std::string outputImagePath = imagesFolder + kFolderSeparator
-				+ simulation_id + "_general_mag_" + number2String(magCount) + kSvgSufix;
+				+ simulation_id + "_general_mag_error_" + number2String(metricCount) + kSvgSufix;
 			std::string title = "[General] " + m->get_title_name() + " errors & Upset Statistics";
 			// Generate scripts
 			std::ofstream gnuplotScriptFile;
@@ -621,13 +665,9 @@ int MontecarloNDParametersSweepSimulation::GnuplotGeneralMetricResults(
 			// line style
 			gnuplotScriptFile <<  kProfilesPalette;
 			// Plot upsets
-
 			// # 1              2            3      4             5                6              7             8   9   10  11
 			// # profCount profile %upsets MAG_i_name MAG_i_maxError MAG_i_minError MAG_i_mean MAG_i_median q12 q34 MAG_i_maxErrorGlobal
 			gnuplotScriptFile <<  "plot '" << gnuplotDataFile << "' using 1:3 axis x1y2 with filledcurve x1 ls 6 title '\% Upsets', \\\n";
-
-			int magDataMetricIndex = in_profile_gnuplot_first_mag_metric_offset + data_per_metric_per_line*magCount; // max
-			int magDataGlobalIndex = in_profile_gnuplot_first_mag_global_offset + data_per_metric_per_line*magCount; // max
 			// candlesticks  # Data columns: X Min 1stQuartile Median 3rdQuartile Max
 			// metric
 			gnuplotScriptFile <<  "     '" << gnuplotDataFile << "' u 1:" << (magDataMetricIndex+1)  <<  ":" << (magDataMetricIndex+4) << ":" << (magDataMetricIndex+3) << ":" << (magDataMetricIndex+5) << ":" << magDataMetricIndex << " axis x1y1  w candlesticks ls 1 notitle whiskerbars, \\\n";
@@ -640,11 +680,28 @@ int MontecarloNDParametersSweepSimulation::GnuplotGeneralMetricResults(
 			gnuplotScriptFile <<  "#     '" << gnuplotDataFile << "' u 1:" << (magDataMetricIndex+3) << " axis x1y1  w lp ls 5 title 'median max_err_" << m->get_title_name() << "'\n";
 			// legend
 			gnuplotScriptFile <<  "set key top left\n";
-
 			gnuplotScriptFile << "unset output\n";
+			if( !m->is_transient_magnitude() ){
+				title = "[General] " + m->get_title_name() + " errors & Upset Statistics";
+				outputImagePath = imagesFolder + kFolderSeparator + simulation_id + "_general_mag_values_" + number2String(metricCount) + kSvgSufix;
+				gnuplotScriptFile << "set output \"" << outputImagePath << "\"\n";
+				gnuplotScriptFile << "set title \" " << title << " \"\n";
+				gnuplotScriptFile <<  "plot '" << gnuplotDataFile << "' using 1:3 axis x1y2 with filledcurve x1 ls 6 title '\% Upsets', \\\n";
+				gnuplotScriptFile <<  "     '" << gnuplotDataFile << "' u 1:" << (magDataOveanEvalValIndex+2)  <<  ":" << (magDataOveanEvalValIndex+1) << ":" << magDataOveanEvalValIndex << " axis x1y1  w errorbars ls 3 notitle, \\\n";
+				gnuplotScriptFile <<  "     '" << gnuplotDataFile << "' u 1:" << (magDataOveanEvalValIndex+2) << " axis x1y1  w lp ls 3 title '" << m->get_title_name() << " '\n";
+				// legend
+				gnuplotScriptFile <<  "set key top left\n";
+				gnuplotScriptFile << "unset output\n";
+			}
 			// close file
 			gnuplotScriptFile << "quit\n";
 			gnuplotScriptFile.close();
+			// update counters
+			if( m->is_transient_magnitude() ){
+				magDataMetricIndex += data_per_magnitude_per_line; // max
+			}else{
+				magDataMetricIndex += data_per_ocean_eval_metric_per_line; // max
+			}
 			// Exec comand
 			std::string execCommand = kGnuplotCommand + gnuplotScriptFilePath + kGnuplotEndCommand;
 			partialResult += std::system( execCommand.c_str() );
@@ -654,7 +711,7 @@ int MontecarloNDParametersSweepSimulation::GnuplotGeneralMetricResults(
 			// Image paths
 			// criticalParameterValueSimulationsVector.set_group_processed_image_path(  outputImagePath + kSvgSufix  );
 			// criticalParameterValueSimulationsVector.set_group_processed_latex_image_path( outputImagePath+ kLatexOutputImagesSufix  );
-			magCount++;
+			metricCount++;
 		}
 	}
 	return partialResult;
@@ -722,16 +779,23 @@ int MontecarloNDParametersSweepSimulation::GnuplotPlaneMetricResults(
 	const unsigned int& partialPlaneCount,
 	const std::string& partialPlaneId, const std::string& gnuplotDataFile,
 	const std::string& gnuplotScriptFolder, const std::string& imagesFolder ){
-	unsigned int magCount = 0;
 	int partialResults = 0;
+	// metrics counters
+	unsigned int metricCount = 0;
+	int magDataMetricIndex = in_profile_gnuplot_first_mag_metric_offset; // max
+	int magDataGlobalIndex = magDataMetricIndex + in_plane_gnuplot_partial_mag_global_offset; // max
+	int magDataOveanEvalValIndex = magDataMetricIndex + in_plane_gnuplot_partial_mag_ocean_eval_val_offset; // max
 	for( auto const &m : analyzedMetrics ){
 		if( m->get_analyzable() ){
+			// update indexes
+			magDataGlobalIndex += magDataMetricIndex + in_profile_gnuplot_partial_mag_global_offset; // max
+			magDataOveanEvalValIndex = magDataMetricIndex + in_profile_gnuplot_partial_mag_ocean_eval_val_offset; // max
 			// Files
 			std::string gnuplotScriptFilePath = gnuplotScriptFolder + kFolderSeparator
-				 + simulation_id + "_" + partialPlaneId + "_mag_" + number2String(magCount) + "_" + kGnuPlotScriptSufix;
+				 + simulation_id + "_" + partialPlaneId + "_mag_" + number2String(metricCount) + "_" + kGnuPlotScriptSufix;
 			std::string outputImagePath = imagesFolder + kFolderSeparator
-				 + simulation_id + "_" + partialPlaneId + "_mag_" + number2String(magCount) + "_3D" + kSvgSufix;
-			std::string title = m->get_title_name() + ", " + partialPlaneId;
+				 + simulation_id + "_" + partialPlaneId + "_mag_error_" + number2String(metricCount) + "_3D" + kSvgSufix;
+			std::string title = m->get_title_name() + " (error), " + partialPlaneId;
 			// Generate scripts
 			std::ofstream gnuplotScriptFile;
 			gnuplotScriptFile.open( gnuplotScriptFilePath.c_str() );
@@ -762,26 +826,41 @@ int MontecarloNDParametersSweepSimulation::GnuplotPlaneMetricResults(
 			if( interpolate_plots_ratio >= 0 ){
 				gnuplotScriptFile << "set pm3d interpolate " << interpolate_plots_ratio << "," << interpolate_plots_ratio << "\n";
 			}
-			int magDataMetricIndex = in_plane_gnuplot_first_mag_metric_offset + data_per_metric_per_line*magCount; // max
-			int magDataGlobalIndex = in_plane_gnuplot_first_mag_global_offset + data_per_metric_per_line*magCount; // max
-
-			gnuplotScriptFile << "set multiplot layout 2, 1 \n";
-
+			if( m->is_transient_magnitude() ){
+				gnuplotScriptFile << "set multiplot layout 2, 1 \n";
+			}
 			gnuplotScriptFile << "splot '" << gnuplotDataFile << "' u 1:2:" << (magDataMetricIndex+1) << " notitle w lp ls 2, \\\n";
 			gnuplotScriptFile << " '" << gnuplotDataFile << "' u 1:2:" << magDataMetricIndex << " notitle w lp ls 1, \\\n";
 			gnuplotScriptFile << " '" << gnuplotDataFile << "' u 1:2:" << (magDataMetricIndex+2) << " title 'max_err_metric_" << m->get_title_name() << "' " << kElegantLine3D << " w pm3d\n";
-			gnuplotScriptFile << "# Uncomment for global error \n";
-			gnuplotScriptFile << "splot '" << gnuplotDataFile << "' u 1:2:" << (magDataGlobalIndex+1) << " notitle w lp ls 2, \\\n";
-			gnuplotScriptFile << " '" << gnuplotDataFile << "' u 1:2:" << (magDataGlobalIndex) << " notitle w lp ls 1, \\\n";
-			gnuplotScriptFile << " '" << gnuplotDataFile << "' u 1:2:" << (magDataGlobalIndex+2) << " title 'max_err_global_" << m->get_title_name() << "' " << kElegantLine3D << " w pm3d\n";
-
-			gnuplotScriptFile << "unset multiplot\n";
-
+			if( m->is_transient_magnitude() ){
+				gnuplotScriptFile << "splot '" << gnuplotDataFile << "' u 1:2:" << (magDataGlobalIndex+1) << " notitle w lp ls 2, \\\n";
+				gnuplotScriptFile << " '" << gnuplotDataFile << "' u 1:2:" << (magDataGlobalIndex) << " notitle w lp ls 1, \\\n";
+				gnuplotScriptFile << " '" << gnuplotDataFile << "' u 1:2:" << (magDataGlobalIndex+2) << " title 'max_err_global_" << m->get_title_name() << "' " << kElegantLine3D << " w pm3d\n";
+				gnuplotScriptFile << "unset multiplot\n";
+			}
 			gnuplotScriptFile << "unset output\n";
+
+			if( !m->is_transient_magnitude() ){
+				title = "[General] " + m->get_title_name() + ", " + partialPlaneId;
+				outputImagePath = imagesFolder + kFolderSeparator + simulation_id + "_" + partialPlaneId + "_mag_values_" + number2String(metricCount) + "_3D" + kSvgSufix;
+				gnuplotScriptFile << "set output \"" << outputImagePath << "\"\n";
+				gnuplotScriptFile << "set title \" " << title << " \"\n";
+				gnuplotScriptFile << "splot '" << gnuplotDataFile << "' u 1:2:" << (magDataOveanEvalValIndex+1) << " notitle w lp ls 2, \\\n";
+				gnuplotScriptFile << " '" << gnuplotDataFile << "' u 1:2:" << (magDataOveanEvalValIndex) << " notitle w lp ls 1, \\\n";
+				gnuplotScriptFile << " '" << gnuplotDataFile << "' u 1:2:" << (magDataOveanEvalValIndex+2) << " title 'max_err_global_" << m->get_title_name() << "' " << kElegantLine3D << " w pm3d\n";
+				// legend
+				gnuplotScriptFile <<  "set key top left\n";
+				gnuplotScriptFile << "unset output\n";
+			}
 			// close file
 			gnuplotScriptFile << "quit\n";
 			gnuplotScriptFile.close();
-
+			// update counters
+			if( m->is_transient_magnitude() ){
+				magDataMetricIndex += data_per_magnitude_per_line; // max
+			}else{
+				magDataMetricIndex += data_per_ocean_eval_metric_per_line; // max
+			}
 			// Exec comand
 			std::string execCommand = kGnuplotCommand + gnuplotScriptFilePath + kGnuplotEndCommand;
 			partialResults += std::system( execCommand.c_str() );
@@ -791,7 +870,7 @@ int MontecarloNDParametersSweepSimulation::GnuplotPlaneMetricResults(
 			}else{
 				plane.AddGeneralMetricImagePath( outputImagePath, title );
 			}
-			magCount++;
+			metricCount++;
 		}
 	}
 	return partialResults;

@@ -349,6 +349,7 @@ bool MontecarloSimulation::AnalyzeMontecarloResults(){
 		montecarlo_simulation_results.AddMetricMontecarloResults( mMCR );
 		// oceanEvalMetrics
 		if( !m->is_transient_magnitude() ){
+			mMCR->transient_magnitude = false;
 			mMCR->ocean_eval_metric_max_val = maxValEvalMetric[oemCount];;
 			mMCR->ocean_eval_metric_min_val = minValEvalMetric[oemCount];
 			// mean and postincrement

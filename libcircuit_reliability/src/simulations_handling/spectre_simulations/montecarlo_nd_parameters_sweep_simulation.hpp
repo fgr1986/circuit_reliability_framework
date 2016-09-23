@@ -86,12 +86,24 @@ private:
 	/// plot last transient
 	bool plot_last_transients;
 	/// data per metric per line for gnuplot maps
-	const int data_per_metric_per_line = 10;
+	const int data_per_magnitude_per_line = 10;
+	const int data_per_ocean_eval_metric_per_line = 13;
 
 	const unsigned int in_profile_gnuplot_first_mag_metric_offset = 5;
-	const unsigned int in_profile_gnuplot_first_mag_global_offset = 11;
+	const unsigned int in_profile_gnuplot_partial_mag_global_offset = 6;
+	const unsigned int in_profile_gnuplot_partial_mag_ocean_eval_val_offset = 9;
+
 	const unsigned int in_plane_gnuplot_first_mag_metric_offset = 5;
-	const unsigned int in_plane_gnuplot_first_mag_global_offset = 11;
+	const unsigned int in_plane_gnuplot_partial_mag_global_offset = 6;
+	const unsigned int in_plane_gnuplot_partial_mag_ocean_eval_val_offset = 9;
+
+	/// partial plane column indexes to be STATISTICALLY processed (class internal)
+	std::vector<unsigned int> p_p_c_i_max;
+	std::vector<unsigned int> p_p_c_i_min;
+	std::vector<unsigned int> p_p_c_i_mean;
+	std::vector<unsigned int> p_p_c_i_statistic_2be_processed;
+
+	bool InitMetricColumnIndexes( const std::vector<Metric*>& auxMetrics );
 
 	/**
 	 * @brief Virtual overrides TestSetup
