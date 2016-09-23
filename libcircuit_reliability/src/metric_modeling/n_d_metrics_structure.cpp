@@ -33,20 +33,17 @@ NDMetricsStructure::NDMetricsStructure(const NDMetricsStructure& orig) {
 	this->group_name = orig.group_name;
 	/// copying the 2D structure
 	/// [nd_index][MetricCount]
-std::cout << "[debug] A\n";
 	metrics_structure = new std::vector<std::vector<Metric*>*>();
 	// useful metric_vectors
 	analyzable_metrics_vector = new std::vector<Metric*>();
 	ocean_eval_metrics_vector = new std::vector<OceanEvalMetric*>();
 	plottable_metrics_vector = new std::vector<Magnitude*>();
-std::cout << "[debug] B\n";
 	// reserve memory
 	metrics_structure->reserve( orig.metrics_structure->size() );
 	unsigned int magCount = orig.metrics_structure->front()->size();
 	//debug
 	unsigned int msCount = 0;
 	for( auto const& ms : *(orig.metrics_structure) ){
-std::cout << "[debug] C\n";
 		if( ms==nullptr ){
 			std::cout << "[Copying NDMetricsStructure] ERROR, null ms for index" << msCount << "\n";
 			std::clog << "[Copying NDMetricsStructure] ERROR, null ms for index" << msCount << "\n";

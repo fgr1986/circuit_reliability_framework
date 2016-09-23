@@ -150,7 +150,6 @@ int GoldenSimulation::RunSpectre(){
 }
 
 NDMetricsStructure* GoldenSimulation::GetGoldenMetrics(){
-std::cout << "GoldenSimulation:GetGoldenMetrics\n";
 	NDMetricsStructure* gms = new NDMetricsStructure(*golden_metrics_structure);
 	return gms;
 }
