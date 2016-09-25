@@ -196,8 +196,7 @@ CriticalParameterValueSimulation* CriticalParameterNDParameterSweepSimulation::C
 	unsigned int sweepedParamIndex = 0;
 	for( auto const &p : parameters2sweep ){
 		if( !pCPVS->UpdateParameterValue( *p, number2String( p->GetSweepValue( parameterCountIndexes.at(sweepedParamIndex)))) ){
-			log_io->ReportError2AllLogs( p->get_name()
-				+ " not found in CriticalParameterValueSimulation and could not be updated." );
+			log_io->ReportError2AllLogs( p->get_name() + " not found in CriticalParameterValueSimulation and could not be updated." );
 		}
 		++sweepedParamIndex;
 	}

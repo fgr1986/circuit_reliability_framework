@@ -299,7 +299,6 @@ bool MontecarloNDParametersSweepSimulation::GenerateAndPlotResults(
 	return partialResults;
 }
 
-
 bool MontecarloNDParametersSweepSimulation::InitMetricColumnIndexes(
 		const std::vector<Metric*>& auxMetrics ){
 	// partial plane inputs
@@ -495,15 +494,27 @@ bool MontecarloNDParametersSweepSimulation::GenerateAndPlotGeneralResults(
 			<< "\n# max_max_error_global min_max_error_global mean_max_error_global";
 		gnuplotMapFile << "\n# if oceanEvalMetric METRIC_MAX_VAL METRIC_MIN_VAL METRIC_MEAN_VAL\n";
 		gnuplotSpectreErrorMapFile << "#profileCount #Profile SpectreError \n";
-		// fgarcia
+		// scientific format
 		gnuplotMapFile << std::scientific;
+		// params to be sweeped
+		std::vector<SimulationParameter*> parameters2sweep;
+		// Threads Creation
+		for( auto const &p : *simulation_parameters ){
+			if( p->get_allow_sweep() ){
+				// parameter sweep (increments etc) already init, so no problemo
+				parameters2sweep.push_back( p );
+			}
+		}
 		unsigned int profileCount = 0;
+		bool severalSweepParameter = parameters2sweep.size()>1;
+		auto sweepParameter = parameters2sweep.at(0);
 		for( auto const &simulation : *(montecarlo_standard_simulations_vector.get_spectre_simulations()) ){
 			MontecarloSimulation* mcSSim = dynamic_cast<MontecarloSimulation*>(simulation);
 			std::string auxIndexes = getIndexCode( auxiliarIndexes );
 			std::string auxSpectreError = mcSSim->get_correctly_simulated() ? "0" : "1";
 			double upsetsRatio = (double) 100*(mcSSim->get_montecarlo_simulation_results()->get_upsets_count())/((double)montecarlo_iterations);
-			gnuplotMapFile << std::defaultfloat << profileCount << " " << auxIndexes << " " << upsetsRatio;
+			gnuplotMapFile << std::defaultfloat << ( severalSweepParameter ? profileCount : sweepParameter->GetSweepValue(profileCount) )
+				<< " " << auxIndexes << " " << upsetsRatio;
 			// update maxUpsetRatio
 			maxUpsetRatio = upsetsRatio>maxUpsetRatio ? upsetsRatio : maxUpsetRatio;
 			// metrics
@@ -617,12 +628,12 @@ int MontecarloNDParametersSweepSimulation::GnuplotGeneralMetricResults(
 	// mag count indexes
 	unsigned int metricCount = 0;
 	int magDataMetricIndex = in_profile_gnuplot_first_mag_metric_offset; // max
-	int magDataGlobalIndex = magDataMetricIndex + in_profile_gnuplot_partial_mag_global_offset; // max
-	int magDataOveanEvalValIndex = magDataMetricIndex + in_profile_gnuplot_partial_mag_ocean_eval_val_offset; // max
+	int magDataGlobalIndex = 0; // max
+	int magDataOveanEvalValIndex = 0; // max
 	for( auto const &m : analyzedMetrics ){
 		if( m->get_analyzable() ){
 			// update indexes
-			magDataGlobalIndex += magDataMetricIndex + in_profile_gnuplot_partial_mag_global_offset; // max
+			magDataGlobalIndex = magDataMetricIndex + in_profile_gnuplot_partial_mag_global_offset; // max
 			magDataOveanEvalValIndex = magDataMetricIndex + in_profile_gnuplot_partial_mag_ocean_eval_val_offset; // max
 			// Files
 			std::string gnuplotScriptFilePath = gnuplotScriptFolder + kFolderSeparator
@@ -668,9 +679,11 @@ int MontecarloNDParametersSweepSimulation::GnuplotGeneralMetricResults(
 			// # 1              2            3      4             5                6              7             8   9   10  11
 			// # profCount profile %upsets MAG_i_name MAG_i_maxError MAG_i_minError MAG_i_mean MAG_i_median q12 q34 MAG_i_maxErrorGlobal
 			gnuplotScriptFile <<  "plot '" << gnuplotDataFile << "' using 1:3 axis x1y2 with filledcurve x1 ls 6 title '\% Upsets', \\\n";
-			// candlesticks  # Data columns: X Min 1stQuartile Median 3rdQuartile Max
 			// metric
-			gnuplotScriptFile <<  "     '" << gnuplotDataFile << "' u 1:" << (magDataMetricIndex+1)  <<  ":" << (magDataMetricIndex+4) << ":" << (magDataMetricIndex+3) << ":" << (magDataMetricIndex+5) << ":" << magDataMetricIndex << " axis x1y1  w candlesticks ls 1 notitle whiskerbars, \\\n";
+			// old candlesticks  # Data columns: X Min 1stQuartile Median 3rdQuartile Max
+			// gnuplotScriptFile <<  "     '" << gnuplotDataFile << "' u 1:" << (magDataMetricIndex+1)  <<  ":" << (magDataMetricIndex+4) << ":" << (magDataMetricIndex+3) << ":" << (magDataMetricIndex+5) << ":" << magDataMetricIndex << " axis x1y1  w candlesticks ls 1 notitle whiskerbars, \\\n";
+			// new candlesticks  # Data columns: X BoxMin WMin WMax BoxMax
+			gnuplotScriptFile <<  "     '" << gnuplotDataFile << "' u 1:" << (magDataMetricIndex+4)  <<  ":" << (magDataMetricIndex+1) << ":" << magDataMetricIndex << ":" << (magDataMetricIndex+5) << " axis x1y1  w candlesticks ls 1 notitle whiskerbars, \\\n";
 			gnuplotScriptFile <<  "     '" << gnuplotDataFile << "' u 1:" << (magDataMetricIndex+2) << " axis x1y1  w lp ls 2 title '" << m->get_title_name() << " (max_error_metric)', \\\n";
 			// global
 			gnuplotScriptFile <<  "     '" << gnuplotDataFile << "' u 1:" << (magDataGlobalIndex+2)  <<  ":" << (magDataGlobalIndex+1) << ":" << magDataGlobalIndex << " axis x1y1  w errorbars ls 3 notitle, \\\n";
@@ -686,11 +699,11 @@ int MontecarloNDParametersSweepSimulation::GnuplotGeneralMetricResults(
 				outputImagePath = imagesFolder + kFolderSeparator + simulation_id + "_general_mag_values_" + number2String(metricCount) + kSvgSufix;
 				gnuplotScriptFile << "set output \"" << outputImagePath << "\"\n";
 				gnuplotScriptFile << "set title \" " << title << " \"\n";
-				gnuplotScriptFile <<  "plot '" << gnuplotDataFile << "' using 1:3 axis x1y2 with filledcurve x1 ls 6 title '\% Upsets', \\\n";
-				gnuplotScriptFile <<  "     '" << gnuplotDataFile << "' u 1:" << (magDataOveanEvalValIndex+2)  <<  ":" << (magDataOveanEvalValIndex+1) << ":" << magDataOveanEvalValIndex << " axis x1y1  w errorbars ls 3 notitle, \\\n";
-				gnuplotScriptFile <<  "     '" << gnuplotDataFile << "' u 1:" << (magDataOveanEvalValIndex+2) << " axis x1y1  w lp ls 3 title '" << m->get_title_name() << " '\n";
+				gnuplotScriptFile << "plot '" << gnuplotDataFile << "' using 1:3 axis x1y2 with filledcurve x1 ls 6 title '\% Upsets', \\\n";
+				gnuplotScriptFile << "     '" << gnuplotDataFile << "' u 1:" << (magDataOveanEvalValIndex+2)  <<  ":" << (magDataOveanEvalValIndex+1) << ":" << magDataOveanEvalValIndex << " axis x1y1  w errorbars ls 3 notitle, \\\n";
+				gnuplotScriptFile << "     '" << gnuplotDataFile << "' u 1:" << (magDataOveanEvalValIndex+2) << " axis x1y1  w lp ls 3 title '" << m->get_title_name() << " '\n";
 				// legend
-				gnuplotScriptFile <<  "set key top left\n";
+				gnuplotScriptFile << "set key top left\n";
 				gnuplotScriptFile << "unset output\n";
 			}
 			// close file
@@ -783,12 +796,12 @@ int MontecarloNDParametersSweepSimulation::GnuplotPlaneMetricResults(
 	// metrics counters
 	unsigned int metricCount = 0;
 	int magDataMetricIndex = in_profile_gnuplot_first_mag_metric_offset; // max
-	int magDataGlobalIndex = magDataMetricIndex + in_plane_gnuplot_partial_mag_global_offset; // max
-	int magDataOveanEvalValIndex = magDataMetricIndex + in_plane_gnuplot_partial_mag_ocean_eval_val_offset; // max
+	int magDataGlobalIndex = 0; // max
+	int magDataOveanEvalValIndex = 0; // max
 	for( auto const &m : analyzedMetrics ){
 		if( m->get_analyzable() ){
 			// update indexes
-			magDataGlobalIndex += magDataMetricIndex + in_profile_gnuplot_partial_mag_global_offset; // max
+			magDataGlobalIndex = magDataMetricIndex + in_profile_gnuplot_partial_mag_global_offset; // max
 			magDataOveanEvalValIndex = magDataMetricIndex + in_profile_gnuplot_partial_mag_ocean_eval_val_offset; // max
 			// Files
 			std::string gnuplotScriptFilePath = gnuplotScriptFolder + kFolderSeparator

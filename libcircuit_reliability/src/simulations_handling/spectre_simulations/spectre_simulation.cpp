@@ -242,11 +242,9 @@ bool SpectreSimulation::AnalyzeOceanEvalMetric(TransientSimulationResults& trans
 	if( simulatedMetric.get_error_margin_up()>0 && !goldenHigher && diff>simulatedMetric.get_error_margin_up() ){
 		error = diff;
 		hasErrors = true;
-		log_io->ReportRedStandard( "[debug] UP in " + partialId + " " +  simulatedMetric.get_name() + " with diff: " + number2String(diff) + ", marging: " + number2String(simulatedMetric.get_error_margin_up())  );
 	} else if( simulatedMetric.get_error_margin_down()>0 && goldenHigher && diff>simulatedMetric.get_error_margin_down() ){
 		error = diff;
 		hasErrors = true;
-		log_io->ReportRedStandard( "[debug] DOWN in " + partialId + " " +  simulatedMetric.get_name() + " with diff: " + number2String(diff) + ", marging: " + number2String(simulatedMetric.get_error_margin_down())  );
 	}
 	metricErrors->set_max_abs_error( error );
 	metricErrors->set_max_abs_error_global( error );
