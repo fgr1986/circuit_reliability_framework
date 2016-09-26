@@ -684,6 +684,8 @@ int MontecarloNDParametersSweepSimulation::GnuplotGeneralMetricResults(
 			// gnuplotScriptFile <<  "     '" << gnuplotDataFile << "' u 1:" << (magDataMetricIndex+1)  <<  ":" << (magDataMetricIndex+4) << ":" << (magDataMetricIndex+3) << ":" << (magDataMetricIndex+5) << ":" << magDataMetricIndex << " axis x1y1  w candlesticks ls 1 notitle whiskerbars, \\\n";
 			// new candlesticks  # Data columns: X BoxMin WMin WMax BoxMax
 			gnuplotScriptFile <<  "     '" << gnuplotDataFile << "' u 1:" << (magDataMetricIndex+4)  <<  ":" << (magDataMetricIndex+1) << ":" << magDataMetricIndex << ":" << (magDataMetricIndex+5) << " axis x1y1  w candlesticks ls 1 notitle whiskerbars, \\\n";
+			// mean in candlesticks
+			gnuplotScriptFile <<  "     '" << gnuplotDataFile << "' u 1:" << (magDataMetricIndex+3)  <<  ":" << (magDataMetricIndex+3) << ":" << (magDataMetricIndex+3) << ":" << (magDataMetricIndex+3) << " axis x1y1  w candlesticks lt -1 lw 2 notitle, \\\n";
 			gnuplotScriptFile <<  "     '" << gnuplotDataFile << "' u 1:" << (magDataMetricIndex+2) << " axis x1y1  w lp ls 2 title '" << m->get_title_name() << " (max_error_metric)', \\\n";
 			// global
 			gnuplotScriptFile <<  "     '" << gnuplotDataFile << "' u 1:" << (magDataGlobalIndex+2)  <<  ":" << (magDataGlobalIndex+1) << ":" << magDataGlobalIndex << " axis x1y1  w errorbars ls 3 notitle, \\\n";

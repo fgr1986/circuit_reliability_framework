@@ -24,10 +24,10 @@
 
 # Changelog of version 3.3.0
 * Parameter design space exploration ( 10^ is not e^!!) has been revised.
-* Improved **MontecarloNDParametersSweepSimulation**
-* **OceanEvalMetrics** generate maps with both error and VALUES (*MetricErrors metric_value* takes *OceanEvalMetric value*).
-* *metric_montecarlo_results_t* includes **OceanEvalMetrics** values
-* Improvement in *candlesticks* plots
+* Improved **MontecarloNDParametersSweepSimulation**:
+	* **OceanEvalMetrics** generate maps with both error and VALUES (*MetricErrors metric_value* takes *OceanEvalMetric value*).
+	* *metric_montecarlo_results_t* includes **OceanEvalMetrics** values
+	* Improvement in *candlesticks* plots
 
 # Version 3.x.y
 
@@ -35,10 +35,10 @@
 
 * Changelog of version 3.3.0
 	* Parameter design space exploration ( 10^ is not e^!!) has been revised.
-	* Improved **MontecarloNDParametersSweepSimulation**
-	* **OceanEvalMetrics** generate maps with both error and VALUES (*MetricErrors metric_value* takes *OceanEvalMetric value*).
-	* *metric_montecarlo_results_t* includes **OceanEvalMetrics** values
-	* Improvement in *candlesticks* plots
+	* Improved **MontecarloNDParametersSweepSimulation**:
+		* **OceanEvalMetrics** generate maps with both error and VALUES (*MetricErrors metric_value* takes *OceanEvalMetric value*).
+		* *metric_montecarlo_results_t* includes **OceanEvalMetrics** values
+		* Improvement in *candlesticks* plots
 
 * Changelog of version 3.2.2
 	* Summary results processor bug fixes.
