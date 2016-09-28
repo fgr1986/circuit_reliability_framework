@@ -258,6 +258,7 @@ bool ResultsProcessor::StatisticProcessStatisticsFiles( const std::map<std::stri
 	#ifdef RESULTS_POST_PROCESSING_VERBOSE
 		 log_io->ReportBlueStandard( "StatisticProcessStatisticsFiles Processing:" + outputPath );
 	#endif
+		 log_io->ReportBlueStandard( "StatisticProcessStatisticsFiles Processing:" + outputPath );
 	unsigned int originalColumns = 0;
 	unsigned int totalRows = 0;
 	unsigned int totalFiles = paths->size();
@@ -301,6 +302,9 @@ bool ResultsProcessor::StatisticProcessStatisticsFiles( const std::map<std::stri
 			matrixMean[i][j] = 0;	// for mean
 		}
 	}
+	// std::cout << "[debug fgarcia] meanFieldsColumnIndexes " << std::endl;
+	// PrintVector( meanFieldsColumnIndexes );
+	// PrintBools( computedColumnsMean, originalColumns );
 	// process all files
 	for( auto const &path: *paths ){
 		result = result && StatisticProcessStatisticsFile( std::move(path.first), matrixMax, matrixMin, matrixMean,

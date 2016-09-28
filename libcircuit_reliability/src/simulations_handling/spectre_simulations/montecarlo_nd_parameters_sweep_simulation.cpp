@@ -259,6 +259,11 @@ bool MontecarloNDParametersSweepSimulation::GenerateAndPlotResults(
 	std::set<std::pair<unsigned int,unsigned int>> exportedParamTuples;
 	// reserve memory
 	main_nd_simulation_results.ReservePlanesInMemory( CountInvolvedPlanes(parameters2sweep) );
+	// init all metric column_indexes
+	if( !InitMetricColumnIndexes(*auxMetrics) ){
+		log_io->ReportError2AllLogs( "Unexpected error in InitMetricColumnIndexes" );
+		return false;
+	}
 	unsigned int p1Index = 0;
 	std::string planesMapsFolder;
 	std::string planesGnuplotScriptFolder;
@@ -365,6 +370,7 @@ bool MontecarloNDParametersSweepSimulation::GenerateAndPlotParameterPairResults(
 	std::string generalParameterResultsFile = mapsFolder + kFolderSeparator
 		+ planeStructure->get_plane_id() + "_general" + kDataSufix;
 	// process only mean
+	// fgarcia
 	partialResults = partialResults && rp.StatisticProcessStatisticsFiles(
 		planeStructure->get_itemized_data_paths(), generalParameterResultsFile,
 		std::move(p_p_c_i_max), std::move(p_p_c_i_min), std::move(p_p_c_i_mean));
@@ -496,15 +502,6 @@ bool MontecarloNDParametersSweepSimulation::GenerateAndPlotGeneralResults(
 		gnuplotSpectreErrorMapFile << "#profileCount #Profile SpectreError \n";
 		// scientific format
 		gnuplotMapFile << std::scientific;
-		// params to be sweeped
-		std::vector<SimulationParameter*> parameters2sweep;
-		// Threads Creation
-		for( auto const &p : *simulation_parameters ){
-			if( p->get_allow_sweep() ){
-				// parameter sweep (increments etc) already init, so no problemo
-				parameters2sweep.push_back( p );
-			}
-		}
 		unsigned int profileCount = 0;
 		bool severalSweepParameter = parameters2sweep.size()>1;
 		auto sweepParameter = parameters2sweep.at(0);
