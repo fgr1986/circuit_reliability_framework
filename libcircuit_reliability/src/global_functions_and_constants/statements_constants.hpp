@@ -40,6 +40,7 @@ static const std::string kBSourceStatementDesc =  "bsource";
 static const std::string kAlterationSourceSubcircuitStatementDesc =  "radiation source subcircuit";
 static const std::string kGlobalStatementDesc =  "global nodes";
 static const std::string kFirstRunParamName = "p_firstrun";
+static const std::string kSeedParamName = "p_seed";
 // Default Paralell Statements
 static const std::string kDefaultParallelStatements = "1";
 

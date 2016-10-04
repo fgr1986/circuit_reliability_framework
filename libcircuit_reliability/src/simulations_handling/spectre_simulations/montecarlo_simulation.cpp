@@ -182,11 +182,15 @@ StandardSimulation* MontecarloSimulation::CreateMonteCarloIteration( unsigned in
 	pSS->CopySimulationParameters( *simulation_parameters );
 	/// Update numruns parameter
 	/// No need to update golden parameter
-	// add firstRunParameter
+	// add firstRunParameter and seedParameter
 	auto firstRunParameter = new SimulationParameter( kFirstRunParamName,
 		number2String(montecarloCount+1), true, kNotDefinedInt,
 		kNotDefinedInt, kNotDefinedInt, kNotDefinedInt, kNotDefinedInt );
+	auto seedParameter = new SimulationParameter( kSeedParamName,
+		number2String(montecarloCount+1), true, kNotDefinedInt,
+		kNotDefinedInt, kNotDefinedInt, kNotDefinedInt, kNotDefinedInt );
 	pSS->AddAdditionalSimulationParameter( firstRunParameter );
+	pSS->AddAdditionalSimulationParameter( seedParameter );
 	// fgarcia
 	// update parameter values no needed
 	return pSS;

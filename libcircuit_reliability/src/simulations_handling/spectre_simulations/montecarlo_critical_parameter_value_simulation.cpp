@@ -197,11 +197,15 @@ CriticalParameterValueSimulation* MontecarloCriticalParameterValueSimulation::Cr
 		 log_io->ReportError2AllLogs( golden_critical_parameter->get_name()
 			  + " not found in CriticalParameterValueSimulation and could not be updated." );
 	}
-	// add firstRunParameter
+	// add firstRunParameter and seedParameter
 	auto firstRunParameter = new SimulationParameter( kFirstRunParamName,
 		number2String(montecarloCount+1), true, kNotDefinedInt,
 		kNotDefinedInt, kNotDefinedInt, kNotDefinedInt, kNotDefinedInt );
+	auto seedParameter = new SimulationParameter( kSeedParamName,
+		number2String(montecarloCount+1), true, kNotDefinedInt,
+		kNotDefinedInt, kNotDefinedInt, kNotDefinedInt, kNotDefinedInt );
 	pCPVS->AddAdditionalSimulationParameter( firstRunParameter );
+	pCPVS->AddAdditionalSimulationParameter( seedParameter );
 	// fgarcia
 	// update parameter values no needed
 	return pCPVS;
