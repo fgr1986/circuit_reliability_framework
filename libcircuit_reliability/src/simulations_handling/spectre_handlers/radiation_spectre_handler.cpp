@@ -147,13 +147,13 @@ bool RadiationSpectreHandler::RunSimulations(){
 	if( simulation_mode->get_id()==kMontecarloCriticalParameterNDParametersSweepMode){
 		SimulationParameter* pMontecarloIterations = nullptr;
 		for( auto & p : simulation_parameters ){
-			if( p->get_name() == kMontecarloIterationsParameterWord){
+			if( p->get_name() == kMCIterationsParamName ){
 				pMontecarloIterations = p;
 				break; // break for
 			}
 		}
 		if( pMontecarloIterations==nullptr ){
-			log_io->ReportError2AllLogs( "param " + kMontecarloIterationsParameterWord +" is null. Required for this simulation mode");
+			log_io->ReportError2AllLogs( "param " + kMCIterationsParamName +" is null. Required for this simulation mode");
 			return false;
 		}
 		montecarlo_iterations = std::stoi( pMontecarloIterations->get_value() );

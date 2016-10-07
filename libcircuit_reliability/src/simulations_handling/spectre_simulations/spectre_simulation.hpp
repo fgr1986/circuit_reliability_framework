@@ -227,7 +227,6 @@ protected:
 
 	/// LogIO
 	LogIO* log_io;
-
 	/// some simulations can be nested in ParameterSweep Simulations
 	bool is_nested_simulation;
 	/// and also nested in montecarlo analysis

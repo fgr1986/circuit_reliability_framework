@@ -62,9 +62,13 @@ static std::string kCriticalValueModeWord = "critical_parameter_value_analysis";
 static std::string kCriticalParameterNDParametersSweepModeWord = "critical_parameter_n_d_parameters_sweep_analysis";
 static std::string kMontecarloNDParametersSweepModeWord = "montecarlo_n_d_parameters_sweep_analysis";
 static std::string kMontecarloCriticalParameterNDParametersSweepModeWord = "montecarlo_critical_parameter_n_d_parameters_sweep_analysis";
+
 // Montecarlo firstrun should be 1
-static const unsigned int kMontecarloCountStart = 1;
-static const std::string kMontecarloIterationsParameterWord = "montecarlo_iterations";
+static const unsigned int kMCCountStart = 1;
+static const std::string kMCIterationsParamName = "fw_montecarlo_iterations";
+static const std::string kMCNumRunsParamName = "fw_numruns";
+static const std::string kMCFirstRunParamName = "fw_firstrun";
+static const std::string kMCSeedParamName = "fw_seed";
 
 // Simulation parameter step/control
 // <!--0. lineal increments in both sweep and critical value modes.-->

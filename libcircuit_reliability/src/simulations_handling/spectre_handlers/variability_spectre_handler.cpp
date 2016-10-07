@@ -113,20 +113,20 @@ bool VariabilitySpectreHandler::RunSimulations(){
 	}
 	// reserve memory, only one altered scenarios
 	simulations.reserve( 1 );
-	// retrieve numruns and set it to '1', for manual handling in kMontecarloNDParametersSweepMode
+	// retrieve numruns  and update
 	if( simulation_mode->get_id()!=kMontecarloNDParametersSweepMode){
 		log_io->ReportError2AllLogs( "Simulation mode is not kMontecarloNDParametersSweepMode. Aborted." );
 		return false;
 	}
 	SimulationParameter* pMontecarloIterations = nullptr;
 	for( auto & p : simulation_parameters ){
-		if( p->get_name() == kMontecarloIterationsParameterWord){
+		if( p->get_name() == kMCIterationsParamName ){
 			pMontecarloIterations = p;
 			break; // break for
 		}
 	}
 	if( pMontecarloIterations==nullptr ){
-		log_io->ReportError2AllLogs( " param " + kMontecarloIterationsParameterWord +" is null. Required for this simulation mode");
+		log_io->ReportError2AllLogs( " param " + kMCIterationsParamName +" is null. Required for this simulation mode");
 		return false;
 	}
 	montecarlo_iterations = std::stoi( pMontecarloIterations->get_value() );

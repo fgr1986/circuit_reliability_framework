@@ -42,6 +42,6 @@ static const std::string kBracketsEndWord = "}";
 static const std::string kUserDefinedFunctionWord = "real";
 static const std::string kUserDefinedFunctionAndDelimiterWord = "real ";
 static const std::string kParamTestWord = "paramtest";
-static const std::string kMontecarloNumRuns = "numruns";
+static const std::string kMontecarloNumRunsWord = "numruns";
 
 #endif /* NETLIST_WORD_CONSTANTS_H */

@@ -40,57 +40,71 @@ void StandardSimulation::RunSimulation( ){
 		return;
 	}
 	if (simulation_parameters==nullptr){
-		log_io->ReportError2AllLogs( "simulation_parameters is nullptr. ");
+		log_io->ReportError2AllLogs( "simulation_parameters is nullptr.");
 		return;
 	}
 	// Register Parameters
-	basic_simulation_results.RegisterSimulationParameters(simulation_parameters);
-	basic_simulation_results.set_full_id( simulation_id );
-	basic_simulation_results.set_title( simulation_id );
-	// Environment variables
-	ConfigureEnvironmentVariables();
-	ShowEnvironmentVariables();
+	InitBasicSimulationResults();
 	// Parameters file
 	if( !ExportParametersCircuit( folder, 0 )){
 		log_io->ReportError2AllLogs( "Error creating parameters Circuit ");
 		return;
 	}
+	// Environment variables
+	ConfigureEnvironmentVariables();
+	ShowEnvironmentVariables();
 	basic_simulation_results.set_spectre_result( RunSpectre( simulation_id ) );
 	if( correctly_simulated && process_metrics ){
-		log_io->ReportPlain2Log( k2Tab + "#" + simulation_id + " scenario: processing results.");
-		// Set up metrics
-		std::vector<Metric*>* analyzedMetrics = CreateMetricsVectorFromGoldenMetrics( n_d_profile_index );
-		// process metrics
-		if( !ProcessSpectreResults( folder, simulation_id, basic_simulation_results, false, *analyzedMetrics, false, is_montecarlo_nested_simulation ) ){
-			log_io->ReportError2AllLogs( "Error while processing the critical value simulation spectre_results. Scenario #"
-				+ simulation_id );
-			return;
-		}
-		// Interpolating and analyzing metrics
-		#ifdef SPECTRE_SIMULATIONS_VERBOSE
-		log_io->ReportPlain2Log( kTab + "#" + simulation_id + " -> Interpolating spectre_results");
-		#endif
-		if( !InterpolateAndAnalyzeMetrics( basic_simulation_results, *analyzedMetrics, n_d_profile_index, simulation_id ) ){
-			log_io->ReportError2AllLogs( "Error while interpolating the critical value metrics. Scenario #"
-				+ simulation_id );
-			return;
-		}
-		// plot previous transient, if needed
-		if( !PlotTransient( simulation_id, basic_simulation_results, false ) ){
-			log_io->ReportError2AllLogs( "Error while ploting transients. Scenario #"	+ simulation_id );
+		ProcessMetrics();
+	}
+}
+
+void StandardSimulation::ProcessMetricsFromExt( const int spectreResult ){
+	InitBasicSimulationResults();
+	basic_simulation_results.set_spectre_result( spectreResult );
+	ProcessMetrics();
+}
+
+void StandardSimulation::InitBasicSimulationResults(){
+	basic_simulation_results.RegisterSimulationParameters( simulation_parameters );
+	basic_simulation_results.set_full_id( simulation_id );
+	basic_simulation_results.set_title( simulation_id );
+}
+
+void StandardSimulation::ProcessMetrics(){
+	log_io->ReportPlain2Log( k2Tab + "#" + simulation_id + " scenario: processing results.");
+	// Set up metrics
+	std::vector<Metric*>* analyzedMetrics = CreateMetricsVectorFromGoldenMetrics( n_d_profile_index );
+	// process metrics
+	if( !ProcessSpectreResults( folder, simulation_id, basic_simulation_results, false, *analyzedMetrics, false, is_montecarlo_nested_simulation ) ){
+		log_io->ReportError2AllLogs( "Error while processing the critical value simulation spectre_results. Scenario #"
+			+ simulation_id );
+		return;
+	}
+	// Interpolating and analyzing metrics
+	#ifdef SPECTRE_SIMULATIONS_VERBOSE
+	log_io->ReportPlain2Log( kTab + "#" + simulation_id + " -> Interpolating spectre_results");
+	#endif
+	if( !InterpolateAndAnalyzeMetrics( basic_simulation_results, *analyzedMetrics, n_d_profile_index, simulation_id ) ){
+		log_io->ReportError2AllLogs( "Error while interpolating the critical value metrics. Scenario #"
+			+ simulation_id );
+		return;
+	}
+	// plot previous transient, if needed
+	if( !PlotTransient( simulation_id, basic_simulation_results, false ) ){
+		log_io->ReportError2AllLogs( "Error while ploting transients. Scenario #"	+ simulation_id );
+		// return false; // program can continue
+	}
+	// delete previous transients, if needed
+	if(!is_montecarlo_nested_simulation){
+		if( !ManageIndividualResultFiles( basic_simulation_results, false ) ){
+			log_io->ReportError2AllLogs( "Error deleting raw data. Scenario #" + simulation_id );
 			// return false; // program can continue
 		}
-		// delete previous transients, if needed
-		if(!is_montecarlo_nested_simulation){
-			if( !ManageIndividualResultFiles( basic_simulation_results, false ) ){
-				log_io->ReportError2AllLogs( "Error deleting raw data. Scenario #" + simulation_id );
-				// return false; // program can continue
-			}
-		}
-		// delete analyzed metrics
-		deleteContentsOfVectorOfPointers( *analyzedMetrics);
-		delete analyzedMetrics;
 	}
+	// delete analyzed metrics
+	deleteContentsOfVectorOfPointers( *analyzedMetrics);
+	delete analyzedMetrics;
 }
 
 bool StandardSimulation::TestSetUp(){

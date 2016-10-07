@@ -48,8 +48,13 @@ void MontecarloNDParametersSweepSimulation::RunSimulation( ){
 		log_io->ReportError2AllLogs( "RunSimulation had not been previously set up. ");
 		return;
 	}
-	// montecarlo_iterations defined in radiation_handler.
-	// montecarlo_iterations = std::stoi( main_analysis->GetParameter(kMontecarloNumRuns)->get_value() );
+	log_io->ReportPurpleStandard( "Updating MC NumRuns:" );
+	// Update numruns in MC analyses
+	auto numRunParameter = new SimulationParameter( kMCNumRunsParamName, kMCIterationsParamName,
+		true, kNotDefinedInt, kNotDefinedInt, kNotDefinedInt, kNotDefinedInt, kNotDefinedInt );
+	AddAdditionalSimulationParameter( numRunParameter );
+	log_io->ReportPurpleStandard( "MC numruns set to:" + numRunParameter->get_value() );
+
 	boost::thread_group mainTG;
 	// params to be sweeped
 	std::vector<SimulationParameter*> parameters2sweep;

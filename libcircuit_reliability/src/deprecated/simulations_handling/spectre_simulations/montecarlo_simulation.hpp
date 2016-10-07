@@ -64,7 +64,7 @@ private:
 	 * @param scenario_id
 	 * @return spectre output
 	 */
-	int RunSpectre( const std::string& scenario_id );
+	int RunSpectre( std::string scenario_id );
 
 	/**
 	 * @brief Virtual overrides TestSetup

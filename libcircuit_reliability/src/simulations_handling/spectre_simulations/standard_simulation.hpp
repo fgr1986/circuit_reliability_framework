@@ -33,6 +33,7 @@ public:
 	 */
 	TransientSimulationResults* get_basic_simulation_results(){ return &basic_simulation_results; }
 
+	void ProcessMetricsFromExt( const int spectreResult );
 
 private:
 	/// Pointer to the only simulation results present in the list.
@@ -51,6 +52,16 @@ private:
 	 * @return spectre output
 	 */
 	int RunSpectre( const std::string& scenario_id );
+
+	/**
+	 * @brief Run the previously configured spectre simulation
+	 *
+	 * @param scenario_id
+	 * @return spectre output
+	 */
+	void ProcessMetrics();
+
+	void InitBasicSimulationResults();
 
 	/**
 	 * @brief Virtual overrides TestSetup

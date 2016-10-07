@@ -59,38 +59,37 @@ void MontecarloSimulation::RunSimulation( ){
 		log_io->ReportError2AllLogs( "simulation_parameters is nullptr. ");
 		return;
 	}
+	boost::thread_group mainTG;
 	// Register Parameters
 	montecarlo_simulation_results.set_full_id( simulation_id );
 	montecarlo_simulation_results.RegisterSimulationParameters(simulation_parameters);
-	unsigned int mcIterationCount = 0;
+	// parallel threads control
+	unsigned int runningThreads = 0;
+	unsigned int threadsCount = 0;
 	montecarlo_simulations_vector.set_group_name("montecarlo_simulations_vector");
 	montecarlo_simulations_vector.ReserveSimulationsInMemory( montecarlo_iterations );
 	#ifdef SPECTRE_SIMULATIONS_VERBOSE
 		log_io->ReportThread( "Total montecarlo to be simulated: " + number2String(montecarlo_iterations) + ". Max number of montecarlo threads: " + number2String(max_parallel_montecarlo_instances), 1 );
 	#endif
-	while( mcIterationCount<montecarlo_iterations ){
+	while( threadsCount<montecarlo_iterations ){
+		// wait for resources
+		WaitForResources( runningThreads, max_parallel_montecarlo_instances, mainTG, threadsCount );
 		// not needed to copy 'parameterCountIndexes' since without using boost::ref, arguments are copied
 		// to avoid race conditions updating variables
-		StandardSimulation* pSS = CreateMonteCarloIteration( mcIterationCount );
+		StandardSimulation* pSS = CreateMonteCarloIteration( threadsCount );
 		if( pSS==nullptr ){
-			log_io->ReportError2AllLogs( "Null CreateProfile " + number2String(mcIterationCount) );
+			log_io->ReportError2AllLogs( "Null CreateProfile " + number2String(threadsCount) );
 			correctly_simulated = false;
 			correctly_processed = false;
 			return;
 		}
 		montecarlo_simulations_vector.AddSpectreSimulation( pSS );
+		mainTG.add_thread( new boost::thread(boost::bind(&StandardSimulation::RunSimulation, pSS)) );
 		// update variables
-		++mcIterationCount;
+		++threadsCount;
+		++runningThreads;
 	}
-	// RunSpectreMC
-	int auxSpectreResult = RunSpectre( simulation_id );
-	montecarlo_simulation_results.set_spectre_result( auxSpectreResult );
-	// foreach ....
-	log_io->ReportGreenStandard( k2Tab + "#" + simulation_id + " scenario: Processing results" );
-	for( auto const &ps : *(montecarlo_simulations_vector.get_spectre_simulations()) ){
-		StandardSimulation* pSS = dynamic_cast<StandardSimulation*>( ps );
-		pSS->ProcessMetricsFromExt( auxSpectreResult );
-	}
+	mainTG.join_all();
 	// process data
 	#ifdef RESULTS_ANALYSIS_VERBOSE
 		log_io->ReportPlainStandard( k2Tab + "[montecarlo_simulation] Generating Map files " + simulation_id);
@@ -99,10 +98,6 @@ void MontecarloSimulation::RunSimulation( ){
 	correctly_simulated = montecarlo_simulations_vector.CheckCorrectlySimulated();
 	correctly_processed = montecarlo_simulations_vector.CheckCorrectlyProcessed();
 	montecarlo_simulation_results.set_spectre_result( correctly_simulated );
-	if( auxSpectreResult == kNotDefinedInt ){
-		 log_io->ReportError2AllLogs( k2Tab + "->[montecarlo_simulation] Error in AnalyzeMontecarloResults()" );
-		 return;
-	}
 	if( !AnalyzeMontecarloResults() ){
 		 log_io->ReportError2AllLogs( k2Tab + "->[montecarlo_simulation] Error in AnalyzeMontecarloResults()" );
 	}
@@ -115,61 +110,28 @@ void MontecarloSimulation::RunSimulation( ){
 	#endif
 }
 
-int MontecarloSimulation::RunSpectre( const std::string& scenarioId ){
-	// previous setup
-	if (!TestSetUp()){
-		log_io->ReportError2AllLogs( "RunSimulation had not been previously set up. ");
-		return kNotDefinedInt;
-	}
-	if (simulation_parameters==nullptr){
-		log_io->ReportError2AllLogs( "simulation_parameters is nullptr.");
-		return kNotDefinedInt;
-	}
-	// MC setup
-	// add firstRunParameter and seedParameter
-	auto firstRunParameter = new SimulationParameter( kMCFirstRunParamName, "1",
-		true, kNotDefinedInt, kNotDefinedInt, kNotDefinedInt, kNotDefinedInt, kNotDefinedInt );
-	auto seedParameter = new SimulationParameter( kMCSeedParamName, number2String(n_d_profile_index),
-		true, kNotDefinedInt, kNotDefinedInt, kNotDefinedInt, kNotDefinedInt, kNotDefinedInt );
-	AddAdditionalSimulationParameter( firstRunParameter );
-	AddAdditionalSimulationParameter( seedParameter );
-
-	// Parameters file
-	if( !ExportParametersCircuit( folder, 0 )){
-		log_io->ReportError2AllLogs( "Error creating parameters Circuit ");
-		return kNotDefinedInt;
-	}
-	// Environment variables
-	ConfigureEnvironmentVariables();
-	ShowEnvironmentVariables();
-	// standard runspectre
-	std::string execCommand = spectre_command + " "
-		+ spectre_command_log_arg + " " + folder + kFolderSeparator + kSpectreLogFile + " "
-		+ spectre_command_folder_arg + " " + folder + kFolderSeparator + kSpectreResultsFolder + " "
-		+ folder + kFolderSeparator + kMainNetlistFile
-		+ " " + post_spectre_command + " " + folder + kFolderSeparator + kSpectreStandardLogsFile ;
-	#ifdef SPECTRE_SIMULATIONS_VERBOSE
-		log_io->ReportPlainStandard( k2Tab + "#" + scenarioId + " scenario: Simulating scenario." );
-	#endif
-	int spectre_result = std::system( execCommand.c_str() ) ;
-	if(spectre_result>0){
-		correctly_simulated = false;
-		log_io->ReportError2AllLogs( "Unexpected Spectre spectre_result for scenario #"
-			+ scenarioId + ": spectre output = " + number2String(spectre_result) );
-		log_io->ReportError2AllLogs( "Spectre Log Folder: " + folder );
-		return spectre_result;
-	}
-	correctly_simulated = true;
-	#ifdef SPECTRE_SIMULATIONS_VERBOSE
-	log_io->ReportGreenStandard( k2Tab + "#" + scenarioId + " scenario: Simulating ENDED."
-		+ " spectre_result=" + number2String(spectre_result) );
-	#endif
-	return spectre_result;
-}
-
 StandardSimulation* MontecarloSimulation::CreateMonteCarloIteration( unsigned int montecarloCount ){
 	// montecarloCount starts in 0,
 	std::string s_montecarloCount = number2String(montecarloCount);
+	std::string currentFolder = folder + kFolderSeparator
+		 + "m_" + s_montecarloCount;
+	if( !CreateFolder(currentFolder, true ) ){
+		 log_io->ReportError2AllLogs( k2Tab + "-> Error creating folder '" + currentFolder + "'." );
+		 log_io->ReportError2AllLogs( "Error running profile" );
+		 return nullptr;
+	}
+	// copy only files to folder
+	// find . -maxdepth 1 -type f -exec cp {} destination_path \;
+	std::string copyNetlists0 = "find ";
+	std::string copyNetlists1 = " -maxdepth 1 -type f -exec cp {} ";
+	std::string copyNetlists2 = " \\;";
+	std::string copyNetlists;
+	copyNetlists = copyNetlists0 + folder + copyNetlists1 + currentFolder + copyNetlists2;
+	if( std::system( copyNetlists.c_str() ) > 0){
+		 log_io->ReportError2AllLogs( k2Tab + "-> Error while copying netlist to '" + currentFolder + "'." );
+		 log_io->ReportError2AllLogs( "Error running sweep" );
+		 return nullptr;
+	}
 	// Simulation
 	StandardSimulation* pSS = new StandardSimulation();
 	pSS->set_has_additional_injection( has_additional_injection );
@@ -204,7 +166,7 @@ StandardSimulation* MontecarloSimulation::CreateMonteCarloIteration( unsigned in
 	pSS->set_ahdl_simdb_env( ahdl_simdb_env );
 	pSS->set_ahdl_shipdb_env( ahdl_shipdb_env );
 	pSS->set_top_folder( top_folder );
-	pSS->set_folder( folder );
+	pSS->set_folder( currentFolder );
 	pSS->set_altered_statement_path( altered_statement_path );
 	pSS->set_delete_spectre_transients( delete_spectre_transients );
 	pSS->set_delete_processed_transients( delete_processed_transients );
@@ -218,7 +180,19 @@ StandardSimulation* MontecarloSimulation::CreateMonteCarloIteration( unsigned in
 	pSS->set_export_metric_errors( export_metric_errors );
 	// copy of simulation_parameters
 	pSS->CopySimulationParameters( *simulation_parameters );
-	// firstrun and seed in main simulation
+	/// Update numruns parameter
+	/// No need to update golden parameter
+	// add firstRunParameter and seedParameter
+	auto firstRunParameter = new SimulationParameter( kFirstRunParamName,
+		number2String(montecarloCount+1), true, kNotDefinedInt,
+		kNotDefinedInt, kNotDefinedInt, kNotDefinedInt, kNotDefinedInt );
+	auto seedParameter = new SimulationParameter( kSeedParamName,
+		number2String(montecarloCount+1), true, kNotDefinedInt,
+		kNotDefinedInt, kNotDefinedInt, kNotDefinedInt, kNotDefinedInt );
+	pSS->AddAdditionalSimulationParameter( firstRunParameter );
+	pSS->AddAdditionalSimulationParameter( seedParameter );
+	// fgarcia
+	// update parameter values no needed
 	return pSS;
 }
 

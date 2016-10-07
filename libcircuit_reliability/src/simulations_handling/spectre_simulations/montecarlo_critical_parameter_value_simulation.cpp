@@ -198,12 +198,10 @@ CriticalParameterValueSimulation* MontecarloCriticalParameterValueSimulation::Cr
 			  + " not found in CriticalParameterValueSimulation and could not be updated." );
 	}
 	// add firstRunParameter and seedParameter
-	auto firstRunParameter = new SimulationParameter( kFirstRunParamName,
-		number2String(montecarloCount+1), true, kNotDefinedInt,
-		kNotDefinedInt, kNotDefinedInt, kNotDefinedInt, kNotDefinedInt );
-	auto seedParameter = new SimulationParameter( kSeedParamName,
-		number2String(montecarloCount+1), true, kNotDefinedInt,
-		kNotDefinedInt, kNotDefinedInt, kNotDefinedInt, kNotDefinedInt );
+	auto firstRunParameter = new SimulationParameter( kMCFirstRunParamName, "1",
+		true, kNotDefinedInt, kNotDefinedInt, kNotDefinedInt, kNotDefinedInt, kNotDefinedInt );
+	auto seedParameter = new SimulationParameter( kMCSeedParamName, number2String(n_d_profile_index),
+		true, kNotDefinedInt, kNotDefinedInt, kNotDefinedInt, kNotDefinedInt, kNotDefinedInt );
 	pCPVS->AddAdditionalSimulationParameter( firstRunParameter );
 	pCPVS->AddAdditionalSimulationParameter( seedParameter );
 	// fgarcia
