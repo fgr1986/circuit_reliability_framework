@@ -404,9 +404,11 @@ bool RAWFormatProcessor::PrepProcessTransientMetrics( std::vector<Metric*>* unso
 	}
 	// close file
 	file2.close();
-	if( sortedMags->size()!=unsortedMags->size() ){
+	if( !correctly_processed || sortedMags->size()!=unsortedMags->size() ){
 		log_io->ReportError2AllLogs( "Exception: not all metrics where found!!" );
 		correctly_processed = false;
+	}else{
+		log_io->ReportPlainStandard( "All metrics where found" );
 	}
 
 	return correctly_processed;

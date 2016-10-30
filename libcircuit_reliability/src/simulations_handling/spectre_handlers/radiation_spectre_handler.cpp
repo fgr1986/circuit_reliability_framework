@@ -356,6 +356,16 @@ bool RadiationSpectreHandler::ReorderMetrics( const std::string& spectreResultTr
 			log_io->ReportPlainStandard( m->get_name() + " is an oceanEval metric" );
 		}
 	}
+	if( !partialResult ){
+		for( auto const& m : unsorted_metrics_2be_found){
+			if( m->is_transient_magnitude() ){
+				log_io->ReportRedStandard( "[debug] original unsorted metrics: " + m->get_name() + " is a transient metric" );
+			}else{
+				log_io->ReportRedStandard( "[debug] original unsorted metrics: " + m->get_name() + " is an oceanEval metric" );
+			}
+		}
+	}
+	log_io->ReportRedStandard( "[debug fgarcia]" + number2String(metrics_2be_found.size()) + " " + number2String(unsorted_metrics_2be_found.size()) );
 	// free memory
 	deleteContentsOfVectorOfPointers( unsorted_metrics_2be_found );
 	return partialResult;

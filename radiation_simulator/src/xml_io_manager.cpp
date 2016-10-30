@@ -848,6 +848,7 @@ bool XMLIOManager::ProcessMetric(boost::property_tree::ptree::value_type const &
 	}
 	radiationSpectreHandler.AddMetric( newMetric );
 	circuitIOHandler.AddMetric( newMetric );
+	log_io->ReportPlainStandard( kTab + "Metrics " + metricName + " Processed and Added" );
 	return true;
 }
 
