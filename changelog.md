@@ -24,6 +24,7 @@
 
 # Changelog of version 3.3.2 and 3.3.2b
 * Tidying up
+* Fixed shorting metrics algorithm
 
 # Version 3.x.y
 
@@ -31,6 +32,7 @@
 
 * Changelog of version 3.3.2 and 3.3.2b
 	* Tidying up
+	* Fixed shorting metrics algorithm
 
 * Changelog of version 3.3.1
 	* Fixed **seed** and **firstrun** parameters in MC analyses: *p_firstrun* and *p_seed* are required for MC analyses.

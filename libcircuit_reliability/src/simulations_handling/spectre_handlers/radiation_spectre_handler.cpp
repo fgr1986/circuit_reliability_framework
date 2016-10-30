@@ -348,7 +348,7 @@ bool RadiationSpectreHandler::ReorderMetrics( const std::string& spectreResultTr
 	bool partialResult = rfp.PrepProcessTransientMetrics( &unsorted_metrics_2be_found,
 		&metrics_2be_found, spectreResultTrans, spectreLog );
 	// debug
-	log_io->ReportCyanStandard( "Sorted Metrics to be found" );
+	log_io->ReportCyanStandard( "Sorted Metrics to be found:" );
 	for( auto const& m : metrics_2be_found){
 		if( m->is_transient_magnitude() ){
 			log_io->ReportPlainStandard( m->get_name() + " is a transient metric" );
@@ -365,7 +365,6 @@ bool RadiationSpectreHandler::ReorderMetrics( const std::string& spectreResultTr
 			}
 		}
 	}
-	log_io->ReportRedStandard( "[debug fgarcia]" + number2String(metrics_2be_found.size()) + " " + number2String(unsorted_metrics_2be_found.size()) );
 	// free memory
 	deleteContentsOfVectorOfPointers( unsorted_metrics_2be_found );
 	return partialResult;

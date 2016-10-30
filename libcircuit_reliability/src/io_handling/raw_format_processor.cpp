@@ -351,59 +351,59 @@ bool RAWFormatProcessor::PrepProcessTransientMetrics( std::vector<Metric*>* unso
 			break;
 		}
 	}
-	if(!hasOceanEvalMetrics){
-		log_io->ReportPlain2Log( k2Tab + "No oceanEvalMetics" );
-		return correctly_processed;
-	}
-	// ocean eval like metrics
-	std::ifstream file2( spectreLog );
-	bool valueReady = false;
-	try {
-		if ( file2 && file2.is_open() && file2.good() ) {
-			#ifdef PSFASCII_VERBOSE
-				log_io->ReportPlain2Log( k2Tab + "File " + spectreLog + " opened" );
-			#endif
-			// File parsing, wait till kOceanEvalExportWord (export oceanEvals)
-			while( !valueReady && getline(file2, currentReadLine) ) {
-				valueReady = kOceanEvalExportWord1.compare(currentReadLine)== 0 ||
-					kOceanEvalExportWord2.compare(currentReadLine)== 0;
-			}
-			if( !valueReady ){
-				log_io->ReportError2AllLogs( "Exception, end of file and '" + kOceanEvalExportWord1 + "' was not found in  " + spectreLog );
-				correctly_processed = false;
-				throw std::invalid_argument( "Exception, end of file and '" + kOceanEvalExportWord1 + "' was not found in  " + spectreLog  );
-			}
-			std::vector<std::string> lineTockensSpaces;
-			for( auto const& m: *unsortedMags){
-				if( !m->is_transient_magnitude() ){
-					if( getline(file2, currentReadLine) ) {
-						lineTockensSpaces.clear();
-						boost::split(lineTockensSpaces, currentReadLine, boost::is_any_of("="), boost::token_compress_on);
-						auto pOceanEvalMag = static_cast<OceanEvalMetric*>( m );
-						std::string auxString = lineTockensSpaces.at(0);
-						boost::algorithm::trim(auxString);
-						if( auxString.compare( pOceanEvalMag->get_name() )!=0 ){
-							log_io->ReportError2AllLogs( "Exception, mag '" + pOceanEvalMag->get_name() + "' is not '" + lineTockensSpaces.at(0) + "'" );
-							correctly_processed = false;
-							throw std::invalid_argument( "Exception, mag '" + pOceanEvalMag->get_name() + "' is not '" + lineTockensSpaces.at(0) + "'" );
+	// process them
+	if( hasOceanEvalMetrics ){
+		log_io->ReportPlain2Log( k2Tab + "OceanEvalMetics" );
+		// ocean eval like metrics
+		std::ifstream file2( spectreLog );
+		bool valueReady = false;
+		try {
+			if ( file2 && file2.is_open() && file2.good() ) {
+				#ifdef PSFASCII_VERBOSE
+					log_io->ReportPlain2Log( k2Tab + "File " + spectreLog + " opened" );
+				#endif
+				// File parsing, wait till kOceanEvalExportWord (export oceanEvals)
+				while( !valueReady && getline(file2, currentReadLine) ) {
+					valueReady = kOceanEvalExportWord1.compare(currentReadLine)== 0 ||
+						kOceanEvalExportWord2.compare(currentReadLine)== 0;
+				}
+				if( !valueReady ){
+					log_io->ReportError2AllLogs( "Exception, end of file and '" + kOceanEvalExportWord1 + "' was not found in  " + spectreLog );
+					correctly_processed = false;
+					throw std::invalid_argument( "Exception, end of file and '" + kOceanEvalExportWord1 + "' was not found in  " + spectreLog  );
+				}
+				std::vector<std::string> lineTockensSpaces;
+				for( auto const& m: *unsortedMags){
+					if( !m->is_transient_magnitude() ){
+						if( getline(file2, currentReadLine) ) {
+							lineTockensSpaces.clear();
+							boost::split(lineTockensSpaces, currentReadLine, boost::is_any_of("="), boost::token_compress_on);
+							auto pOceanEvalMag = static_cast<OceanEvalMetric*>( m );
+							std::string auxString = lineTockensSpaces.at(0);
+							boost::algorithm::trim(auxString);
+							if( auxString.compare( pOceanEvalMag->get_name() )!=0 ){
+								log_io->ReportError2AllLogs( "Exception, mag '" + pOceanEvalMag->get_name() + "' is not '" + lineTockensSpaces.at(0) + "'" );
+								correctly_processed = false;
+								throw std::invalid_argument( "Exception, mag '" + pOceanEvalMag->get_name() + "' is not '" + lineTockensSpaces.at(0) + "'" );
+							}
+							sortedMags->push_back( new OceanEvalMetric(*pOceanEvalMag) );
+							sortedMags->back()->set_found_in_results( true );
+						}else{
+							log_io->ReportError2AllLogs( "Exception, end of file" );
+					 		correctly_processed = false;
+							throw std::invalid_argument( "Exception, unexpected end of file" );
 						}
-						sortedMags->push_back( new OceanEvalMetric(*pOceanEvalMag) );
-						sortedMags->back()->set_found_in_results( true );
-					}else{
-						log_io->ReportError2AllLogs( "Exception, end of file" );
-				 		correctly_processed = false;
-						throw std::invalid_argument( "Exception, unexpected end of file" );
-					}
-				} // end OceanEvalMetric
-			} // end of metrics
-		} // end is good and open
-	}catch (std::exception const& ex) {
-		std::string ex_what = ex.what();
-		log_io->ReportError2AllLogs( "Exception while parsing the file: ex-> " + ex_what );
- 		correctly_processed = false;
+					} // end OceanEvalMetric
+				} // end of metrics
+			} // end is good and open
+		}catch (std::exception const& ex) {
+			std::string ex_what = ex.what();
+			log_io->ReportError2AllLogs( "Exception while parsing the file: ex-> " + ex_what );
+	 		correctly_processed = false;
+		}
+		// close file
+		file2.close();
 	}
-	// close file
-	file2.close();
 	if( !correctly_processed || sortedMags->size()!=unsortedMags->size() ){
 		log_io->ReportError2AllLogs( "Exception: not all metrics where found!!" );
 		correctly_processed = false;

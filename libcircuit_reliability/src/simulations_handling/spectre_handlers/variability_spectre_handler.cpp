@@ -250,7 +250,7 @@ bool VariabilitySpectreHandler::ReorderMetrics( const std::string& spectreResult
 	bool partialResult = rfp.PrepProcessTransientMetrics( &unsorted_metrics_2be_found,
 		&metrics_2be_found, spectreResultTrans, spectreLog );
 	// debug
-	log_io->ReportCyanStandard( "Sorted Metrics to be found" );
+	log_io->ReportCyanStandard( "Sorted Metrics to be found:" );
 	for( auto const& m : metrics_2be_found){
 		if( m->is_transient_magnitude() ){
 			log_io->ReportPlainStandard( m->get_name() + " is a transient metric" );
