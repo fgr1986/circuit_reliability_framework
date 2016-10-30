@@ -85,8 +85,7 @@ void MontecarloSimulation::RunSimulation( ){
 	// RunSpectreMC
 	int auxSpectreResult = RunSpectre( simulation_id );
 	montecarlo_simulation_results.set_spectre_result( auxSpectreResult );
-	// foreach ....
-	log_io->ReportGreenStandard( k2Tab + "#" + simulation_id + " scenario: Processing results" );
+	// Transients processing
 	for( auto const &ps : *(montecarlo_simulations_vector.get_spectre_simulations()) ){
 		StandardSimulation* pSS = dynamic_cast<StandardSimulation*>( ps );
 		pSS->ProcessMetricsFromExt( auxSpectreResult );
@@ -96,9 +95,9 @@ void MontecarloSimulation::RunSimulation( ){
 		log_io->ReportPlainStandard( k2Tab + "[montecarlo_simulation] Generating Map files " + simulation_id);
 	#endif
 	// check if every simulation ended correctly
-	correctly_simulated = montecarlo_simulations_vector.CheckCorrectlySimulated();
+	// montecarlo_simulation_results.set_spectre_result( correctly_simulated );
+	// correctly_simulated = montecarlo_simulations_vector.CheckCorrectlySimulated();
 	correctly_processed = montecarlo_simulations_vector.CheckCorrectlyProcessed();
-	montecarlo_simulation_results.set_spectre_result( correctly_simulated );
 	if( auxSpectreResult == kNotDefinedInt ){
 		 log_io->ReportError2AllLogs( k2Tab + "->[montecarlo_simulation] Error in AnalyzeMontecarloResults()" );
 		 return;
@@ -278,7 +277,7 @@ bool MontecarloSimulation::AnalyzeMontecarloResults(){
 			// last transient results
 			auto tr = pSS->get_basic_simulation_results();
 			if(tr==nullptr){ // double check
-				log_io->ReportError2AllLogs( "[fgarcia-debug] pSS->get_last_valid_transient_simulation_results() is null: " + pSS->get_simulation_id() );
+				log_io->ReportError2AllLogs( "pSS->get_last_valid_transient_simulation_results() is null: " + pSS->get_simulation_id() );
 				break; // break for
 			}
 			// compute statistics
@@ -291,9 +290,9 @@ bool MontecarloSimulation::AnalyzeMontecarloResults(){
 			unsigned int oceanEvalCount = 0;
 			// fgarcia
 			if( tr->get_metrics_errors()->size() != analyzedMetrics->size() ){
-				log_io->ReportError2AllLogs( "[fgarcia-debug] tr->get_metrics_errors()->size() != analyzedMetrics->size(), sim" + pSS->get_simulation_id());
-				log_io->ReportError2AllLogs( "[fgarcia-debug] tr->get_metrics_errors()->size(): " + number2String(tr->get_metrics_errors()->size()) );
-				log_io->ReportError2AllLogs( "[fgarcia-debug] analyzedMetrics->size(): " + number2String(analyzedMetrics->size()) );
+				log_io->ReportError2AllLogs( "tr->get_metrics_errors()->size() != analyzedMetrics->size(), sim" + pSS->get_simulation_id());
+				log_io->ReportError2AllLogs( "tr->get_metrics_errors()->size(): " + number2String(tr->get_metrics_errors()->size()) );
+				log_io->ReportError2AllLogs( "analyzedMetrics->size(): " + number2String(analyzedMetrics->size()) );
 			}
 			for( auto const &me : *(tr->get_metrics_errors()) ){
 				// ocean_eval_metrics

@@ -62,6 +62,7 @@ void StandardSimulation::RunSimulation( ){
 void StandardSimulation::ProcessMetricsFromExt( const int spectreResult ){
 	InitBasicSimulationResults();
 	basic_simulation_results.set_spectre_result( spectreResult );
+	correctly_simulated = true;
 	ProcessMetrics();
 }
 
