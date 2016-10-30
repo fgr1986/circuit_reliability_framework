@@ -22,14 +22,15 @@
 	* if () { statements } else { statementd }
 * New model parsing scheme: Group of models:
 
-# Changelog of version 3.3.1
-* Fixed **seed** and **firstrun** parameters in MC analyses: *p_firstrun* and *p_seed* are required for MC analyses.
-* Improved **MontecarloNDParametersSweepSimulation**:
-	* Improvement in *candlesticks* plots
+# Changelog of version 3.3.2 and 3.3.2b
+* Tidying up
 
 # Version 3.x.y
 
 ## Version 3.2.y
+
+* Changelog of version 3.3.2 and 3.3.2b
+	* Tidying up
 
 * Changelog of version 3.3.1
 	* Fixed **seed** and **firstrun** parameters in MC analyses: *p_firstrun* and *p_seed* are required for MC analyses.
