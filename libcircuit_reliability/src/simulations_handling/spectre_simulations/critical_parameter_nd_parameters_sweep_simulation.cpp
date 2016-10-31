@@ -365,11 +365,14 @@ bool CriticalParameterNDParameterSweepSimulation::GenerateAndPlotGeneralResults(
 			<< " #MAG_i_name #MAG_i_maxErrorMetric #MAG_i_maxErrorGlobal\n";
 		gnuplotSpectreErrorMapFile << "#profCount #Profile #SpectreError \n";
 		unsigned int profileCount = 0;
+		bool severalSweepParameter = parameters2sweep.size()>1;
+		auto sweepParameter = parameters2sweep.at(0);
 		for( auto const &simulation : *(critical_parameter_value_simulations_vector.get_spectre_simulations()) ){
 			CriticalParameterValueSimulation* convSim = dynamic_cast<CriticalParameterValueSimulation*>(simulation);
 			std::string auxIndexes = getIndexCode( auxiliarIndexes );
 			std::string auxSpectreError = convSim->get_correctly_simulated() ? "0" : "1";
-			gnuplotMapFile << std::defaultfloat << profileCount << " " << auxIndexes << " " << convSim->get_critical_parameter_value();
+			gnuplotMapFile << std::defaultfloat << ( severalSweepParameter ? profileCount : sweepParameter->GetSweepValue(profileCount) )
+				<< " " << auxIndexes << " " << convSim->get_critical_parameter_value();
 			maxCritCharge = convSim->get_critical_parameter_value()>maxCritCharge ? convSim->get_critical_parameter_value() : maxCritCharge;
 			// mag errors
 			auto magErrors = convSim->get_last_valid_transient_simulation_results()->get_metrics_errors();

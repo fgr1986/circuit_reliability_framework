@@ -541,7 +541,9 @@ bool SpectreSimulation::InterpolateAndAnalyzeMagnitude( TransientSimulationResul
 			if ( !simulatedMagnitude.get_analyze_error_in_time() ) {
 				if ( CheckError( simulatedMagnitude, currentSimulatedValue, currentGoldenValue,
 						currentMetricError, absErrorMargin ) ) {
-					metricErrors->AddErrorTiming( number2String(currentTime), "");
+					if( !reliabilityError || export_metric_errors ){
+						metricErrors->AddErrorTiming( number2String(currentTime), "");
+					}
 					reliabilityError = true;
 					metricError = true;
 					updateMaxAbsError = true;
@@ -556,13 +558,17 @@ bool SpectreSimulation::InterpolateAndAnalyzeMagnitude( TransientSimulationResul
 			}else{
 				if ( CheckError( simulatedMagnitude, currentSimulatedValue, currentGoldenValue, currentMetricError, absErrorMargin ) ) {
 					if( onGoingError ){
+						// if ongoing and it exceed the error defined duration
 						if ( currentTime - errorInit > absErrorTimeSpan ) {
 							if( !reliabilityError ){
 								VerboseReliabilityError( "non punctual error", transientSimulationResults, partialId, simulatedMagnitude.get_name(),
 									currentTime, currentMetricError, currentSimulatedValue, currentGoldenValue, backSimulatedValue, backGoldenValue,
 									itSimulatedMetric, itGoldenMetric );
 							}
-							metricErrors->AddErrorTiming( number2String(errorInit), number2String(currentTime));
+							// only add error once per on going error
+							if( !reliabilityError || export_metric_errors ){
+								metricErrors->AddErrorTiming( number2String(currentTime), "");
+							}
 							reliabilityError = true;
 							metricError = true;
 							updateMaxAbsError = true;
@@ -576,22 +582,22 @@ bool SpectreSimulation::InterpolateAndAnalyzeMagnitude( TransientSimulationResul
 						errorInit = currentTime;
 						#ifdef RESULTS_ANALYSIS_VERBOSE
 							log_io->ReportPlain2Log( k2Tab + "[POSIBLE RELIABILITY ERROR*] #" + partialId + " Scenario, #" + transientSimulationResults.get_full_id()
-								+ " variation. Found reliability error at time=" + number2String(currentTime) + ". Analyzing if it is only punctual" );
+								+ " variation. Error found at time=" + number2String(currentTime) + ". Analyzing if it is only punctual" );
 						#endif
 					}
 				}else if( onGoingError ) {
 					#ifdef RESULTS_ANALYSIS_VERBOSE
-					log_io->ReportPlain2Log( k2Tab + " #" + partialId + " Scenario, #" + transientSimulationResults.get_full_id() + " variation. Ongoing reliability error fixed at " + number2String(currentTime) );
+					log_io->ReportPlain2Log( k2Tab + "[POSIBLE RELIABILITY ERROR RECOVERED] #" + partialId + " Scenario, #" + transientSimulationResults.get_full_id() + " variation. Ongoing reliability error fixed at " + number2String(currentTime) );
 					#endif
 					onGoingError = false;
 				}
-			}
-
+			} // end of error if else block
 			// Max Abs Error
 			if( updateMaxAbsError && maxAbsError<currentMetricError ){
 				maxAbsError = currentMetricError;
 			}
 		} // end of while
+		// Interpolation error check
 		if(interpolationError){
 			log_io->ReportError2AllLogs( "-> #" + partialId + " Interpolation error at metric " + simulatedMagnitude.get_name());
 			metricErrors->set_has_errors( true );

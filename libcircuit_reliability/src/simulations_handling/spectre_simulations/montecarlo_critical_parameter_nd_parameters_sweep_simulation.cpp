@@ -526,6 +526,8 @@ bool MontecarloCriticalParameterNDParametersSweepSimulation::GenerateAndPlotGene
 			<< "#MAG_i_medianMaxErrorMetric q12 q34 MAG_i_maxMaxErrorGlobal MAG_i_minMaxErrorGlobal MAG_i_meanMaxErrorGlobal\n";
 		gnuplotSpectreErrorMapFile << "#profileCount #Profile SpectreError \n";
 		unsigned int profileCount = 0;
+		bool severalSweepParameter = parameters2sweep.size()>1;
+		auto sweepParameter = parameters2sweep.at(0);
 		std::string auxIndexes;
 		std::string auxSpectreError;
 		for( auto const &simulation : *(montecarlo_critical_parameter_value_simulations_vector.get_spectre_simulations()) ){
@@ -534,7 +536,8 @@ bool MontecarloCriticalParameterNDParametersSweepSimulation::GenerateAndPlotGene
 			auxSpectreError = mcSSim->get_correctly_simulated() ? "0" : "1";
 			auto auxMCResults = mcSSim->get_montecarlo_simulation_results();
 			auto currentMaxCritParamValue = auxMCResults->get_max_critical_parameter_value();
-			gnuplotMapFile << std::defaultfloat << profileCount << " " << auxIndexes << " " << currentMaxCritParamValue
+			gnuplotMapFile << std::defaultfloat << ( severalSweepParameter ? profileCount : sweepParameter->GetSweepValue(profileCount) )
+				<< " " << auxIndexes << " " << currentMaxCritParamValue
 				<< " " << auxMCResults->get_min_critical_parameter_value() << " " << auxMCResults->get_mean_critical_parameter_value();
 			// update maxCritParamValue
 			maxCritParamValue = currentMaxCritParamValue>maxCritParamValue ? currentMaxCritParamValue : maxCritParamValue;

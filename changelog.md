@@ -22,13 +22,21 @@
 	* if () { statements } else { statementd }
 * New model parsing scheme: Group of models:
 
-# Changelog of version 3.3.2 and 3.3.2b
+# Changelog of version 3.3.3
 * Tidying up
 * Fixed shorting metrics algorithm
+* Fixed some checking error bugs
+* Fixed 'x' axis labels with only one parameter sweet.
 
 # Version 3.x.y
 
 ## Version 3.2.y
+
+* Changelog of version 3.3.3
+	* Tidying up
+	* Fixed shorting metrics algorithm
+	* Fixed some checking error bugs
+	* Fixed 'x' axis labels with only one parameter sweet. 
 
 * Changelog of version 3.3.2 and 3.3.2b
 	* Tidying up

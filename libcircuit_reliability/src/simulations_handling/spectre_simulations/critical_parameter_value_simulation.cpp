@@ -445,9 +445,9 @@ int CriticalParameterValueSimulation::RunSpectre(
 		+ " " + post_spectre_command + " " + currentFolder + kFolderSeparator + kSpectreStandardLogsFile ;
 	#ifdef SPECTRE_SIMULATIONS_VERBOSE
 	log_io->ReportPlainStandard( k2Tab + "#" + localSimulationId + " scenario: Simulating scenario."
-		" Parameter change #" + parameterChangeCount );
+		" Parameter change #" + number2String( parameterChangeCount ) );
 	log_io->ReportPlain2Log( k2Tab + "#" + localSimulationId + " scenario: Simulating scenario."
-		" Parameter change #" + parameterChangeCount + "exec:'" + execCommand + "'" );
+		" Parameter change #" + number2String( parameterChangeCount ) + "exec:'" + execCommand + "'" );
 	#endif
 	int spectre_result = std::system( execCommand.c_str() ) ;
 	if(spectre_result>0){
@@ -467,7 +467,7 @@ int CriticalParameterValueSimulation::RunSpectre(
 	correctly_simulated = true;
 	#ifdef SPECTRE_SIMULATIONS_VERBOSE
 	log_io->ReportGreenStandard( k2Tab + "#" + localSimulationId + " scenario: ENDED."
-		" Parameter change #" + parameterChangeCount + ", spectre_result=" + number2String(spectre_result) );
+		" Parameter change #" + number2String( parameterChangeCount ) + ", spectre_result=" + number2String(spectre_result) );
 	#endif
 	return spectre_result;
 }
