@@ -82,6 +82,12 @@ void GoldenNDParametersSweepSimulation::RunSimulation(){
 	for( auto const &p : parameters2sweep ){
 		totalThreads = totalThreads*p->get_sweep_steps_number();
 	}
+	if( totalThreads<3 ){
+		log_io->ReportError2AllLogs( "No sweept parameter, threads:" + number2String(totalThreads) );
+		correctly_simulated = false;
+		correctly_processed = false;
+		return;
+	}
 	log_io->ReportThread( "Total threads to be simulated: " + number2String(totalThreads) + ". Max number of sweep threads: " + number2String(max_parallel_profile_instances), 1 );
 
 	auto parameterSimulationIndexes2Simulate = GetGoldenProfiles2Simulate( parameters2sweep );
