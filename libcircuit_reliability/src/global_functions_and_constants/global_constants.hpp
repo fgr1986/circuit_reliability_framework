@@ -34,7 +34,7 @@ static const double kSpectreMaxAllowedSimDiffCoeff = 2e-10;
 static const std::string kSpectreHandlerLibTitle = "Circuit Reliability Framework";
 static const std::string kSpectreHandlerLibVersion = "v3.3.3";
 static const std::string kAuthor = "Fernando García, fgarcia@die.upm.es";
-static const std::string kSpectreHandlerLibVersionDate = "31/10/2016";
+static const std::string kSpectreHandlerLibVersionDate = "09/11/2016";
 
 // Remove windows special chars
 static const std::string kWindowsEOL = "\r";

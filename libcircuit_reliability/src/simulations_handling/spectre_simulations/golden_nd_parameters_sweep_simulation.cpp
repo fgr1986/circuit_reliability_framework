@@ -82,7 +82,7 @@ void GoldenNDParametersSweepSimulation::RunSimulation(){
 	for( auto const &p : parameters2sweep ){
 		totalThreads = totalThreads*p->get_sweep_steps_number();
 	}
-	if( totalThreads<3 ){
+	if( totalThreads<2 ){
 		log_io->ReportError2AllLogs( "No sweept parameter, threads:" + number2String(totalThreads) );
 		correctly_simulated = false;
 		correctly_processed = false;

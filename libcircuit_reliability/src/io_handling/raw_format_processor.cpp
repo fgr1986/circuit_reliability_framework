@@ -274,6 +274,23 @@ bool RAWFormatProcessor::ProcessPSFASCII(){
 	}
 	// close file
 	file.close();
+	// test lengths:
+	unsigned int firstSize = 0;
+	unsigned int magSize = 0;
+	for( auto const& m : *metrics ){
+		if( m->is_transient_magnitude() ){
+			if( firstSize==0 ){
+				firstSize = (static_cast<Magnitude*>(m))->get_values()->size();
+			}
+			magSize = (static_cast<Magnitude*>(m))->get_values()->size();
+			if( firstSize!= magSize ){
+				log_io->ReportError2AllLogs( "Magnitudes sizes inconsistent. Magnitude " + m->get_name()
+					+ " has " + number2String(magSize) + " points compared to time with " + number2String(firstSize));
+				correctly_processed = false;
+			}
+		}
+	}
+
 	// Test
 	#ifdef PSFASCII_VERBOSE
 		log_io->ReportPlain2Log( kLongDelimiter );

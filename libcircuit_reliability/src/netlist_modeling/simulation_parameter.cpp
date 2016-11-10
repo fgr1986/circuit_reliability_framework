@@ -83,7 +83,7 @@ SimulationParameter::~SimulationParameter() {
 
 
 bool SimulationParameter::get_allow_sweep() {
-	return !fixed && !allow_find_critical_value && sweep_steps_number > 2;
+	return !fixed && !allow_find_critical_value && sweep_steps_number >= 2;
 }
 
 
