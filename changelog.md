@@ -23,6 +23,7 @@
 * New model parsing scheme: Group of models:
 
 # Changelog of version 3.3.3
+* Changed *simulation_modes_analysis* to *simulation_analysis_modes*
 * Tidying up
 * Fixed shorting metrics algorithm
 * Fixed some checking error bugs
@@ -36,7 +37,7 @@
 	* Tidying up
 	* Fixed shorting metrics algorithm
 	* Fixed some checking error bugs
-	* Fixed 'x' axis labels with only one parameter sweet. 
+	* Fixed 'x' axis labels with only one parameter sweet.
 
 * Changelog of version 3.3.2 and 3.3.2b
 	* Tidying up

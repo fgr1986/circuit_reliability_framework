@@ -51,7 +51,7 @@ void MontecarloCriticalParameterNDParametersSweepSimulation::RunSimulation( ){
 	}
 	// montecarlo_iterations defined in radiation_handler.
 	// Update numruns in MC analyses
-	auto numRunParameter = new SimulationParameter( kMCNumRunsParamName, "1",
+	auto numRunParameter = new SimulationParameter( kMCNumRunsParamName, kMCIterationsParamName,
 		true, kNotDefinedInt, kNotDefinedInt, kNotDefinedInt, kNotDefinedInt, kNotDefinedInt );
 	AddAdditionalSimulationParameter( numRunParameter );
 	log_io->ReportPurpleStandard( "MC numruns set to:" + numRunParameter->get_value() );

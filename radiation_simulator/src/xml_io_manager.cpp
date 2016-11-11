@@ -358,7 +358,7 @@ bool XMLIOManager::ReadExperimentXML( const std::string &xmlExperiment, int& sta
 		// Analysis modes
 		// Standard simulation mode
 		log_io->ReportPlainStandard( kTab + "Standard Simulation. XML entry:" + kStandardModeWord );
-		boost::property_tree::ptree pAvailableAnalysis = ptExperiment.get_child( "root.simulation_modes_analysis");
+		boost::property_tree::ptree pAvailableAnalysis = ptExperiment.get_child( "root.simulation_analysis_modes");
 		if( !ProcessSimulationMode( pAvailableAnalysis, kStandardModeWord,
 			*simulationModesHandler.get_standard_simulation_mode(), statementCounter, simulationAnalysisFound ) ){
 			log_io->ReportError2AllLogs( "Error processing standard analysis in experiment conf file.");
@@ -556,7 +556,7 @@ bool XMLIOManager::ReadExperimentXML( const std::string &xmlExperiment, int& sta
 
 bool XMLIOManager::ProcessSimulationMode( boost::property_tree::ptree pAvailableAnalysis,
 	std::string simulationModeName, SimulationMode& simulationMode, int& statementCounter, bool& simulationAnalysisFound ){
-	// pAvailableAnalysis = "root.simulation_modes_analysis"
+	// pAvailableAnalysis = "root.simulation_analysis_modes"
 	if( pAvailableAnalysis.count( simulationModeName ) ){
 		boost::property_tree::ptree pAnalysisContainer = pAvailableAnalysis.get_child( simulationModeName );
 		log_io->ReportPlainStandard( kTab + "Processing " + simulationModeName);

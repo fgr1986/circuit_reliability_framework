@@ -347,11 +347,11 @@ bool XMLIOManager::ReadExperimentXML( const std::string &xmlExperiment, int& sta
 
 		// Analysis mode
 		bool simulationAnalysisFound = false;
-		boost::property_tree::ptree pAvailableAnalysis = ptExperiment.get_child( "root.simulation_modes_analysis");
+		boost::property_tree::ptree pAvailableAnalysis = ptExperiment.get_child( "root.simulation_analysis_modes");
 		log_io->ReportPlainStandard( kTab + "Montecarlo & Sweep Parameter Simulation Mode. XML entry:" + kMontecarloNDParametersSweepModeWord );
 		if( !ProcessSimulationMode( pAvailableAnalysis, kMontecarloNDParametersSweepModeWord,
 			*simulationModesHandler.get_montecarlo_nd_parameters_sweep_mode(), statementCounter, simulationAnalysisFound ) ){
-			log_io->ReportError2AllLogs( "Error processing Montecarlo 2d sweep analysis in experiment conf file.");
+			log_io->ReportError2AllLogs( "Error processing Montecarlo 2d sweep analysis in experiment conf file. Mode not found:" + kMontecarloNDParametersSweepModeWord );
 			return false;
 		}
 		// other analysis....
@@ -405,7 +405,7 @@ bool XMLIOManager::ReadExperimentXML( const std::string &xmlExperiment, int& sta
 
 bool XMLIOManager::ProcessSimulationMode( boost::property_tree::ptree pAvailableAnalysis,
 	std::string simulationModeName, SimulationMode& simulationMode, int& statementCounter, bool& simulationAnalysisFound ){
-	// pAvailableAnalysis = "root.simulation_modes_analysis"
+	// pAvailableAnalysis = "root.simulation_analysis_modes"
 	if( pAvailableAnalysis.count( simulationModeName ) ){
 		boost::property_tree::ptree pAnalysisContainer = pAvailableAnalysis.get_child( simulationModeName );
 		log_io->ReportPlainStandard( kTab + "Processing " + simulationModeName);
