@@ -7,7 +7,8 @@ echo "";
 echo "Deploy Framework. Version $RELIABILITY_FRAMEWORK_VERSION";
 TAR_EXTENSION=$RELIABILITY_FRAMEWORK_VERSION.tar.gz;
 
-DESTINATION_MACHINE=10.2.220.9
+# to be changed
+DESTINATION_MACHINE=IP
 RELIABILITY_FW_PATH=/home/fgarcia/ownCloud/workspace/c++/circuit_reliability_framework;
 BASH_ENVIRONMENT_CONF_PATH=/home/fgarcia/ownCloud/workspace/bash_environment_conf;
 

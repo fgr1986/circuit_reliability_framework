@@ -33,6 +33,9 @@
 
 ## Version 3.2.y
 
+* Changelog of version 3.3.4
+	* Tidying up
+
 * Changelog of version 3.3.3
 	* Tidying up
 	* Fixed shorting metrics algorithm

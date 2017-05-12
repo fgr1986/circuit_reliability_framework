@@ -455,6 +455,11 @@ bool MontecarloCriticalParameterNDParametersSweepSimulation::GenerateAndPlotItem
 	try {
 		gnuplotMapFile.open( gnuplotMapFilePath.c_str() );
 		gnuplotMapFile.setf(std::ios::scientific);
+		gnuplotMapFile << "# Planes' Indexes: ";
+		for( auto& pIndex : profileIndexesInPlane ){
+			gnuplotMapFile << pIndex << " ";
+		}
+		gnuplotMapFile << "\n\n";
 		gnuplotMapFile << "#" << p1->get_name() << " " << p2->get_name() << " "
 			<< golden_critical_parameter->get_name() << "(max, min and mean)"
 			<<" MAG_i_name MAG_i_maxErrorMetric MAG_i_minErrorMetric "

@@ -362,7 +362,7 @@ bool MontecarloNDParametersSweepSimulation::GenerateAndPlotParameterPairResults(
 		+ "-" + parameters2sweep.at(p2Index)->get_name() );
 	#endif
 	bool partialResults = true;
-	auto planes = GetPlanesForParams( p1Index, p2Index, parameters2sweep);
+	auto planes = GetPlanesForParams( p1Index, p2Index, parameters2sweep );
 	unsigned int itemizedCount = 0;
 	PlaneResultsStructure* planeStructure = new PlaneResultsStructure();
 	// resize and reserve memory
@@ -428,6 +428,11 @@ bool MontecarloNDParametersSweepSimulation::GenerateAndPlotItemizedPlane(
 	try {
 		gnuplotMapFile.open( gnuplotMapFilePath.c_str() );
 		gnuplotMapFile.setf(std::ios::scientific);
+		gnuplotMapFile << "# Planes' Indexes: ";
+		for( auto& pIndex : profileIndexesInPlane ){
+			gnuplotMapFile << pIndex << " ";
+		}
+		gnuplotMapFile << "\n\n";
 		gnuplotMapFile << "#" << p1->get_name() << " " << p2->get_name() << " Upset_Ratio"
 			<< "\n# metric_name  max_error_metric min_error_metric mean_max_error_metric"
 			<< "\n# median_max_error_metric  q12_max_error_metric q34_max_error_metric "
