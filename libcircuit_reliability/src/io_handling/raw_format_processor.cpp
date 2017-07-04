@@ -240,6 +240,7 @@ bool RAWFormatProcessor::ProcessPSFASCII(){
 			auto it_end = metrics->end();
 			std::vector<std::string> lineTockensSpaces;
 			while( getline(file, currentReadLine) ) {
+				std::cout << currentReadLine << "\n";
 				if( currentReadLine.compare(kPSFAsciiEndWord)==0 ){
 					break; // end of tran.tran
 				}
@@ -286,6 +287,7 @@ bool RAWFormatProcessor::ProcessPSFASCII(){
 			if( firstSize!= magSize ){
 				log_io->ReportError2AllLogs( "Magnitudes sizes inconsistent. Magnitude " + m->get_name()
 					+ " has " + number2String(magSize) + " points compared to time with " + number2String(firstSize));
+				log_io->ReportError2AllLogs( "Posible solution: in the configuration file YOU MUST SAVE EXPLICITLY a voltage magnitude. Otherwise Spectre saves all public voltages and currents giving this error");
 				correctly_processed = false;
 			}
 		}
